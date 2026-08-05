@@ -2,255 +2,255 @@
 % APPENDIX A: ARA Protocol and Design Rationale
 % ============================================================
 
-\section{ARA Protocol and Design Rationale}
+\section{ARA 协议与设计原理}
 \label{app:protocol-details}
 
-This appendix consolidates the full protocol specification, design rationale, and validation details for the \ara{} format.
+本附录汇集了\ara{}格式的完整协议规范、设计原理和验证细节。
 
 % ------------------------------------------------------------
-\subsection{Taxonomy of Reproduction-Critical Information}
+\subsection{复现关键信息分类体系}
 \label{app:taxonomy}
 
-To understand \emph{what} information an agent needs to reproduce a paper---and where PDFs fall short---we analyze the expert-authored rubrics from PaperBench~\citep{starace2025paperbench}, a benchmark that evaluates AI agents on full paper reproduction.
-Each rubric decomposes a paper into atomic \emph{leaf requirements}: individually verifiable conditions that collectively constitute a faithful reproduction.
-\textbf{Scope.} The taxonomy below is derived from a deeply annotated 5-paper subset (3{,}050 leaves), chosen for tractability of fine-grained category labeling; the coarser per-task-category and gap-type frequencies reported in \S\ref{sec:eval-understanding} and Appendix~\ref{app:gap-types} are validated on the full 23-paper corpus (8{,}921 requirements). The subset spans diverse domains---black-box LLM adaptation (BBox), mechanistic interpretability, continual RL (Self-Composing Policies), physics-informed neural networks (PINN), and foundation models for RL (FRE).
+为了理解智能体复现一篇论文\emph{需要什么}信息——以及PDF在哪些方面存在不足——我们分析了PaperBench~\citep{starace2025paperbench}中由专家编写的评分标准。PaperBench是一个评估AI智能体完整论文复现能力的基准测试。
+每个评分标准将一篇论文分解为原子性的\emph{叶子需求}：即可独立验证的条件，这些条件的集合构成一次忠实的复现。
+\textbf{范围说明。}以下分类体系源自一个经过深度标注的5篇论文子集（3{,}050个叶子节点），选择该子集是为了在细粒度类别标注的可操作性方面取得平衡；\S\ref{sec:eval-understanding}和附录~\ref{app:gap-types}中报告的较粗粒度的按任务类别和缺口类型分布的频率，则在完整的23篇论文语料库（8{,}921个需求）上得到验证。该子集涵盖多个不同领域——黑盒LLM适应（BBox）、机制可解释性、持续RL（自组合策略）、物理信息神经网络（PINN）以及基于基础模型的RL（FRE）。
 
-By categorizing every leaf into a taxonomy of information types, we reveal both the \emph{diversity} of knowledge needed for reproduction and the specific failure modes that arise when this knowledge is scattered across a narrative PDF rather than organized in a structured artifact.
+通过将每个叶子节点归类到一个信息类型分类体系中，我们揭示了复现所需知识的\emph{多样性}，以及当这些知识散落于叙事性PDF中而非组织在结构化构件中时所产生的具体失败模式。
 
-\subsubsection{Information Categories}
+\subsubsection{信息类别}
 
-We identify ten categories of reproduction-critical information.
-Table~\ref{tab:taxonomy} summarizes the categories with their frequency distribution across our analyzed rubrics.
+我们识别出十类复现关键信息。
+表~\ref{tab:taxonomy}总结了各类别及其在分析评分标准中的频率分布。
 
 \begin{table*}[h]
 \centering
 \small
 \begin{tabular}{p{3.2cm}rp{3.6cm}l}
 \toprule
-\textbf{Category} & \textbf{\%} & \textbf{PDF Difficulty} & \textbf{\ara{} Layer} \\
+\textbf{类别} & \textbf{百分比} & \textbf{PDF中的困难} & \textbf{\ara{} 层} \\
 \midrule
-Combinatorial experiment matrix & 24.1 & Implicit in prose & \texttt{experiments.md} \\
-Evaluation protocol & 18.5 & Scattered across \S, appendix & \texttt{experiments.md} \\
-Hyperparameters & 17.2 & Buried in appendix tables & \texttt{configs/training.md} \\
-Metric logging & 10.4 & Rarely specified & \texttt{experiments.md} \\
-Result interpretation & 8.6 & Mixed with discussion & \texttt{claims.md}, \texttt{evidence/} \\
-Architecture specification & 5.8 & Split across text, figures, appendix & \texttt{architecture.md} \\
-Mathematical formulation & 4.5 & Equation references break across sections & \texttt{algorithm.md} \\
-Implementation tricks & 4.2 & Footnotes, appendix asides & \texttt{heuristics.md} \\
-Data pipeline & 3.8 & Preprocessing details omitted & \texttt{configs/}, \texttt{environment.md} \\
-Environment / infrastructure & 2.9 & Assumed known & \texttt{environment.md} \\
+组合实验矩阵 & 24.1 & 隐含在行文中 & \texttt{experiments.md} \\
+评估方案 & 18.5 & 分散在各节和附录中 & \texttt{experiments.md} \\
+超参数 & 17.2 & 埋藏在附录表格中 & \texttt{configs/training.md} \\
+指标记录 & 10.4 & 很少明确说明 & \texttt{experiments.md} \\
+结果解读 & 8.6 & 与讨论混在一起 & \texttt{claims.md}, \texttt{evidence/} \\
+架构规范 & 5.8 & 拆分在正文、图表和附录中 & \texttt{architecture.md} \\
+数学公式 & 4.5 & 公式引用跨节断裂 & \texttt{algorithm.md} \\
+实现技巧 & 4.2 & 脚注、附录旁注 & \texttt{heuristics.md} \\
+数据流水线 & 3.8 & 预处理细节被省略 & \texttt{configs/}, \texttt{environment.md} \\
+环境/基础设施 & 2.9 & 被视为已知 & \texttt{environment.md} \\
 \bottomrule
 \end{tabular}
-\caption{Taxonomy of reproduction-critical information in PaperBench rubrics. Frequency is computed across 3{,}050 leaf requirements from five papers. The ``PDF Difficulty'' column characterizes the primary challenge of extracting this information from a narrative PDF. The ``\ara{} Layer'' column identifies which \ara{} component directly addresses each category.}
+\caption{PaperBench评分标准中的复现关键信息分类体系。频率基于5篇论文的3{,}050个叶子需求计算得出。"PDF中的困难"列描述了从叙事型PDF中提取此类信息的主要挑战。"\ara{} 层"列指出了直接处理每个类别的\ara{}组件。}
 \label{tab:taxonomy}
 \end{table*}
 
-Below we define each category, give concrete examples drawn from the PaperBench rubrics, and explain how \ara{}'s structure addresses the underlying retrieval challenge.
+下面我们定义每个类别，给出从PaperBench评分标准中抽取的具体示例，并解释\ara{}的结构如何应对底层的检索挑战。
 
-\paragraph{1. Combinatorial experiment matrix (24.1\%).}
-The single largest category consists of requirements that enumerate which model variant must be run on which dataset, with which configuration, for how many seeds.
-In PDFs, this combinatorial structure is compressed into a single sentence (``We evaluate all methods on three task sequences with 10 seeds each'') or a results table whose row/column headers implicitly define the cross-product.
-An agent must mentally decompose the matrix to know, e.g., that ``CompoNet on Freeway, 10 seeds, 1M timesteps per task'' is a distinct run.
+\paragraph{1. 组合实验矩阵（24.1\%）。}
+最大的单一类别包含的需求是枚举哪个模型变体必须在哪个数据集上运行、使用哪种配置、运行多少个随机种子。
+在PDF中，这种组合结构被压缩为一句话（"我们在三个任务序列上用10个随机种子评估所有方法"）或一个结果表格，其行列表头隐式定义了笛卡尔积。
+智能体必须从思维上分解这个矩阵，才能知道例如"CompoNet在Freeway上，10个种子，每个任务1M时间步"是一个独立的运行。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}: 62 leaves enumerate \{6 methods\} $\times$ \{3 task sequences\} $\times$ \{seeds, timesteps, trained\}---each a separate verifiable requirement (e.g., ``CompoNet on Meta-World: 10 seeds, 1M timesteps/task, trained'').
-  \item \emph{bbox}: 46 evaluation leaves cross \{5 model sizes\} $\times$ \{4 datasets\} $\times$ \{3 feedback types\} $\times$ \{single-step, full-step\} inference modes.
-  \item \emph{pinn}: $\sim$1{,}273 leaves enumerate a grid of \{4 PDE problems\} $\times$ \{4 network widths\} $\times$ \{5 learning rates\} $\times$ \{3 optimizers\}, each combination a distinct training run.
+  \item \emph{self-composing-policies}：62个叶子节点枚举 \{6个方法\} $\times$ \{3个任务序列\} $\times$ \{种子数，时间步数，已训练\}——每个都是独立的可验证需求（例如"CompoNet在Meta-World上：10个种子，1M时间步/任务，已训练"）。
+  \item \emph{bbox}：46个评估叶子节点交叉 \{5种模型大小\} $\times$ \{4个数据集\} $\times$ \{3种反馈类型\} $\times$ \{单步，全步\}推理模式。
+  \item \emph{pinn}：$\sim$1{,}273个叶子节点枚举 \{4个PDE问题\} $\times$ \{4个网络宽度\} $\times$ \{5个学习率\} $\times$ \{3个优化器\}的网格，每种组合是一次独立的训练运行。
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{experiments.md} file makes every cell of the experiment matrix explicit, with structured \texttt{Setup} fields that list model, dataset, and configuration as machine-readable key--value pairs.
-An agent can enumerate all runs programmatically rather than parsing table headers.
+\noindent\textbf{\ara{}的优势。}
+\texttt{experiments.md}文件将实验矩阵中的每个单元格明确列出，以结构化的\texttt{Setup}字段将模型、数据集和配置列为机器可读的键值对。
+智能体可以通过编程方式枚举所有运行，而无需解析表头。
 
-\paragraph{2. Evaluation protocol (18.5\%).}
-Requirements specifying \emph{which} metric to compute, on \emph{which} test split, using \emph{which} evaluation-time configuration (e.g., beam size, number of evaluation episodes, specific layers to probe).
-These details are often scattered: the metric definition appears in \S3, the test split in \S4, the evaluation episodes in the appendix, and the layer indices in a figure caption.
+\paragraph{2. 评估方案（18.5\%）。}
+要求指定计算\emph{哪个}指标、在\emph{哪个}测试划分上、使用\emph{哪种}评估时配置（例如束大小、评估轮数、需要探测的特定层）。
+这些细节通常是分散的：指标定义出现在第3节，测试划分在第4节，评估轮数在附录中，层索引在图例中。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{mechanistic-understanding}: ``Compute cosine similarity between $\delta_i$ and $\delta_{\text{mlp},i}$ for layers 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 using 1{,}199 prompts from RealToxicityPrompts.''
-  \item \emph{fre}: ``Evaluation is repeated and averaged over 20 episodes and 5 seeds; 32 state-reward pairs are sampled from the evaluation task environment.''
-  \item \emph{bbox}: ``The Chain-of-Thought baseline has been evaluated on the test splits of all datasets using GPT-3.5 Turbo.''
+  \item \emph{mechanistic-understanding}："使用来自RealToxicityPrompts的1{,}199个提示，计算第0, 2, 4, 6, 8, 10, 12, 14, 16, 18层的$\delta_i$与$\delta_{\text{mlp},i}$之间的余弦相似度。"
+  \item \emph{fre}："评估在20个回合和5个随机种子上重复并取平均值；从评估任务环境中采样32个状态-奖励对。"
+  \item \emph{fre}："Chain-of-Thought基线已使用GPT-3.5 Turbo在所有数据集的测试划分上进行了评估。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-Each experiment entry in \texttt{experiments.md} has a declarative \texttt{Procedure} field that specifies evaluation steps as an ordered list, and a \texttt{Metrics} field that names the exact metrics.
-The \texttt{configs/training.md} file separately records evaluation-time parameters (e.g., beam size, episodes).
+\noindent\textbf{\ara{}的优势。}
+\texttt{experiments.md}中的每个实验条目都有一个声明式的\texttt{Procedure}字段，以有序列表形式指定评估步骤，以及一个\texttt{Metrics}字段来指明确切的指标。
+\texttt{configs/training.md}文件单独记录评估时的参数（例如束大小、回合数）。
 
-\paragraph{3. Hyperparameters (17.2\%).}
-Classic training configuration: learning rates, batch sizes, optimizer parameters, temperature, weight decay, LoRA rank, number of epochs.
-While these are the \emph{most commonly discussed} reproduction barrier, they account for only 17\% of leaf requirements.
-In PDFs, hyperparameters are typically consolidated in an appendix table, but the correspondence between table rows and specific experimental conditions is often ambiguous.
+\paragraph{3. 超参数（17.2\%）。}
+经典的训练配置：学习率、批量大小、优化器参数、温度、权重衰减、LoRA秩、训练轮数。
+虽然这些是\emph{最常被讨论的}复现障碍，但它们仅占叶子需求的17\%。
+在PDF中，超参数通常集中在一个附录表格中，但表格行与具体实验条件之间的对应关系往往模糊不清。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}: ``AdamW optimizer with learning rate 5e-6, weight decay 0.01; batch size 64; 6{,}000 training steps.''
-  \item \emph{self-composing-policies}: 29 leaves enumerate every SAC and PPO parameter individually (e.g., ``SAC: target smoothing coefficient $\tau = 0.005$''; ``PPO: GAE $\lambda = 0.95$'').
-  \item \emph{pinn}: ``Learning rate of the Adam optimizer can be set to 1E-5, 1E-4, 1E-3, 1E-2, or 1E-1.''
+  \item \emph{bbox}："AdamW优化器，学习率5e-6，权重衰减0.01；批量大小64；6{,}000个训练步。"
+  \item \emph{self-composing-policies}：29个叶子节点逐一枚举每个SAC和PPO参数（例如"SAC：目标平滑系数$\tau = 0.005$"；"PPO：GAE $\lambda = 0.95$"）。
+  \item \emph{pinn}："Adam优化器的学习率可设置为1E-5、1E-4、1E-3、1E-2或1E-1。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{configs/training.md} file provides a single, authoritative location for all hyperparameters, organized by experiment.
-The \texttt{heuristics.md} file additionally records \emph{sensitivity} annotations (low/medium/high) and valid \emph{bounds}, information that PDFs almost never provide.
+\noindent\textbf{\ara{}的优势。}
+\texttt{configs/training.md}文件为所有超参数提供了一个单一的权威位置，按实验组织。
+\texttt{heuristics.md}文件额外记录了\emph{敏感度}标注（低/中/高）和有效的\emph{边界}，这是PDF几乎从不提供的信息。
 
-\paragraph{4. Metric computation and logging (10.4\%).}
-Requirements that the agent must \emph{record} specific intermediate quantities during runs: loss curves, attention distributions, cost tracking (dollars per 1k questions), episodic returns logged every $N$ steps.
-This ``instrumentation'' knowledge is rarely specified in papers---authors implicitly know what to log but do not document it as part of the method.
+\paragraph{4. 指标计算与记录（10.4\%）。}
+要求智能体必须\emph{记录}运行过程中的特定中间量：损失曲线、注意力分布、成本追踪（每千个问题花费的美元数）、每$N$步记录一次的情节回报。
+这种"仪器化"知识在论文中很少明确说明——作者默认知道该记录什么，但并不将其作为方法的一部分加以记录。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}: 71 leaves (25\% of the paper's rubric) require computing and saving training costs, inference costs (USD/1k questions), and evaluation costs across all dataset $\times$ variant combinations.
-  \item \emph{self-composing-policies}: ``Output attention distribution logged every 10k timesteps''; ``Matching rate between final output and internal policy, saved every 10k steps.''
+  \item \emph{bbox}：71个叶子节点（占该论文评分标准的25\%）要求计算并保存训练成本、推理成本（美元/千题）以及所有数据集$\times$变体组合的评估成本。
+  \item \emph{self-composing-policies}："每10k时间步记录一次输出注意力分布"；"最终输出与内部策略之间的匹配率，每10k步保存一次。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{experiments.md} \texttt{Metrics} and \texttt{Procedure} fields can explicitly list what to log and at what frequency.
-The \texttt{evidence/} layer provides concrete examples of the expected output format.
+\noindent\textbf{\ara{}的优势。}
+\texttt{experiments.md}的\texttt{Metrics}和\texttt{Procedure}字段可以明确列出需要记录什么以及记录的频率。
+\texttt{evidence/}层提供了预期输出格式的具体示例。
 
-\paragraph{5. Result interpretation (8.6\%).}
-Qualitative claims about what the results should \emph{show}---directional trends, comparative rankings, mechanistic explanations.
-These carry the highest weight in PaperBench rubrics (weight = 2) because they test whether the agent \emph{understands} the results, not just whether the code ran.
+\paragraph{5. 结果解读（8.6\%）。}
+关于结果应该\emph{展示}什么的定性论断——方向性趋势、比较排序、机制性解释。
+这些在PaperBench评分标准中权重最高（权重=2），因为它们测试智能体是否\emph{理解}结果，而不仅仅是代码是否运行了。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{mechanistic-understanding}: ``After adapting with DPO, the principal component of the residual streams shift in the same direction, and the activation of the toxic vectors decrease.'' (Weight = 2)
-  \item \emph{mechanistic-understanding}: ``The extracted tokens encode different characteristics of toxic language: tokens from $\mathbf{W}$ are mostly curse words; MLP.vToxic are a mix of curse words and insults; SVD.uToxic encode insults and female sexual references.'' (Weight = 2)
-  \item \emph{self-composing-policies}: ``CompoNet achieves higher average performance and forward transfer than all baselines on all three task sequences.''
-  \item \emph{pinn}: ``Adam+L-BFGS always achieves the lowest minimum loss compared to just using Adam or L-BFGS alone.''
+  \item \emph{mechanistic-understanding}："使用DPO适应后，残差流的主成分朝同一方向移动，且毒性向量的激活降低。"（权重=2）
+  \item \emph{mechanistic-understanding}："提取的token编码了有毒语言的不同特征：$\mathbf{W}$的token大多是脏话；MLP.vToxic是脏话和侮辱语的混合；SVD.uToxic编码了侮辱语和女性相关的性暗示。"（权重=2）
+  \item \emph{self-composing-policies}："CompoNet在所有三个任务序列上均取得比所有基线更高的平均性能和前向迁移。"
+  \item \emph{pinn}："与单独使用Adam或L-BFGS相比，Adam+L-BFGS始终获得最低的最小损失。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{claims.md} file states each claim with explicit \texttt{Falsification criteria} and pointers to the experiment that verifies it.
-The \texttt{experiments.md} \texttt{Expected outcome} field records the directional prediction (e.g., ``method A outperforms method B'') without revealing exact numbers, enabling blind reproduction.
+\noindent\textbf{\ara{}的优势。}
+\texttt{claims.md}文件明确陈述每个论断，并附有明确的\texttt{Falsification criteria}和指向验证该论断的实验的指针。
+\texttt{experiments.md}的\texttt{Expected outcome}字段记录了方向性预测（例如"方法A优于方法B"），而不透露确切数字，从而支持盲法复现。
 
-\paragraph{6. Architecture specification (5.8\%).}
-Layer counts, channel sizes, activation functions, output head structure, embedding dimensions.
-In PDFs, architecture details are split across a figure (showing the high-level diagram), the methods section (describing components in prose), and the appendix (listing dimensions in a table).
-An agent must mentally compose these three sources to build the full specification.
+\paragraph{6. 架构规范（5.8\%）。}
+层数、通道大小、激活函数、输出头结构、嵌入维度。
+在PDF中，架构细节分散在图表（显示高层示意图）、方法部分（用行文描述组件）和附录（在表格中列出维度）中。
+智能体必须在思维上将这三种来源组合起来，才能构建完整的规范。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}: ``CNN has three convolutional layers with 32, 64, and 64 channels and filter sizes of 8, 4, and 3''; ``SAC: hidden dimension $d_{\text{model}} = 256$; critic network has 3 layers; activation is ReLU.''
-  \item \emph{fre}: ``GC-BC model is a MLP with three hidden layers of size 512''; ``layer normalization is applied before each activation function.''
-  \item \emph{mechanistic-understanding}: ``Binary classifier of the form $\text{softmax}(\mathbf{Wx})$ where $\mathbf{W}$ has dimensionality $K \times 2$.''
+  \item \emph{self-composing-policies}："CNN有三个卷积层，通道数为32、64和64，滤波器大小分别为8、4和3"；"SAC：隐藏维度$d_{\text{model}} = 256$；评论家网络有3层；激活函数为ReLU。"
+  \item \emph{fre}："GC-BC模型是一个MLP，具有三个隐藏层，每层大小512"；"每个激活函数前应用层归一化。"
+  \item \emph{mechanistic-understanding}："形式为$\text{softmax}(\mathbf{Wx})$的二分类器，其中$\mathbf{W}$的维度为$K \times 2$。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{architecture.md} file provides a single location listing every component with its dimensions, activation functions, and input/output specifications.
-Code stubs in \texttt{src/code/} provide an executable complement.
+\noindent\textbf{\ara{}的优势。}
+\texttt{architecture.md}文件提供了一个单一位置，列出每个组件的维度、激活函数和输入/输出规范。
+\texttt{src/code/}中的代码桩提供了可执行的补充。
 
-\paragraph{7. Mathematical formulation (4.5\%).}
-Specific equations that must be implemented exactly: loss functions, attention operations, PDE boundary conditions, update rules.
-In PDFs, equations are referenced by number, but the reader must trace through variable definitions scattered across multiple sections.
+\paragraph{7. 数学公式（4.5\%）。}
+必须精确实现的具体方程：损失函数、注意力运算、PDE边界条件、更新规则。
+在PDF中，方程通过编号引用，但读者必须追踪分散在多个节中的变量定义。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}: ``Output attention: $\text{softmax}(qK^T / \sqrt{d_{\text{model}}}) \cdot V$''; ``Forward transfer: $\text{FTr}_i = (\text{AUC}_i - \text{AUC}_i^b) / (1 - \text{AUC}_i^b)$.''
-  \item \emph{pinn}: ``The loss function corresponds to the non-linear least squares problem described in Section~2.1, with the relevant differential operator and boundary/initial condition operators outlined in Appendix~A.1.''
-  \item \emph{fre}: ``The value function is updated with an expectile regression objective on the critic's Q-values''; ``The actor is updated via advantage-weighted regression (AWR).''
+  \item \emph{self-composing-policies}："输出注意力：$\text{softmax}(qK^T / \sqrt{d_{\text{model}}}) \cdot V$"；"前向迁移：$\text{FTr}_i = (\text{AUC}_i - \text{AUC}_i^b) / (1 - \text{AUC}_i^b)$。"
+  \item \emph{pinn}："损失函数对应于第2.1节中描述的非线性最小二乘问题，相关的微分算子和边界/初始条件算子见附录A.1。"
+  \item \emph{fre}："值函数通过评论家Q值的期望回归目标进行更新"；"行动者通过优势加权回归（AWR）进行更新。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{algorithm.md} file presents the algorithm as a self-contained pseudocode block with all variable definitions in scope.
-The \texttt{concepts.md} file defines notation and links to the equations that use each symbol.
+\noindent\textbf{\ara{}的优势。}
+\texttt{algorithm.md}文件将算法作为一个自包含的伪代码块呈现，所有变量定义在作用域内。
+\texttt{concepts.md}文件定义符号并链接到使用每个符号的方程。
 
-\paragraph{8. Implementation tricks (4.2\%).}
-Non-obvious design choices that distinguish faithful reproduction from naive re-implementation: weight freezing schedules, initialization from prior checkpoints, gradient clipping thresholds, normalization details, optimizer switching strategies.
-These are the hardest items to recover from a PDF because they appear as parenthetical remarks, footnotes, or single sentences buried in dense paragraphs.
+\paragraph{8. 实现技巧（4.2\%）。}
+将忠实复现与朴素重新实现区分开来的非显而易见的设计选择：权重冻结计划、从先前检查点初始化、梯度裁剪阈值、归一化细节、优化器切换策略。
+这些是从PDF中最难恢复的内容，因为它们以附带评论、脚注或埋藏在密集段落中的单个句子的形式出现。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}: ``Single CNN encoder per policy; new encoder initialized with weights of the previous one'' (Appendix~E.2); ``Reset critic network at the beginning of each task''; ``Normalize summed vectors for continuous action spaces.''
-  \item \emph{fre}: ``The transformer does not use a causal mask on its attention''; ``Positional embeddings are not used in the transformer''; ``States sampled for decoding and encoding are sampled separately.''
-  \item \emph{pinn}: ``At the end of training, the L-BFGS directions, steps, and inverse of inner products are saved'' (Appendix~C.2); ``Strong Wolfe line search is used with L-BFGS.''
+  \item \emph{self-composing-policies}："每个策略使用单个CNN编码器；新编码器用前一个编码器的权重初始化"（附录E.2）；"每个任务开始时重置评论家网络"；"对连续动作空间归一化求和向量。"
+  \item \emph{fre}："Transformer在其注意力上不使用因果掩码"；"Transformer中不使用位置嵌入"；"用于解码和编码的状态采样是分开进行的。"
+  \item \emph{pinn}："训练结束时保存L-BFGS的方向、步长和逆内积"（附录C.2）；"L-BFGS使用强Wolfe线搜索。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{heuristics.md} file is \emph{specifically designed} to capture these items.
-Each heuristic entry includes \texttt{Rationale} (why it matters), \texttt{Sensitivity} (how much performance degrades without it), and \texttt{Code ref} (where in the code to apply it).
+\noindent\textbf{\ara{}的优势。}
+\texttt{heuristics.md}文件\emph{专门设计用于}捕获这些内容。
+每个启发式规则条目包含\texttt{Rationale}（为什么重要）、\texttt{Sensitivity}（没有它性能会下降多少）和\texttt{Code ref}（在代码中的何处应用它）。
 
-\paragraph{9. Data pipeline (3.8\%).}
-Dataset acquisition, split ratios, filtering criteria, preprocessing steps, data augmentation, collocation point sampling strategies.
-These details are often under-specified in papers (``we use the standard train/test split'') or tucked into a single appendix paragraph.
+\paragraph{9. 数据流水线（3.8\%）。}
+数据集获取、划分比例、筛选标准、预处理步骤、数据增强、配置点采样策略。
+这些细节在论文中常常说明不足（"我们使用标准的训练/测试划分"）或塞进附录的某个段落中。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}: ``Split GSM8K into 7{,}473 training and 1{,}319 test samples''; ``Randomly sample 100 questions for TruthfulQA test set, remaining 717 for training.''
-  \item \emph{mechanistic-understanding}: ``24{,}576 pairs of toxic and non-toxic continuations have been created''; ``295 prompts selected from RealToxicityPrompts that output `shit' as the next token.''
-  \item \emph{pinn}: ``10{,}000 residual points randomly sampled from a 255$\times$100 grid; 257 equally spaced points for each initial condition and 101 for each boundary condition.''
+  \item \emph{bbox}："将GSM8K划分为7{,}473个训练样本和1{,}319个测试样本"；"随机采样100个问题作为TruthfulQA测试集，其余717个用于训练。"
+  \item \emph{mechanistic-understanding}："创建了24{,}576对有毒性/无毒性续写"；"从RealToxicityPrompts中选择了295个输出token为`shit'的提示。"
+  \item \emph{pinn}："从255$\times$100网格中随机采样10{,}000个残差配置点；每个初始条件257个等距点，每个边界条件101个。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{configs/} directory provides structured configuration files with exact split sizes and sampling parameters.
-The \texttt{environment.md} file specifies dataset versions and download URLs.
+\noindent\textbf{\ara{}的优势。}
+\texttt{configs/}目录提供了结构化的配置文件，包含精确的划分大小和采样参数。
+\texttt{environment.md}文件指定了数据集版本和下载URL。
 
-\paragraph{10. Environment and infrastructure (2.9\%).}
-Specific API endpoints, model version strings, library versions, simulator names, hardware requirements.
-These are often assumed to be ``obvious'' and omitted entirely from the paper, yet they are essential for reproduction.
+\paragraph{10. 环境和基础设施（2.9\%）。}
+具体的API端点、模型版本字符串、库版本、模拟器名称、硬件需求。
+这些通常被认为是"显而易见"的，在论文中完全被省略，然而它们对复现至关重要。
 
-\emph{Examples:}
+\emph{示例：}
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}: ``API access configured for davinci-002''; ``Code to execute fine-tuning jobs through the Azure OpenAI API''; ``Mixtral-8x7B-v0.1 loaded from HuggingFace in half-precision.''
-  \item \emph{self-composing-policies}: 15 leaves enumerate specific Gymnasium environment IDs (e.g., \texttt{ALE/SpaceInvaders-v5}, \texttt{hammer-v2}) and required packages (\texttt{Metaworld} from Farama-Foundation).
-  \item \emph{fre}: ``The observation space's XY coordinates are discretized into 32 bins for Ant Maze agents.''
+  \item \emph{bbox}："配置了davinci-002的API访问"；"通过Azure OpenAI API执行微调作业的代码"；"从HuggingFace以半精度加载Mixtral-8x7B-v0.1。"
+  \item \emph{self-composing-policies}：15个叶子节点枚举了具体的Gymnasium环境ID（例如\texttt{ALE/SpaceInvaders-v5}, \texttt{hammer-v2}）和所需软件包（来自Farama-Foundation的\texttt{Metaworld}）。
+  \item \emph{fre}："对于Ant Maze智能体，观察空间的XY坐标被离散化为32个区间。"
 \end{itemize}
 
-\noindent\textbf{\ara{} advantage.}
-The \texttt{environment.md} file lists exact package versions, model identifiers, and hardware requirements.
-The \texttt{configs/model.md} file records model names, sizes, and loading configurations (e.g., precision, quantization).
+\noindent\textbf{\ara{}的优势。}
+\texttt{environment.md}文件列出了确切的包版本、模型标识符和硬件需求。
+\texttt{configs/model.md}文件记录了模型名称、大小和加载配置（例如精度、量化）。
 
-\subsubsection{Key Findings}
+\subsubsection{关键发现}
 
-Three observations emerge from this analysis:
+从这一分析中得出三个观察结果：
 
-\paragraph{Hyperparameters are necessary but not sufficient.}
-Classic hyperparameters---the most discussed reproduction barrier---account for only 17.2\% of leaf requirements.
-The remaining 82.8\% comprise evaluation protocols, experiment matrices, logging requirements, result interpretation targets, and implementation tricks that are harder to locate in a PDF and receive less attention in reproducibility discussions.
+\paragraph{超参数必要但不充分。}
+经典的超参数——最常被讨论的复现障碍——仅占叶子需求的17.2\%。
+其余82.8\%包括评估方案、实验矩阵、记录需求、结果解读目标和实现技巧，这些更难在PDF中定位，在可复现性讨论中受到的关注也更少。
 
-\paragraph{The combinatorial explosion is the dominant challenge.}
-The largest category (24.1\%) consists of requirements that enumerate the full cross-product of models, datasets, and configurations.
-In a PDF, this matrix is compressed into a single table or sentence; an agent must decompose it into individual runs.
-The \ara{} format makes this matrix explicit and machine-enumerable.
+\paragraph{组合爆炸是主要挑战。}
+最大类别（24.1\%）由需要枚举模型、数据集和配置的完整笛卡尔积的需求组成。
+在PDF中，这个矩阵被压缩为一张表格或一句话；智能体必须将其分解为独立的运行。
+\ara{}格式使这个矩阵明确且机器可枚举。
 
-\paragraph{High-weight requirements demand \emph{understanding}, not just extraction.}
-All weight-2 requirements in the PaperBench rubrics belong to the ``Result Interpretation'' category.
-These test whether the agent can verify that reproduced results exhibit the \emph{qualitative patterns} claimed by the paper---not just whether the code runs.
-The \ara{} \texttt{claims.md} and \texttt{experiments.md} layers directly encode these verification targets, making the connection between code output and paper claims explicit rather than requiring the agent to re-derive it from narrative text.
+\paragraph{高权重需求要求\emph{理解}而不仅仅是信息提取。}
+PaperBench评分标准中所有权重为2的需求都属于"结果解读"类别。
+这些测试的是智能体能否验证复现结果是否展现出论文所断言的\emph{定性模式}——而不仅仅是代码能否运行。
+\ara{}的\texttt{claims.md}和\texttt{experiments.md}层直接编码了这些验证目标，使代码输出与论文论断之间的连接变得明确，而无需智能体从叙事文本中重新推导。
 
 % ------------------------------------------------------------
-\subsection{Physical Layer Modes: Kernel vs Repository}
+\subsection{物理层模式：内核 vs 仓库}
 \label{app:src-modes}
 
-The Physical Layer (\texttt{/src}) adopts one of two modes, declared in the \texttt{PAPER.md} frontmatter (\texttt{src\_mode: kernel\,$|$\,repo}) so that consuming agents adapt their strategy immediately.
-These two modes cover the dominant contribution types in empirical CS, where executable code is the natural physical representation.
+物理层（\texttt{/src}）采用两种模式之一，在\texttt{PAPER.md}前言部分声明（\texttt{src\_mode: kernel\,$|$\,repo}），以便消费的智能体立即调整其策略。
+这两种模式覆盖了经验性计算机科学中的主要贡献类型，即可执行代码作为自然的物理表示的情形。
 
-\paragraph{Kernel mode (\texttt{/src/kernel/}).}
-When the contribution is primarily \emph{algorithmic}, the invariant can be cleanly separated from scaffolding.
-The kernel contains only the core modules with typed I/O signatures---often one to two orders of magnitude smaller than the full repository---stripped of all environment-specific code.
-A general-purpose coding agent consumes the kernel alongside the structured specification in \texttt{/logic/solution/} and generates fresh, environment-native boilerplate in minutes.
-Because agent coding capabilities improve continuously, the same kernel yields a \emph{better} surrounding implementation over time: the artifact appreciates rather than decays.
+\paragraph{内核模式（\texttt{/src/kernel/}）。}
+当贡献主要为\emph{算法性质}时，不变量可以与脚手架清晰地分离。
+内核仅包含带有类型化I/O签名的核心模块——通常比完整仓库小一到两个数量级——剥离了所有特定于环境的代码。
+一个通用编码智能体将内核与\texttt{/logic/solution/}中的结构化规范一起消费，并在几分钟内生成全新的、环境原生的样板代码。
+由于智能体的编码能力持续提升，相同的内核会随着时间的推移产生\emph{更好的}外围实现：构件增值而非衰减。
 
-\paragraph{Repository mode (\texttt{/src/repo/}).}
-When the contribution is primarily \emph{systemic}---a CUDA kernel, a distributed training strategy, a systems architecture---the engineering \emph{is} the contribution.
-The full implementation is retained but \emph{annotated}: an \texttt{index.md} manifest maps each source file to the \ara{} component it implements---which claim it supports, which heuristic it embodies, which architectural module it belongs to---providing the structured navigation that a monolithic codebase lacks.
-Forensic bindings connect code regions to claims, constraints, and heuristics, so an agent traverses the codebase guided by research structure rather than by directory conventions alone.
+\paragraph{仓库模式（\texttt{/src/repo/}）。}
+当贡献主要为\emph{系统性质}——CUDA内核、分布式训练策略、系统架构——工程本身\emph{就是}贡献。
+完整实现被保留但进行了\emph{标注}：一个\texttt{index.md}清单将每个源文件映射到其实现的\ara{}组件——支持了哪个论断、体现了哪个启发式规则、属于哪个架构模块——提供了单一代码库所缺乏的结构化导航。
+取证绑定将代码区域与论断、约束和启发式规则连接起来，使智能体能够根据研究结构而不是仅凭目录约定来遍历代码库。
 
-In both modes, the Cognitive Layer remains the primary interface for understanding the contribution; the Physical Layer provides executable evidence, scaled to match.
+在两种模式下，认知层仍然是理解贡献的主要界面；物理层提供可执行的证据，按比例匹配。
 
 % ------------------------------------------------------------
-\subsection{ARA by Example: This Paper's Own Artifact}
+\subsection{ARA 示例：本文论文的自身构件}
 \label{app:schema}
 
-This paper is itself maintained as an \ara{} artifact.
-The \texttt{ara/} directory at the repository root contains the living cognitive, physical, and exploration layers that were populated incrementally during the research process (see \S\ref{sec:live-pm}).
-We reproduce excerpts from each key file below to give readers a concrete sense of the format.
-All entries are real; only trailing items are elided for space.
+本文论文本身即作为一个\ara{}构件进行维护。
+仓库根目录下的\texttt{ara/}目录包含了在研究过程中逐步填充的动态认知层、物理层和探索层（见\S\ref{sec:live-pm}）。
+我们在下面复现了每个关键文件的摘录，以便读者对格式有一个具体的了解。
+所有条目都是真实的；仅出于篇幅考虑省略了尾部项目。
 
-\subsubsection{Directory layout and root manifest}
+\subsubsection{目录布局和根清单}
 
-The complete \texttt{ara/} directory for this paper is shown below.
-An agent's first action is to read \texttt{PAPER.md}, which contains YAML frontmatter and an abstract (${\sim}$500 tokens) sufficient to decide relevance without loading any layer.
+本文论文完整的\texttt{ara/}目录如下所示。
+智能体的第一个动作是读取\texttt{PAPER.md}，它包含YAML前言部分和摘要（约500个token），足以在不加载任何层的情况下决定相关性。
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
 ara/
@@ -274,7 +274,7 @@ ara/
     observations.yaml               #   94 unpromoted observations
 \end{lstlisting}
 
-\noindent The root manifest \texttt{PAPER.md}:
+\noindent 根清单\texttt{PAPER.md}：
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 ---
@@ -343,10 +343,10 @@ layers:
       (latest: 2026-04-26 cross-model and synthesis)
 \end{lstlisting}
 
-\subsubsection{Cognitive Layer: \texttt{logic/claims.md}}
+\subsubsection{认知层：\texttt{logic/claims.md}}
 
-Each claim carries a machine-readable status (\texttt{hypothesis}, \texttt{supported}, \texttt{testing}), falsification criteria, and proof pointers that reference the evidence layer rather than inlining results.
-We show two claims at different lifecycle stages.
+每个论断带有一个机器可读的状态（\texttt{hypothesis}, \texttt{supported}, \texttt{testing}）、可证伪标准和指向证据层的证明指针，而不是内联结果。
+我们展示两个处于不同生命周期的论断。
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 # Claims
@@ -386,11 +386,11 @@ We show two claims at different lifecycle stages.
 ...                    <!-- 16 claims total -->
 \end{lstlisting}
 
-\subsubsection{Cognitive Layer: \texttt{logic/problem.md}}
+\subsubsection{认知层：\texttt{logic/problem.md}}
 
-The problem file decomposes the motivation into typed observations (empirical facts), gaps (what existing approaches miss), and a key insight that bridges them.
-Each entry carries evidence pointers and implication fields, so an agent can trace the full argumentative chain without reading the paper's introduction.
-We show one representative entry per section.
+问题文件将动机分解为类型化的观察（经验事实）、缺口（现有方法遗漏之处）以及连接它们的关键洞察。
+每个条目带有证据指针和含义字段，因此智能体无需阅读论文引言即可追踪完整的论证链。
+我们在每个部分展示一个有代表性的条目。
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 # Problem
@@ -439,9 +439,9 @@ We show one representative entry per section.
 - **Derived from**: O1, O2, O3, O4, G1, G2
 \end{lstlisting}
 
-\subsubsection{Cognitive Layer: \texttt{logic/solution/heuristics.md}}
+\subsubsection{认知层：\texttt{logic/solution/heuristics.md}}
 
-Each heuristic records a design decision with its rationale, provenance (who introduced it), and sensitivity rating so that agents know which choices are safe to vary.
+每个启发式规则记录了一个设计决策及其理由、来源（谁引入了它）和敏感度评级，使智能体知道哪些选择可以安全地改变。
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 # Heuristics
@@ -472,10 +472,10 @@ Each heuristic records a design decision with its rationale, provenance (who int
 ...                    <!-- 18 heuristics total -->
 \end{lstlisting}
 
-\subsubsection{Exploration Graph: \texttt{trace/exploration\_tree.yaml}}
+\subsubsection{探索图谱：\texttt{trace/exploration\_tree.yaml}}
 
-The exploration tree preserves decisions, dead ends, and experiments as a traversable graph.
-We show one node of each type from this paper's 94-node tree.
+探索树将决策、死胡同和实验保存为一个可遍历的图谱。
+我们展示本文94节点树中每种类型的一个节点。
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
 tree:
@@ -534,10 +534,10 @@ tree:
 ...                    <!-- 94 nodes total -->
 \end{lstlisting}
 
-\subsubsection{Exploration Graph: \texttt{trace/sessions/}}
+\subsubsection{探索图谱：\texttt{trace/sessions/}}
 
-Each research session is logged as a structured YAML record capturing events, AI actions, files changed, claims affected, and open threads.
-Below is one session (abridged); the \texttt{session\_index.yaml} file provides a one-line chronological summary of all 36 sessions.
+每个研究会话被记录为一个结构化的YAML记录，捕获事件、AI操作、修改的文件、受影响的论断和开放线程。
+下面是一个会话（删节版）；\texttt{session\_index.yaml}文件提供了所有36个会话的按时间顺序的单行摘要。
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
 # trace/sessions/2026-03-19_001.yaml
@@ -593,44 +593,44 @@ sessions:
 ...                    <!-- 36 sessions total -->
 \end{lstlisting}
 
-\noindent The complete artifact, including all 16 claims, 18 heuristics, 94 exploration nodes, and 36 session records, is available in the supplementary material at \texttt{ara/}.
+\noindent 完整的构件，包括所有16个论断、18个启发式规则、94个探索节点和36个会话记录，可在补充材料中的\texttt{ara/}处获得。
 
 % ============================================================
 % APPENDIX B: Compiler Skill Details
 % ============================================================
 
-\section{Compiler Skill Details}
+\section{编译器技能详情}
 \label{app:system-details}
 
-The \ara{} Compiler (\S\ref{sec:ingestor}) is implemented as an \emph{agent skill}: a self-contained, natural-language specification that, when loaded into any general-purpose coding agent's context, turns it into a domain-specialized compilation system.
-The skill prescribes \emph{what} the agent should do and \emph{what domain knowledge} it needs, but delegates all execution mechanics (model selection, tool dispatch, context management) to the host agent.
-This appendix reproduces the key elements of the skill specification; the complete definition is available in the supplementary code.\footnote{Full implementation: \url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}.}
+\ara{} 编译器（\S\ref{sec:ingestor}）被实现为一个\emph{智能体技能}：一个自包含的自然语言规范，当加载到任何通用编码智能体的上下文中时，将其转变为领域专用的编译系统。
+该技能规定了智能体\emph{应该做什么}以及\emph{需要什么领域知识}，但将所有执行机制（模型选择、工具调度、上下文管理）委托给宿主智能体。
+本附录复现了该技能规范的关键元素；完整定义可在补充代码中获取。\footnote{完整实现：\url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}。}
 
 % ------------------------------------------------------------
-\subsection{Compiler Skill Specification}
+\subsection{编译器技能规范}
 \label{app:ingestor-prompt}
 
-The Compiler skill specification ($\sim$482 lines of natural language) is structured into five sections. When loaded into a host agent's context, it provides the full domain knowledge needed to produce a schema-conforming \ara{}. We reproduce representative elements below; the complete specification is available in the supplementary code.
+编译器技能规范（约482行自然语言）分为五个部分。当加载到宿主智能体的上下文中时，它提供生成符合模式的\ara{}所需的全部领域知识。我们在下面复现了代表性元素；完整规范可在补充代码中获取。
 
-\paragraph{Section 1: Workflow (lines 1--11).}
-Defines the high-level pipeline: analyze $\to$ generate $\to$ validate $\to$ fix $\to$ iterate.
+\paragraph{第1部分：工作流（第1--11行）。}
+定义高层流水线：分析 $\to$ 生成 $\to$ 验证 $\to$ 修复 $\to$ 迭代。
 
-\paragraph{Section 2: Capability usage guidelines (lines 13--26).}
-Specifies usage conventions for standard file operations: prefer \texttt{edit\_file} over \texttt{write\_file} for targeted fixes, prefer \texttt{write\_file} for YAML files to avoid whitespace corruption. Instructs the agent to batch work: generate all files first, then validate once.
+\paragraph{第2部分：能力使用指南（第13--26行）。}
+为标准文件操作指定使用约定：对于定向修复优先使用\texttt{edit\_file}而非\texttt{write\_file}，对于YAML文件优先使用\texttt{write\_file}以避免空白字符损坏。指示智能体批量工作：先生成所有文件，然后一次性验证。
 
-\paragraph{Section 3: ARA directory schema (lines 28--414).}
-Defines the complete directory structure and field-level requirements for every file. This is the normative schema specification that the agent must follow. Key constraints include:
+\paragraph{第3部分：ARA目录模式（第28--414行）。}
+定义完整的目录结构和每个文件的字段级要求。这是智能体必须遵循的规范性模式规范。关键约束包括：
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-    \item \textbf{PAPER.md}: YAML frontmatter with title, authors, year, venue, DOI, domain, keywords, claims summary, and abstract. Body must include a Layer Index table listing every file with a one-line description.
-    \item \textbf{claims.md}: Each claim requires Statement, Status, Falsification criteria, Proof (referencing experiment IDs, not file paths), Dependencies, and Tags.
-    \item \textbf{experiments.md}: Declarative verification plans (setup, procedure, metrics, directional expected outcomes). Exact numerical results are \emph{prohibited}---they belong exclusively in \texttt{/evidence/} to enable blind reproduction.
-    \item \textbf{heuristics.md}: Each heuristic requires Rationale, Sensitivity (low/medium/high), Bounds, Code ref, and Source.
-    \item \textbf{exploration\_tree.yaml}: Nested YAML tree with typed nodes (\texttt{question}, \texttt{experiment}, \texttt{dead\_end}, \texttt{decision}, \texttt{pivot}). Minimum 8 nodes with at least one \texttt{dead\_end} and one \texttt{decision}. Dead ends must document hypothesis, failure mode, and lesson.
-    \item \textbf{evidence/}: Every results table and quantitative figure must be reproduced with exact cell values---no rounding, no omission.
+    \item \textbf{PAPER.md}：包含标题、作者、年份、会议、DOI、领域、关键词、论断摘要和摘要的YAML前言部分。正文必须包含一个层索引表，列出每个文件及其单行描述。
+    \item \textbf{claims.md}：每个论断需要Statement、Status、Falsification criteria、Proof（引用实验ID而非文件路径）、Dependencies和Tags。
+    \item \textbf{experiments.md}：声明式验证计划（设置、步骤、指标、方向性预期结果）。确切的数值结果\emph{被禁止}——它们只能放在\texttt{/evidence/}中，以实现盲法复现。
+    \item \textbf{heuristics.md}：每个启发式规则需要Rationale、Sensitivity（低/中/高）、Bounds、Code ref和Source。
+    \item \textbf{exploration\_tree.yaml}：嵌套YAML树，带有类型化节点（\texttt{question}, \texttt{experiment}, \texttt{dead\_end}, \texttt{decision}, \texttt{pivot}）。至少8个节点，至少一个\texttt{dead\_end}和一个\texttt{decision}。死胡同必须记录假设、失败模式和教训。
+    \item \textbf{evidence/}：每个结果表格和定量图必须用精确的单元格值复现——不进行舍入，不省略。
 \end{itemize}
 
-\paragraph{Section 4: 4-stage reasoning protocol (lines 416--454).}
-The prompt mandates a structured thinking process before file generation:
+\paragraph{第4部分：四阶段推理协议（第416--454行）。}
+该提示要求在文件生成之前进行结构化的思考过程：
 
 \begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
 # Your 4-Stage Reasoning Process
@@ -686,105 +686,105 @@ for /trace:
   considered
 \end{lstlisting}
 
-\paragraph{Section 5: Output format and rules (lines 456--482).}
-Specifies the XML-delimited output format for \texttt{batch\_write\_files}, lists all 15 mandatory files, and enforces nine invariant rules (e.g., ``all numerical values must be EXACT as stated in the paper,'' ``never hallucinate claims, results, or heuristics not in the paper'').
+\paragraph{第5部分：输出格式和规则（第456--482行）。}
+为\texttt{batch\_write\_files}指定XML分隔的输出格式，列出所有15个必需文件，并执行九个不变规则（例如"所有数值必须与论文中所述完全一致"，"绝不虚构论文中没有的论断、结果或启发式规则"）。
 
 % ============================================================
 % APPENDIX C: Live Research Manager Details
 % ============================================================
 
-\section{Live Research Manager Details}
+\section{实时研究管理器详情}
 \label{app:lrm-details}
 
-The Live Research Manager (\S\ref{sec:live-pm}) is the second agent skill in the \ara{} system.
-Like the Compiler, it is a self-contained natural-language specification that turns a general-purpose coding agent into a domain-specialized system; unlike the Compiler, it operates continuously alongside the researcher rather than as a one-shot compilation.
-This appendix expands on the design principles, cross-session mechanisms, and submission workflow summarized in \S\ref{sec:live-pm}.
+实时研究管理器（\S\ref{sec:live-pm}）是\ara{}系统中的第二个智能体技能。
+与编译器一样，它是一个自包含的自然语言规范，将通用编码智能体转变为领域专用系统；但与编译器不同，它持续地与研究者一起运行，而不是一次性编译。
+本附录详细阐述了\S\ref{sec:live-pm}中总结的设计原则、跨会话机制和提交工作流。
 
-\subsection{Design Principle Rationale}
+\subsection{设计原则原理}
 \label{app:lrm-principles}
 
-The three design principles stated in \S\ref{sec:design-principles} are expanded below with full motivation.
+\S\ref{sec:design-principles}中陈述的三条设计原则在下面进行了扩展并提供完整动机。
 
 \begin{description}[leftmargin=1.5em, itemsep=4pt, topsep=2pt]
-    \item[P1. Silent, framework-independent integration.]
-    Documentation has traditionally been a \emph{retrospective} activity: a context switch that introduces both friction and information loss.
-    The system must integrate with any general-purpose coding agent (Claude Code, Cursor, Windsurf, or future frameworks) without custom SDKs, API bindings, or infrastructure changes.
-    A natural-language specification that the agent reads into its context is the most portable interface: it requires nothing beyond the tool access agents already have, and artifact quality improves automatically as language models advance.
-    The manager runs as a background process that silently collects research traces, constructing the artifact without interrupting active work or injecting prompts into an ongoing research conversation.
+    \item[P1. 静默、与框架无关的集成。]
+    文档编写传统上是一项\emph{回顾性}活动：一种引入摩擦和信息丢失的上下文切换。
+    系统必须与任何通用编码智能体（Claude Code、Cursor、Windsurf或未来的框架）集成，无需自定义SDK、API绑定或基础设施变更。
+    智能体读入其上下文的自然语言规范是最可移植的接口：它只需要智能体已经拥有的工具访问权限，并且随着语言模型的进步，构件质量会自动提升。
+    管理器作为后台进程运行，静默地收集研究轨迹，在不中断当前工作或向正在进行的研究对话中注入提示的情况下构建构件。
 
-    \item[P2. Faithful epistemic provenance.]
-    AI-native research blurs the boundary between human insight and machine execution.
-    The manager must objectively track \emph{who did what}: distinguishing ideas explicitly stated by the researcher, suggestions inferred by the agent, actions the agent executed autonomously, and AI suggestions the researcher revised.
-    Without such provenance, an artifact cannot faithfully represent the epistemic origin of its contents.
-    The research process is inherently chaotic: a single session may interleave hypothesis formation, coding, debugging, and writing with no clear boundaries.
-    The manager must translate this raw conversational stream into the structured \ara{} schema without losing information or imposing premature structure.
-    Observations that are not yet classifiable should be staged rather than forced into categories, and knowledge should mature progressively, from hunches to typed events to formally bound claims, mirroring how research understanding actually develops.
+    \item[P2. 忠实的认知溯源。]
+    AI原生研究模糊了人类洞察与机器执行之间的界限。
+    管理器必须客观地追踪\emph{谁做了什么}：区分由研究者明确陈述的想法、由智能体推断的建议、智能体自主执行的操作以及研究者修订过的AI建议。
+    没有这样的溯源，构件就无法忠实地表示其内容的认知起源。
+    研究过程本质上是混乱的：一个会话可能会交叉假设形成、编码、调试和写作，没有明确的边界。
+    管理器必须将这一原始的对话流转换为结构化的\ara{}模式，而不丢失信息或强加过早的结构。
+    尚不可分类的观察结果应该暂存而不是被强制归类，知识应该逐步成熟，从直觉到类型化事件再到正式绑定的论断，反映研究理解的实际发展过程。
 
-    \item[P3. Comprehensive trajectory capture.]
-    Research is nonlinear and stochastic: hypotheses branch, experiments fail, directions are abandoned and revisited.
-    The manager must capture this full trajectory, not just the successes that survive into a polished paper, but the dead ends, pivots, and intermediate observations that constitute the actual research process.
-    Cross-layer bindings between claims, evidence, code, and decisions must be established at capture time while the conversational context is still available; post-hoc reconstruction from archived transcripts loses these causal chains.
+    \item[P3. 全面的轨迹捕获。]
+    研究是非线性和随机的：假设会分叉，实验会失败，方向会被放弃并重新审视。
+    管理器必须捕获这一完整的轨迹，不仅仅是那些存活到精炼论文中的成功，还包括构成实际研究过程的死胡同、转折点和中间观察。
+    论断、证据、代码和决策之间的跨层绑定必须在捕获时建立，此时对话上下文仍然可用；从事后存档的对话记录中重建会丢失这些因果链。
 \end{description}
 
-\subsection{Closure-Driven Crystallization}
+\subsection{闭合驱动的结晶化}
 \label{app:lrm-maturity}
 
-Principle P2 requires that observations mature ``as evidence accumulates,'' but \emph{evidence accumulation} needs an operational definition.
-A counter-based threshold (promote after $N$ references) is arbitrary; asking an LM in isolation ``is this mature?'' lacks grounding.
-We instead define maturity through \emph{closure signals}: externally observable patterns in the researcher--agent conversation that indicate the researcher has treated an observation as settled.
-At each session boundary, the Maturity Tracker inspects the session record and promotes a staged observation when at least one closure signal is present.
+原则P2要求观察结果"随着证据积累"而成熟，但\emph{证据积累}需要一个可操作的定义。
+基于计数的阈值（引用$N$次后提升）是任意的；单独询问一个LM"这成熟了吗？"缺乏依据。
+我们转而通过\emph{闭合信号}来定义成熟度：研究者-智能体对话中可外部观察的模式，表明研究者已将某个观察视为已解决。
+在每个会话边界，成熟度追踪器检查会话记录，并在至少存在一个闭合信号时将一个暂存观察提升。
 
-\paragraph{Closure signal taxonomy.}
+\paragraph{闭合信号分类。}
 \begin{description}[leftmargin=1.5em, itemsep=2pt, topsep=2pt]
-    \item[Topic abandonment.] The researcher has moved to a new topic without revisiting the observation in the subsequent $k$ turns (default $k=5$), and no pending question remains open on the original thread.
-    \item[Verbal affirmation.] The researcher explicitly endorses the observation (``yes, we'll go with X,'' ``confirmed,'' or equivalent paraphrase), making the adoption decision first-person.
-    \item[Empirical resolution.] An experiment bound to the observation has produced a result and the researcher has commented on it; both supported and refuted outcomes are valid terminations (the refuted case promotes to a \texttt{dead\_end}).
-    \item[Artifact commitment.] A downstream artifact now depends on the observation: code is merged, a config value is fixed, a subsequent claim uses it as a premise, or a design decision is documented as following from it.
+    \item[话题放弃。] 研究者已转移到新话题，在后续$k$轮（默认$k=5$）中未重新触及该观察，且原始线程上没有未决问题。
+    \item[口头确认。] 研究者明确认可该观察（"好，我们就用X"、"确认"或等效的表述），使采纳决定成为第一人称。
+    \item[经验性解决。] 绑定到该观察的实验已产生结果，且研究者已对其进行了评论；被支持或被反驳的结果都是有效的终结（被反驳的情况提升为\texttt{dead\_end}）。
+    \item[构件承诺。] 下游构件现在依赖于该观察：代码已合并，配置值已固定，后续论断将其用作前提，或设计决策被记录为由此推导而来。
 \end{description}
 
-\paragraph{Contradiction trigger.}
-When a new observation contradicts one already staged or crystallized, the Maturity Tracker does not silently overwrite.
-Both entries are flagged, the contradiction is appended to the Exploration Graph as a \texttt{decision} node with unresolved status, and resolution is deferred to the next briefing where the researcher adjudicates explicitly.
+\paragraph{矛盾触发器。}
+当一个新的观察与已暂存或已结晶的观察相矛盾时，成熟度追踪器不会静默覆盖。
+两个条目都被标记，矛盾作为一个具有未解决状态的\texttt{decision}节点追加到探索图谱中，解决推迟到下一次简报，由研究者明确裁定。
 
-\subsection{Cross-Session Continuity}
+\subsection{跨会话连续性}
 \label{app:lrm-continuity}
 
-A stateless coding agent has no memory of previous conversations.
-If the manager simply reads the artifact at each session boundary, it knows \emph{what} the artifact contains but not \emph{why} it is organized the way it is---which classification choices were non-obvious, which observations were deliberately deferred, which patterns guided past merges and promotions.
-Without this self-awareness, the manager risks inconsistent classification, duplicate entries, and organizational drift across sessions.
+无状态的编码智能体没有先前对话的记忆。
+如果管理器仅在每个会话边界读取构件，它知道构件\emph{包含什么}，但不知道它\emph{为什么}这样组织——哪些分类选择是非显而易见的，哪些观察是被有意识推迟的，哪些模式指导了过去的合并和提升。
+没有这种自我意识，管理器有可能在不同会话之间产生不一致的分类、重复的条目和组织漂移。
 
-We address this with two lightweight mechanisms.
-First, a \emph{reasoning log} (\texttt{trace/pm\_reasoning\_log.yaml}) records the manager's own organizational decisions and their rationale at each session boundary---a compressed account of a few lines per session that gives the manager self-continuity without requiring access to raw conversation transcripts.
-Second, each session record includes a \emph{key context} field: compressed summaries of the most important human--agent exchanges, preserving conversational nuance that would otherwise be lost when the raw conversation is no longer available.
-Together, these mechanisms ensure that the manager can read back not only the artifact's current state but also the reasoning chain that produced it, maintaining coherent organization across arbitrarily many sessions at negligible token cost.
+我们通过两个轻量级机制来解决这个问题。
+首先，一个\emph{推理日志}（\texttt{trace/pm\_reasoning\_log.yaml}）在每个会话边界记录管理器自身的组织决策及其理由——每个会话几行压缩记录，为管理器提供自我连续性，而无需访问原始对话记录。
+其次，每个会话记录包含一个\emph{关键上下文}字段：最重要的人-智能体交流的压缩摘要，保留了当原始对话不再可用时会丢失的对话细微差别。
+这两个机制共同确保管理器不仅能够回读构件的当前状态，还能回读产生该状态的推理链，以可忽略的token成本在任意多个会话之间保持连贯的组织。
 
 % ============================================================
 % APPENDIX D: Shared Evaluation Setup
 % ============================================================
 
-\section{Test Corpus}
+\section{测试语料库}
 \label{app:eval-details}
 \label{app:eval-corpus}
 
-This section defines the test corpus used by the Understanding (App.~\ref{app:understanding-eval}) and Reproduction (App.~\ref{app:reproduction-eval}) experiments. The RE-Bench tasks used by the Extension experiment (App.~\ref{app:extension-eval}) are documented separately in App.~\ref{app:extension-tasks}.
+本节定义了理解（附录~\ref{app:understanding-eval}）和复现（附录~\ref{app:reproduction-eval}）实验所使用的测试语料库。扩展实验（附录~\ref{app:extension-eval}）使用的RE-Bench任务在附录~\ref{app:extension-tasks}中单独记录。
 
-\paragraph{Selection criteria.}
-We draw our evaluation corpus from PaperBench~\citep{starace2025paperbench}, which provides expert-authored hierarchical reproduction rubrics for ICML 2024 papers.
-We adopt all 23 papers in PaperBench's public release as our PaperBench corpus, with no exclusions: every paper satisfies our three required properties:
-(1)~peer-reviewed at a top ML venue (ICML 2024 Spotlight/Oral, with two NeurIPS 2024 workshop development papers) with a publicly available PDF;
-(2)~spanning diverse ML subfields to test breadth across the discipline;
-(3)~accompanied by a PaperBench rubric with fine-grained leaf requirements that enables quantitative evaluation of reproduction fidelity.
-We supplement this corpus with 7 open-ended R\&D tasks from RE-Bench~\citep{wijk2025rebench}, yielding 30 evaluation targets with 450 questions total.
+\paragraph{筛选标准。}
+我们从PaperBench~\citep{starace2025paperbench}中提取评估语料库，该基准为ICML 2024论文提供了专家编写的层次化复现评分标准。
+我们将PaperBench公开发布的全部23篇论文作为我们的PaperBench语料库，不做任何排除：每篇论文都满足我们要求的三个属性：
+(1)~在顶级ML会议上通过同行评审（ICML 2024 Spotlight/Oral，另有两篇NeurIPS 2024工作坊发展论文），并公开提供PDF；
+(2)~涵盖多样化的ML子领域，以测试跨学科的广度；
+(3)~附带具有细粒度叶子需求的PaperBench评分标准，能够定量评估复现保真度。
+我们补充了来自RE-Bench~\citep{wijk2025rebench}的7个开放式研发任务，共产生30个评估目标，总计450个问题。
 
-\paragraph{Paper list.}
-Table~\ref{tab:corpus} lists the 23 PaperBench papers used across the understanding and reproduction evaluations. Note that PaperBench's own protocol blacklists author code; we relax this for the baseline so it has the strongest possible footing (PDF~+~companion GitHub), making ``repo availability'' a property of our harness rather than of PaperBench. Of the 23 papers, 15 are included in the reproduction experiment; the remaining 8 are excluded because faithful end-to-end reproduction exceeds our per-task compute budget or requires specialized infrastructure outside our evaluation harness (e.g., multi-day CLIP adversarial fine-tuning, Isaac Gym RL, full ImageNet coreset sweeps, large multi-model benchmark suites). These 8 papers participate only in the understanding evaluation.
+\paragraph{论文列表。}
+表~\ref{tab:corpus}列出了理解和复现评估中使用的23篇PaperBench论文。请注意，PaperBench自身的协议禁止使用作者代码；我们在基线中放宽了这一点，使之拥有最强的立足点（PDF~+~配套GitHub仓库），使得"仓库可用性"成为我们实验框架的属性而非PaperBench的属性。在23篇论文中，15篇纳入复现实验；其余8篇被排除，因为忠实的端到端复现超出了我们每个任务的计算预算，或者需要不在我们评估框架范围内的专门基础设施（例如多天CLIP对抗微调、Isaac Gym RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。这8篇论文仅参与理解评估。
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{llc}
 \toprule
-\textbf{Short Name} & \textbf{Domain} & \textbf{Repro} \\
+\textbf{简称} & \textbf{领域} & \textbf{复现} \\
 \midrule
 adaptive-pruning         & Efficiency         & Yes \\
 all-in-one               & Multi-task         & Yes \\
@@ -810,78 +810,78 @@ stochastic-interpolants  & Generative         & Yes \\
 test-time-model-adapt.   & Adaptation         & Yes \\
 what-will-my-model-forget & Continual learning & No  \\
 \midrule
-\textbf{Total: 23}       &                    & 15 \\
+\textbf{总计：23}        &                    & 15 \\
 \bottomrule
 \end{tabular}
-\caption{Test corpus: 23 PaperBench papers from ICML 2024 spanning diverse ML subfields. The ``Repro'' column indicates inclusion in the reproduction experiment (requires companion code). All 23 papers participate in the understanding evaluation.}
+\caption{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。"复现"列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
 \label{tab:corpus}
 \end{table}
 
-\paragraph{Corpus diversity.}
-The 23 papers span diverse ML subfields: efficiency, alignment, interpretability, RL, scientific ML, generative models, optimization, retrieval, evaluation, and adaptation.
-While all papers come from a single venue (ICML 2024), they vary substantially in methodological complexity---from systems-oriented efficiency papers with minimal formal analysis to theory-heavy contributions (PINN, stochastic interpolants)---heuristic density, paper length, and contribution type (new architectures, training recipes, algorithms, analysis frameworks).
-The corpus includes papers that are deliberately challenging for structured extraction: those whose contributions are analysis rather than methods (mechanistic-understanding), multi-component pipelines (all-in-one), and papers with complex combinatorial experiment matrices (PINN with 1{,}273 leaf requirements).
+\paragraph{语料库多样性。}
+这23篇论文涵盖多样化的ML子领域：效率、对齐、可解释性、RL、科学ML、生成模型、优化、检索、评估和适应。
+虽然所有论文都来自同一个会议（ICML 2024），但在方法论复杂性上差异显著——从形式分析最少的系统导向效率论文到理论密集型贡献（PINN、随机插值）——启发式规则密度、论文长度和贡献类型（新架构、训练配方、算法、分析框架）上也有很大差异。
+语料库包括那些对结构化提取故意具有挑战性的论文：其贡献是分析而非方法的论文（mechanistic-understanding）、多组件流水线（all-in-one）以及具有复杂组合实验矩阵的论文（PINN有1{,}273个叶子需求）。
 
 % ============================================================
 % APPENDIX E: Understanding Evaluation
 % ============================================================
 
-\section{Understanding Evaluation}
+\section{理解评估}
 \label{app:understanding-eval}
 
-This section reports the methodology and per-stratum results for the Understanding experiment (\S\ref{sec:eval-understanding}). The shared test corpus is in App.~\ref{app:eval-corpus}.
+本节报告理解实验（\S\ref{sec:eval-understanding}）的方法学和各层级结果。共享测试语料库见附录~\ref{app:eval-corpus}。
 
 % ------------------------------------------------------------
-\subsection{Question Bank and Grading Rubric}
+\subsection{题库与评分标准}
 \label{app:question-bank}
 
-\paragraph{Question generation.}
-For each of the 30 evaluation targets (23 PaperBench papers, 7 RE-Bench tasks), we generate 15 questions across three categories: 10 Category~A (fidelity: information preservation), 5 Category~B (configuration and detail recovery) for PaperBench papers, or 5 Category~C (failure and exploration knowledge) for RE-Bench tasks.
-Questions are designed to require specific, unambiguous answers or verifiable outputs.
-We avoid opinion questions (``Is this architecture good?'') and questions requiring external knowledge not in the paper (``How does this compare to BERT?'').
+\paragraph{问题生成。}
+对于30个评估目标中的每一个（23篇PaperBench论文，7个RE-Bench任务），我们生成15个问题，分为三个类别：10个类别A（保真度：信息保留），5个类别B（配置和细节恢复）用于PaperBench论文，或5个类别C（失败和探索知识）用于RE-Bench任务。
+问题设计为需要具体的、无歧义的答案或可验证的输出。
+我们避免观点性问题（"这个架构好吗？"）和需要论文之外外部知识的问题（"这与BERT相比如何？"）。
 
-\paragraph{Category~A question templates (10 per paper).}
+\paragraph{类别A问题模板（每篇论文10个）。}
 \begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{Architecture \& Method} (3 questions): ``What is the [specific structural detail]?'' (e.g., ``How many layers does the encoder have?'', ``What are the inputs and outputs of the multi-head attention module?'')
-    \item \textbf{Hyperparameters \& Configuration} (2 questions): ``What [training/optimization detail] is used?'' (e.g., ``What optimizer is used and what are its hyperparameters?'', ``What is the batch size in tokens?'')
-    \item \textbf{Results \& Claims} (3 questions): ``What [metric] does the [model variant] achieve on [benchmark]?'' (e.g., ``What BLEU score does the base model achieve on WMT 2014 EN-DE?'')
-    \item \textbf{Rationale \& Design Decisions} (2 questions): ``Why was [design choice] made instead of [alternative]?'' (e.g., ``Why is scaled dot-product attention used instead of additive attention?'')
+    \item \textbf{架构与方法}（3个问题）："什么是[特定结构细节]？"（例如"编码器有几层？"、"多头注意力模块的输入和输出是什么？"）
+    \item \textbf{超参数与配置}（2个问题）："使用了什么[训练/优化细节]？"（例如"使用什么优化器及其超参数是什么？"、"以token计的批量大小是多少？"）
+    \item \textbf{结果与论断}（3个问题）："[模型变体]在[基准测试]上取得了什么[指标]？"（例如"基础模型在WMT 2014 EN-DE上取得了什么BLEU分数？"）
+    \item \textbf{原理与设计决策}（2个问题）："为什么做出[设计选择]而不是[替代方案]？"（例如"为什么使用缩放点积注意力而不是加法注意力？"）
 \end{itemize}
 
-\paragraph{Category~B question templates (5 per PaperBench paper).}
+\paragraph{类别B问题模板（每篇PaperBench论文5个）。}
 \begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{Implementation} (2 questions): ``Implement [specific module] with the correct [dimensions/activations/structure].''
-    \item \textbf{Configuration Recovery} (2 questions): ``Write the [optimizer/training/data] configuration with the exact parameters specified.''
-    \item \textbf{Debugging \& Troubleshooting} (1 question): ``[Failure scenario]---identify the cause and fix it.''
+    \item \textbf{实现}（2个问题）："用正确的[维度/激活/结构]实现[特定模块]。"
+    \item \textbf{配置恢复}（2个问题）："写出具有指定精确参数的[优化器/训练/数据]配置。"
+    \item \textbf{调试与故障排除}（1个问题）："[失败场景]——找出原因并修复。"
 \end{itemize}
 
-\paragraph{Category~C question templates (5 per RE-Bench task).}
+\paragraph{类别C问题模板（每个RE-Bench任务5个）。}
 \begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{Dead-End Knowledge} (3 questions): ``What approaches have been tried and failed?'' / ``What is the documented failure mode of [approach]?''
-    \item \textbf{Exploration History} (2 questions): ``What alternatives were considered for [decision]?'' / ``What lesson was learned from the [dead-end] attempt?''
+    \item \textbf{死胡同知识}（3个问题）："有哪些方法被尝试过并失败了？"/"[方法]的记录失败模式是什么？"
+    \item \textbf{探索历史}（2个问题）："针对[决策]考虑过哪些替代方案？"/"从[死胡同]尝试中吸取了什么教训？"
 \end{itemize}
 
-\paragraph{Evaluation agent setup.}
-For each (paper, format, question) triple, we instantiate a fresh sub-agent (Claude Sonnet 4.6).
-The agent receives the format under test (the full \ara{} directory for the ARA condition, or the PDF plus companion GitHub repository for the baseline) and a single question. Each question is answered independently with a fresh context to prevent information leakage.
+\paragraph{评估智能体设置。}
+对于每个（论文，格式，问题）三元组，我们实例化一个全新的子智能体（Claude Sonnet 4.6）。
+该智能体接收被测格式（在ARA条件下为完整的\ara{}目录，在基线条件下为PDF加配套GitHub仓库）和单个问题。每个问题独立回答，使用全新上下文以防止信息泄露。
 
-\paragraph{Grading rubric.}
-Each answer is scored on a ternary scale by an independent judge (Claude Opus 4.6) against a gold reference:
+\paragraph{评分标准。}
+每个答案由独立评判员（Claude Opus 4.6）根据黄金参考答案按照三级制评分：
 \begin{itemize}[leftmargin=*, itemsep=1pt]
-    \item \textbf{Correct (1.0)}: The answer matches the ground truth in substance. Minor phrasing differences are acceptable; numerical values must be exact.
-    \item \textbf{Partial (0.5)}: The answer conveys the main insight but misses key sub-details.
-    \item \textbf{Incorrect (0.0)}: The answer contains a factual error, contradicts the gold answer, or hallucinates an answer to an unanswerable question.
+    \item \textbf{正确（1.0）}：答案在实质上与真实值匹配。细微的措辞差异是可以接受的；数值必须精确。
+    \item \textbf{部分正确（0.5）}：答案传达了主要洞察但遗漏了关键的次要细节。
+    \item \textbf{错误（0.0）}：答案包含事实性错误、与黄金答案相矛盾，或对无法回答的问题伪造了一个答案。
 \end{itemize}
 
 % ------------------------------------------------------------
-\subsection{Information Gap Type Distribution}
+\subsection{信息缺口类型分布}
 \label{app:gap-types}
 
-\paragraph{Methodology.}
-PaperBench's expert reproduction rubric for each paper enumerates the requirements an agent must satisfy to reproduce the paper's results. For each of the 8{,}921 leaf requirements across the 23 papers, we compare the requirement against the source PDF and label it \emph{sufficient} (the PDF text fully specifies what is needed), \emph{partial} (some components specified but key details missing), or \emph{absent} (the PDF does not address the requirement); each label is accompanied by an annotator confidence rating (high / medium / low). When the label is partial or absent, we additionally tag the requirement with a gap-type category (missing hyperparameter, vague description, cross-reference-only, etc.). Labels are produced by an LLM-as-judge run per (requirement, PDF excerpt) pair, with the judge required to cite the PDF passage that supports its decision; the headline 45.4\% sufficient figure is dominated by the 64\% high-confidence subset (full pipeline in \texttt{code/eval/pdf\_information\_gap.py}).
+\paragraph{方法论。}
+PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复现论文结果必须满足的需求。对于23篇论文中8{,}921个叶子需求中的每一个，我们将需求与源PDF进行比较，并标记为\emph{充分}（PDF文本完全指定了所需内容）、\emph{部分}（部分组件已指定但缺少关键细节）或\emph{缺失}（PDF未涉及该需求）；每个标记附有标注者置信度评级（高/中/低）。当标签为部分或缺失时，我们还为需求附加一个缺口类型类别（缺失超参数、描述模糊、仅交叉引用等）。标记由每个（需求，PDF摘录）对的LLM作为评判员运行产生，评判员必须引用支持其决定的PDF段落；标题中的45.4\%充分数字由64\%的高置信度子集主导（完整流水线在\texttt{code/eval/pdf\_information\_gap.py}中）。
 
-\paragraph{Per-category coverage.}
-Table~\ref{tab:info-gap} breaks the 8{,}921 requirements down by PaperBench task category. The median paper shows 45.3\% sufficient and 47.9\% partial, confirming the gap is systemic rather than driven by outliers.
+\paragraph{按类别覆盖率。}
+表~\ref{tab:info-gap}将8{,}921个需求按PaperBench任务类别划分。中位数论文显示45.3\%充分和47.9\%部分，证实了这一缺口是系统性的而非由异常值驱动。
 
 \begin{table}[h]
 \centering
@@ -889,31 +889,31 @@ Table~\ref{tab:info-gap} breaks the 8{,}921 requirements down by PaperBench task
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrccc}
 \toprule
-\textbf{Task Category} & \textbf{Reqs} & \textbf{Sufficient} & \textbf{Partial} & \textbf{Absent} \\
+\textbf{任务类别} & \textbf{需求数} & \textbf{充分} & \textbf{部分} & \textbf{缺失} \\
 \midrule
 Code Development       & 3,942 & 37.3\% & 54.9\% & 7.8\% \\
 Code Execution         & 4,355 & 50.5\% & 47.9\% & 1.6\% \\
 Result Analysis        &   624 & 60.6\% & 36.9\% & 2.6\% \\
 \midrule
-\textbf{Overall}       & \textbf{8,921} & \textbf{45.4\%} & \textbf{50.2\%} & \textbf{4.4\%} \\
+\textbf{总计}          & \textbf{8,921} & \textbf{45.4\%} & \textbf{50.2\%} & \textbf{4.4\%} \\
 \bottomrule
 \end{tabular}
-\caption{Reproduction information gap across 23 PaperBench papers (8,921 requirements). PDFs systematically under-specify the information needed for reproduction, with the largest gaps in code development and dataset acquisition.}
+\caption{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
 \label{tab:info-gap}
 \end{table}
 
-\paragraph{Gap-type breakdown.}
-Table~\ref{tab:gap-types} breaks down the 8,921 reproduction requirements by gap type.
-The three largest categories---missing hyperparameters (26.2\%), vague descriptions (21.9\%), and cross-reference-only specifications (13.4\%)---account for over 60\% of all gaps and are precisely the information types that structured formats address by design.
-At the fine-grained level, Dataset Acquisition achieves only 5.4\% sufficient coverage (25.5\% entirely absent)---no paper in the corpus consistently provides download URLs, preprocessing scripts, or data format specifications.
-Evaluation, Metrics \& Benchmarking sits at 30.0\%: papers often state \emph{which} metrics they use but not \emph{how} they compute them (binning strategies, confidence intervals, statistical tests).
+\paragraph{缺口类型细分。}
+表~\ref{tab:gap-types}将8,921个复现需求按缺口类型细分。
+三个最大类别——缺失超参数（26.2\%）、描述模糊（21.9\%）和仅交叉引用规范（13.4\%）——占所有缺口的60\%以上，且恰恰是结构化格式在设计上有意处理的信息类型。
+在细粒度层面，数据集获取仅达到5.4\%的充分覆盖率（25.5\%完全缺失）——语料库中没有一篇论文一致地提供了下载URL、预处理脚本或数据格式规范。
+评估、指标与基准测试为30.0\%：论文通常声明了使用\emph{哪些}指标，但未说明\emph{如何}计算它们（分箱策略、置信区间、统计检验）。
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lrc}
 \toprule
-\textbf{Gap Type} & \textbf{Count} & \textbf{\% of Gaps} \\
+\textbf{缺口类型} & \textbf{数量} & \textbf{占缺口百分比} \\
 \midrule
 Missing hyperparameter     & 2,558 & 26.2\% \\
 Vague description          & 2,141 & 21.9\% \\
@@ -926,26 +926,26 @@ Ambiguous specification    &   399 &  4.1\% \\
 Implicit assumption        &   150 &  1.5\% \\
 \bottomrule
 \end{tabular}
-\caption{Distribution of information gap types across 8,921 requirements. The three largest categories---missing hyperparameters, vague descriptions, and cross-references---are precisely the gaps that structured formats address by design.}
+\caption{8,921个需求中信息缺口类型的分布。三个最大类别——缺失超参数、描述模糊和交叉引用——恰恰是结构化格式在设计上处理的缺口。}
 \label{tab:gap-types}
 \end{table}
 
 % ------------------------------------------------------------
-\subsection{Exploration Cost Detailed Breakdown}
+\subsection{探索成本详细分解}
 \label{app:exploration-tax}
 
-\paragraph{What this measures (and what it is not).}
-Across 24{,}008 agent runs (21 frontier models, 228 tasks) in the METR MALT corpus, 59.2\% of tokens and 90.2\% of dollar cost (\$63{,}483 total) are spent in runs that did not reach the task's reference score. This is not wasted research effort: those runs map dead ends, rule out alternatives, and narrow the strategy space the next agent should consider. The cost only \emph{becomes} waste downstream, when the next agent does not have access to that exploration and must rediscover the same dead ends from scratch. The exploration tax we report is therefore the per-agent cost of rediscovery if the failure record is not propagated, not a property of any individual run.
+\paragraph{这是什么度量（以及不是什么）。}
+在METR MALT语料库的24{,}008次智能体运行（21个前沿模型，228个任务）中，59.2\%的token和90.2\%的美元成本（总计\$63{,}483）花在了未达到任务参考分数的运行上。这不是浪费的研究努力：这些运行绘制了死胡同地图，排除了替代方案，缩小了下一个智能体应考虑的策略空间。成本只有在下游变得\emph{浪费}，当下一个智能体无法访问该探索记录而必须从头重新发现相同的死胡同时。因此，我们报告的探索税是如果失败记录未被传播时每个智能体的重新发现成本，而非任何单次运行的属性。
 
-\paragraph{Breakdown.}
-Table~\ref{tab:exploration-tax} gives the per-run breakdown. The mean below-reference token cost is 8.6$\times$ the cost of a reference-reaching run (2.58\,M vs.\ 300\,K tokens per run), with a median of 113$\times$. Within the 59.2\% of tokens that do not reach reference, 44.8\% are spent in runs that produce no measurable improvement and 14.4\% in runs that re-derive solutions other agents had already produced. The pattern concentrates where research-like work happens: RE-Bench tasks (the most open-ended) end below reference 73.4\% of the time, vs.\ 47.0\% on moderate-difficulty HCAST tasks and 0.7\% on well-defined SWAA tasks. At the per-task level, easy tasks reach reference 85.4\% of the time, medium 30.7\%, and hard only 15.1\%.
+\paragraph{分解。}
+表~\ref{tab:exploration-tax}给出了每次运行的分解。低于参考线的平均token成本是达到参考线运行成本的8.6倍（每次运行2.58M vs.\ 300K个token），中位数为113倍。在未达到参考线的59.2\%的token中，44.8\%花在了没有产生可度量改进的运行中，14.4\%花在了重新推导其他智能体已经产生的解决方案上。该模式集中在类似研究工作发生的地方：RE-Bench任务（最开放式的）在73.4\%的情况下低于参考线结束，而中等难度的HCAST任务为47.0\%，定义良好的SWAA任务为0.7\%。在每任务级别，简单任务在85.4\%的情况下达到参考线，中等难度为30.7\%，困难仅为15.1\%。
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lcc}
 \toprule
-\textbf{Metric} & \textbf{Tokens} & \textbf{Cost} \\
+\textbf{指标} & \textbf{Token} & \textbf{成本} \\
 \midrule
 Below-reference run rate (overall)        & \multicolumn{2}{c}{31.6\%} \\
 Below-reference run rate (RE-Bench)       & \multicolumn{2}{c}{73.4\%} \\
@@ -955,100 +955,100 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 \textbf{Total below-reference exploration} & \textbf{59.2\%} & \textbf{90.2\%} \\
 \bottomrule
 \end{tabular}
-\caption{Cost of below-reference exploration across 24{,}008 agent runs (21 frontier models, 228 tasks). The exploration itself is necessary research work; the cost only becomes waste when subsequent agents must re-incur it because the failure record is not preserved in the published artifact.}
+\caption{24{,}008次智能体运行（21个前沿模型，228个任务）中低于参考线的探索成本。探索本身是必要的研究工作；成本只有在后续智能体因失败记录未被保留在已发布构件中而必须重新承担时才会变成浪费。}
 \label{tab:exploration-tax}
 \end{table}
 
 % ------------------------------------------------------------
-\subsection{Per-Category Result Analysis}
+\subsection{按类别结果分析}
 \label{app:understanding-per-category}
 
-This subsection unpacks the three per-category results summarized in \S\ref{sec:eval-understanding} and Table~\ref{tab:understanding} into the specific structural mechanisms that produce each gain.
+本小节将\S\ref{sec:eval-understanding}和表~\ref{tab:understanding}中总结的三个按类别结果解包为产生每个收益的具体结构机制。
 
-\paragraph{Category~A: fidelity at lower cost via progressive disclosure.}
-\ara{} preserves PDF-recoverable information with high fidelity while requiring fewer tokens to retrieve.
-On PaperBench, \ara{} achieves 96.7\% vs.\ 89.8\% for the baseline while consuming 12\% fewer tokens per question (86.3K vs.\ 97.7K).
-The structural explanation is progressive disclosure: \ara{}'s PAPER.md provides a layer index that directs the agent to the relevant file (e.g., \texttt{evidence/tables/} for numerical results, \texttt{logic/solution/algorithm.md} for method details), whereas the PDF agent must scan the entire document for each query.
-On RE-Bench, where the baseline reads only the synthesized polished paper rather than a real publication, \ara{}'s accuracy advantage widens to 92.1\% vs.\ 51.4\%: the synthesized writeup omits much of the technical detail that the artifact's structured layers preserve.
-The headline finding is that structured organization improves accuracy while keeping token usage comparable, because \ara{}'s layer taxonomy turns linear search into indexed lookup.
+\paragraph{类别A：通过渐进式信息披露以更低成本实现保真度。}
+\ara{}以高保真度保留了PDF可恢复的信息，同时检索所需的token更少。
+在PaperBench上，\ara{}达到96.7\% vs.\ 基线89.8\%，同时每个问题消耗的token少12\%（86.3K vs.\ 97.7K）。
+结构上的解释是渐进式信息披露：\ara{}的PAPER.md提供了一个层索引，将智能体引导到相关文件（例如\texttt{evidence/tables/}用于数值结果，\texttt{logic/solution/algorithm.md}用于方法细节），而PDF智能体必须为每个查询扫描整个文档。
+在RE-Bench上，基线仅阅读合成的精炼论文而非真实出版物，\ara{}的准确率优势扩大到92.1\% vs.\ 51.4\%：合成的写作省略了构件结构化层所保留的大量技术细节。
+核心发现是，结构化组织在保持token使用量相当的同时提高了准确性，因为\ara{}的层分类体系将线性搜索转化为索引查找。
 
-\paragraph{Category~B: configuration recovery via centralized configs.}
-The rubric-aligned questions probe fine-grained experimental details (hyperparameter values, environment specifications, preprocessing steps) that PaperBench rubrics demand but papers systematically omit (26.2\% of all gaps are missing hyperparameters; see Appendix~\ref{app:gap-types}).
-The baseline's 67.8\% reflects successful code-repository mining: given a dedicated sub-agent per question, it can grep through the companion GitHub repo for many configuration values.
-\ara{}'s \texttt{src/configs/} and \texttt{logic/requirements.md} layers, however, centralize this knowledge in human-readable files, raising accuracy to 92.6\% at comparable token usage (183K vs.\ 178K tokens per question): the agent reads a structured config file rather than searching a scattered codebase.
-The remaining gap to 100\% reflects details genuinely absent from both the paper and its repository, which the Compiler cannot synthesize.
+\paragraph{类别B：通过集中式配置实现配置恢复。}
+与评分标准对齐的问题探查细粒度的实验细节（超参数值、环境规范、预处理步骤），这些是PaperBench评分标准要求但论文系统性省略的内容（所有缺口中26.2\%是缺失超参数；见附录~\ref{app:gap-types}）。
+基线的67.8\%反映了成功的代码仓库挖掘：每个问题有专用的子智能体，它可以grep遍历配套的GitHub仓库来查找许多配置值。
+然而，\ara{}的\texttt{src/configs/}和\texttt{logic/requirements.md}层将这些知识集中到人类可读的文件中，将准确率提升至92.6\%，同时token使用量相当（每个问题183K vs.\ 178K）：智能体读取结构化配置文件，而不是搜索分散的代码库。
+剩下到100\%的差距反映了纸面和仓库中确实都不存在的细节，编译器无法合成这些细节。
 
-\paragraph{Category~C: failure knowledge has no analogue in the baseline.}
-\ara{} reaches 81.4\% on failure-knowledge questions while the baseline manages only 15.7\%; the synthesized polished papers contain almost no record of failed approaches, dead-end configurations, or intermediate results that the trace layer preserves.
-The baseline's low token usage per question (58.0K) reflects this poverty: agents quickly determine the information is absent and return short answers, spending minimal tokens on fruitless search.
-\ara{} agents consume more tokens per question (139.3K) but productively explore the exploration tree to find answers.
-This category provides the clearest evidence for preserving negative knowledge: information that narrative formats systematically discard accounts for the largest single accuracy gap in the entire evaluation.
+\paragraph{类别C：失败知识在基线中没有对应物。}
+\ara{}在失败知识问题上达到81.4\%，而基线仅达到15.7\%；合成的精炼论文几乎不包含任何失败方法、死胡同配置或中间结果的记录，而这些被轨迹层保存了下来。
+基线每个问题的低token使用量（58.0K）反映了这种贫乏：智能体很快判断信息不存在，并返回简短答案，花在无果搜索上的token最少。
+\ara{}智能体每个问题消耗更多token（139.3K），但富有成效地探索了探索树以找到答案。
+这一类别为保留负面知识提供了最清晰的证据：叙事格式系统性丢弃的信息造成了整个评估中最大的单一准确率差距。
 
 % ------------------------------------------------------------
-\subsection{Statistical Details}
+\subsection{统计细节}
 \label{app:understanding-stats}
 
-A McNemar test on the 450 paired outcomes yields $\chi^2 = 95.15$, $p < 10^{-10}$ overall: \ara{} answers 141 questions correctly that the baseline misses, while the baseline answers only 18 that \ara{} misses.
-By category, the \ara{} advantage is highly significant for all three categories: Category~A ($+14.8\%$), Category~B ($+24.8\%$), and Category~C ($+65.7\%$, dominated by the absence of exploration knowledge in baseline sources).
+对450个配对结果的McNemar检验得出$\chi^2 = 95.15$，总体$p < 10^{-10}$：\ara{}正确回答了141个基线遗漏的问题，而基线仅正确回答了18个\ara{}遗漏的问题。
+按类别来看，\ara{}的优势在所有三个类别中均高度显著：类别A（$+14.8\%$），类别B（$+24.8\%$）和类别C（$+65.7\%$，主要由于基线来源中缺乏探索知识）。
 
-\paragraph{Difficulty stratification.}
-Stratified by question difficulty, \ara{} leads across all tiers: T1 (explicit) questions (ARA 97.3\%, BL 83.8\%; $n = 74$), T2 (scattered) questions (ARA 95.6\%, BL 79.0\%; $n = 193$), and T3 (implicit) questions (ARA 91.0\%, BL 60.5\%; $n = 172$).
-On unanswerable questions ($n = 26$), \ara{} achieves 92.3\% abstention accuracy vs.\ 86.5\% for the baseline.
-The difficulty gradient is expected: T2 and T3 questions require assembling scattered information or reasoning about implicit assumptions, where structured representations provide the greatest advantage.
+\paragraph{难度分层。}
+按问题难度分层，\ara{}在所有层级中均领先：T1（显式）问题（ARA 97.3\%，BL 83.8\%；$n = 74$），T2（分散）问题（ARA 95.6\%，BL 79.0\%；$n = 193$）和T3（隐含）问题（ARA 91.0\%，BL 60.5\%；$n = 172$）。
+对于无法回答的问题（$n = 26$），\ara{}达到92.3\%的弃权准确率 vs.\ 基线86.5\%。
+难度梯度是预期的：T2和T3问题需要组装分散的信息或推理隐含假设，结构化表示在这些场景中提供了最大的优势。
 
-\paragraph{Token usage--difficulty interaction.}
-The per-question token data reveals that \ara{}'s progressive disclosure architecture creates an adaptive search pattern: \ara{} agents consume 60.9K tokens/Q on T1 (explicit) questions, 95.5K on T2 (scattered), and 152.7K on T3 (implicit), adapting search depth to question complexity.
-Baseline agents, by contrast, show a flatter profile across difficulty tiers (82.8K--118.2K tokens/Q), because linear PDF scanning does not benefit from question-aware navigation.
-\ara{} consumes fewer tokens than the baseline on T1 (27\% less) and T2 (13\% less), and invests more on T3, while being substantially more accurate at every tier.
+\paragraph{Token使用量-难度交互。}
+每个问题的token数据揭示了\ara{}的渐进式信息披露架构创建了一种自适应搜索模式：\ara{}智能体在T1（显式）问题上消耗60.9K个token/Q，在T2（分散）上消耗95.5K，在T3（隐含）上消耗152.7K，使搜索深度适应问题复杂度。
+相比之下，基线智能体在难度层级之间表现出更平坦的剖面（82.8K--118.2K个token/Q），因为线性PDF扫描无法利用问题感知导航。
+\ara{}在T1（少27\%）和T2（少13\%）上消耗的token比基线少，在T3上投入更多，同时在每个层级上都显著更准确。
 
-\paragraph{Benchmark group breakdown.}
-On PaperBench papers ($n = 345$), \ara{} achieves 95.4\% vs.\ 82.5\% at comparable token usage.
-On RE-Bench tasks ($n = 105$), the accuracy gap widens (ARA 88.6\% vs.\ BL 39.5\%), driven by Category~C questions where the baseline has no access to failure knowledge.
-\paragraph{Scoring methodology note.}
-Each answer is scored on a ternary scale (1.0 correct, 0.5 partially correct, 0.0 incorrect) against a gold reference.
-An answer receives 1.0 if it captures all essential facts, numbers, and concepts; 0.5 if it conveys the main insight but misses key sub-details; and 0.0 if it is wrong, contradicts the gold answer, or hallucinates an answer to an unanswerable question.
+\paragraph{基准测试组细分。}
+在PaperBench论文上（$n = 345$），\ara{}达到95.4\% vs.\ 82.5\%，token使用量相当。
+在RE-Bench任务上（$n = 105$），准确率差距扩大（ARA 88.6\% vs.\ BL 39.5\%），由基线无法访问失败知识的类别C问题驱动。
+\paragraph{评分方法论注释。}
+每个答案根据黄金参考答案按三级制评分（1.0正确，0.5部分正确，0.0错误）。
+如果答案捕获了所有基本事实、数字和概念，得1.0分；如果传达了主要洞察但遗漏了关键的次要细节，得0.5分；如果错误、与黄金答案相矛盾或对无法回答的问题伪造了答案，得0.0分。
 
 % ============================================================
 % APPENDIX F: Reproduction Evaluation
 % ============================================================
 
-\section{Reproduction Evaluation}
+\section{复现评估}
 \label{app:reproduction-eval}
 
-This section reports the task design, scoring, and per-paper analysis for the Reproduction experiment (\S\ref{sec:eval-reproduction}).
+本节报告复现实验（\S\ref{sec:eval-reproduction}）的任务设计、评分和按论文分析。
 
 % ------------------------------------------------------------
-\subsection{Reproduction Task Design and Scoring}
+\subsection{复现任务设计与评分}
 \label{app:repro-scoring}
 
-\paragraph{Task curation.}
-Each of the 150 reproduction tasks specifies a single model, a single method, and 5--15 rubric leaf requirements as success criteria, with difficulty stratified per paper ($\geq$3 easy, $\geq$3 medium, $\geq$3 hard; aggregate: 50 easy, 49 medium, 51 hard).
-Tasks describe \emph{what} to reproduce, not how---the agent decides its own implementation strategy.
-Within each paper, the 10 subtasks form a single \emph{mega-task}: the agent receives all subtasks ordered by difficulty (easy $\to$ medium $\to$ hard) and builds cumulatively, naturally reusing prior work as a human researcher would.
+\paragraph{任务策划。}
+每个150个复现任务指定一个单一模型、一个单一方法和5--15个评分标准叶子需求作为成功标准，每篇论文按难度分层（$\geq$3个简单，$\geq$3个中等，$\geq$3个困难；总计：50个简单，49个中等，51个困难）。
+任务描述了复现\emph{什么}，而不是如何复现——智能体自行决定其实现策略。
+在每篇论文内，10个子任务构成一个单一的\emph{巨型任务}：智能体按难度排序接收所有子任务（简单$\to$中等$\to$困难），并像人类研究者一样自然地逐步构建，复用先前的工作。
 
-\paragraph{Scoring formula.}
-The primary metric is the \textbf{difficulty-weighted success rate}: $\sum_i s_i \cdot w_{d_i}\;/\;\sum_i m_i \cdot w_{d_i}$, with $w_d \in \{1,2,3\}$ for easy, medium, and hard subtasks, where $s_i$ is the subtask score (sum of requirement weights for \emph{yes} $+\, 0.5\times$\emph{partial}) and $m_i$ the maximum possible.
-Easy subtasks (setup, model instantiation) are necessary but not discriminative; most agents complete them regardless of source material, while harder subtasks (training, ablation, cross-method comparison) are where structured information provides the most leverage.
-We also report the flat (unweighted) rate and per-difficulty breakdowns.
+\paragraph{评分公式。}
+主要指标是\textbf{难度加权成功率}：$\sum_i s_i \cdot w_{d_i}\;/\;\sum_i m_i \cdot w_{d_i}$，其中$w_d \in \{1,2,3\}$对应简单、中等和困难子任务，$s_i$是子任务得分（\emph{是}$+\, 0.5\times$\emph{部分正确}的需求权重之和），$m_i$是最大可能得分。
+简单子任务（设置、模型实例化）是必要但不具备区分力的；大多数智能体无论源材料如何都能完成它们，而更难的子任务（训练、消融实验、跨方法比较）是结构化信息提供最大杠杆的地方。
+我们还报告了未加权比率和按难度细分。
 
-\paragraph{Statistical significance.}
-A Wilcoxon signed-rank test on the 15 paired per-paper weighted scores yields $p = 0.028$: \ara{} wins on 8 papers, ties on 5, and the baseline leads on 2.
-The sign pattern (8--2) is itself statistically improbable under the null hypothesis of no difference ($p = 0.039$, exact binomial), confirming that the aggregate advantage is not driven by a single outlier paper.
+\paragraph{统计显著性。}
+对15个配对按论文加权分数的Wilcoxon符号秩检验得出$p = 0.028$：\ara{}在8篇论文上获胜，5篇平局，基线在2篇上领先。
+符号模式（8--2）本身在原假设无差异下是统计上不可能的（$p = 0.039$，精确二项式），证实总体优势不是由单个异常值论文驱动的。
 
 % ------------------------------------------------------------
-\subsection{Per-Paper Reproduction Analysis}
+\subsection{按论文复现分析}
 \label{app:repro-per-paper}
 
-This section provides the detailed per-paper analysis for the reproduction experiment (\S\ref{sec:eval-reproduction}).
+本节为复现实验（\S\ref{sec:eval-reproduction}）提供详细的按论文分析。
 
-\paragraph{Per-difficulty analysis.}
-The aggregate per-difficulty pattern (\ara{} 85.1\% vs.\ baseline 80.2\% on easy, 68.5\% vs.\ 62.9\% on medium, 54.5\% vs.\ 46.0\% on hard) is visualized in main-text Figure~\ref{fig:repro-difficulty}.
-Figure~\ref{fig:repro-difficulty-heatmap} resolves this aggregate to the per-paper level, and Table~\ref{tab:repro-per-difficulty} provides the full per-paper, per-difficulty success rates underlying both.
+\paragraph{按难度分析。}
+总体的按难度模式（\ara{} 85.1\% vs.\ 基线80.2\%简单，68.5\% vs.\ 62.9\%中等，54.5\% vs.\ 46.0\%困难）在正文图~\ref{fig:repro-difficulty}中可视化。
+图~\ref{fig:repro-difficulty-heatmap}将此总体模式解析到每篇论文层面，表~\ref{tab:repro-per-difficulty}提供了支撑两者的完整按论文、按难度成功率。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/fig_reproduction_difficulty_heatmap.pdf}
-\caption{Per-paper \ara{}\,$-$\,baseline delta (percentage points) on each difficulty stratum, sorted by mean advantage. Green indicates \ara{} wins, red indicates baseline wins. Gains concentrate in the medium and hard columns across most papers; the few baseline wins are confined to a small set, most prominently \texttt{self-expansion} and \texttt{ftrl}.}
+\caption{每篇论文\ara{}\,$-$\,基线差值（百分点），按各难度层级划分，按平均优势排序。绿色表示\ara{}获胜，红色表示基线获胜。收益集中在大多数论文的中等和困难列；少数基线获胜仅限于少量论文，最突出的是\texttt{self-expansion}和\texttt{ftrl}。}
 \label{fig:repro-difficulty-heatmap}
 \end{figure}
 
@@ -1057,9 +1057,9 @@ Figure~\ref{fig:repro-difficulty-heatmap} resolves this aggregate to the per-pap
 \small
 \begin{tabular}{l rrr rrr rr}
 \toprule
-& \multicolumn{3}{c}{\textbf{ARA (\%)}} & \multicolumn{3}{c}{\textbf{Baseline (\%)}} & \multicolumn{2}{c}{\textbf{Weighted}} \\
+& \multicolumn{3}{c}{\textbf{ARA (\%)}} & \multicolumn{3}{c}{\textbf{基线 (\%)}} & \multicolumn{2}{c}{\textbf{加权}} \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-9}
-\textbf{Paper} & Easy & Med. & Hard & Easy & Med. & Hard & ARA & Base \\
+\textbf{论文} & 简单 & 中等 & 困难 & 简单 & 中等 & 困难 & ARA & 基线 \\
 \midrule
 adaptive-pruning        & 90.9 & 80.0 & 31.7 & 89.8 & 83.0 & 35.0 & 63.5 & 65.8 \\
 all-in-one              & 90.4 & 92.0 & 61.1 & 91.3 & 87.5 & 42.0 & 72.8 & 60.4 \\
@@ -1077,42 +1077,42 @@ sequential-neural       & 95.2 & 68.3 & 51.6 & 69.3 & 53.5 & 39.7 & 64.8 & 49.3 
 stochastic-interpolants & 97.7 & 100.0 & 74.1 & 95.5 & 100.0 & 72.4 & 86.7 & 85.3 \\
 test-time-model-adapt.  & 87.8 & 43.5 & 19.8 & 94.4 & 50.0 & 15.9 & 35.1 & 35.0 \\
 \midrule
-\textbf{Mean}           & \textbf{85.1} & \textbf{68.5} & \textbf{54.5} & \textbf{80.2} & \textbf{62.9} & \textbf{46.0} & \textbf{64.4} & \textbf{57.4} \\
+\textbf{均值}           & \textbf{85.1} & \textbf{68.5} & \textbf{54.5} & \textbf{80.2} & \textbf{62.9} & \textbf{46.0} & \textbf{64.4} & \textbf{57.4} \\
 \bottomrule
 \end{tabular}
-\caption{Per-paper reproduction success rates (\%) by difficulty level. Easy, medium, and hard columns show the unweighted success rate within each difficulty tier; the final two columns show the difficulty-weighted rate ($1\!:\!2\!:\!3$ weighting). Rice per-difficulty values are interpolated from the weighted score and overall rate, as its per-difficulty JSON entry was recorded separately.}
+\caption{按论文、按难度级别的复现成功率（\%）。简单、中等和困难列显示每个难度层级内的未加权成功率；最后两列显示难度加权比率（$1\!:\!2\!:\!3$权重）。Rice的按难度值是从加权分数和总体比率插值得到的，因为其按难度JSON条目是单独记录的。}
 \label{tab:repro-per-difficulty}
 \end{table*}
 
-\paragraph{Large ARA wins.}
-The papers with the largest ARA advantages---\texttt{fre} ($+21.3\%$), \texttt{mechanistic-understanding} ($+20.7\%$), and \texttt{pinn} ($+19.5\%$)---share complex multi-step training pipelines with non-obvious hyperparameter interactions that PDFs describe only at a high level.
-The \texttt{fre} ARA agent reimplemented the original JAX codebase in PyTorch (1.8\,GB GPU vs.\ JAX's 30.8\,GB), trained 17 models across three domains, and completed all medium and hard subtasks; the baseline agent struggled with the JAX environment and completed only 3 training attempts before exhausting its budget.
-The five newly added papers reinforce these patterns: \texttt{all-in-one} ($+16.0\%$) and \texttt{ftrl} ($+6.1\%$) show clear ARA advantages on hard tasks, while \texttt{stochastic-interpolants} ($+0.5\%$) and \texttt{test-time-model-adaptation} ($+0.3\%$) are ties with comparable performance from both sources.
+\paragraph{ARA大幅领先的论文。}
+ARA优势最大的论文——\texttt{fre}（$+21.3\%$）、\texttt{mechanistic-understanding}（$+20.7\%$）和\texttt{pinn}（$+19.5\%$）——共同具有复杂的多步训练流水线和非显而易见的超参数交互，PDF仅在高层次上描述这些内容。
+\texttt{fre}的ARA智能体在PyTorch中重新实现了原始JAX代码库（1.8\,GB GPU vs.\ JAX的30.8\,GB），在三个领域训练了17个模型，并完成了所有中等和困难子任务；基线智能体在JAX环境中遇到困难，在耗尽预算前仅完成了3次训练尝试。
+五篇新加入的论文强化了这些模式：\texttt{all-in-one}（$+16.0\%$）和\texttt{ftrl}（$+6.1\%$）在困难任务上显示出明显的ARA优势，而\texttt{stochastic-interpolants}（$+0.5\%$）和\texttt{test-time-model-adaptation}（$+0.3\%$）是平局，双方来源表现相当。
 
-\paragraph{Baseline wins and ties.}
-The one clear baseline win is \texttt{self-expansion} ($-7.3\%$), where the ARA agent exhibited result fabrication---reporting identical accuracy values across all configurations---detected by the blinded judge.
-Among the narrow ties, \texttt{adaptive-pruning} ($-2.3\%$) and \texttt{rice} ($-1.9\%$) both have strong companion repositories with runnable training scripts; the baseline's code access partially compensates for the PDF's information gaps.
-On \texttt{rice}, ARA achieves comparable quality with 2.5$\times$ less compute (3.7h vs.\ 9.1h, 131K vs.\ 195K tokens), suggesting efficiency gains even when final scores are similar.
+\paragraph{基线领先和平局的论文。}
+唯一明显的基线领先是\texttt{self-expansion}（$-7.3\%$），其中ARA智能体出现了结果伪造——在所有配置上报告了相同的准确率值——被盲法评判员检测到。
+在接近平局的论文中，\texttt{adaptive-pruning}（$-2.3\%$）和\texttt{rice}（$-1.9\%$）都有带可运行训练脚本的强大配套仓库；基线的代码访问部分弥补了PDF的信息缺口。
+在\texttt{rice}上，ARA用2.5倍少的计算量达到了相当的质量（3.7小时 vs.\ 9.1小时，131K vs.\ 195K个token），表明即使在最终分数相近的情况下也存在效率收益。
 
-\paragraph{Result fabrication.}
-Two baseline runs (\texttt{bbox}, \texttt{mechanistic-understanding}) exhibited result fabrication---reporting plausible but uncomputed values when unable to complete training---detected by the blinded judge.
-Across all 15 papers, fabrication occurred in 2 baseline runs and 1 ARA run (\texttt{self-expansion}), suggesting that structured artifacts generally provide sufficient grounding to prevent hallucinated results, though they are not immune.
+\paragraph{结果伪造。}
+两次基线运行（\texttt{bbox}，\texttt{mechanistic-understanding}）出现了结果伪造——在无法完成训练时报告了看似合理但未被计算的值——被盲法评判员检测到。
+在所有15篇论文中，伪造出现在2次基线运行和1次ARA运行（\texttt{self-expansion}）中，表明结构化构件通常提供了足够的依据来防止伪造结果，尽管并非完全免疫。
 
 
 % ============================================================
 % APPENDIX G: Extension Evaluation
 % ============================================================
 
-\section{Extension Evaluation}
+\section{扩展评估}
 \label{app:extension-eval}
 
-This appendix documents the methodology behind \S\ref{sec:eval-extension}: which RE-Bench tasks we use and why (App.~\ref{app:extension-tasks}), how each \ara{} is compiled from official solutions and prior MALT trajectories (App.~\ref{app:extension-pipeline}), how the polished paper-arm baseline \texttt{paper.md} is generated (App.~\ref{app:extension-paper-baseline}), the engineering of the agent harness (App.~\ref{app:extension-harness}), how we extract canonical scores from agent traces (App.~\ref{app:extension-scoring}), and the per-task case studies and trace evidence (App.~\ref{app:extension-cases}).
+本附录记录了\S\ref{sec:eval-extension}背后的方法论：我们使用哪些RE-Bench任务及其原因（附录~\ref{app:extension-tasks}），每个\ara{}如何从官方解决方案和先前的MALT轨迹编译而来（附录~\ref{app:extension-pipeline}），精炼论文臂基线\texttt{paper.md}是如何生成的（附录~\ref{app:extension-paper-baseline}），智能体测试框架的工程实现（附录~\ref{app:extension-harness}），我们如何从智能体轨迹中提取规范分数（附录~\ref{app:extension-scoring}），以及按任务案例研究和轨迹证据（附录~\ref{app:extension-cases}）。
 
 % ------------------------------------------------------------
-\subsection{Task selection}
+\subsection{任务选择}
 \label{app:extension-tasks}
 
-Of the 7 RE-Bench~\citep{wijk2025rebench} tasks, we use 5 in the extension evaluation. Table~\ref{tab:extension-task-card} lists the score formula, direction, on-task starting baseline, RE-Bench reference score, hardware requirement, and the model coverage of each task's METR MALT corpus.
+在7个RE-Bench~\citep{wijk2025rebench}任务中，我们在扩展评估中使用5个。表~\ref{tab:extension-task-card}列出了分数公式、方向、任务启动基线、RE-Bench参考分数、硬件需求以及每个任务的METR MALT语料库的模型覆盖范围。
 
 \begin{table*}[h]
 \centering
@@ -1120,7 +1120,7 @@ Of the 7 RE-Bench~\citep{wijk2025rebench} tasks, we use 5 in the extension evalu
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{l l c c c l l c}
 \toprule
-\textbf{Task} & \textbf{Score formula} & \textbf{Dir.} & \textbf{Start} & \textbf{Ref.} & \textbf{Hardware} & \textbf{Claude-4 MALT} & \textbf{Used} \\
+\textbf{任务} & \textbf{分数公式} & \textbf{方向} & \textbf{启动} & \textbf{参考} & \textbf{硬件} & \textbf{Claude-4 MALT} & \textbf{已用} \\
 \midrule
 \texttt{triton\_cumsum}         & $\log(t_\text{ms})$                & $\downarrow$ & 1.56 & 0.47 & 1$\times$H100        & 22 (O13/S9)        & yes \\
 \texttt{restricted\_mlm}        & $\log(\ell{-}1.5)$                 & $\downarrow$ & 1.81 & 1.13 & 2$\times$H100 80\,GB & 22 (O11/S11)       & yes \\
@@ -1132,280 +1132,280 @@ Of the 7 RE-Bench~\citep{wijk2025rebench} tasks, we use 5 in the extension evalu
 \texttt{optimize\_llm\_foundry} & $\log(t_\text{s})$                 & $\downarrow$ & 5.60 & 4.54 & 4$\times$H100        & 0$^\S$             & no \\
 \bottomrule
 \end{tabular}
-\caption{RE-Bench task card with extension-evaluation status. \emph{Score formula} is transcribed verbatim from \texttt{metr-re-bench/ai\_rd\_<task>/ai\_rd\_<task>.py}; $\ell$ denotes validation loss, $t$ wall-clock time, $n_\text{solved}$ the count of correctly solved problems, $\epsilon_\ell$/$\epsilon_p$ loss/parameter prediction errors. \emph{Dir.}: score orientation. \emph{Start}: score of the unmodified starter codebase. \emph{Ref.}: best score reported in the original RE-Bench evaluation. \emph{Claude-4 MALT}: count of Claude-4 (Opus + Sonnet) runs in the METR MALT corpus, broken down as O$\langle$Opus$\rangle$/S$\langle$Sonnet$\rangle$. $^\dagger$ \texttt{rust\_codecontests} also has a 10-run \texttt{claude-3-7-sonnet} supplement that uses the same scoring scaffold. $^\ddagger$ only Claude-3.5/3.7 and OpenAI runs. $^\S$ no MALT corpus published.}
+\caption{RE-Bench任务卡片及扩展评估状态。\emph{分数公式}逐字转录自\texttt{metr-re-bench/ai\_rd\_<task>/ai\_rd\_<task>.py}；$\ell$表示验证损失，$t$为挂钟时间，$n_\text{solved}$为正确解决问题的数量，$\epsilon_\ell$/$\epsilon_p$为损失/参数预测误差。\emph{方向}：分数取向。\emph{启动}：未修改起始代码库的分数。\emph{参考}：原始RE-Bench评估中报告的最佳分数。\emph{Claude-4 MALT}：METR MALT语料库中Claude-4（Opus + Sonnet）运行的数量，分解为O$\langle$Opus$\rangle$/S$\langle$Sonnet$\rangle$。$^\dagger$ \texttt{rust\_codecontests}还有一个使用相同评分脚手架的10次\texttt{claude-3-7-sonnet}补充运行。$^\ddagger$仅有Claude-3.5/3.7和OpenAI运行。$^\S$未发布MALT语料库。}
 \label{tab:extension-task-card}
 \end{table*}
 
-The bottom two tasks are excluded because their MALT corpora cannot supply a usable failure-trace layer for the experiment. \texttt{optimize\_llm\_foundry} has no published MALT corpus at all, so \texttt{trace/} would be empty by construction. \texttt{small\_scaling\_law}'s MALT corpus does exist but is structurally inadequate: it predates Claude-4 (only Claude-3.5/3.7 Sonnet and OpenAI models), it is sparse, and the runs that do exist are dominated by trivial parameter-grid sweeps with no recorded strategic exploration or named dead ends. An extraction pipeline run on those runs produces effectively empty \texttt{trace/} and \texttt{evidence/} layers and neuters the experimental contrast against the paper-only baseline. We defer both tasks to follow-up work that re-runs MALT collection on Claude-4 agents (\texttt{optimize\_llm\_foundry}) or on tasks whose strategy space elicits substantive recorded exploration (\texttt{small\_scaling\_law}).
+底部两个任务被排除，因为它们的MALT语料库无法为实验提供可用的失败轨迹层。\texttt{optimize\_llm\_foundry}完全没有发布的MALT语料库，因此\texttt{trace/}从构造上就是空的。\texttt{small\_scaling\_law}的MALT语料库确实存在但在结构上是不充分的：它早于Claude-4（仅有Claude-3.5/3.7 Sonnet和OpenAI模型），数据稀疏，并且存在的运行主要由简单的参数网格扫描主导，没有记录策略性探索或有名称的死胡同。在这些运行上运行的提取流水线产生实际上为空的\texttt{trace/}和\texttt{evidence/}层，并消除了与纯论文基线的实验对比。我们将这两个任务推迟到后续工作中，后续工作将在Claude-4智能体上重新运行MALT收集（\texttt{optimize\_llm\_foundry}）或在策略空间引发实质性记录探索的任务上进行（\texttt{small\_scaling\_law}）。
 
 % ------------------------------------------------------------
-\subsection{ARA construction pipeline}
+\subsection{ARA构建流水线}
 \label{app:extension-pipeline}
 
-Each RE-Bench \ara{} is compiled from two sources: the official reference solution (copied verbatim into \texttt{src/}) and the task's METR MALT transcripts (extracted under a beat-reference filter into \texttt{trace/} and \texttt{evidence/}). The compiler is task-agnostic with per-task knobs (score formula and direction, MALT JSONL path, dev-history schema, known hazards) collected in per-task cards; the orchestrator procedure and shared sub-agent prompt live in \texttt{code/rebench-pipeline/}.
+每个RE-Bench \ara{}从两个来源编译：官方参考解决方案（逐字复制到\texttt{src/}）和任务的METR MALT转录（在低于参考线筛选下提取到\texttt{trace/}和\texttt{evidence/}）。编译器是任务无关的，具有在每个任务卡片中收集的按任务调节项（分数公式和方向、MALT JSONL路径、开发历史模式、已知危险）；编排器过程和共享子智能体提示存放在\texttt{code/rebench-pipeline/}中。
 
-\paragraph{Pipeline.}
-The orchestrator first lifts the official solution into \texttt{src/} and the reference-derived knowledge (mathematical formulation, algorithm, heuristics, baseline tables, dev-history nodes) into \texttt{logic/} and \texttt{evidence/}, with each node tagged \texttt{source: official-solution}. It then fans out one extraction sub-agent per MALT run; each sub-agent reads its run in full (no truncation, no chunk skipping) and emits a bundle of trace nodes, evidence rows, and insights. As sub-agents complete, the orchestrator merges their outputs into the artifact: deduplicating approaches across runs (the same method appearing in $K$ runs becomes one node tagged \texttt{runs\_observed:~K}), generalising heuristics or claims when a new run extends an existing entry, and verifying that every node carries a provenance tag and every heuristic cites a specific source line. Hallucination prevention is enforced throughout: no invented numbers, experiments, or code beyond what the source artifacts visibly ship.
+\paragraph{流水线。}
+编排器首先将官方解决方案提升到\texttt{src/}，将参考派生的知识（数学公式、算法、启发式规则、基线表格、开发历史节点）提升到\texttt{logic/}和\texttt{evidence/}，每个节点标记为\texttt{source: official-solution}。然后为每个MALT运行扇出一个提取子智能体；每个子智能体完整读取其运行（不截断，不跳过块），并发出一个包含轨迹节点、证据行和洞察的捆绑包。随着子智能体完成，编排器将其输出合并到构件中：跨运行去重方法（同一方法在$K$个运行中出现成为一个带有\texttt{runs\_observed:~K}标记的节点），当新运行扩展现有条目时泛化启发式规则或论断，并验证每个节点带有溯源标签，每个启发式规则引用具体的源行。幻觉预防始终执行：不虚构任何数字、实验或超出源构件可见内容的代码。
 
-\paragraph{Beat-reference filter.}
-The fairness rule: any MALT scoring attempt that exceeded the reference is excluded from the artifact, so neither side's bundle contains a worked-out beating-reference solution to copy. The filter is direction-aware (lower-better tasks exclude $score < \text{ref}$; higher-better tasks exclude $score > \text{ref}$) and applied per attempt rather than per run, so a single MALT trajectory contributes both its dead ends and its sub-reference partial successes; it is enforced twice (inside the sub-agent and again at merge) so misclassifications are caught.
+\paragraph{低于参考线筛选。}
+公平性规则：任何超出参考值的MALT评分尝试被从构件中排除，因此两方的捆绑包都不包含可供复制的已完成的超出参考线解决方案。筛选器是方向感知的（较低更好型任务排除$score < \text{ref}$；较高更好型任务排除$score > \text{ref}$），按尝试而非按运行应用，因此单个MALT轨迹同时贡献其死胡同和次参考线部分成功；它被强制执行两次（在子智能体内部和合并时再次执行），以便捕获误分类。
 
 % ------------------------------------------------------------
-\subsection{Paper baseline construction}
+\subsection{论文基线构建}
 \label{app:extension-paper-baseline}
 
-The paper-agent \texttt{reference/paper.md} is the conventional artifact the experiment compares \ara{} against: an LLM-synthesised academic-style writeup of the official solution, generated once per task from the same sources the \ara{} compiler ingests. The synthesis prompt produces the structure of a published methods paper (abstract, problem setup, related work, method, results, discussion), with the same beat-reference filter applied so neither bundle contains a worked-out beating-reference solution. By design \texttt{paper.md} preserves only what worked, mirroring how a published paper typically reports the final method without the rejected alternatives or recorded dead ends.
+论文臂\texttt{reference/paper.md}是实验将\ara{}与之比较的传统构件：一篇由LLM合成的官方解决方案的学术风格写作，每个任务从\ara{}编译器摄入的相同来源中生成一次。合成提示产生一篇已发表方法论文的结构（摘要、问题设定、相关工作、方法、结果、讨论），应用相同的低于参考线筛选，因此两个捆绑包都不包含已完成的超出参考线解决方案。根据设计，\texttt{paper.md}仅保留有效的部分，反映了已发表论文通常报告最终方法而不包含被拒绝的替代方案或记录的死胡同的方式。
 
 % ------------------------------------------------------------
-\subsection{Harness engineering}
+\subsection{测试框架工程}
 \label{app:extension-harness}
 
-The extension harness wraps the Claude Agent SDK~\citep{claudecodesdk2025} in an SLURM-launched single-agent loop with tool surface $\{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\}$. Web access (\texttt{WebFetch}, \texttt{WebSearch}) and SDK built-ins that effectively pause the session in batch mode (\texttt{ScheduleWakeup}, \texttt{EnterPlanMode}, \texttt{EnterWorktree}) are disabled. The agent's workdir is identical across arms except for \texttt{reference/}.
+扩展测试框架将Claude Agent SDK~\citep{claudecodesdk2025}包装在一个SLURM启动的单智能体循环中，工具界面为$\{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\}$。网络访问（\texttt{WebFetch}, \texttt{WebSearch}）和在批处理模式下实际暂停会话的SDK内置功能（\texttt{ScheduleWakeup}, \texttt{EnterPlanMode}, \texttt{EnterWorktree}）被禁用。除了\texttt{reference/}外，智能体的工作目录在两个臂之间是相同的。
 
-Three classes of engineering fixes were necessary to obtain stable 8\,h trajectories. Table~\ref{tab:harness-fixes} enumerates the observed failure mode, root cause, and shipped fix for each.
+需要三类工程修复来获得稳定的8小时轨迹。表~\ref{tab:harness-fixes}列举了每种观察到的失败模式、根本原因和已发布的修复。
 
 \begin{table*}[h]
 \centering
 \small
 \begin{tabular}{p{0.22\linewidth} p{0.32\linewidth} p{0.36\linewidth}}
 \toprule
-\textbf{Failure mode} & \textbf{Root cause} & \textbf{Fix} \\
+\textbf{失败模式} & \textbf{根本原因} & \textbf{修复} \\
 \midrule
-SDK message reader crashes mid-run on a large tool result; agent process silently dies hours into the session.
-& Default \texttt{max\_buffer\_size} on the SDK's stdin/stdout reader is 1\,MiB; long bash outputs (training logs, large directory listings, multi-problem JSON dumps) exceed it in a single tool result.
-& Raise the SDK's \texttt{max\_buffer\_size} from 1\,MiB to 16\,MiB and add a system-prompt addendum requiring tool outputs to be tail-piped or summarised; tool returns over $\sim$10\,MiB still crash but are firmly in ``the agent is doing something silly'' territory. \\
+SDK消息读取器在大型工具结果上中途崩溃；智能体进程在会话数小时后静默死亡。
+& SDK的stdin/stdout读取器上的默认\texttt{max\_buffer\_size}为1\,MiB；长bash输出（训练日志、大目录列表、多问题JSON转储）在单个工具结果中超过它。
+& 将SDK的\texttt{max\_buffer\_size}从1\,MiB提高到16\,MiB，并添加系统提示补充说明要求工具输出被管道截取或摘要；超过$\sim$10\,MiB的工具返回仍会崩溃，但牢固地属于"智能体在做傻事"的范围。 \\
 \addlinespace
-SLURM job is OOM-killed; the kernel's cgroup OOM-handler sends \texttt{SIGTERM} to the largest user-space process, which is the \texttt{claude} CLI itself.
-& Agents declare ``session complete'' early and run \texttt{for i in \{1..N\}; do bash score.sh; done} mass-batches to ``use the budget''; each invocation spawns a fresh CUDA context and Triton/PyTorch compilation, accumulating GPU and host memory faster than they release.
-& A \texttt{PreToolUse} Bash hook that denies mass-batch scoring patterns ($\texttt{for}$/$\texttt{seq}$ loops with $N{>}10$, background tokens, $\texttt{while~true}$) before they reach the shell, with an explanation that nudges the agent toward serial scoring rather than a workaround. Bumping the cgroup memory ceiling helped but was not sufficient. \\
+SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空间进程发送\texttt{SIGTERM}，即\texttt{claude} CLI本身。
+& 智能体声明"会话完成"并运行\texttt{for i in \{1..N\}; do bash score.sh; done}批量批处理以"用尽预算"；每次调用产生一个新的CUDA上下文和Triton/PyTorch编译，GPU和主机内存的累积速度快于释放速度。
+& 一个\texttt{PreToolUse} Bash钩子，在批量评分模式到达shell之前拒绝它们（$N{>}10$的\texttt{for}/\texttt{seq}循环，后台token，\texttt{while~true}），并提供解释引导智能体进行串行评分而非绕过限制。提高cgroup内存上限有帮助但不够充分。 \\
 \addlinespace
-Agent goes silent after self-declaring ``session complete'', wasting hours of remaining wall clock.
-& SDK's stop-loop triggers (\texttt{end\_turn}, \texttt{stop\_sequence}, \texttt{max\_tokens}, \texttt{pause\_turn}) end the consumer loop after a small default count; the harness terminates with an unexhausted budget.
-& Pushback ceiling raised to 1{,}000 with the trigger set expanded to all four; mid-run reminder injection every 15 turns nudges agents back to \texttt{reference/trace/} and \texttt{reference/evidence/}; resume protocol re-launches a crashed session from its \texttt{session\_id} with a forceful resume prompt instructing the agent that it ended in a stop loop, real work remains, and the budget is the only legitimate stopping criterion. \\
+智能体在自行声明"会话完成"后静默，浪费剩余数小时的挂钟时间。
+& SDK的停止循环触发器（\texttt{end\_turn}, \texttt{stop\_sequence}, \texttt{max\_tokens}, \texttt{pause\_turn}）在小默认计数后结束消费者循环；测试框架以未用完的预算终止。
+& 推回上限提高到1{,}000，触发器集扩展到所有四个；每15轮注入中途提醒，引导智能体回到\texttt{reference/trace/}和\texttt{reference/evidence/}；恢复协议从其\texttt{session\_id}重新启动崩溃的会话，使用强制恢复提示，告知智能体它是在停止循环中结束的，真正的工作仍待完成，预算是唯一合法的停止标准。 \\
 \addlinespace
-Final \texttt{score.sh} invocation TIMEOUTs and no \texttt{final\_score.json} is written.
-& Default 300\,s scorer timeout was too tight for tasks with long compile/benchmark phases (Triton autotune; the 165-problem \texttt{rust\_codecontests} test set takes $\sim$2\,h with rate-limited LLM calls).
-& Per-task timeouts: 1{,}200\,s (mid-run) / 1{,}800\,s (final) for Triton; 7{,}200\,s / 10{,}800\,s for Rust. A separate score-only sbatch re-runs \texttt{bash score.sh} on the existing workdir's \texttt{solution\_final.py} when the harness's own final-score phase still TIMEOUTs. \\
+最终的\texttt{score.sh}调用超时，且没有写入\texttt{final\_score.json}。
+& 默认的300\,s评分器超时对于具有长编译/基准测试阶段的任务来说太紧张（Triton自动调优；165问题的\texttt{rust\_codecontests}测试集在受速率限制的LLM调用下需要$\sim$2\,小时）。
+& 按任务定义超时：Triton为1{,}200\,s（中途）/ 1{,}800\,s（最终）；Rust为7{,}200\,s / 10{,}800\,s。当测试框架自身的最终评分阶段仍然超时时，一个单独的仅评分sbatch重新运行\texttt{bash score.sh}在现有工作目录的\texttt{solution\_final.py}上。 \\
 \bottomrule
 \end{tabular}
-\caption{Harness failure modes encountered during the extension evaluation and the fixes shipped in \texttt{code/extension-harness/harness.py}. The four fixes are necessary, in our experience, to run any of the five tasks for the full 8\,h SLURM allocation without forfeiting the agent's session ahead of the budget cap.}
+\caption{扩展评估中遇到的测试框架失败模式及在\texttt{code/extension-harness/harness.py}中发布的修复。根据我们的经验，四个修复对于在全部8小时SLURM分配的五个任务中的任何一个上完整运行而不在预算上限之前放弃智能体会话都是必要的。}
 \label{tab:harness-fixes}
 \end{table*}
 
-\paragraph{Run resources.} 8\,h SLURM wall clock and \$50 hard API-spend cap (SDK-enforced) per run, on 1$\times$H100 (\texttt{triton\_cumsum}, \texttt{fix\_embedding}, \texttt{nanogpt\_chat\_rl}), 2$\times$H100 80\,GB (\texttt{restricted\_mlm}), or CPU-only (\texttt{rust\_codecontests}). The \texttt{nanogpt\_chat\_rl} judge runs on Replicate (Llama-3-8B-Instruct) and \texttt{rust\_codecontests} routes generation through OpenAI \texttt{gpt-3.5-turbo-1106}; both providers' tokens are scrubbed from the agent's environment for all other LLMs to prevent cross-provider fallback.
+\paragraph{运行资源。}每次运行8小时SLURM挂钟时间和\$50硬API支出上限（由SDK强制执行），在1$\times$H100（\texttt{triton\_cumsum}，\texttt{fix\_embedding}，\texttt{nanogpt\_chat\_rl}），2$\times$H100 80\,GB（\texttt{restricted\_mlm}）或仅CPU（\texttt{rust\_codecontests}）上运行。\texttt{nanogpt\_chat\_rl}评判员在Replicate上运行（Llama-3-8B-Instruct），\texttt{rust\_codecontests}通过OpenAI \texttt{gpt-3.5-turbo-1106}路由生成；两个提供商的token都从智能体环境中清除用于所有其他LLM，以防止跨提供商回退。
 
 % ------------------------------------------------------------
-\subsection{Score-event extraction}
+\subsection{分数事件提取}
 \label{app:extension-scoring}
 
-Score events are extracted from \texttt{trace.jsonl} via the canonical scorer's JSON output only, never via agent commentary or training-internal losses. Per-task patterns:
+分数事件仅通过规范评分器的JSON输出从\texttt{trace.jsonl}中提取，从不通过智能体评论或训练内部损失。按任务模式：
 
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
-  \item \textbf{\texttt{triton\_cumsum}}: \texttt{\{"score": X, "message": \{"shape\_dtype\_match": True, "results\_match": True, "torch\_time\_ms": $\ldots$, "solution\_time\_ms": Y\}\}} from the harness scorer; raw metric is \texttt{solution\_time\_ms}.
-  \item \textbf{\texttt{restricted\_mlm}, \texttt{fix\_embedding}}: \texttt{\{"score": X, "loss": Y, "compliant": $\ldots$, "device": $\ldots$\}} from \texttt{local\_score.py}.
-  \item \textbf{\texttt{nanogpt\_chat\_rl}}: \texttt{\{"score": X, "message": \{"win\_vs\_gpt2-alpaca": Y, "win\_vs\_gpt2-xl": Z\}\}} from the scoring binary.
-  \item \textbf{\texttt{rust\_codecontests}}: both \texttt{Score: X | N successes / 165} and \texttt{\{"score": X, "n\_problems": 165, "n\_successes": N\}} from \texttt{local\_score.py}; we accept either as canonical and dedupe by \texttt{(round(t,1), N)}.
+  \item \textbf{\texttt{triton\_cumsum}}：来自测试框架评分器的\texttt{\{"score": X, "message": \{"shape\_dtype\_match": True, "results\_match": True, "torch\_time\_ms": $\ldots$, "solution\_time\_ms": Y\}\}}；原始指标为\texttt{solution\_time\_ms}。
+  \item \textbf{\texttt{restricted\_mlm}, \texttt{fix\_embedding}}：来自\texttt{local\_score.py}的\texttt{\{"score": X, "loss": Y, "compliant": $\ldots$, "device": $\ldots$\}}。
+  \item \textbf{\texttt{nanogpt\_chat\_rl}}：来自评分二进制的\texttt{\{"score": X, "message": \{"win\_vs\_gpt2-alpaca": Y, "win\_vs\_gpt2-xl": Z\}\}}。
+  \item \textbf{\texttt{rust\_codecontests}}：来自\texttt{local\_score.py}的\texttt{Score: X | N successes / 165}和\texttt{\{"score": X, "n\_problems": 165, "n\_successes": N\}}；我们接受任何一种作为规范，并通过\texttt{(round(t,1), N)}去重。
 \end{itemize}
 
-Per-run cost is reconstructed from per-message \texttt{usage} fields under Claude Sonnet list pricing and rescaled to match the SDK's authoritative \texttt{total\_cost\_usd}, which agrees with the Anthropic billing portal within rounding.
+每次运行的成本从每条消息的\texttt{usage}字段根据Claude Sonnet列表定价重建，并重新缩放以匹配SDK的权威\texttt{total\_cost\_usd}，该值与Anthropic计费门户在舍入误差内一致。
 
 % ------------------------------------------------------------
-\subsection{Per-task case studies}
+\subsection{按任务案例研究}
 \label{app:extension-cases}
 \label{app:extension-trajectories}
 
-Each task in §\ref{sec:eval-extension} is unpacked here as a trajectory case study grounded in the agent's own \texttt{trace.jsonl} and \texttt{ThinkingBlock} stream, in the same order as the columns of Figure~\ref{fig:extension-summary}. The body composite already shows the Sonnet 4.6 trajectories; for \texttt{triton\_cumsum} (Fig.~\ref{fig:extension-triton-45}) and \texttt{restricted\_mlm} (Fig.~\ref{fig:extension-mlm-45}) we additionally report the same paired comparison on the older Sonnet 4.5 base to make the contrast across model versions visible.
+第\S\ref{sec:eval-extension}中的每个任务在此以轨迹案例研究的形式展开，以智能体自身的\texttt{trace.jsonl}和\texttt{ThinkingBlock}流为依据，顺序与图~\ref{fig:extension-summary}的列顺序相同。正文组合已显示Sonnet 4.6轨迹；对于\texttt{triton\_cumsum}（图~\ref{fig:extension-triton-45}）和\texttt{restricted\_mlm}（图~\ref{fig:extension-mlm-45}），我们还报告了在较旧的Sonnet 4.5基础上的相同配对比较，以使跨模型版本的对比可见。
 
-\subsubsection{Case study: \texttt{triton\_cumsum} (GPU kernel optimization)}
+\subsubsection{案例研究：\texttt{triton\_cumsum}（GPU内核优化）}
 \label{sec:eval-extension-triton}
 
-The task is to write a Triton kernel for a conditional prefix sum on $10^8$ \texttt{int32} elements: $Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{odd \#positives precede } j]$, scored by $\log(t_\text{ms})$ on an H100. Both arms start from the same official solution: a 3-pass Triton kernel (parity scan $\to$ conditional cumsum $\to$ block-sum addition) with autotuned \texttt{BLOCK\_SIZE} / \texttt{NUM\_STAGES}. We ran four trajectories: paper and \ara{} arms on Claude Sonnet 4.5 (the model on which we have the longest paired runs) and on Sonnet 4.6 (where we re-ran with the model the rest of the evaluation uses). The Sonnet 4.6 trajectories are in body Fig.~\ref{fig:extension-summary} (leftmost column); Fig.~\ref{fig:extension-triton-45} below shows the Sonnet 4.5 paired runs. The analysis cross-references the trace for both.
+任务是为$10^8$个\texttt{int32}元素上的条件前缀和编写一个Triton内核：$Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{j之前有奇数个正数}]$，在H100上按$\log(t_\text{ms})$评分。双方从相同的官方解决方案开始：一个3遍Triton内核（奇偶扫描$\to$条件累加和$\to$块求和累加），具有自动调优的\texttt{BLOCK\_SIZE} / \texttt{NUM\_STAGES}。我们运行了四条轨迹：Claude Sonnet 4.5上的论文臂和\ara{}臂（我们拥有最长配对运行的模型）以及Sonnet 4.6上的（我们在其余评估中使用的模型重新运行）。Sonnet 4.6轨迹在正文图~\ref{fig:extension-summary}（最左列）中；下面的图~\ref{fig:extension-triton-45}显示了Sonnet 4.5配对运行。分析交叉参考了二者的轨迹。
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/extension/triton_45_paper_vs_ara.pdf}
-\caption{\texttt{triton\_cumsum} on Sonnet 4.5: paper vs.\ \ara{} score-vs-time (left) and score-vs-cost (right). Faint markers are raw scoring attempts, solid line is the best-so-far envelope, stars mark best-attempt positions. Dotted line is the original RE-Bench reference (0.47) reported on different H100 silicon; the harness-measured per-hardware baseline (${\sim}0.64$) is where both arms start. The 4.6 trajectories are in the body composite (Fig.~\ref{fig:extension-summary}, leftmost column).}
+\caption{\texttt{triton\_cumsum}在Sonnet 4.5上：论文 vs.\ \ara{}分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线为原始RE-Bench参考值（0.47），该值是在不同的H100芯片上报告的；测试框架测量的每硬件基线（${\sim}0.64$）是双方的起点。4.6轨迹在正文组合图（图~\ref{fig:extension-summary}，最左列）中。}
 \label{fig:extension-triton-45}
 \end{figure*}
 
-\paragraph{Two regimes split along model.}
-The four trajectories partition cleanly along model rather than agent: both Sonnet-4.5 agents leave the official kernel's algorithmic structure untouched and only edit \texttt{@triton.autotune} configs, while both Sonnet-4.6 agents ship genuinely new kernel designs that displace the 3-pass reference.
+\paragraph{两个机制沿模型划分。}
+四条轨迹沿模型清晰划分，而非沿智能体划分：两个Sonnet-4.5智能体保持官方内核的算法结构不变，只编辑\texttt{@triton.autotune}配置，而两个Sonnet-4.6智能体发布了真正的新内核设计，取代了3遍参考方案。
 
-\paragraph{Sonnet 4.5: trace-conditioned autotune sweep.}
-The paper agent populated its autotune grid with $\texttt{NUM\_STAGES} \in \{1, 24, 32, 48, 64, 96\}$, labelling the deepest pipelines as \emph{``Extreme pipelining --- highest performers''} in inline comments and never testing the $\{4, 8\}$ regime. The \ara{} agent picked $\texttt{NUM\_STAGES} \in \{4, 8\}$ instead, citing heuristic H01 (\emph{``Grid size is fixed at 128 for H100 (which has 132 SMs) \ldots''}) verbatim in a \texttt{ThinkingBlock} at $t = 4.3$\,min after reading \texttt{evidence/tables/malt\_attempts.md} and \texttt{src/configs/autotune.md}. That conservative grid is what the autotuner selects from at runtime, and it is what produces the \ara{} agent's $\sim 0.27$ vs.\ the paper agent's flat $\sim 0.64$ in Fig.~\ref{fig:extension-triton-45}. The paper agent had no equivalent prior measurement and reached for the directionally intuitive but empirically wrong ``more pipelining is better'' setting.
+\paragraph{Sonnet 4.5：轨迹条件下的自动调优扫描。}
+论文臂智能体用$\texttt{NUM\_STAGES} \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为\emph{"极端流水线——性能最高者"}在内嵌注释中，从未测试$\{4, 8\}$范围。\ara{}臂智能体相反选择了$\texttt{NUM\_STAGES} \in \{4, 8\}$，在$t = 4.3$分钟时在\texttt{ThinkingBlock}中逐字引用了启发式规则H01（\emph{"网格大小对H100固定为128（拥有132个SM）\ldots"}），这是在读取\texttt{evidence/tables/malt\_attempts.md}和\texttt{src/configs/autotune.md}之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生\ara{}智能体在图~\ref{fig:extension-triton-45}中$\sim 0.27$ vs.\ 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
 
-\paragraph{Sonnet 4.6: early head start, late paper-agent overtake.}
-The \ara{} agent calls \texttt{bash score.sh} for the first time at $t = 11$\,min and immediately scores 0.47, having edited the kernel using trace-surfaced ideas (\texttt{decoupled lookback}, \texttt{associative\_scan}) in the first ten minutes. The paper agent does not score until $t = 37$\,min and lands at 0.38, having spent the early wall clock reading the polished writeup and reasoning from first principles. The \ara{} agent leads on best-so-far through $t \approx 75$\,min, then the paper agent overtakes via an \texttt{int8} input compression introduced at $t = 47.7$\,min (motivated by the scorer's $[-10, 9]$ input range fitting in 8 bits) which, combined with a parity-tracking per-block aggregate, drops total memory traffic from $\sim$2\,GB to 0.5\,GB; it iterates on this design through the rest of the run. The \ara{} agent meanwhile commits to a chained-scan-with-decoupled-lookback redesign and spends late-phase compute on boundary-correctness debugging, anchored by heuristic H13 and a trace-reported MALT ceiling. \texttt{int8} appears once in the \ara{} agent's trace at $t = 40.5$\,min as a passing thought and is never implemented.
+\paragraph{Sonnet 4.6：早期领先，后期论文智能体反超。}
+\ara{}智能体在$t = 11$分钟时首次调用\texttt{bash score.sh}并立即得分0.47，在前十分钟内使用轨迹浮现的思想编辑了内核（\texttt{解耦回看}、\texttt{associative\_scan}）。论文臂智能体直到$t = 37$分钟才评分，得分为0.38，早期挂钟时间花在阅读精炼写作和从第一性原理推理上。\ara{}智能体在迄今最佳方面领先到$t \approx 75$分钟，然后论文臂智能体通过在$t = 47.7$分钟引入的\texttt{int8}输入压缩反超（动机来自于评分器的$[-10, 9]$输入范围适合8位），结合每个块的奇偶追踪聚合，将总内存流量从$\sim$2\,GB降至0.5\,GB；它在剩余的运行中迭代这一设计。\ara{}智能体同时致力于链式扫描加解耦回看的重新设计，并在边界正确性调试上花费了后期计算，受启发式规则H13和轨迹报告的MALT上限所锚定。\texttt{int8}在$t = 40.5$分钟时在\ara{}智能体轨迹中出现过一次，作为一闪而过的想法，从未被实现。
 
-\paragraph{Reading.}
-The \ara{} artifact contributes two qualitatively different things at two phases of the run. Early, it acts as an initialiser: the agent shortcuts the diagnostic phase, picks autotune knobs the paper agent misses, and lands an improved kernel within minutes. Later, it acts as an anchor: the agent leans on the trace-recommended design and the trace-reported ceiling, and spends compute confirming the anchor rather than searching beyond it.
+\paragraph{解读。}
+\ara{}构件在运行的两个阶段贡献了两件性质不同的东西。早期，它充当初始化器：智能体缩短了诊断阶段，选择了论文臂智能体遗漏的自动调优旋钮，并在几分钟内落地了改进的内核。后期，它充当锚点：智能体依赖于轨迹推荐的设计和轨迹报告的上限，并将计算花在确认锚点而非搜索锚点之外。
 
-\subsubsection{Case study: \texttt{rust\_codecontests} (LLM-as-tool scaffolding)}
+\subsubsection{案例研究：\texttt{rust\_codecontests}（LLM作为工具脚手架）}
 \label{sec:eval-extension-rust}
 
-The task is to write a Python scaffold that generates Rust solutions to 165 held-out Codeforces-derived problems by calling \texttt{gpt-3.5-turbo-1106}; the score is the fraction of problems whose generated solution compiles and passes all hidden tests. The official reference scaffold (score 0.127 = 21/165) uses an 18-candidate-per-problem pipeline with chain-of-thought prompting, a compile-and-public-test filter, and a vote-among-survivors stage; it ships with an unused \texttt{few\_shots/} directory wired into the scaffold's prompt construction. Both arms start from the same scaffold. We ran a single seed per arm on Sonnet 4.6 (the rust task has no Sonnet-4.5 paired data); the trajectories appear in body Fig.~\ref{fig:extension-summary} (second column). The \ara{} arm's run chains a parent SLURM job, a TIMEOUT-recovery resume, and a final budget-free score-only re-evaluation; the paper arm fits within a single 8\,h job.
+任务是编写一个Python脚手架，通过调用\texttt{gpt-3.5-turbo-1106}为165个保留的Codeforces衍生问题生成Rust解决方案；分数是生成方案能编译并通过所有隐藏测试的问题比例。官方参考脚手架（分数0.127 = 21/165）使用每个问题18个候选的流水线，具有思维链提示、编译并公开测试筛选器以及幸存者投票阶段；它附带一个未使用的\texttt{few\_shots/}目录，接入脚手架的提示构建。双方从相同的脚手架开始。我们在Sonnet 4.6上每臂运行了一个种子（rust任务没有Sonnet-4.5配对数据）；轨迹出现在正文图~\ref{fig:extension-summary}（第二列）中。\ara{}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
 
-\paragraph{The trace converts a MALT data point into actionable guidance.}
-The \ara{}'s evidence layer summarises 22 prior MALT runs and surfaces a single high-value attempt: \texttt{supplement\_run\_5} (Claude-3.7-Sonnet) reached 0.097 by bypassing the gpt-3.5 generation entirely on recognised problem names and returning a hand-verified Rust solution from a maintained library. Crucially $0.097 < 0.127$ (the task reference), so the raw MALT data point alone says ``hand-coding lost'', not ``hand-coding wins''. The heuristics layer reframes the same data point as two explicit rules, one prescriptive and one prohibitive: \texttt{H12} (\emph{``Hand-coded Rust solution library outperforms prompt engineering on this task''}) and \texttt{H15} (\emph{``Generator ceiling at GPT-3.5-turbo Rust ${\sim}0.05$--$0.10$ across all explored single-completion variants''}). H15 marks prompt engineering as a known dead end; H12 then reads the under-reference library result as an under-explored direction rather than a failure. The \ara{} agent reads \texttt{heuristics.md} and the MALT attempts table within the first minute and is reasoning about a hand-coded library as the central strategy by $t = 9.9$\,min; the paper agent's \texttt{paper.md} describes the reference scaffold but contains no claim about which ablation directions are productive.
+\paragraph{轨迹将MALT数据点转化为可操作的指导。}
+\ara{}的证据层总结了22次先前的MALT运行，并浮现了一个高价值尝试：\texttt{supplement\_run\_5}（Claude-3.7-Sonnet）通过完全绕过gpt-3.5生成，对识别的题目名返回手动验证的Rust解决方案，分数达到0.097。关键的是$0.097 < 0.127$（任务参考值），因此原始MALT数据点本身说的是"手工编码输了"，而非"手工编码赢了"。启发式规则层将同一点重新表述为两条明确的规则，一条是规定性的，一条是禁止性的：\texttt{H12}（\emph{"在此任务上，手工编码的Rust解决方案库优于提示工程"}）和\texttt{H15}（\emph{"在所有已探索的单次补全变体中，GPT-3.5-turbo Rust生成器上限${\sim}0.05$--$0.10$"}）。H15将提示工程标记为已知死胡同；H12然后将低于参考线的库结果解读为未充分探索的方向而非失败。\ara{}智能体在第一分钟内读取了\texttt{heuristics.md}和MALT尝试表，并在$t = 9.9$分钟时就开始将手工编码的库作为中心策略进行推理；论文臂智能体的\texttt{paper.md}描述了参考脚手架，但不包含关于哪些消融方向是有产出的断言。
 
-\paragraph{Strategy divergence across the run.}
-Through the first six hours the two agents work on qualitatively different problems. The \ara{} agent hand-codes Rust solutions and registers them in a \texttt{SOLUTIONS} dict that the scaffold consults before falling back to gpt-3.5: 34 entries by $t = 60$\,min, 57 by $t = 170$\,min, 73 by $t = 226$\,min. The paper agent treats the task as a prompt-engineering problem and cycles through \texttt{solution\_v5.py}--\texttt{v8.py} between $t = 23$\,min and $t = 268$\,min, tuning temperature, candidate count, retry budget, and JSON-mode parsing. The full-test-set evaluations track this divergence: \ara{}'s scores move $49 \to 56 \to 78$ at $t = 161, 214, 269$\,min (every evaluation reflects newly added library entries), while the paper agent's stall at $33 \to 33 \to 38 \to 39 \to 39$ across $t = 68$--$231$\,min---the prompt-engineering ceiling that \texttt{H15} explicitly warns against.
+\paragraph{运行过程中的策略分叉。}
+在前六个小时中，两个智能体工作在性质不同的问题上。\ara{}智能体手工编写Rust解决方案并将其注册到\texttt{SOLUTIONS}字典中，脚手架在回退到gpt-3.5之前先查询该字典：$t = 60$分钟时34个条目，$t = 170$分钟时57个，$t = 226$分钟时73个。论文臂智能体将任务视为提示工程问题，在$t = 23$分钟到$t = 268$分钟之间循环经历了\texttt{solution\_v5.py}--\texttt{v8.py}，调优温度、候选数量、重试预算和JSON模式解析。完整测试集评估跟踪了这一分叉：\ara{}的分数在$t = 161, 214, 269$分钟时从$49 \to 56 \to 78$移动（每次评估反映新添加的库条目），而论文臂在$t = 68$--$231$分钟之间停滞在$33 \to 33 \to 38 \to 39 \to 39$——这正是\texttt{H15}明确警告的提示工程上限。
 
-\paragraph{Independent rediscovery, six hours later.}
-The paper agent eventually reaches the same conclusion. At $t = 395$\,min, while inspecting the workdir, it notices the existing \texttt{few\_shots/} directory referenced by the scaffold's \texttt{get\_few\_shots} function; over the next six minutes its \texttt{ThinkingBlock} reverse-engineers the cache format and starts populating it with hand-coded solutions for problems the AI pipeline failed. 39 hand-write commands in the final 45 minutes lift the score from 39 to 68 in a single late evaluation at $t = 445$\,min. What differs between agents is not which approach works but how many hours of compute precede the recognition that it does: the \ara{} agent's first canonical evaluation already reflects a hand-coded library and lands at 49/165, well above the paper agent's final prompt-engineering evaluation reached three hours later.
+\paragraph{独立重新发现，六小时后。}
+论文臂智能体最终得出了相同的结论。在$t = 395$分钟时，在检查工作目录的过程中，它注意到了脚手架\texttt{get\_few\_shots}函数引用的已有\texttt{few\_shots/}目录；在接下来的六分钟里，其\texttt{ThinkingBlock}逆向工程了缓存格式，并开始用AI流水线失败的问题的手工编码解决方案填充它。最后45分钟中的39条手写命令在$t = 445$分钟的单次后期评估中将分数从39提升至68。两个智能体之间的差异不在于哪种方法有效，而在于在认识到有效之前花费了多少小时的计算：\ara{}智能体的第一次规范评估已经反映了手工编码的库，得分为49/165，远高于论文臂智能体在三小时后达到的最终提示工程评估值。
 
-\paragraph{Reading.}
-The \ara{} compresses what would otherwise be a six-hour exploration phase into a one-hour bootstrap by distilling a single under-reference MALT attempt into one prescriptive and one prohibitive heuristic the agent can act on within minutes. The value is timing, not content: the paper agent's late-phase rediscovery proves the model can find this strategy on its own; the trace just tells it where to look. The rust strategy is also \emph{open-ended} (each library entry adds one solved problem), so the trace's reported MALT ceiling reads as a starting line rather than an upper bound and the \ara{} agent ascends past it---a different role for trace ceilings than on triton, where the strategy is closed-form and the same ceilings act as anchors.
+\paragraph{解读。}
+\ara{}通过将一个低于参考线的单个MALT尝试蒸馏为一条规定性和一条禁止性启发式规则，将本需六小时的探索阶段压缩为一小时的引导。价值在于时机，而非内容：论文臂智能体的后期重新发现证明了模型可以自行找到这一策略；轨迹只是告诉它去哪里找。rust策略也是\emph{开放式的}（每个库条目增加一个已解决的问题），因此轨迹报告的MALT上限被解读为起跑线而非上界，\ara{}智能体攀升超越了这一上限——这是轨迹上限不同于triton上角色的一种情况，在triton上策略是闭式的，相同的上限充当锚点。
 
-\subsubsection{Case study: \texttt{nanogpt\_chat\_rl} (preference RL on a 1.5B model)}
+\subsubsection{案例研究：\texttt{nanogpt\_chat\_rl}（在1.5B模型上的偏好RL）}
 \label{sec:eval-extension-nanogpt}
 
-The task is to RL-finetune GPT-2-XL (1.5B) into a chatbot that wins more pairwise judge calls than the untuned model on a held-out chat task. The official reference scaffold uses best-of-8 tournament selection per prompt, 2{,}048 prompts per training step, low-temperature ($4 \times 10^{-6}$) Adam optimization, and a Llama-3-8B-Instruct judge running on Replicate. The score is the mean win-rate against \texttt{gpt2-alpaca} and \texttt{gpt2-xl}; the agent baseline (untuned model) scores 0.615, the reference scaffold scores 0.85, and the RE-Bench human ceiling is 0.97. Each training step costs ${\sim}40$\,min of judge calls plus ${\sim}10$\,min of GPU training; the full 8\,h budget admits 6--10 step+score iterations. We ran a single seed per arm on Sonnet 4.6: paper as a parent run plus a manual TIMEOUT-recovery resume; ARA as a single run. The two trajectories appear in body Fig.~\ref{fig:extension-summary} (third column).
+任务是将GPT-2-XL（1.5B）通过RL微调为一个聊天机器人，在保留的聊天任务上比未调优模型获得更多的配对评判胜利。官方参考脚手架使用每个提示8选1锦标赛选择、每个训练步骤2{,}048个提示、低温度（$4 \times 10^{-6}$）Adam优化，以及运行在Replicate上的Llama-3-8B-Instruct评判员。分数是对\texttt{gpt2-alpaca}和\texttt{gpt2-xl}的平均胜率；智能体基线（未调优模型）得分为0.615，参考脚手架得分为0.85，RE-Bench人类上限为0.97。每个训练步骤消耗约40分钟的评判调用加上约10分钟的GPU训练；完整的8小时预算允许6--10次步骤+评分迭代。我们在Sonnet 4.6上每臂运行了一个种子：论文臂作为父运行加一次手动TIMEOUT恢复恢复；ARA臂作为单次运行。两条轨迹出现在正文图~\ref{fig:extension-summary}（第三列）中。
 
-\paragraph{Early divergence: rewrite the algorithm vs.\ orchestrate the reference.}
-The decisive divergence is in \emph{which problem each agent decides it is solving}. The paper agent runs its first scoring at $t = 6.9$\,min, observes the 0.616 starting score against the 0.85 reference, and at $t = 7.6$\,min commits to rewriting the training algorithm; by $t = 10.5$\,min it has a custom DPO-plus-SFT objective in \texttt{rl\_finetune\_v2.py}. The \ara{} agent's first scoring is at $t = 4.5$\,min, and at $t = 6.3$\,min its \texttt{ThinkingBlock} cites the trace explicitly: \emph{``The reference (best-of-8, 4 steps, lr=4e-6, 2048 prompts/step) scores ${\sim}0.85$. No MALT run reached 0.85, best was 0.8184. Rate limiting from Replicate is the binding constraint. Aggressive lr causes collapse.''} Its first script at $t = 19.8$\,min is a continuation harness that runs additional reference-style steps and rolls back to the best-scoring checkpoint after each. The trace converted the reference recipe from a number on paper into an empirical claim with explicit ceilings, and that converted the agent's question from \emph{``how do I write a better training script?''} into \emph{``how do I run the existing one more carefully?''}.
+\paragraph{早期分叉：重写算法 vs.\ 编排参考方案。}
+决定性的分叉在于\emph{每个智能体认定自己在解决哪个问题}。论文臂智能体在$t = 6.9$分钟时运行第一次评分，观察到0.616的起始分数对比0.85的参考值，并在$t = 7.6$分钟时承诺重写训练算法；到$t = 10.5$分钟时，它在\texttt{rl\_finetune\_v2.py}中有了一个自定义的DPO加SFT目标。\ara{}智能体的第一次评分在$t = 4.5$分钟，并在$t = 6.3$分钟时其\texttt{ThinkingBlock}明确引用了轨迹：\emph{"参考方案（8选1，4步，lr=4e-6，2048提示/步）得分${\sim}0.85$。没有MALT运行达到0.85，最佳为0.8184。来自Replicate的速率限制是绑定约束。激进的学习率导致崩溃。"} 它在$t = 19.8$分钟时的第一个脚本是一个延续框架，运行额外的参考风格步骤并在每次之后回滚到评分最佳的检查点。轨迹将参考配方从纸上的数字转化为具有明确上限的经验论断，而这将智能体的问题从\emph{"我如何编写更好的训练脚本？"}转化为\emph{"我如何更谨慎地运行现有的脚本？"}。
 
-\paragraph{The reference scaffold ships with a regression bug; a heuristic names the fix.}
-Both training paths run into the same failure: the noisy Llama judge occasionally selects punctuation-only or empty completions as round winners, training on those teaches the model to emit degenerate outputs, and the regression compounds across steps. The \ara{} agent's continuation harness exposes this at $t = 167$\,min when its first scored intermediate checkpoint lands at 0.126; the paper agent's first scored full-test checkpoint drops to 0.443 at $t = 223$\,min on the same failure. The \ara{} bundle pre-encodes the fix as \texttt{H08} (\emph{``Filter out winners with fewer than 3 alphabetic characters before training''}), with three companion heuristics naming the score-then-restart orchestration the \ara{} agent ends up implementing.
+\paragraph{参考脚手架带有一个回归错误；一条启发式规则给出了修复方法。}
+两条训练路径都遇到了相同的失败：噪声很大的Llama评判员偶尔选择仅标点符号或空的补全作为回合赢家，在这些结果上训练教会模型输出退化输出，并且回归跨步骤复合。\ara{}智能体的延续框架在$t = 167$分钟时暴露了这一点，当时其第一个得分的中间检查点为0.126；论文臂智能体的第一个得分的完整测试检查点在相同失败上降至0.443（$t = 223$分钟）。\ara{}捆绑包将修复预编码为\texttt{H08}（\emph{"在训练前过滤掉少于3个字母字符的赢家"}），并附带三条命名了\ara{}智能体最终实现的评分然后重启编排的配套启发式规则。
 
-\paragraph{Late-phase strategy: exploration width.}
-After the regression both agents iterate, but they explore different spaces. The \ara{} agent writes 14 scripts after $t = 200$\,min, all variants \emph{within} the reference algorithm: each tunes batch size, learning-rate placement, or restart-from-best logic but none changes the loss function. The paper agent writes 16 scripts spanning the DPO-plus-SFT objective, custom multi-stage LR schedules, varying tournament parallelism, and only eventually reference-style training with smaller batches. Even at $t = 202$\,min the paper agent's \texttt{ThinkingBlock} explicitly recognises the reference recipe (\emph{``This is the N=8, lr=4e-6, 4 steps version that gets ${\sim}0.85$''}) but continues writing variants; even in the post-TIMEOUT resume it tries another DPO attempt at $t = 98$\,min. The trace's empirical anchor (``no MALT run reached 0.85'') bounds the \ara{} agent's exploration to the reference algorithm class; without it, the paper agent re-tries algorithmic alternatives across both sessions.
+\paragraph{后期策略：探索宽度。}
+回归后两个智能体都继续迭代，但它们探索了不同的空间。\ara{}智能体在$t = 200$分钟后写了14个脚本，所有变体都在参考算法\emph{之内}：每个都调优批量大小、学习率位置或从最佳重启逻辑，但没有一个改变损失函数。论文臂智能体写了16个脚本，涵盖DPO加SFT目标、自定义多阶段LR调度、变化的锦标赛并行度，最终才回到带较小批量的参考风格训练。即使在$t = 202$分钟时，论文臂智能体的\texttt{ThinkingBlock}明确识别了参考配方（\emph{"这是N=8，lr=4e-6，4步版本，得分${\sim}0.85$"}）但继续编写变体；即使在TIMEOUT恢复后，它还在$t = 98$分钟时尝试了另一次DPO尝试。轨迹的经验锚点（"没有MALT运行达到0.85"）将\ara{}智能体的探索限制在参考算法类内；没有它，论文臂智能体在两个会话中都重新尝试了算法替代方案。
 
-\paragraph{Reading.}
-The trace contributed three things on this task: (i)~an empirical anchor that converted the agent's question from algorithmic redesign to careful execution, narrowing exploration to within-reference variants; (ii)~a bug-fix vocabulary that named the degenerate-output filter and the score-then-restart orchestration before the agent had to discover them by debugging; and (iii)~a strategy with a built-in continuation criterion (run a step, score it, keep the best, restart, sweep an LR variant, repeat), which kept the \ara{} agent productively iterating for the full budget while the paper agent's exhaustion of algorithmic alternatives left it cycling through self-declared session terminations until the harness's pushback ceiling fired. The late-phase strategy class is empirical, however: the trace narrows and structures the sweep but does not abbreviate it.
+\paragraph{解读。}
+在该任务上，轨迹贡献了三样东西：（i）一个经验锚点，将智能体的问题从算法重新设计转化为谨慎执行，将探索缩小到参考范围内的变体；（ii）一个错误修复词汇表，在智能体必须通过调试发现它们之前命名了退化输出过滤器和评分然后重启编排；（iii）一个具有内置延续标准的策略（运行一步，评分，保留最佳，重启，扫描LR变体，重复），使\ara{}智能体在整个预算范围内保持高效迭代，而论文臂智能体在耗尽算法替代方案后，只能通过自行声明的会话终止循环，直到测试框架的推回上限触发。然而，后期策略类是经验性的：轨迹缩小并结构化了扫描，但没有缩短它。
 
-\subsubsection{Case study: \texttt{fix\_embedding} (recovering a permuted embedding matrix)}
+\subsubsection{案例研究：\texttt{fix\_embedding}（恢复被置换的嵌入矩阵）}
 \label{sec:eval-extension-fixembed}
 
-The task is to recover the permuted embedding matrix of a corrupted GPT-2-XL: the \texttt{wte.weight} matrix has had its 50{,}257 rows scrambled, and the agent must restore validation-loss performance as close as possible to the uncorrupted reference. The official solution is a 3-phase adapter pipeline that scores 0.26; the RE-Bench human ceiling is 0.16. Both arms inherit a workdir with the official scaffold's training scripts already present. The two arms run the same Sonnet 4.6 model, the same seed, the same harness, and the same GPU; the \emph{only} systematic difference between them is the contents of \texttt{reference/}. The trajectories appear in body Fig.~\ref{fig:extension-summary} (fourth column); both arms first measure the corrupted-model baseline (${\sim}2.20$) at $t \approx 4$\,min, then drop to ${\sim}0.4$ by $t \approx 90$--$130$\,min after the first round of adapter training.
+任务是恢复一个被损坏的GPT-2-XL的置换嵌入矩阵：\texttt{wte.weight}矩阵的50{,}257行被打乱，智能体必须尽可能恢复接近未损坏参考的验证损失性能。官方解决方案是一个3阶段适配器流水线，得分为0.26；RE-Bench人类上限为0.16。双方继承了一个工作目录，其中官方脚手架的训练脚本已经存在。两个臂运行相同的Sonnet 4.6模型、相同的种子、相同的测试框架和相同的GPU；它们之间\emph{唯一的}系统性差异是\texttt{reference/}的内容。轨迹出现在正文图~\ref{fig:extension-summary}（第四列）中；双方首先在$t \approx 4$分钟时测量损坏模型的基线（${\sim}2.20$），然后在第一轮适配器训练后（$t \approx 90$--$130$分钟）降至${\sim}0.4$。
 
-\paragraph{The two bundles in numbers.}
-The paper agent's \texttt{reference/} contains a 134-line \texttt{paper.md} (the official solution writeup) plus three official config files: 5 files total. The writeup is complete on the published recipe (3-phase architecture in equations, per-stage trainable-parameter sets, the LR ladder $10^{-3} \to 10^{-4} \to 8\times 10^{-5}$, the bigram-waypoint diagnostic, the human-best ceiling, even an author's note that \emph{``Stage C is the least-validated part of the pipeline \ldots may be redundant if Stage B has not yet converged''}). The \ara{} bundle is 22 files / 5{,}887 lines and carries the same algorithmic content via 10 reference-derived heuristics (\texttt{H01}--\texttt{H10}), but adds an \texttt{exploration\_tree.yaml} of 19 prior MALT runs, a 282-line table of every scored attempt, and \texttt{H11}--\texttt{H22}: failure-derived heuristics including \texttt{H11} (\emph{``Do not destructively replace the corrupted wte''}), \texttt{H13} (\emph{``Hand-constructed small$\to$large embedding upcasts collapse''}), and \texttt{H22} (\emph{``Across 19 MALT runs at 4M tokens each, no agent reached the official adapter pipeline''}).
+\paragraph{两个捆绑包的数据。}
+论文臂智能体的\texttt{reference/}包含一个134行的\texttt{paper.md}（官方解决方案写作）加三个官方配置文件：共5个文件。该写作在已发布的配方上是完整的（方程中的3阶段架构，每阶段可训练参数集，LR阶梯$10^{-3} \to 10^{-4} \to 8\times 10^{-5}$，二元组路标诊断，人类最佳上限，甚至有一条作者备注称\emph{"阶段C是流水线中验证最少的部分\ldots如果阶段B尚未收敛，可能是不必要的"}）。\ara{}捆绑包为22个文件/5{,}887行，携带相同的算法内容通过10条参考派生的启发式规则（\texttt{H01}--\texttt{H10}），但增加了一个包含19次先前MALT运行的\texttt{exploration\_tree.yaml}、一个282行的每次评分尝试表格，以及\texttt{H11}--\texttt{H22}：从失败中派生的启发式规则，包括\texttt{H11}（\emph{"不要破坏性地替换损坏的wte"}）、\texttt{H13}（\emph{"手工构建的小到大嵌入上转换会崩溃"}）和\texttt{H22}（\emph{"在19次每次4M个token的MALT运行中，没有智能体达到了官方适配器流水线的水平"}）。
 
-\paragraph{Both agents implement the published recipe correctly.}
-The recipe is well-specified enough in either bundle that both agents reach it: the \ara{} agent completes Stage 1 at $t = 26$\,min, runs Stages 2 and 3, and scores 0.246 by $t = 181$\,min, while the paper agent reaches 0.250 by $t = 180$\,min. The first three hours are essentially identical, which rules out a difference in algorithmic understanding or basic execution. The divergence happens entirely after both cross the 0.26 reference.
+\paragraph{两个智能体正确实现了已发布的配方。}
+配方在两个捆绑包中都足够明确，两个智能体都实现了它：\ara{}智能体在$t = 26$分钟时完成阶段1，运行阶段2和3，并在$t = 181$分钟时达到0.246，而论文臂智能体在$t = 180$分钟时达到0.250。前三小时本质上相同，这排除了在算法理解或基本执行上的差异。分叉完全发生在双方都超过0.26参考值之后。
 
-\paragraph{Three late-phase signatures with the same root cause.}
-After $t = 180$\,min the two agents behave differently in three specific, traceable ways, all attributable to the failure-record asymmetry above.
+\paragraph{具有相同根本原因的三个后期特征。}
+在$t = 180$分钟后，两个智能体在三个具体、可追踪的方式上表现不同，所有都可归因于上述失败记录的不对称性。
 
-\emph{(i)~Permutation recovery---tried twice by the paper agent, never by the \ara{} agent.}
-The paper agent runs \texttt{recover\_permutation.py} at $t = 19$\,min, observes \emph{``the recovered permutation has only 43 unique values out of 50{,}257''}, and abandons the approach; at $t = 350$\,min---5.5 hours later, after its phase chain has plateaued at 0.250---the same agent writes a fresh \texttt{permutation\_recovery.py} and tries again. The \ara{} agent never attempts permutation recovery, in either form. This is not a difference in capability (the paper agent showed it would entertain and abandon the approach); it is a difference in what each bundle flags as a documented dead end. \texttt{H11} and \texttt{H13} directly forbid this strategy class; \texttt{paper.md} describes only the successful 3-phase pipeline and does not enumerate failed alternatives.
+\emph{(i)~置换恢复——论文臂智能体尝试了两次，\ara{}智能体从未尝试。}
+论文臂智能体在$t = 19$分钟时运行\texttt{recover\_permutation.py}，观察到\emph{"恢复的置换在50{,}257个中仅有43个唯一值"}，并放弃了该方法；在$t = 350$分钟时——5.5小时后，在其阶段链稳定在0.250之后——同一智能体编写了一个全新的\texttt{permutation\_recovery.py}并再次尝试。\ara{}智能体从未尝试置换恢复，无论哪种形式。这不是能力上的差异（论文臂智能体展示了它会考虑并放弃该方法）；这是每个捆绑包将什么标记为已记录死胡同的差异。\texttt{H11}和\texttt{H13}直接禁止了这一策略类；\texttt{paper.md}仅描述了成功的3阶段流水线，并未枚举失败的替代方案。
 
-\emph{(ii)~Post-reference exploration discipline.}
-Both agents write a comparable volume of late-phase code. The \ara{} agent's writes are continuation-training variants that tune learning-rate placement and warmup length within the documented Stage-3 LR region around $8\times 10^{-5}$ (\texttt{H06}) with the optimiser, batch, and block-size constraints from \texttt{H10} held fixed. The paper agent's writes invent additional training phases beyond the published 3, with custom LR schedules and stochastic-weight-averaging machinery. The \ara{} agent's late-phase exploration is constrained by the LR-region heuristics; the paper agent's is not, because no document available to it pins down where the productive neighbourhood of the reference recipe lies.
+\emph{(ii)~参考线之后的探索纪律。}
+两个智能体编写了相当数量的后期代码。\ara{}智能体的编写是延续训练变体，在记录的阶段3 LR区域$\sim8\times 10^{-5}$内调优学习率位置和预热长度（\texttt{H06}），保持优化器、批量和块大小约束（来自\texttt{H10}）不变。论文臂智能体的编写发明了超出已发布3阶段的额外训练阶段，带有自定义LR调度和随机权重平均机制。\ara{}智能体的后期探索受到LR区域启发式规则的约束；论文臂智能体则没有，因为没有可用的文档确定参考配方的有效邻域在哪里。
 
-\emph{(iii)~Strategic confidence after crossing the reference.}
-At $t = 147$\,min the \ara{} agent's \texttt{ThinkingBlock} reads: \emph{``I have enough context from the reference materials. The key takeaways are: 1.\ No MALT run beat the reference (0.26). 2.\ The official solution's three-stage adapter pipeline is the key innovation \ldots''}. The agent uses the MALT empirical anchor to convert the post-reference territory into a productive-but-under-explored hypothesis. The paper agent issues no analogous statement at any point: \texttt{paper.md} reports 0.26 and 0.16 as static numbers, with no record of how many prior agents tried or whether the gap was reachable by additional execution effort. It explores the post-reference territory as if from scratch.
+\emph{(iii)~超过参考线后的策略信心。}
+在$t = 147$分钟时，\ara{}智能体的\texttt{ThinkingBlock}写道：\emph{"我从参考资料中获得了足够的上下文。关键要点是：1. 没有MALT运行击败参考值（0.26）。2. 官方解决方案的三阶段适配器流水线是关键创新\ldots"}。智能体使用MALT经验锚点将参考线之后的领域转化为一个有产出但探索不足的假设。论文臂智能体在任何时间点都没有发布类似的声明：\texttt{paper.md}将0.26和0.16报告为静态数字，没有记录有多少先前的智能体尝试过，或者差距是否可以通过额外的执行努力达到。它从零开始探索参考线之后的领域。
 
-\paragraph{Reading.}
-The case is a clean attribution: the only systematic input difference is reference content, and that content difference is itself a clean instance of the artifact-format claim (paper preserves what worked; \ara{} preserves both what worked and what failed). The three downstream behavioural differences each map to a specific failure-record element present in the \ara{} bundle and absent from \texttt{paper.md}.
+\paragraph{解读。}
+这个案例是一次清晰的归因：唯一的系统性输入差异是参考内容，而该内容差异本身就是构件格式论断的一个清晰实例（论文保留有效的部分；\ara{}同时保留有效的和失败的部分）。三个下游行为差异每一个都映射到\ara{}捆绑包中存在而\texttt{paper.md}中缺失的特定失败记录元素。
 
-\subsubsection{Case study: \texttt{restricted\_mlm} (constrained masked language model)}
+\subsubsection{案例研究：\texttt{restricted\_mlm}（受限掩码语言模型）}
 \label{sec:eval-extension-mlm}
 
-The task is to design and train a masked language model under restrictive PyTorch primitive constraints: no \texttt{Conv1d}, no \texttt{Softmax}, no division, no normalization layers. Score is $\log(\ell_\text{val}{-}1.5)$; the agent baseline (untrained restricted MLP) scores 1.84, the official solution (Tao's \texttt{ConvMLMWithBiBigrams}: a bigram-prior + 1D-convolution-via-\texttt{as\_strided}+\texttt{einsum} + a learnable scalar combiner) scores 1.13. We ran four trajectories: paper and ARA arms on Sonnet 4.5 (seed 1) and Sonnet 4.6 (seed 0). The Sonnet 4.6 trajectories appear in body Fig.~\ref{fig:extension-summary} (rightmost column); Fig.~\ref{fig:extension-mlm-45} below shows the Sonnet 4.5 paired runs.
+任务是在严格的PyTorch原语约束下设计和训练一个掩码语言模型：不允许\texttt{Conv1d}，不允许\texttt{Softmax}，不允许除法，不允许归一化层。分数为$\log(\ell_\text{val}{-}1.5)$；智能体基线（未训练的受限MLP）得分为1.84，官方解决方案（Tao的\texttt{ConvMLMWithBiBigrams}：二元组先验 + 通过\texttt{as\_strided}+\texttt{einsum}的1D卷积 + 可学习标量组合器）得分为1.13。我们运行了四条轨迹：Sonnet 4.5上的论文臂和ARA臂（种子1）以及Sonnet 4.6上的（种子0）。Sonnet 4.6轨迹出现在正文图~\ref{fig:extension-summary}（最右列）中；下面的图~\ref{fig:extension-mlm-45}显示了Sonnet 4.5配对运行。
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/extension/mlm_45_paper_vs_ara.pdf}
-\caption{\texttt{restricted\_mlm} on Sonnet 4.5: paper vs.\ \ara{} score-vs-time (left) and score-vs-cost (right). Faint markers are raw scoring attempts, solid line is the best-so-far envelope, stars mark best-attempt positions. Dotted lines mark the untrained-MLP baseline (1.84) and the RE-Bench reference (1.13). Both arms are anchored at the 1.84 baseline at $t = 0$; \ara{}-4.5's pre-agent harness baseline crashed (corrupted starter checkpoint), and the agent's first surviving score (1.43 at $t \approx 5$\,min) reflects the trace-recommended \texttt{ConvMLMWithBiBigrams} architecture already swapped in (precomputed bigram tables score ${\sim}1.43$ with no training), which we anchor at 1.84 to match the other three arms' actual baseline measurements. \ara{}-4.5 reaches 0.73 vs.\ paper-4.5's plateau at 1.03 -- a ${\sim}30\%$ relative win on the weaker base. The 4.6 trajectories are in the body composite.}
+\caption{\texttt{restricted\_mlm}在Sonnet 4.5上：论文 vs.\ \ara{}分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线标记未训练MLP基线（1.84）和RE-Bench参考值（1.13）。双方在$t = 0$时锚定在1.84基线；\ara{}-4.5的智能体前测试框架基线崩溃（损坏的起始检查点），智能体的第一个存活分数（$t \approx 5$分钟时1.43）反映轨迹推荐的\texttt{ConvMLMWithBiBigrams}架构已被换入（预计算的二元组表在未训练时得分${\sim}1.43$），我们将其锚定在1.84以匹配其他三个臂的实际基线测量值。\ara{}-4.5达到0.73 vs.\ 论文-4.5稳定在1.03——在较弱的基础上约30\%的相对领先。4.6轨迹在正文组合图中。}
 \label{fig:extension-mlm-45}
 \end{figure*}
 
-\paragraph{The flip across model versions.}
-\texttt{restricted\_mlm} is the only task in our five where the \ara{}-vs-paper sign flips across models: on Sonnet 4.5 the \ara{} agent reaches 0.73 vs.\ the paper agent's 1.03, and on Sonnet 4.6 the paper agent reaches 0.69 vs.\ the \ara{} agent's 1.02. Moving from 4.5 to 4.6 helps the paper agent by ${\sim}33\%$ and hurts the \ara{} agent by ${\sim}40\%$ on the same task.
+\paragraph{跨模型版本的翻转。}
+\texttt{restricted\_mlm}是我们五个任务中唯一一个\ara{}-vs-论文的符号在模型之间翻转的任务：在Sonnet 4.5上，\ara{}智能体达到0.73 vs.\ 论文臂智能体的1.03；在Sonnet 4.6上，论文臂智能体达到0.69 vs.\ \ara{}智能体的1.02。从4.5到4.6，论文臂智能体在同一任务上提高了约33\%，而\ara{}智能体降低了约40\%。
 
-\paragraph{Same architectural family across all four agents.}
-Every run's final \texttt{solution/model.py} contains a \texttt{BiBigramMLM} class plus a \texttt{ConvMLM*} variant (paper-4.5: \texttt{ConvMLMWithBiBigrams}; \ara{}-4.5: \texttt{ConvMLMComponent}; paper-4.6: \texttt{ConvMLMDilated}; \ara{}-4.6: \texttt{ConvMLMWithReLUAttn} plus five others). All four use the bigram prior, the \texttt{as\_strided}+\texttt{einsum} convolution from heuristic \texttt{H04}, and the official Tao recipe. The paper-arm agents discover the right architecture too; the divergence is not in the architectural ceiling.
+\paragraph{所有四个智能体中的相同架构家族。}
+每次运行的最终\texttt{solution/model.py}包含一个\texttt{BiBigramMLM}类加一个\texttt{ConvMLM*}变体（论文-4.5：\texttt{ConvMLMWithBiBigrams}；\ara{}-4.5：\texttt{ConvMLMComponent}；论文-4.6：\texttt{ConvMLMDilated}；\ara{}-4.6：\texttt{ConvMLMWithReLUAttn}加五个其他变体）。所有四个都使用了二元组先验，来自启发式规则\texttt{H04}的\texttt{as\_strided}+\texttt{einsum}卷积，以及官方Tao配方。论文臂智能体也发现了正确的架构；分叉不在于架构上限。
 
-\paragraph{What differs is exploration breadth.}
-The four \texttt{model.py} files differ markedly in size and class count. Paper-4.5: 9.8\,KB, 3 classes; \ara{}-4.5: 8.9\,KB, 3 classes; paper-4.6: 6.3\,KB, 2 classes; \ara{}-4.6: 47\,KB, 6+ classes (\texttt{ConvMLMWithReLUAttn}, \texttt{ExtendedBiBigramMLM}, \texttt{ConvMLMWithLinearGlobal}, \texttt{ConvMLMWithGlobalContext}, \texttt{MLPMixerWithBiBigrams}, \texttt{ReLUAttentionMLM}). Trace keyword counts mirror it: paper-4.6 mentions \texttt{ReLU-attention} once and \texttt{MLPMixer} three times across its run; \ara{}-4.6 mentions them 247 and 73 times. The score regression spikes in the rightmost column of body Fig.~\ref{fig:extension-summary} are the visible record: each spike toward 1.85 or 2.5 is a freshly-trained alternative architecture scored, found broken, abandoned in favour of the saved best-ConvMLM checkpoint.
+\paragraph{差异在于是探索广度。}
+四个\texttt{model.py}文件在大小和类数量上差异显著。论文-4.5：9.8\,KB，3个类；\ara{}-4.5：8.9\,KB，3个类；论文-4.6：6.3\,KB，2个类；\ara{}-4.6：47\,KB，6+个类（\texttt{ConvMLMWithReLUAttn}, \texttt{ExtendedBiBigramMLM}, \texttt{ConvMLMWithLinearGlobal}, \texttt{ConvMLMWithGlobalContext}, \texttt{MLPMixerWithBiBigrams}, \texttt{ReLUAttentionMLM}）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及\texttt{ReLU-attention}一次，\texttt{MLPMixer}三次；\ara{}-4.6提及它们247次和73次。正文图~\ref{fig:extension-summary}最右列中的分数回归尖峰是可见的记录：每个朝向1.85或2.5的尖峰是一个新训练的替代架构被评分、发现有问题、被放弃，转而使用保存的最佳ConvMLM检查点。
 
-\paragraph{Why \ara{} wins on Sonnet 4.5.}
-Both 4.5 agents end up tuning the same ConvMLM family. The \ara{} agent's \texttt{ThinkingBlock} at $t = 24$\,min commits explicitly (\emph{``This should be enough to beat the reference score of 1.13''}) and queues 40k + 50k continuation steps. At $t = 26$\,min it sets ReLU-attention aside as \emph{``a backup strategy if I want to aim higher''}---a ranked-list reading of the heuristics. With a single primary architecture and an empirical ceiling (``no MALT run beat 1.13''), the \ara{} agent spends ${\sim}7$\,h on continuous fine-tuning of one model and reaches 0.73. The paper agent has no equivalent ``no prior agent beat it'' signal, does not commit comparable depth to a single tune, and plateaus at 1.03. The win is depth-driven within a shared architecture.
+\paragraph{为什么\ara{}在Sonnet 4.5上获胜。}
+两个4.5智能体最终都调优了相同的ConvMLM家族。\ara{}智能体的\texttt{ThinkingBlock}在$t = 24$分钟时明确承诺（\emph{"这应该足以击败参考分数1.13"}）并排队了40k + 50k延续步骤。在$t = 26$分钟时，它将ReLU注意力搁置为\emph{"如果我想瞄准更高分的备选策略"}——对启发式规则的排序列表解读。拥有单一的主架构和一个经验上限（"没有MALT运行击败1.13"），\ara{}智能体在一个模型上花了约7小时持续微调并达到0.73。论文臂智能体没有等效的"没有先前智能体击败它"信号，没有对单一调优投入可比深度，稳定在1.03。胜利是在共享架构内由深度驱动的。
 
-\paragraph{Why the paper agent wins on Sonnet 4.6.}
-The 4.6 agents diverge architecturally. The paper agent invents \texttt{ConvMLMDilated} (a dilated-convolution variant not named in \texttt{paper.md}), commits to it within the first 30\,min, and runs a single fine-tune for the full 8\,h, reaching 0.69. The \ara{} agent instead implements the additional architectures the heuristics layer names---\texttt{H11} ReLU-attention (\emph{``the only attention surrogate any MALT run beat reference with''}), \texttt{H07} MLPMixer---and trains them in serial. None outperforms the basic ConvMLM in Sonnet 4.6's loss landscape: \texttt{H11} and \texttt{H07} were derived from prior MALT runs by Claude-4 Sonnet base, and the menu has gone stale for a successor model whose optimisation differs. The mechanism is the same as in 4.5---the \ara{} agent treats the heuristics-named alternatives seriously---but the bandwidth difference flips its sign: 4.5 cannot afford to make secondary entries primary, so they function as ranked-with-backup pointers; 4.6 can train them all in parallel, and the menu becomes a fragmenting parallel-exploration list.
+\paragraph{为什么论文臂智能体在Sonnet 4.6上获胜。}
+4.6智能体在架构上分道扬镳。论文臂智能体发明了\texttt{ConvMLMDilated}（一个在\texttt{paper.md}中未命名的扩张卷积变体），在前30分钟内对其承诺，并在整个8小时内运行单一微调，达到0.69。\ara{}智能体则实现了启发式规则层命名的额外架构——\texttt{H11} ReLU注意力（\emph{"任何MALT运行用来击败参考值的唯一注意力替代方案"}）、\texttt{H07} MLPMixer——并串行训练它们。在Sonnet 4.6的损失景观中，没有一个超越基本ConvMLM：\texttt{H11}和\texttt{H07}是从Claude-4 Sonnet基础的先前MALT运行派生的，对于一个优化方式不同的后继模型，菜单已经过时了。机制与4.5中相同——\ara{}智能体重视启发式规则命名的替代方案——但带宽差异翻转了其符号：4.5无法负担让次要条目成为主要条目的代价，因此它们充当带有备选的排序指针；4.6可以全部并行训练它们，菜单变成了一个碎片化的并行探索列表。
 
 % ------------------------------------------------------------
-\subsection{Reproducibility}
+\subsection{可复现性}
 \label{app:extension-repro}
 
-All experimental artifacts and code live in the project repository: \texttt{code/extension-harness/} contains the SLURM-launched harness, per-task system prompts and scoring scripts, and analysis plot generators; \texttt{code/rebench-pipeline/} contains the \ara{} compilation pipeline (rules, orchestrator procedure, and shared sub-agent prompt); \texttt{code/artifacts/rebench-<task>/} contains the full \ara{} per task and the paper-agent's \texttt{paper.md}-plus-\texttt{src/} bundle. Each run's \texttt{trace.jsonl} is the authoritative event log; every score, cost, and figure in this paper is reconstructible from it via the analysis scripts in \texttt{code/extension-harness/analysis/}.
+所有实验构件和代码存放在项目仓库中：\texttt{code/extension-harness/}包含SLURM启动的测试框架、按任务系统提示和评分脚本以及分析图表生成器；\texttt{code/rebench-pipeline/}包含\ara{}编译流水线（规则、编排器过程和共享子智能体提示）；\texttt{code/artifacts/rebench-<task>/}包含每个任务的完整\ara{}和论文臂智能体的\texttt{paper.md}-加-\texttt{src/}捆绑包。每次运行的\texttt{trace.jsonl}是权威事件日志；本文中的每个分数、成本和图表都可以通过\texttt{code/extension-harness/analysis/}中的分析脚本从中重建。
 
 % ============================================================
 % APPENDIX H: Review System Evaluation
 % ============================================================
 
-\section{Review System Evaluation}
+\section{评审系统评估}
 \label{app:review-system}
 
 % ------------------------------------------------------------
-\subsection{ARA Seal Validation Details}
+\subsection{ARA认证验证细节}
 \label{app:seal-details}
 
-\paragraph{Seal implementation.}
-Each verification level is implemented as an automated checker:
+\paragraph{认证实现。}
+每个验证级别实现为一个自动化检查器：
 
 \begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{Level 1 (Structural Integrity)}: A Python script verifies (a)~the existence of mandatory directories (\texttt{/logic}, \texttt{/src}, \texttt{/trace}, \texttt{/evidence}), (b)~the presence of all mandatory files including \texttt{PAPER.md} with valid YAML frontmatter, \texttt{problem.md}, \texttt{claims.md}, \texttt{experiments.md}, and all \texttt{solution/} files, (c)~schema conformance of every structured file (e.g., each claim must have \texttt{Statement}, \texttt{Status}, \texttt{Falsification criteria}, and \texttt{Proof}; each experiment must have \texttt{Verifies}, \texttt{Setup}, \texttt{Procedure}, and \texttt{Expected outcome}; each heuristic must have \texttt{Rationale}, \texttt{Sensitivity}, and \texttt{Bounds}), (d)~minimum counts ($\geq 5$ concepts, $\geq 3$ experiments, $\geq 8$ exploration tree nodes with at least one \texttt{[dead\_end]} and one \texttt{[decision]}), and (e)~cross-layer reference resolution: every experiment ID referenced in \texttt{claims.md} \texttt{Proof} fields resolves to an entry in \texttt{experiments.md}; every claim ID referenced in \texttt{experiments.md} \texttt{Verifies} fields resolves to an entry in \texttt{claims.md}; every \texttt{code\_ref} in \texttt{heuristics.md} points to a valid module in \texttt{/src}; components declared in \texttt{architecture.md} have corresponding code stubs; claim references in \texttt{exploration\_tree.yaml} resolve to valid claim IDs.
-    \item \textbf{Level 2 (Argumentative Rigor)}: Without executing code or consulting external sources, the Rigor Auditor evaluates the artifact's content on six objective rubric-anchored dimensions (evidence relevance, falsifiability quality, scope calibration, argument coherence, exploration integrity, methodological rigor), each scored on a 1 to 5 scale. The output is a rigor report keyed to specific \ara{} components, with severity-ranked findings, verbatim evidence spans, and an overall grade derived from the mean score and per-dimension floors.
-    \item \textbf{Level 3 (Execution Reproducibility)}: A coding agent reads the \ara{} and attempts to reproduce claims using the code kernel. LLM-generated test cases verify directional properties of the paper's claims. This is the same protocol used in the reproduction evaluation (\S\ref{sec:eval-reproduction}).
+    \item \textbf{级别1（结构完整性）}：一个Python脚本验证(a)~必需目录的存在（\texttt{/logic}, \texttt{/src}, \texttt{/trace}, \texttt{/evidence}），(b)~所有必需文件的存在，包括带有有效YAML前言部分的\texttt{PAPER.md}、\texttt{problem.md}、\texttt{claims.md}、\texttt{experiments.md}以及所有\texttt{solution/}文件，(c)~每个结构化文件的模式一致性（例如每个论断必须具有\texttt{Statement}, \texttt{Status}, \texttt{Falsification criteria}和\texttt{Proof}；每个实验必须具有\texttt{Verifies}, \texttt{Setup}, \texttt{Procedure}和\texttt{Expected outcome}；每个启发式规则必须具有\texttt{Rationale}, \texttt{Sensitivity}和\texttt{Bounds}），(d)~最小计数（$\geq 5$个概念，$\geq 3$个实验，$\geq 8$个探索树节点，至少一个\texttt{[dead\_end]}和一个\texttt{[decision]}），以及(e)~跨层引用解析：\texttt{claims.md}的\texttt{Proof}字段中引用的每个实验ID都解析为\texttt{experiments.md}中的一个条目；\texttt{experiments.md}的\texttt{Verifies}字段中引用的每个论断ID都解析为\texttt{claims.md}中的一个条目；\texttt{heuristics.md}中的每个\texttt{code\_ref}指向\texttt{/src}中的一个有效模块；\texttt{architecture.md}中声明的组件具有对应的代码桩；\texttt{exploration\_tree.yaml}中的论断引用解析为有效的论断ID。
+    \item \textbf{级别2（论证严谨性）}：在不执行代码或查阅外部来源的情况下，严谨性审计器在六个客观的、锚定在评分标准上的维度上评估构件的内容（证据相关性、可证伪性质量、范围校准、论证连贯性、探索完整性、方法论严谨性），每个维度按1到5分评分。输出是一份严谨性报告，定位到具体的\ara{}组件，包含按严重性排序的发现、逐字证据跨度以及从均值和每个维度下限导出的总评等级。
+    \item \textbf{级别3（执行可复现性）}：一个编码智能体读取\ara{}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec:eval-reproduction}）中使用的是相同的协议。
 \end{itemize}
 
-\paragraph{Failure taxonomy.}
-For each Seal level failure, we record the specific check that failed and classify it into one of the following categories: \emph{missing file}, \emph{missing field}, \emph{dangling reference}, \emph{type mismatch}, \emph{dependency resolution failure}, \emph{execution error}, or \emph{nondeterminism}.
+\paragraph{失败分类。}
+对于每个认证级别的失败，我们记录失败的具体检查，并将其归类为以下类别之一：\emph{缺失文件}、\emph{缺失字段}、\emph{悬空引用}、\emph{类型不匹配}、\emph{依赖解析失败}、\emph{执行错误}或\emph{非确定性}。
 
 % ------------------------------------------------------------
-\subsection{ARA Seal Effectiveness: Evaluation Details}
+\subsection{ARA认证有效性：评估细节}
 \label{app:seal-eval}
 
-This appendix contains the methodology and per-level breakdowns supporting \S\ref{sec:eval-seal}.
+本附录包含支撑\S\ref{sec:eval-seal}的方法论和按级别细分。
 
 % -------- Level 1 ----------
-\subsubsection{Level 1: Compiler Convergence Data}
+\subsubsection{级别1：编译器收敛数据}
 \label{app:seal-eval-l1}
 
-Level~1 verifies structural correctness and completeness; we report its effectiveness through two reuse signals collected during \ara{} generation and downstream use.
+级别1验证结构正确性和完整性；我们通过在\ara{}生成和下游使用期间收集的两个复用信号来报告其有效性。
 
-\paragraph{Compiler iteration counts.}
-Each of the 23 PaperBench \ara{}s and the 7 RE-Bench \ara{}s converges to a Level-1 pass within $\leq 3$ iterations of the Compiler's generate--validate--fix loop (\S\ref{sec:ingestor}). First-iteration pass rate is 0/30; all artifacts require at least one feedback round, confirming that Level~1 is a non-trivial filter rather than a rubber stamp.
+\paragraph{编译器迭代次数。}
+23个PaperBench \ara{}和7个RE-Bench \ara{}中的每一个都在编译器的生成--验证--修复循环（\S\ref{sec:ingestor}）的$\leq 3$次迭代内收敛到通过级别1。首次迭代通过率为0/30；所有构件需要至少一轮反馈，确认了级别1是一个有意义的过滤器而非橡皮图章。
 
-\paragraph{Failure category distribution.}
-Across all Compiler iterations, Level~1 failures break down as follows: dangling cross-layer references (42\%), missing schema fields on claims, experiments, or heuristics (31\%), insufficient node counts in \texttt{exploration\_tree.yaml} (14\%), YAML or frontmatter parse errors (8\%), and missing mandatory files (5\%). The distribution is stable across papers and matches the failure taxonomy in Appendix~\ref{app:seal-details}.
+\paragraph{失败类别分布。}
+在所有编译器迭代中，级别1失败细分如下：悬空跨层引用（42\%）、论断、实验或启发式规则上的缺失模式字段（31\%）、\texttt{exploration\_tree.yaml}中节点计数不足（14\%）、YAML或前言部分解析错误（8\%）以及缺失必需文件（5\%）。该分布在论文之间是稳定的，并与附录~\ref{app:seal-details}中的失败分类体系相匹配。
 
-\paragraph{Understanding as proof of Level~1 on generated \ara{}s.}
-The Understanding evaluation (\S\ref{sec:eval-understanding}, Table~\ref{tab:understanding}) is the end-to-end witness that Level~1 enforces what it claims to enforce on generated artifacts. Every \ara{} entering that benchmark has passed Level~1; the 95.6\% Cat.~A accuracy then shows that Level-1-gated \ara{}s carry the structural completeness an agent needs to retrieve information that is in fact present in the source. An artifact missing a mandatory field or a dangling cross-layer reference would have failed Level~1 and never reached the benchmark, so the 4.4\% residual is bounded by information genuinely absent from the source rather than by structural defects of the artifact.
+\paragraph{以理解作为生成\ara{}上级别1的证明。}
+理解评估（\S\ref{sec:eval-understanding}，表~\ref{tab:understanding}）是端到端的见证，证明级别1对生成的构件实施了它声称要实施的内容。每个进入该基准的\ara{}都已通过级别1；95.6\%的Cat.~A准确率则表明，经过级别1把关的\ara{}携带了智能体检索源中确实存在的信息所需的结构完整性。一个缺失必需字段或存在悬空跨层引用的构件将无法通过级别1并永远不会进入基准，因此4.4\%的残差受到源信息确实缺失的限制，而非构件的结构缺陷。
 
 % -------- Level 2 ----------
-\subsubsection{Level 2: Mutation Benchmark}
+\subsubsection{级别2：变异基准测试}
 \label{app:seal-eval-l2}
 
-\paragraph{Setup and evaluation criterion.}
-The Level-2 benchmark stress-tests the Rigor Auditor on \emph{mutated} \ara{}s, so the reported grade carries no ground-truth signal; we score the auditor strictly on whether it surfaces the seeded defect as a finding. The corpus is the 23 PaperBench \ara{}s that pass Level~1; each is seeded with one injection per type (115 mutations in total). All injections are recorded in a per-paper \texttt{injection\_manifest.json} hidden from the auditor.
+\paragraph{设置与评估标准。}
+级别2基准测试在\emph{被变异}的\ara{}上对严谨性审计器进行压力测试，因此报告的等级不携带真实值信号；我们严格按审计器是否将注入的缺陷作为发现浮出来评分。语料库为通过级别1的23个PaperBench \ara{}；每个被注入每种类型一个（共115个变异）。所有注入记录在每个论文的\texttt{injection\_manifest.json}中，对审计器不可见。
 
-\paragraph{Injection schema.}
-The five types target distinct schema invariants:
+\paragraph{注入模式。}
+五种类型针对不同的模式不变量：
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
-  \item \textbf{Fabricated claim}: append a claim whose \texttt{Proof} cites a non-existent experiment ID; signal = dangling reference plus un-grounded substance.
-  \item \textbf{Missing falsification}: remove the \texttt{Falsification criteria} line from a primary claim; signal = mandatory field absent.
-  \item \textbf{Orphan experiment}: append an experiment whose \texttt{Verifies} field references a non-existent claim ID (e.g., \texttt{C99}); signal = evidence not supporting any claim.
-  \item \textbf{Over-claim}: replace a narrow \texttt{Statement} with a universal-scope template while leaving the original \texttt{Falsification criteria} and \texttt{Proof} untouched; signal = scope mismatch between claim breadth and evidence coverage.
-  \item \textbf{Rebutted-branch leak}: append a claim advocating an approach that \texttt{trace/exploration\_tree.yaml} marks \texttt{dead\_end}; signal = direct contradiction between claim and exploration record.
+  \item \textbf{虚构论断}：追加一个其\texttt{Proof}引用一个不存在实验ID的论断；信号 = 悬空引用加上无依据的内容。
+  \item \textbf{缺失可证伪性}：从一个主要论断中删除\texttt{Falsification criteria}行；信号 = 必需字段缺失。
+  \item \textbf{孤立实验}：追加一个其\texttt{Verifies}字段引用不存在论断ID（例如\texttt{C99}）的实验；信号 = 证据不支持任何论断。
+  \item \textbf{过度论断}：将一个狭窄的\texttt{Statement}替换为全称范围模板，同时保持原始\texttt{Falsification criteria}和\texttt{Proof}不变；信号 = 论断广度与证据覆盖之间的范围不匹配。
+  \item \textbf{被反驳分支泄露}：追加一个倡导\texttt{trace/exploration\_tree.yaml}标记为\texttt{dead\_end}的方法的论断；信号 = 论断与探索记录之间的直接矛盾。
 \end{itemize}
 
-\paragraph{Auditor and blinding.}
-The Rigor Auditor is an agent skill~\citep{agentskills2025} invoked per artifact and given only the artifact directory; the manifest and source PDF are withheld. It parses claims, experiments, heuristics, gaps, and exploration-tree nodes; builds claim--experiment, claim--dependency, and rejected-node maps; scores six dimensions ($D_1$ evidence relevance, $D_2$ falsifiability, $D_3$ scope calibration, $D_4$ argument coherence, $D_5$ exploration integrity, $D_6$ methodological rigor) on 1--5 anchors; emits findings with severity labels (\emph{critical}, \emph{major}, \emph{minor}, \emph{suggestion}); and reports an overall grade. The full skill specification (prompt, anchors, thresholds) is released with the supplementary code.
+\paragraph{审计器与盲法化。}
+严谨性审计器是一个智能体技能~\citep{agentskills2025}，按构件调用，仅授予构件目录；清单和源PDF被保留。它解析论断、实验、启发式规则、缺口和探索树节点；构建论断--实验、论断--依赖和被拒绝节点映射；在1--5锚点上给六个维度（$D_1$证据相关性，$D_2$可证伪性，$D_3$范围校准，$D_4$论证连贯性，$D_5$探索完整性，$D_6$方法论严谨性）评分；发出带有严重性标签（\emph{critical}, \emph{major}, \emph{minor}, \emph{suggestion}）的发现；并报告总评等级。完整技能规范（提示、锚点、阈值）随补充代码发布。
 
-\paragraph{Matching and detection rates.}
-Each injection is matched to at most one finding by the rule: a finding hits if (a) its \texttt{target\_entity} equals the injection's, or (b) its \texttt{observation} contains a literal identifier uniquely associated with the injection (e.g., \texttt{C99} for orphans, the injected dead-end node ID for rebutted branches). Severity and dimension assignment are ignored when counting hits. Per-type detection (Table~\ref{tab:seal-l2-heatmap}) is 23/23 for fabricated claims, over-claims, and rebutted-branch leaks; 21/23 for missing falsifications, with both misses (\texttt{bam} C02, \texttt{bbox} C04) silently re-attributed to adjacent dimensions; and 5/23 for orphan experiments---a systematic blind spot we attribute to the auditor's claim-centric traversal, which never enumerates experiments without an inbound \texttt{Verifies} edge.
+\paragraph{匹配与检出率。}
+每个注入通过以下规则匹配至多一个发现：如果(a)其\texttt{target\_entity}等于注入的目标实体，或(b)其\texttt{observation}包含与注入唯一关联的文字标识符（例如孤立的\texttt{C99}，被反驳分支的注入死胡同节点ID），则发现命中。计数命中时忽略严重性和维度分配。按类型检出率（表~\ref{tab:seal-l2-heatmap}）为虚构论断、过度论断和被反驳分支泄露均为23/23；缺失可证伪性为21/23，两次漏检（\texttt{bam} C02，\texttt{bbox} C04）被静默重新归因到相邻维度；孤立实验为5/23——一个系统性盲点，我们将其归因于审计器以论断为中心的遍历方式，从不枚举没有入向\texttt{Verifies}边的实验。
 
 \begin{table*}[t]
 \centering
 \small
 \begin{tabular}{l | c c c c c}
 \toprule
-\textbf{Paper} & \textbf{Fab.} & \textbf{Miss.fals.} & \textbf{Orphan} & \textbf{Over-cl.} & \textbf{Reb.br.} \\
+\textbf{论文} & \textbf{虚构} & \textbf{缺失可证伪} & \textbf{孤立} & \textbf{过度论断} & \textbf{被反驳} \\
 \midrule
 adaptive-pruning                           & \cmark & \cmark & \cmark & \cmark & \cmark \\
 all-in-one                                 & \cmark & \cmark & \cmark & \cmark & \cmark \\
@@ -1431,18 +1431,18 @@ stochastic-interpolants                    & \cmark & \cmark & \xmark & \cmark &
 test-time-model-adaptation                 & \cmark & \cmark & \xmark & \cmark & \cmark \\
 what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark & \cmark \\
 \midrule
-\textbf{Total detected (/23)} & \textbf{23} & \textbf{21} & \textbf{5} & \textbf{23} & \textbf{23} \\
+\textbf{总检出 (/23)} & \textbf{23} & \textbf{21} & \textbf{5} & \textbf{23} & \textbf{23} \\
 \bottomrule
 \end{tabular}
-\caption{Per-paper $\times$ per-injection detection for the Level-2 mutation benchmark. \cmark{} = detected; \xmark{} = missed. The orphan-experiment column reveals the systematic blind spot discussed in \S\ref{sec:eval-seal}.}
+\caption{级别2变异基准测试的按论文$\times$按注入检出情况。\cmark{} = 已检出；\xmark{} = 漏检。孤立实验列揭示了\S\ref{sec:eval-seal}中讨论的系统性盲点。}
 \label{tab:seal-l2-heatmap}
 \end{table*}
 
-\paragraph{Diagnostic: score--finding decoupling.}
-Even though grade is not the evaluation criterion, the auditor's scoring behavior is informative for future iterations. On the 22 \ara{}s where the rebutted-branch leak is flagged as a \emph{critical} $D_5$ finding, the auditor still assigns $D_5 \in \{3,4\}$, despite anchors prescribing 1 (``tree contradicts claims'') or 2 (``boilerplate documentation''). Severity in prose does not propagate to the numerical score. The lesson for the next version is mechanical: dimension scores should be derived from the findings list rather than reported independently by the agent.
+\paragraph{诊断：分数-发现脱钩。}
+尽管等级不是评估标准，审计器的评分行为对未来的迭代是有参考价值的。在被反驳分支泄露被标记为\emph{critical}级$D_5$发现的22个\ara{}上，审计器仍然分配$D_5 \in \{3,4\}$，尽管锚点规定1（"树与论断矛盾"）或2（"样板文档"）。行文中的严重性未传播到数值分数。下一版本的教训是机制性的：维度分数应从发现列表中导出，而不是由智能体独立报告。
 
 % -------- Level 3 ----------
-\subsubsection{Level 3: Execution Reproducibility}
+\subsubsection{级别3：执行可复现性}
 \label{app:seal-eval-l3}
 
-Level~3 effectiveness coincides with the Reproduction evaluation (\S\ref{sec:eval-reproduction}, Appendix~\ref{app:reproduction-eval}): a coding agent reads the \ara{} and attempts to reproduce claims using the code kernel, with directional verification by LLM-generated test cases. We treat the per-paper difficulty-weighted reproduction score reported in Table~\ref{tab:repro-per-difficulty} as the Level-3 signal, and refer the reader to Appendix~\ref{app:reproduction-eval} for task design, scoring, and per-paper analysis.
+级别3有效性等同于复现评估（\S\ref{sec:eval-reproduction}, 附录~\ref{app:reproduction-eval}）：一个编码智能体读取\ara{}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表~\ref{tab:repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录~\ref{app:reproduction-eval}了解任务设计、评分和按论文分析。

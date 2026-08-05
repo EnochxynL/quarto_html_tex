@@ -4,14 +4,14 @@
 \begin{figure}[!t]
     \centering
     \includegraphics[width=0.85\linewidth]{figures/fig_human_ai_network.png}
-    \caption{The (Human+AI)$^{2}$ research network. Each researcher works through a research agent that interfaces with a shared \ara{} network via \texttt{/submit}, \texttt{/retrieve}, and \texttt{/fork}; agents may also collaborate directly.}
+    \caption{(Human+AI)$^{2}$ 研究网络。每位研究者通过一个研究智能体与共享的 \ara{} 网络交互，使用 \texttt{/submit}、\texttt{/retrieve} 和 \texttt{/fork} 命令；智能体之间亦可直接协作。}
     \label{fig:network}
 \end{figure}
 
-The previous sections describe the components of an \ara{}-native stack: the protocol (\S\ref{sec:protocol}), the Live Research Manager that captures work into the artifact during development (\S\ref{sec:live-pm}), the Compiler that imports the legacy literature (\S\ref{sec:ingestor}), and the Seal-gated review pipeline that verifies it (\S\ref{sec:review-system}). Composed, they form a scientific communication system whose primary object is no longer the static document but the \ara{} itself: a single canonical artifact that humans on each end direct agents to author, certify, render, and extend. We call the resulting structure a \textbf{(Human+AI)$^{2}$ network} (Figure~\ref{fig:network}).
+前文各节描述了 \ara{}-原生技术栈的组成部分：协议（\S\ref{sec:protocol}）、在开发过程中将工作捕获到构件中的实时研究管理器（\S\ref{sec:live-pm}）、导入既有文献的编译器（\S\ref{sec:ingestor}）以及对其进行验证的 Seal 把关审阅流水线（\S\ref{sec:review-system}）。这些组件组合起来，构成了一个科学交流系统，其主要对象不再是静态文档，而是 \ara{} 本身：一个统一的规范构件，人类在两端指挥智能体对其进行创作、认证、渲染和扩展。我们将由此形成的结构称为\textbf{(Human+AI)$^{2}$ 网络}（图~\ref{fig:network}）。
 
 
-On the producer side, researchers no longer work toward papers; they pursue questions, and the paper-as-output accrues automatically as an \ara{} along the way: the Live Research Manager folds each decision, dead end, and confirmed claim into the artifact during ordinary work, the Compiler imports legacy sources on demand, and at any milestone the artifact is routed through the Seal pipeline and registered publicly, where another team can fork a passing artifact, extend a claim, retain attribution to the parent, and submit the diff for re-review. 
-On the consumer side, because the \ara{} is canonical, an agent renders it on demand into whatever surface the reader needs (paper, video, slides, interactive demo, or grounded dialogue), shaped by the reader's expertise, attention budget, and intent. 
+在生产者一侧，研究者不再以论文为目标；他们追求问题，而作为产出的论文在此过程中自动积累为 \ara{}：实时研究管理器在日常工作中将每项决策、每条死胡同和每个已确认的论断纳入构件，编译器按需导入既有来源，在任何里程碑节点，构件经过 Seal 流水线并公开注册，另一个团队可以复刻（fork）一个通过认证的构件，扩展其论断，保留对父构件的署名，并将差异提交以重新审阅。
+在消费者一侧，由于 \ara{} 是规范性的，智能体可按需将其渲染为读者所需的任何界面（论文、视频、幻灯片、交互式演示或基于语境的对话），并根据读者的专业水平、注意力预算和意图进行调整。
 
-With both ends agent-mediated and the artifact the only persistent state, contributions compound at the level of artifacts rather than sentences: publishing becomes a Git-like operation, reviewers consume Seal-attested artifacts through their preferred surfaces, and downstream agents read \ara{}s as structured baselines, training environments, or starting points for new questions. The result is a queryable scientific commons in which every contribution is an executable diff, and the cost of understanding, reproduction, and extension falls with each new artifact admitted rather than rising against it. \S\ref{sec:eval} asks whether today's agents can already operate this substrate; \S\ref{sec:discussion} maps near-, medium-, and long-term extensions.
+由于两端均由智能体中介，且构件是唯一的持久化状态，贡献在构件层面而非句子层面累积：发布成为类似 Git 的操作，审稿人通过他们偏好的界面消费经 Seal 认证的构件，下游智能体将 \ara{} 作为结构化基线、训练环境或新问题的起点来读取。其结果是一个可查询的科学公地，其中每项贡献都是可执行的差异，理解、复现和扩展的成本随着每个新构件的加入而下降，而非与之对抗上升。\S\ref{sec:eval} 探讨当今的智能体是否已能在该基座上运行；\S\ref{sec:discussion} 则勾画了近期、中期和远期的扩展方向。

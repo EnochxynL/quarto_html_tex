@@ -1,6 +1,6 @@
 \documentclass{article}
 
-% Recommended packages for figures and better typesetting:
+% 推荐的图形和排版宏包：
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{subcaption}
@@ -8,15 +8,15 @@
 
 \usepackage{hyperref}
 
-% Attempt to make hyperref and algorithmic work together better:
+% 尝试让 hyperref 和 algorithmic 更好地协同工作：
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
-% For arXiv preprint:
+% 用于 arXiv 预印本：
 \usepackage[preprint]{styles/icml2026}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\PassOptionsToPackage{hyphens}{url}  % allow url breaks at hyphens
+\PassOptionsToPackage{hyphens}{url}  % 允许 URL 在连字符处断行
 \usepackage{url}
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -28,26 +28,26 @@
 \usepackage{algorithmic}
 \usepackage{enumitem}
 \usepackage{multirow}
-\usepackage{stfloats}      % better figure* placement in two-column
+\usepackage{stfloats}      % 在双栏布局中获得更好的 figure* 放置效果
 \usepackage{placeins}       % \FloatBarrier
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds}
-\usepackage{helvet}  % crisp sans-serif for the Meta-style title block
-\usepackage{tcolorbox}  % rounded unified title/abstract panel
-\usepackage{pifont}  % \ding symbols for check/cross marks
+\usepackage{helvet}  % 清晰的 sans-serif 字体用于 Meta 风格的标题块
+\usepackage{tcolorbox}  % 圆角统一的标题/摘要面板
+\usepackage{pifont}  % \ding 符号用于对勾/叉号标记
 \newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
 \newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
 
-% --- Unified rounded title + abstract panel ----------------------------------
-% The title, authors, affiliations, abstract body, and date/organization row
-% all live inside a single light-blue rounded box above the two-column body.
-% sections/abstract.tex contains raw body text (no environment wrapper) so it
-% can be \input directly inside the tcolorbox.
+% --- 统一圆角标题 + 摘要面板 ------------------------------------------------
+% 标题、作者、单位、摘要正文和日期/组织行全部置于
+% 双栏正文上方的一个浅蓝色圆角框中。
+% sections/abstract.tex 包含原始正文文本（无环境包裹），因此可以直接
+% 通过 \input 插入 tcolorbox 中。
 %
-% IMPORTANT: We wrap the box options in \newtcolorbox because using
-% \begin{tcolorbox}[...] directly inside \twocolumn[...] breaks — LaTeX parses
-% the inner ']' as the end of the \twocolumn preamble argument.
-\definecolor{abstractbg}{HTML}{EEF3F9}  % soft light blue-gray, like the Meta example
+% 重要提示：我们将框选项包装在 \newtcolorbox 中，因为直接在
+% \twocolumn[...] 中使用 \begin{tcolorbox}[...] 会导致解析错误——LaTeX 会
+% 将内部的 ']' 解析为 \twocolumn 前导参数的结束符。
+\definecolor{abstractbg}{HTML}{EEF3F9}  % 柔和的浅蓝灰色，类似 Meta 示例
 \newtcolorbox{headerpanel}{%
   colback=abstractbg,
   colframe=abstractbg,
@@ -60,11 +60,11 @@
 }
 % ----------------------------------------------------------------------------
 
-% Theorems
+% 定理环境
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
+\newtheorem{definition}{定义}[section]
 
-% Custom commands
+% 自定义命令
 \newcommand{\ara}{\textsc{Ara}}
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
 \newcommand{\layer}[1]{\texttt{/#1}}
@@ -72,7 +72,7 @@
 \newcommand{\storytax}{\emph{Storytelling Tax}}
 \newcommand{\engtax}{\emph{Engineering Tax}}
 
-% Code listing style
+% 代码列表样式
 \lstset{
   basicstyle=\ttfamily\small,
   breaklines=true,
@@ -85,26 +85,26 @@
   stringstyle=\color{red!60!black},
 }
 
-% Short form for running title
+% 页眉短标题
 \icmltitlerunning{The Last Human-Written Paper: Agent-Native Research Artifacts}
 
 \begin{document}
 
-% Meta-style unified title + abstract panel: a single rounded light-blue box
-% containing the title, authors, affiliations, footnote notes, abstract body,
-% and a date/organization footer row. The body below remains two-column.
+% Meta 风格的统一标题 + 摘要面板：一个圆角浅蓝色方框
+% 包含标题、作者、单位、脚注说明、摘要正文，
+% 以及日期/组织页脚行。下方正文保持双栏布局。
 \twocolumn[
   \thispagestyle{plain}
   \begin{headerpanel}
     \raggedright
-    % Title
+    % 标题
     {\sffamily\bfseries\fontsize{19}{23}\selectfont
-      The Last Human-Written Paper:\\
-      Agent-Native Research Artifacts\par
+      最后一篇人类撰写的论文：\\
+      智能体原生研究构件\par
     }
     \vskip 12pt
-    % Author list (inline, bold sans, with superscript markers).
-    % Faculty advisors are emphasized with \textbf within the sans-bold run via \mdseries reset.
+    % 作者列表（行内，粗体 sans 字体，带上标标注）。
+    % 导师信息在 sans-bold 文本中通过 \mdseries 重置后用 \textbf 强调。
     {\sffamily\bfseries\normalsize
       Jiachen Liu\textsuperscript{1,\,*},\ %
       Jiaxin Pei\textsuperscript{2},\ %
@@ -146,7 +146,7 @@
       Zechen Zhang\textsuperscript{16,\,15}\par
     }
     \vskip 6pt
-    % Affiliations and footnote notes (compact)
+    % 单位与脚注说明（紧凑排版）
     {\small
       \textsuperscript{1}University of Michigan,\ %
       \textsuperscript{2}Stanford University,\ %
@@ -175,31 +175,31 @@
       \textsuperscript{25}Cornell University\par
     }
     \vskip 14pt
-    % Abstract body text (no heading, default serif)
+    % 摘要正文（无标题，默认衬线字体）
     \input{sections/abstract}
     \vskip 14pt
-    % Correspondence / code footer (with ARA Commons logo on the right).
-    % We avoid \begin{minipage}[c]{...} here because the inner ']' is mis-parsed
-    % inside the \twocolumn[...] preamble argument. \parbox with a brace-wrapped
-    % optional argument works around this.
+    % 通讯作者 / 代码页脚（右侧附带 ARA Commons 徽标）。
+    % 此处避免使用 \begin{minipage}[c]{...}，因为内部的 ']' 在
+    % \twocolumn[...] 前导参数中会被误解析。使用带花括号可选参数的
+    % \parbox 来解决此问题。
     \noindent
     \parbox{0.70\linewidth}{%
-      \noindent\textbf{Correspondence:}\ Jiachen Liu (\href{mailto:amberljc@umich.edu}{amberljc@umich.edu})\par
+      \noindent\textbf{通讯作者：}\ Jiachen Liu (\href{mailto:amberljc@umich.edu}{amberljc@umich.edu})\par
       \vskip 2pt
-      \noindent\textbf{Code:}\ \href{https://github.com/AmberLJC/Agent-Native-Research-Artifact}{github.com/AmberLJC/Agent-Native-Research-Artifact}%
+      \noindent\textbf{代码：}\ \href{https://github.com/AmberLJC/Agent-Native-Research-Artifact}{github.com/AmberLJC/Agent-Native-Research-Artifact}%
     }\hfill
     $\vcenter{\hbox{\sffamily\bfseries\small ARA Commons}}\,\vcenter{\hbox{\includegraphics[height=30pt]{figures/brace-a_mark.png}}}$
   \end{headerpanel}
 ]
 
-% Record title for PDF metadata and running header without re-typesetting it.
+% 记录标题用于 PDF 元数据和页眉，无需重新排版。
 \ifdefined\hypersetup
   \hypersetup{pdftitle={The Last Human-Written Paper: Agent-Native Research Artifacts}}
 \fi
 
 \makeatletter
-% Suppress the default ICML affiliations/notice footer since the custom header
-% already carries author, affiliation, and correspondence information.
+% 隐藏默认的 ICML 单位/声明页脚，因为自定义页眉
+% 已经包含了作者、单位和通讯信息。
 \global\icml@noticeprintedtrue
 \makeatother
 

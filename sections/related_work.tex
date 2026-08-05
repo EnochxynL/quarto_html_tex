@@ -1,12 +1,12 @@
-\section{Related Work}
+\section{相关工作}
 \label{sec:related}
 
-Our work synthesizes ideas from three research threads---machine-readable science, reproducibility infrastructure, and agent-oriented tooling---and contributes a unified protocol that none of them provide individually.
+我们的工作综合了三个研究方向的思想——机器可读科学、可复现性基础设施和面向智能体的工具——并贡献了一个统一的协议，这是它们各自所无法单独提供的。
 
-\paragraph{The dimensional gap of existing tools.}
-A natural objection is that \ara{} merely combines documentation, version control, and experiment tracking---three categories of tools researchers already use.
-Table~\ref{tab:dimension-gap} shows why even using PDFs, GitHub, and trackers (MLflow~\citep{zaharia2018mlflow}, Weights~\&~Biases~\citep{biewald2020wandb}) \emph{simultaneously} leaves the knowledge siloed in three unlinked formats with no cross-referencing between claims, the code that tests them, the evidence produced, and the decisions that selected it.
-\ara{} closes this gap not by replacing these tools but by providing the missing structural layer: an executable epistemic graph whose cross-layer bindings make these connections explicit and machine-traversable.
+\paragraph{现有工具的维度差距。}
+一个自然的质疑是，\ara{} 仅仅是将文档、版本控制和实验追踪——研究者已经在使用的三种工具——组合在一起。
+表~\ref{tab:dimension-gap} 说明了为什么即使\emph{同时}使用 PDF、GitHub 和追踪器（MLflow~\citep{zaharia2018mlflow}，Weights~\&~Biases~\citep{biewald2020wandb}），知识仍然被孤岛式地分割在三种彼此无关联的格式中——论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
+\ara{} 并非通过替代这些工具，而是通过提供缺失的结构层来弥合这一差距：一个可执行的认识论图谱，其跨层绑定使这些连接显式化且可被机器遍历。
 
 \begin{table}[t]
 \centering
@@ -14,36 +14,36 @@ Table~\ref{tab:dimension-gap} shows why even using PDFs, GitHub, and trackers (M
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-& \textbf{PDF} & \textbf{GitHub} & \textbf{Tracker} & \textbf{\ara{}} \\
+& \textbf{PDF} & \textbf{GitHub} & \textbf{追踪器} & \textbf{\ara{}} \\
 \midrule
-Structured scientific logic  & {\color{orange}$\sim$} & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
-Executable code              & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
-Exploration trajectory       & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
-Grounded evidence            & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
-Cross-layer bindings         & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+结构化科学逻辑      & {\color{orange}$\sim$} & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+可执行代码            & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+探索轨迹              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
+有据可查的证据   & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
+跨层绑定              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
 \bottomrule
 \end{tabular}
-\caption{Dimensional coverage of existing research artifacts. Each row is a requirement for agent-native research (\S\ref{sec:intro}). Existing tools cover at most two dimensions structurally; \ara{} covers all five with explicit cross-layer bindings. {\color{green!50!black}\checkmark}~=~full, {\color{orange}$\sim$}~=~partial (present but unstructured or scattered), {\color{red!70!black}$\times$}~=~absent.}
+\caption{现有研究构件的维度覆盖。每一行是智能体原生研究的一项需求（\S\ref{sec:intro}）。现有工具在结构上最多覆盖两个维度；\ara{} 通过显式的跨层绑定覆盖全部五个维度。{\color{green!50!black}\checkmark}~=~完整，{\color{orange}$\sim$}~=~部分（存在但非结构化或分散），{\color{red!70!black}$\times$}~=~缺失。}
 \label{tab:dimension-gap}
 \end{table}
 
-\paragraph{Machine-readable research artifacts.}
-A growing line of work argues that scientific knowledge should be authored in machine-readable form during the research process rather than recovered post-hoc: the FAIR principles~\citep{wilkinson2016fair} standardize data metadata, the W3C PROV ontology~\citep{lebo2013provo} formalizes provenance for scientific outputs, \citet{canini2026stopwriting} reframes the paper as a ``compression format for human readers'' that should yield to structured knowledge objects, and \citet{stocker2025machinereadable, booeshaghi2026machinereadable} advocate authoring-time machine readability as a first principle.
-Concrete formats instantiate parts of this vision---nanopublications~\citep{groth2010nanopub} atomize claims with provenance, the Open Research Knowledge Graph~\citep{jaradeh2019orkg} curates structured contributions across papers, RO-Crate~\citep{soilandreyes2022rocrate} bundles research objects, Whole Tale~\citep{brinckman2019wholetale} packages computational environments, and the Discovery Engine~\citep{baulin2025discoveryengine} distills publications into a Conceptual Tensor---but none provides execution semantics or captures decision history.
-Unlike these formats, \ara{} jointly binds scientific logic, minimal executable code, and decision history into a single protocol with machine-verifiable reproducibility.
+\paragraph{机器可读的研究构件。}
+越来越多的研究认为，科学知识应在研究过程中以机器可读的形式创作，而非事后还原：FAIR 原则~\citep{wilkinson2016fair} 标准化了数据元数据，W3C PROV 本体~\citep{lebo2013provo} 形式化了科学产出的来源追溯，\citet{canini2026stopwriting} 将论文重新定义为一种"面向人类读者的压缩格式"，应该让位于结构化知识对象，而 \citet{stocker2025machinereadable, booeshaghi2026machinereadable} 则倡导将创作时的机器可读性作为首要原则。
+具体的格式部分实现了这一愿景——纳米出版物~\citep{groth2010nanopub} 将论断与来源追溯原子化，开放研究知识图谱~\citep{jaradeh2019orkg} 跨论文策展结构化贡献，RO-Crate~\citep{soilandreyes2022rocrate} 捆绑研究对象，Whole Tale~\citep{brinckman2019wholetale} 封装计算环境，Discovery Engine~\citep{baulin2025discoveryengine} 将出版物提炼为概念张量——但它们都不提供执行语义，也不捕获决策历史。
+与这些格式不同，\ara{} 将科学逻辑、最小化可执行代码和决策历史共同绑定到一个单一协议中，并具有机器可验证的可复现性。
 
-\paragraph{Reproducibility infrastructure.}
-The reproducibility crisis in ML~\citep{baker2016reproducibility, pineau2021reproducibility} has motivated code-sharing standards~\citep{stodden2016enhancing}, scientific workflow engines~\citep{koster2012snakemake, ditommaso2017nextflow, crusoe2022cwl}, and computational notebooks~\citep{knuth1984literate, rule2018exploration}; yet workflows encode pipelines without claim semantics, notebooks remain documents with hidden state, and recent benchmarks~\citep{starace2025paperbench, liu2026scireasoning, kon2025expbench} collectively show that frontier agents cannot recover knowledge PDFs leave implicit---EXP-Bench reports only 0.5\% end-to-end experiment success despite 20--35\% component accuracy.
-On the verification side, LLMs detect fewer than 46\% of paper--code discrepancies~\citep{baumgartner2026scicoqa}, extending a longer line of scientific claim verification~\citep{wadden2020scifact} and attribution-based grounding~\citep{gao2023rarr} and motivating formal auditing criteria across provenance, soundness, claim decomposition, and cryptographic lineage~\citep{rasheed2026aar, huang2025decmetrics, radanliev2026aibom}.
-Unlike prior auditing proposals that address a single dimension, \ara{}'s Seal Certificates operationalize all of them in one enforceable mechanism.
+\paragraph{可复现性基础设施。}
+机器学习领域的可复现性危机~\citep{baker2016reproducibility, pineau2021reproducibility} 催生了代码共享标准~\citep{stodden2016enhancing}、科学工作流引擎~\citep{koster2012snakemake, ditommaso2017nextflow, crusoe2022cwl} 和计算笔记本~\citep{knuth1984literate, rule2018exploration}；然而，工作流编码的是缺乏论断语义的流水线，笔记本本质上仍是具有隐藏状态的文档，而最近的基准测试~\citep{starace2025paperbench, liu2026scireasoning, kon2025expbench} 共同表明，前沿智能体无法恢复 PDF 隐含的知识——EXP-Bench 报告的端到端实验成功率仅为 0.5\%，尽管组件精度达到 20--35\%。
+在验证方面，大语言模型检测到的论文与代码不一致之处不到 46\%~\citep{baumgartner2026scicoqa}，这延续了更广泛的科学论断验证~\citep{wadden2020scifact} 和基于归因的落地验证~\citep{gao2023rarr} 的工作，并推动了涵盖来源追溯、可靠性、论断分解和密码学谱系的形式化审计标准~\citep{rasheed2026aar, huang2025decmetrics, radanliev2026aibom}。
+与之前仅针对单一维度的审计方案不同，\ara{} 的认证证书将所有维度在一个可强制执行的机制中落地。
 
-\paragraph{Negative knowledge and failed trajectories.}
-Recent work shows that failure traces become actionable only once annotated with root-cause structure~\citep{zhu2025agenterrorbench, zhang2025agentracer}, yet raw trajectory dumps~\citep{yang2024sweagent} remain difficult to leverage.
-Large-scale experiment logs~\citep{pinedaarango2021hpob, ying2019nasbench, gijsbers2019automl} retain $>$99.99\% more search history than their corresponding papers report, and process-level studies~\citep{wijk2025rebench, yamada2025aiscientistv2} confirm that human experts and agentic scientists both explore extensive dead ends that never surface in the write-up.
-Unlike raw trajectory archives, \ara{}'s exploration graph promotes dead ends to first-class \texttt{dead\_end} nodes with structured failure modes and claim cross-references, making negative knowledge machine-queryable rather than lost to narrative selection.
+\paragraph{负向知识与失败轨迹。}
+最近的研究表明，失败轨迹只有在标注了根因结构之后才变得可操作~\citep{zhu2025agenterrorbench, zhang2025agentracer}，然而原始轨迹转储~\citep{yang2024sweagent} 仍然难以利用。
+大规模实验日志~\citep{pinedaarango2021hpob, ying2019nasbench, gijsbers2019automl} 保留了比其对应论文所报告的多 $>$99.99\% 的搜索历史，而过程层面的研究~\citep{wijk2025rebench, yamada2025aiscientistv2} 证实，人类专家和智能体科学家都会探索大量从未出现在书面报告中的死胡同。
+与原始轨迹档案不同，\ara{} 的探索图谱将死胡同提升为一等的 \texttt{dead\_end} 节点，具有结构化的失败模式和论断交叉引用，使负向知识可被机器查询，而非因叙事筛选而丢失。
 
-\paragraph{Agent-oriented documentation and tooling.}
-A convergent body of work shows that agents benefit from structured, layered representations~\citep{openai2025agentsmd, vasilopoulos2026codifiedcontext} over flat corpora~\citep{lo2020s2orc, priem2022openalex}, and that even the strongest LLMs implement fewer than 40\% of novel contributions correctly, with \emph{semantic} misalignment as the dominant failure mode~\citep{jimenez2024swebench, chen2025scienceagentbench, hua2025researchcodebench}.
-Recent systems target this gap from three sides: pipelines that convert papers into executable code~\citep{seo2025papercoder} or interactive AI agents~\citep{miao2025paper2agent} post-hoc, or recover tacit knowledge through graph analysis and debugging~\citep{li2026tacit}; knowledge-graph approaches that mine background literature for technique--code links~\citep{liu2026knowledgegraphs, luo2025xkg}---yielding up to 10.9\% PaperBench gains but leaving the target contribution's decision history and epistemic structure unmodeled; and autonomous research agents that conduct experiments end-to-end~\citep{boiko2023coscientist, bran2024chemcrow, schmidgall2025agentlab, baek2025researchagent}, whose unstructured trajectory logs are themselves discarded once the resulting paper is written.
-Multi-agent frameworks~\citep{wu2024autogen}, skill-library standards~\citep{wang2023voyager, agentskills2025}, and artifact-mediated agent coordination~\citep{wang2026scienceclaw} further show that structured artifacts, not natural-language papers, are the natural unit of exchange for compounding agent capability---a premise our Live Research Manager (\S\ref{sec:live-pm}) instantiates.
-Unlike post-hoc recovery pipelines and background-knowledge graphs, \ara{} encodes claims, evidence, heuristics, and their executable bindings at authoring time, eliminating the recovery step entirely.
+\paragraph{面向智能体的文档与工具。}
+一系列趋同的研究表明，相较于扁平语料库~\citep{lo2020s2orc, priem2022openalex}，智能体受益于结构化、分层的表示~\citep{openai2025agentsmd, vasilopoulos2026codifiedcontext}，而且即使是最强的大语言模型也只能正确实现不到 40\% 的新贡献，其中\emph{语义}错位是最主要的失败模式~\citep{jimenez2024swebench, chen2025scienceagentbench, hua2025researchcodebench}。
+最近的系统从三个方向针对这一差距：流水线方法，事后将论文转换为可执行代码~\citep{seo2025papercoder} 或交互式 AI 智能体~\citep{miao2025paper2agent}，或通过图谱分析和调试恢复隐性知识~\citep{li2026tacit}；知识图谱方法，从背景文献中挖掘技术--代码链接~\citep{liu2026knowledgegraphs, luo2025xkg}——最多带来 10.9\% 的 PaperBench 提升，但未建模目标贡献的决策历史和认知结构；以及端到端进行实验的自主研究智能体~\citep{boiko2023coscientist, bran2024chemcrow, schmidgall2025agentlab, baek2025researchagent}，其非结构化的轨迹日志在论文完成之后就被丢弃。
+多智能体框架~\citep{wu2024autogen}、技能库标准~\citep{wang2023voyager, agentskills2025} 以及基于构件的智能体协调~\citep{wang2026scienceclaw} 进一步表明，结构化构件而非自然语言论文，是复合智能体能力的自然交换单元——我们的实时研究管理器（\S\ref{sec:live-pm}）正是这一前提的具体实现。
+与事后还原流水线和背景知识图谱不同，\ara{} 在创作时将论断、证据、启发式规则及其可执行绑定编码，完全消除了事后还原步骤。

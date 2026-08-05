@@ -1,59 +1,59 @@
-\section{The \ara{} Compiler}
+\section{\ara{} 编译器}
 \label{sec:ingestor}
 
-The born-agent pathway (\S\ref{sec:live-pm}) produces the highest-fidelity \ara{}s by capturing knowledge as it emerges during the research process.
-However, the scientific record contains millions of legacy PDFs that were never structured, and the born-agent pathway cannot reach backward.
-Beyond the PDF itself, research knowledge is distributed across complementary sources: GitHub repositories encode implementation decisions that prose omits, expert-curated evaluation rubrics encode what domain practitioners consider the core claims, and recorded experimental trajectories preserve the failure modes that papers systematically suppress.
-To bridge this gap, we introduce the \textbf{\ara{} Compiler}, an agent skill that translates any combination of legacy research sources into a complete \ara{}.\footnote{\url{github.com/AmberLJC/Agent-Native-Research-Artifact}}
-Quality is enforced in two stages. During compilation, the Compiler uses only ARA Seal Level~1 as an in-loop validation signal. After compilation, the finished artifact enters the downstream Seal pipeline, where Levels~2--3 evaluate its argumentative support and empirical reproducibility (\S\ref{sec:liveness}).
+原生智能体路径（\S\ref{sec:live-pm}）通过在研究过程中捕获涌现的知识，生成最高保真度的 \ara{}。
+然而，科学记录中包含了数以百万计的、从未被结构化的遗留 PDF，而原生智能体路径无法回溯至这些历史文献。
+除 PDF 本身之外，研究知识还分散在各种补充性来源中：GitHub 仓库编码了正文中省略的实现决策，专家策划的评估量规编码了领域实践者所认定的核心论断，记录下来的实验轨迹则保存了论文系统性地加以抑制的失败模式。
+为了弥合这一鸿沟，我们提出了\textbf{\ara{} 编译器}，这是一项智能体技能，能将任意的遗留研究来源组合转换为一个完整的 \ara{}。\footnote{\url{github.com/AmberLJC/Agent-Native-Research-Artifact}}
+质量通过两个阶段来保证。在编译过程中，编译器仅使用 ARA 认证第一级作为环内验证信号。编译完成后，成品构件进入下游认证流水线，由第二至第三级评估其论证性支撑和经验性可复现性（\S\ref{sec:liveness}）。
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/fig_compiler_v2.png}
-    \caption{The \ara{} Compiler accepts any combination of research sources and guides a coding agent through four stages of top-down artifact compilation, iterating 2--3$\times$ with in-loop ARA Seal Level~1 validation until the output conforms to the protocol.}
+    \caption{\ara{} 编译器接受任意的研究来源组合，引导编码智能体通过四个阶段的自顶向下构件编译，并与环内 ARA 认证第一级验证迭代 2--3$\times$，直至输出符合协议规范。}
     \label{fig:ingestor-pipeline}
     \end{figure}
-    
-\subsection{Design Principles}
+
+\subsection{设计原则}
 \label{sec:ingestor-principles}
 
-\paragraph{Universal input, canonical output.}
-The Compiler is many-to-one: it accepts any combination of PDFs, code repositories, datasets, human-curated rubrics (e.g., PaperBench~\citep{starace2025paperbench} claim decompositions), and experimental trajectory logs (e.g., RE-Bench~\citep{wijk2025rebench} traces that record failures the paper omits), and always produces a single \ara{} conforming to \S\ref{sec:protocol}.
-Degradation is graceful: a PDF alone yields a valid artifact with stub-level physical layers; richer inputs populate progressively more complete layers.
+\paragraph{通用输入，规范输出。}
+编译器是多对一的：它接受任意组合的 PDF、代码仓库、数据集、人类策划的量规（例如 PaperBench~\citep{starace2025paperbench} 的论断分解）以及实验轨迹日志（例如 RE-Bench~\citep{wijk2025rebench} 中记录论文所省略之失败的追踪数据），且始终输出一个符合 \S\ref{sec:protocol} 规范的单一 \ara{}。
+降级是优雅的：仅凭一个 PDF 就能生成一个具有桩级物理层的有效构件；更丰富的输入则能逐步填充更完整的层。
 
-\paragraph{High-fidelity preservation.}
-A narrative paper compresses and selects; the Compiler decompresses and restores.
-Every numerical result, hyperparameter, architectural detail, and negative finding in the sources must appear \emph{somewhere} in the artifact, and any PDF-accessible information missing from the \ara{} constitutes a compilation failure (evaluated in \S\ref{sec:eval-understanding}).
-Preservation is faithful to sources; \emph{enrichment} (\S\ref{sec:collective}) separately surfaces cross-artifact patterns no single source expresses.
+\paragraph{高保真保存。}
+叙事性论文进行压缩和筛选；编译器则进行解压缩和恢复。
+来源中的每一个数值结果、超参数、架构细节和负面发现都必须出现在构件的\emph{某处}，任何 PDF 中可获取但 \ara{} 中缺失的信息都构成编译失败（在 \S\ref{sec:eval-understanding} 中进行评估）。
+保存是忠实于来源的；\emph{丰富化}（\S\ref{sec:collective}）则单独发掘出任何单一来源都无法表达的跨构件模式。
 
-\paragraph{Knowledge lineage, not flat extraction.}
-Narrative compilation destroys the \emph{provenance chains} connecting claims to experiments, experiments to evidence, and evidence to code.
-Plain-text extraction recovers content but not these connections: parsing a PDF into Markdown populates four directories yet leaves them structurally isolated.
-The Compiler performs \emph{forensic reconstruction}, recovering the cross-layer forensic bindings (\S\ref{sec:layers}) from sources where lineage exists only implicitly---scattered across prose, figure captions, appendix tables, and code comments---so an agent can trace any claim downstream to code or any number upstream to its hypothesis.
-Recovering this lineage, not populating layers, is the core compilation problem.
+\paragraph{知识谱系，而非扁平提取。}
+叙事性编译会破坏连接论断与实验、实验与证据、证据与代码的\emph{溯源链}。
+纯文本抽取能恢复内容，但无法恢复这些连接：将 PDF 解析为 Markdown 会填充四个目录，却使它们在结构上彼此孤立。
+编译器执行\emph{取证重建}，从那些仅隐含存在谱系的来源（散落在正文、图注、附录表格和代码注释中）中恢复跨层取证绑定（\S\ref{sec:layers}），从而使智能体能够将任意论断向下追溯至代码，或向上追溯至其假设。
+编译的核心问题在于恢复这一谱系，而非填充各层。
 
-\subsection{Compiler Implementation}
+\subsection{编译器实现}
 \label{sec:ingestion-skill}
 
-Realizing these principles against narrative PDFs requires concrete mechanisms that address the specific ways prose obscures structure, lineage, and source diversity.
-The Compiler is implemented as a single agent skill (Figure~\ref{fig:ingestor-pipeline}) that guides a coding agent through the translation from legacy sources to \ara{} format.
-The skill prompt encodes the full \ara{} schema, field-level requirements, and a structured generation protocol.
-We describe the key elements below; the complete skill specification is reproduced in Appendix~\ref{app:ingestor-prompt}.
+针对叙事性 PDF 实现这些原则，需要具体的机制来解决正文如何模糊化结构、谱系和来源多样性的特定方式。
+编译器被实现为单一智能体技能（图~\ref{fig:ingestor-pipeline}），引导编码智能体完成从遗留来源到 \ara{} 格式的转换。
+技能提示词编码了完整的 \ara{} 模式、字段级需求以及结构化的生成协议。
+我们在下文描述关键要素；完整的技能规范复现于附录~\ref{app:ingestor-prompt}。
 
-\paragraph{Top-down generation.}
-The skill instructs the agent to construct the artifact \emph{top-down}, mirroring how a researcher explains their work to a new collaborator: high-level concepts first, details next, implementation last.
-Concretely, the agent proceeds through four stages.
-\emph{Semantic Deconstruction} strips narrative framing to expose raw research content (formulations, configurations, results, dependencies, failed approaches), rewritten in fact-dense telegraphic form that eliminates the Storytelling Tax at the source level.
-\emph{Cognitive Mapping} populates \texttt{/logic}: motivation chain (observations $\to$ gaps $\to$ insight), falsifiable claims with proof pointers, formal concepts, and the solution structure, with every claim linked to the experiment that verifies it.
-\emph{Physical Grounding} generates \texttt{/src}: annotated configurations, typed code stubs, and the environment manifest; when a code repository is available, stubs are replaced with actual implementations and the agent performs \emph{code-paper reconciliation}, cross-referencing the codebase against claims to surface tacit knowledge---implicit assumptions, undocumented tricks, extra parameters~\citep{li2026tacit}---that is written back to \texttt{/logic} as provenance-tagged heuristics.
-\emph{Exploration Graph Extraction} reconstructs the research DAG as a nested YAML tree with dead-end leaf nodes documenting hypothesis, failure mode, and lesson.
-This ordering ensures each layer is informed by the one above: cognitive structure guides physical generation, and the exploration graph contextualizes both.
+\paragraph{自顶向下生成。}
+该技能指示智能体\emph{自顶向下}地构建构件，如同研究者向新合作者解释其工作的方式：先讲高层概念，再讲细节，最后讲实现。
+具体而言，智能体经历四个阶段。
+\emph{语义解构}剥离叙事框架，以暴露原始研究内容（公式形式、配置、结果、依赖关系、失败方法），并将其改写为事实密集的电报式形式，从而在来源层面消除叙事税（Storytelling Tax）。
+\emph{认知映射}填充 \texttt{/logic}：动机链（观察 $\to$ 缺口 $\to$ 洞察）、带有证明指针的可证伪论断、形式化概念以及解决方案结构，且每个论断都关联至验证它的实验。
+\emph{物理落地}生成 \texttt{/src}：带注释的配置、类型化代码桩以及环境清单；当有代码仓库可用时，桩被替换为实际实现，智能体执行\emph{代码-论文对齐}，将代码库与论断进行交叉比对，以显露出隐性知识——隐含假设、无文档记录的技巧、额外参数~\citep{li2026tacit}——并将其作为溯源标记的启发式规则写回 \texttt{/logic}。
+\emph{探索图谱提取}将研究 DAG 重建为嵌套的 YAML 树，其中死胡同叶节点记录了假设、失败模式和教训。
+这种顺序确保每一层都受其上一层的指导：认知结构引导物理层生成，而探索图谱为两者提供上下文。
 
-\paragraph{Iterative refinement via validation feedback.}
-After initial generation, ARA Seal Level~1 checks (\S\ref{sec:liveness})---schema conformance, cross-layer reference resolution, required field completeness---run within the same agent conversation, returning failures as structured diagnostics that drive targeted fixes.
-This generate\,$\to$\,validate\,$\to$\,fix loop typically converges in 2--3 rounds, turning Level~1 into actionable feedback rather than a post-hoc report.
+\paragraph{通过验证反馈的迭代精化。}
+初始生成后，ARA 认证第一级检查（\S\ref{sec:liveness}）——包括模式一致性、跨层引用解析、必填字段完整性——在同一智能体会话中运行，将失败返回为结构化的诊断信息，驱动针对性修复。
+这种生成$\,\to\,$验证$\,\to\,$修复的循环通常在 2--3 轮中收敛，将第一级转变为可操作的反馈，而非事后报告。
 
-\paragraph{Source-aware enrichment.}
+\paragraph{来源感知的丰富化。}
 \label{sec:collective}
-Auxiliary sources are routed to the layer they most directly populate: code repositories replace stubs with verified implementations in \texttt{/src}; evaluation rubrics anchor \texttt{/logic} with expert-verified claim decompositions; and trajectory logs seed \texttt{/trace} with dead-end nodes the PDF omits.
-When a library of previously compiled \ara{}s is available, the Compiler further performs \emph{collective inference}: it retrieves heuristics and configurations from same-domain artifacts, flags common patterns the current paper omits, and adds them as candidate heuristics tagged \texttt{collective\_inference} so downstream agents can distinguish stated from inferred knowledge.
+辅助性来源被路由至其最直接填充的层：代码仓库将 \texttt{/src} 中的桩替换为经过验证的实现；评估量规通过专家验证的论断分解来锚定 \texttt{/logic}；轨迹日志则用 PDF 所省略的死胡同节点来播种 \texttt{/trace}。
+当已有先前编译的 \ara{} 库可用时，编译器进一步执行\emph{集体推断}：从同领域构件中检索启发式规则和配置，标记出当前论文遗漏的常见模式，并将其添加为标记为 \texttt{collective\_inference} 的候选启发式规则，使下游智能体能够区分陈述性知识与推断性知识。

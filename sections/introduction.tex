@@ -1,69 +1,69 @@
-\section{Introduction}
+\section{引言}
 \label{sec:intro}
 
-Research produces a rich, branching knowledge object: months of hypotheses tested and rejected, implementation tricks discovered through trial and error, design alternatives weighed against each other, and the full exploration trajectory that explains why the final approach was chosen.
-Publishing compiles this object into a linear narrative~\citep{medawar1963fraud, canini2026stopwriting}, discarding failed experiments, tacit engineering knowledge, and the branching process to satisfy the conventions of human-readable storytelling~\citep{rosenthal1979filedrawer, franco2014publication}.
-This compilation cost, a consequence of the documentation convention rather than any particular file format, was tolerable when every consumer of a paper was human.
-It is not when AI agents routinely read papers to understand a field, reproduce experiments to validate findings, and extend published methods to new settings~\citep{lu2024aiscientist, liu2026ainative}: each task requires precisely the knowledge that compilation discards (Figure~\ref{fig:overview}).
-More specifically, the compilation incurs two structural costs.
+研究产生的是一个丰富、分支的知识对象：历经数月的假设检验与推翻，通过反复试错发现的实现技巧，在多个设计方案之间反复权衡，以及解释为何最终选择该方法的完整探索轨迹。
+出版将这一对象编译为线性叙事~\citep{medawar1963fraud, canini2026stopwriting}，丢弃了失败的实验、隐性的工程知识以及分支探索过程，以迎合人类可读叙事的惯例~\citep{rosenthal1979filedrawer, franco2014publication}。
+当论文的每一位消费者都是人类时，这种编译代价——源于文档化惯例而非特定文件格式的产物——尚可接受。
+但当 AI 智能体需要例行阅读论文以理解领域、复现实验以验证发现、并将已发表方法扩展至新场景时~\citep{lu2024aiscientist, liu2026ainative}，这种代价便不可接受：每一项任务恰恰需要被编译所丢弃的知识（图~\ref{fig:overview}）。
+更具体而言，这一编译过程带来了两类结构性代价。
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/fig_legacy_vs_ara_v6.png}
-    \caption{Publishing compiles a rich research object into a lossy narrative (left); \ara{} preserves the original as a high-fidelity, agent-executable knowledge package (right).}
+    \caption{出版将丰富的研究对象编译为有损的叙事（左）；\ara{} 则将原始对象保存为高保真、智能体可执行的知识包（右）。}
     \label{fig:overview}
 \end{figure}
-The first is the \textbf{Storytelling Tax}: the systematic erasure of research process knowledge imposed by compilation into narrative (Figure~\ref{fig:storytelling-tax}).
-Research does not proceed linearly---it branches, backtracks, and accumulates hard-won failure knowledge before converging on a publishable result~\citep{kuhn1962structure,medawar1963fraud}.
-Narrative compilation flattens this process into a polished linear story, discarding every failed experiment, rejected hypothesis, and abandoned approach.
-This emphasis on success leaves failures undocumented; although modern platforms archive final artifacts, the branching research process remains unrecorded, causing independent rediscovery of the same dead ends across groups~\citep{rosenthal1979filedrawer, franco2014publication}.
-Our own analysis of the METR eval-analysis-public dataset~\citep{wijk2025rebench}, covering 24{,}008 agent runs across 21 frontier models on RE-Bench, quantifies the cost (per-task breakdown in Appendix~\ref{app:exploration-tax}): failed runs account for \textbf{90.2\%} of total dollar cost (and 59.2\% of tokens), with a median failed-to-success token ratio of \textbf{113$\times$}, agents without access to prior failure records must independently rediscover every dead end.
-Equally lost is the record of human \emph{judgment} along the trajectory: every rejection, revision, and endorsement is a preference signal over what constitutes good research, the scarce resource that binds once agents shoulder the grunt work. Narrative compilation discards this signal; a preserved trajectory renders it as structured supervision that compounds across projects.
+其一是\textbf{叙事税}：将研究过程编译为叙事时，对研究过程知识造成的系统性抹除（图~\ref{fig:storytelling-tax}）。
+研究并非线性推进——它在收敛到可发表结果之前，不断分支、回溯，并积累来之不易的失败知识~\citep{kuhn1962structure,medawar1963fraud}。
+叙事编译将这一过程压扁为一条经过打磨的线性故事，丢弃了每一个失败的实验、被推翻的假设和被放弃的方向。
+这种对成功的强调使失败无人记录；尽管现代平台能归档最终制品，但分支式的研究过程仍未被记录，导致不同研究团队独立重复发现同样的死胡同~\citep{rosenthal1979filedrawer, franco2014publication}。
+我们基于 METR 的 eval-analysis-public 数据集~\citep{wijk2025rebench} 进行的分析——涵盖 21 个前沿模型在 RE-Bench 上的 24{,}008 次智能体运行——量化了这一代价（附录~\ref{app:exploration-tax} 中给出了逐任务分解）：失败运行占总美元成本的 \textbf{90.2\%}（占总 token 量的 59.2\%），失败与成功运行的中位 token 比高达 \textbf{113$\times$}，无法获取先前失败记录的智能体必须独立重新发现每一个死胡同。
+同样被丢弃的还有人类\emph{判断}在整个轨迹中的记录：每一次拒绝、修改和认可，都是关于何谓好的研究的偏好信号——一旦智能体承担了繁重的执行工作，这种信号便成为稀缺资源。叙事编译丢弃了这些信号；而保留的轨迹则将其呈现为结构化的监督信号，可跨项目累积复用。
 
-The second is the \textbf{Engineering Tax}: the gap between \emph{reviewer-sufficient} and \emph{agent-sufficient} documentation (Figure~\ref{fig:info-gap}).
-The paper communicates its contribution at the level of detail needed to convince a human reviewer; the codebase provides an implementation but not the operational specification needed to execute it.
-Between the two lies tacit knowledge~\citep{polanyi1966tacit}---algorithmic tricks, implementation decisions, and configuration choices---knowledge that exists in no written document and is transmitted only through direct lab contact or painstaking reverse-engineering.
-We quantify this void by classifying each of PaperBench's 8{,}921 expert-annotated reproduction requirements across 23 ICML~2024 papers~\citep{starace2025paperbench} against its source PDF (per-category breakdown and gap-type taxonomy in Appendix~\ref{app:gap-types}): despite widespread artifact sharing, only \textbf{45.4\%} are fully specified.
-Code development is the most underspecified category (37.3\% sufficient), and missing hyperparameters alone account for 26.2\% of all gaps (full breakdown in Appendix~\ref{app:gap-types}): a fundamental mismatch between the precision at which papers are written (sufficient to produce belief) and the precision at which agents must operate (sufficient to produce correct execution)~\citep{stodden2016enhancing, baker2016reproducibility}.
+其二是\textbf{工程税}：\emph{足以满足评审者}的文档与\emph{足以满足智能体}的文档之间的鸿沟（图~\ref{fig:info-gap}）。
+论文以说服人类评审者所需的细节层级来传达其贡献；代码仓库提供了实现，但未提供执行所需的操作规范。
+两者之间是隐性知识~\citep{polanyi1966tacit}——算法技巧、实现决策和配置选择——这些知识不存在于任何书面文档中，仅能通过直接与实验室接触或费力的逆向工程来传递。
+我们通过将 PaperBench 中覆盖 23 篇 ICML~2024 论文的 8{,}921 条专家标注复现需求~\citep{starace2025paperbench} 与其源 PDF 逐条对照分类来量化这一鸿沟（附录~\ref{app:gap-types} 中给出了逐类别分解和鸿沟类型分类法）：尽管已有广泛的制品共享，但仅有 \textbf{45.4\%} 的需求被完整规定。
+代码开发是最欠规定的类别（充分率为 37.3\%），而仅缺失超参数一项就占所有鸿沟的 26.2\%（完整分解见附录~\ref{app:gap-types}）：这揭示了论文写作精度（足以产生信念）与智能体操作精度（足以产生正确执行）之间的根本性错配~\citep{stodden2016enhancing, baker2016reproducibility}。
 
-Both taxes have persisted throughout the history of research because the human reader has always been the bandwidth-limited layer processing a vast, non-linear research trajectory.
-Capable AI agents now offer a more efficient, human-proximal proxy that processes the trajectory at machine bandwidth on the reader's behalf, and three trends suggest what such an artifact should look like.
-\textbf{First}, AI agents have become indispensable research companions, co-authoring code, running experiments, and iterating on hypotheses alongside humans~\citep{lu2024aiscientist}, with LLM adoption associated with paper-production increases of 23.7\%--89.3\% across scientific fields~\citep{kusumegi2025scientific}; the full research trajectory (every failure, implementation trick, configuration choice, design pivot) is now captured as machine-readable text in researcher-agent sessions, yet no protocol preserves it as a first-class output.
-\textbf{Second}, humans and AI agents have divergent information needs: humans skim abstracts and figures~\citep{renear2009strategic}, while agents benefit from exhaustive detail that strictly improves reproduction, verification, and extension, so a single artifact optimized for human narrative can no longer serve both.
-\textbf{Third}, research is scaling into a massively parallel enterprise where agents fork, extend, and merge each other's work at machine speed, shifting the bottleneck from individual productivity to artifact \emph{operability}: narrative PDFs, compiled for sequential human reading, cannot be forked, diffed, or merged, but a structured, lossless artifact can, letting research compound like software.
+两类税负贯穿整个研究史一直存在，因为人类读者始终是那个带宽受限的层，负责处理庞大、非线性的研究轨迹。
+如今，强大的 AI 智能体提供了一种更高效的、贴近人类的代理，能够以机器带宽代表读者处理研究轨迹，而三种趋势预示了这样的制品应当具备何种形态。
+\textbf{第一}，AI 智能体已成为不可或缺的研究伙伴，与人类共同编写代码、运行实验、迭代假设~\citep{lu2024aiscientist}，LLM 的采用与各科学领域论文产出增长 23.7\%--89.3\% 相关~\citep{kusumegi2025scientific}；完整的研究轨迹（每一次失败、每一个实现技巧、每一项配置选择、每一次设计转向）如今被捕获为研究者与智能体会话中的机器可读文本，但尚无协议将其作为一等输出来保存。
+\textbf{第二}，人类与 AI 智能体的信息需求存在分歧：人类略读摘要和图表~\citep{renear2009strategic}，而智能体受益于详尽信息，因为这些信息严格改善复现、验证和扩展，因此单个人类叙事优化的制品已无法同时服务二者。
+\textbf{第三}，研究正扩展为大规模并行事业，智能体以机器速度分叉、扩展和合并彼此的工作，瓶颈从个体生产力转向制品的\emph{可操作性}：为顺序人类阅读而编译的叙事型 PDF，无法被分叉、差异比较或合并，但结构化的、无损的制品可以，从而使研究能够如软件般复合增长。
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.95\linewidth]{figures/fig_exploration_tax.png}
-    \caption{The Storytelling Tax: research proceeds as a branching tree with dead ends (left), but publication compiles it into a linear narrative (right), discarding all failure knowledge.}
+    \caption{叙事税：研究以包含死胡同的分支树形式推进（左），但出版将其编译为线性叙事（右），丢弃了所有失败知识。}
     \label{fig:storytelling-tax}
 \end{figure}
-    
-Existing efforts address fragments of this problem.
-The FAIR principles~\citep{wilkinson2016fair} mandate findable, accessible data but say nothing about the structure of research \emph{arguments}.
-RO-Crate~\citep{soilandreyes2022rocrate} packages research artifacts as archival bundles, not executable objects.
-Nanopublications~\citep{groth2010nanopub} formalize atomic claims but lack the execution layer needed for reproduction.
-The emerging \texttt{AGENTS.md} standard~\citep{openai2025agentsmd} provides agent-oriented documentation for code repositories but does not address the epistemic structure of research itself.
-None of these efforts jointly structure scientific logic, executable code, and exploration history into a single operable object (\S\ref{sec:related}).
 
-We propose the \textbf{Agent-Native Research Artifact (\ara{})}, a protocol that recasts the primary research object from narrative document to agent-executable knowledge package, with papers serving as compiled views of the underlying artifact (Figure~\ref{fig:overview}).
-\ara{} organizes research into four interlocking layers: \emph{structured scientific logic} that distills the paper's conceptual abstractions into queryable claims and dependency graphs; \emph{executable code} with full operational specifications; an \emph{exploration graph} preserving the branching research process---failed experiments, rejected hypotheses, and design pivots---that narrative compilation discards; and \emph{grounded evidence} binding every claim to its raw empirical outputs.
-Instead of parsing prose, reverse-engineering repositories, and rediscovering dead ends, an agent operating on an \ara{} artifact can query structured claims, execute declarative specifications, and build on the full decision history directly---a research object designed not to be read, but to be \emph{operated}.
+现有工作只解决了该问题的部分侧面。
+FAIR 原则~\citep{wilkinson2016fair} 要求数据可发现、可访问，但对研究\emph{论证}的结构未作规定。
+RO-Crate~\citep{soilandreyes2022rocrate} 将研究制品打包为档案束，而非可执行对象。
+Nanopublications~\citep{groth2010nanopub} 将原子性论断形式化，但缺少复现所需的执行层。
+新兴的 \texttt{AGENTS.md} 标准~\citep{openai2025agentsmd} 为代码仓库提供了面向智能体的文档，但并未涉及研究本身的认知结构。
+上述工作均未将科学逻辑、可执行代码和探索历史联合结构化为单一可操作对象（\S\ref{sec:related}）。
 
-To build the ecosystem around \ara{}, we develop three enabling mechanisms.
-The \textbf{Live Research Manager} (\S\ref{sec:live-pm}) captures research decisions and dead ends as natural side-effects of everyday development, producing conforming artifacts without additional documentation burden.
-The \textbf{\ara{} Compiler} (\S\ref{sec:ingestor}) translates legacy PDFs, repositories, and supplementary materials into \ara{} format, providing backward compatibility with the existing publication ecosystem.
-The \textbf{\ara{}-Native Review System} (\S\ref{sec:review-system}) automates structural verification and budget-aware reproduction (analogous to a grammar checker for prose), redirecting expert attention from mechanical checking to judgment---significance, novelty, and taste~\citep{aczel2021billiondollar}.
+我们提出\textbf{智能体原生研究构件（\ara{}）}，一种将主要研究对象从叙事文档重塑为智能体可执行知识包的协议，论文则作为底层制品的编译视图（图~\ref{fig:overview}）。
+\ara{} 将研究组织为四个相互耦合的层次：\emph{结构化科学逻辑}，将论文的概念抽象提炼为可查询的论断及其依赖图谱；\emph{可执行代码}，附带完整的操作规范；\emph{探索图谱}，保留叙事编译所丢弃的分支研究过程——失败的实验、被推翻的假设和设计转向；以及\emph{有据的证据}，将每一条论断与其原始实证输出相绑定。
+在 \ara{} 制品上操作的智能体无需解析散文、逆向工程代码仓库和重新发现死胡同，即可直接查询结构化论断、执行声明式规范、并基于完整决策历史进行后续构建——这是一种设计目标不是被\emph{阅读}、而是被\emph{操作}的研究对象。
+
+为构建围绕 \ara{} 的生态系统，我们开发了三种支撑机制。
+\textbf{实时研究管理器}（\S\ref{sec:live-pm}）将研究决策和死胡同作为日常开发的自然副产品加以捕获，在不增加额外文档负担的前提下产出符合规范的制品。
+\textbf{\ara{} 编译器}（\S\ref{sec:ingestor}）将遗留 PDF、代码仓库和补充材料翻译为 \ara{} 格式，提供与现有出版生态的向后兼容。
+\textbf{\ara{} 原生评审系统}（\S\ref{sec:review-system}）自动化结构验证和预算感知的复现（类似于散文的语法检查器），将专家注意力从机械核对重定向至判断——显著性、新颖性和品味~\citep{aczel2021billiondollar}。
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/fig_info_gap.pdf}
-    \caption{The reproduction information gap across 8,921 PaperBench requirements. \textbf{(a)}~PDFs systematically under-specify code development tasks. \textbf{(b)}~The three largest gap types are precisely the categories \ara{}'s structured layers address.}
+    \caption{基于 8,921 条 PaperBench 需求的复现信息鸿沟。\textbf{(a)}~PDF 系统性地欠规定代码开发任务。\textbf{(b)}~三种最大的鸿沟类型恰为 \ara{} 结构化层次所针对的类别。}
     \label{fig:info-gap}
 \end{figure}
-\paragraph{Contributions.}
+\paragraph{贡献。}
 \begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item We identify two structural costs of compiling research into narrative---the \textbf{Storytelling Tax} and the \textbf{Engineering Tax}---and introduce the \textbf{Agent-Native Research Artifact (\ara{})}: a protocol that recasts the primary research object from narrative document to agent-executable knowledge package organized into four interlocking layers (\S\ref{sec:protocol}).
-    \item We develop three enabling mechanisms: a \textbf{Live Research Manager} (\S\ref{sec:live-pm}) that captures research decisions during ordinary development; an \textbf{\ara{} Compiler} (\S\ref{sec:ingestor}) that translates legacy PDFs and repositories into \ara{} format; and an \textbf{\ara{}-Native Review System} (\S\ref{sec:review-system}) that automates objective verification (analogous to a grammar checker for prose) so human reviewers can focus on judgment.
-    \item We evaluate \ara{} across three layers of research utility (\S\ref{sec:eval}): \emph{understanding} (what an agent can extract from the artifact), \emph{reproduction} (whether the agent can re-execute the paper's experiments), and \emph{extension} (whether the agent can build beyond the documented results and discover genuinely new findings, the defining goal of research). Across all three layers, agents operating on an \ara{} consistently outperform those reading the paper PDF and its associated code repository.
+    \item 我们识别了将研究编译为叙事的两类结构性代价——\textbf{叙事税}和\textbf{工程税}——并引入\textbf{智能体原生研究构件（\ara{}）}：一种将主要研究对象从叙事文档重塑为智能体可执行知识包，并组织为四个相互耦合层次的协议（\S\ref{sec:protocol}）。
+    \item 我们开发了三种支撑机制：\textbf{实时研究管理器}（\S\ref{sec:live-pm}），在日常开发中捕获研究决策；\textbf{\ara{} 编译器}（\S\ref{sec:ingestor}），将遗留 PDF 和代码仓库翻译为 \ara{} 格式；以及\textbf{\ara{} 原生评审系统}（\S\ref{sec:review-system}），自动执行客观验证（类似于散文的语法检查器），使人类评审者得以聚焦于判断。
+    \item 我们在三个研究效用层次上评估 \ara{}（\S\ref{sec:eval}）：\emph{理解}（智能体从制品中可提取到什么）、\emph{复现}（智能体能否重新执行论文的实验）、以及\emph{扩展}（智能体能否在已有结果基础上进一步构建并发现真正新的发现——研究的根本目标）。在所有三个层次上，基于 \ara{} 操作的智能体始终优于阅读论文 PDF 及其关联代码仓库的智能体。
 \end{itemize}
