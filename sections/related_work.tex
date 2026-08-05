@@ -1,0 +1,49 @@
+\section{Related Work}
+\label{sec:related}
+
+Our work synthesizes ideas from three research threads---machine-readable science, reproducibility infrastructure, and agent-oriented tooling---and contributes a unified protocol that none of them provide individually.
+
+\paragraph{The dimensional gap of existing tools.}
+A natural objection is that \ara{} merely combines documentation, version control, and experiment tracking---three categories of tools researchers already use.
+Table~\ref{tab:dimension-gap} shows why even using PDFs, GitHub, and trackers (MLflow~\citep{zaharia2018mlflow}, Weights~\&~Biases~\citep{biewald2020wandb}) \emph{simultaneously} leaves the knowledge siloed in three unlinked formats with no cross-referencing between claims, the code that tests them, the evidence produced, and the decisions that selected it.
+\ara{} closes this gap not by replacing these tools but by providing the missing structural layer: an executable epistemic graph whose cross-layer bindings make these connections explicit and machine-traversable.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& \textbf{PDF} & \textbf{GitHub} & \textbf{Tracker} & \textbf{\ara{}} \\
+\midrule
+Structured scientific logic  & {\color{orange}$\sim$} & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+Executable code              & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+Exploration trajectory       & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
+Grounded evidence            & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
+Cross-layer bindings         & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+\bottomrule
+\end{tabular}
+\caption{Dimensional coverage of existing research artifacts. Each row is a requirement for agent-native research (\S\ref{sec:intro}). Existing tools cover at most two dimensions structurally; \ara{} covers all five with explicit cross-layer bindings. {\color{green!50!black}\checkmark}~=~full, {\color{orange}$\sim$}~=~partial (present but unstructured or scattered), {\color{red!70!black}$\times$}~=~absent.}
+\label{tab:dimension-gap}
+\end{table}
+
+\paragraph{Machine-readable research artifacts.}
+A growing line of work argues that scientific knowledge should be authored in machine-readable form during the research process rather than recovered post-hoc: the FAIR principles~\citep{wilkinson2016fair} standardize data metadata, the W3C PROV ontology~\citep{lebo2013provo} formalizes provenance for scientific outputs, \citet{canini2026stopwriting} reframes the paper as a ``compression format for human readers'' that should yield to structured knowledge objects, and \citet{stocker2025machinereadable, booeshaghi2026machinereadable} advocate authoring-time machine readability as a first principle.
+Concrete formats instantiate parts of this vision---nanopublications~\citep{groth2010nanopub} atomize claims with provenance, the Open Research Knowledge Graph~\citep{jaradeh2019orkg} curates structured contributions across papers, RO-Crate~\citep{soilandreyes2022rocrate} bundles research objects, Whole Tale~\citep{brinckman2019wholetale} packages computational environments, and the Discovery Engine~\citep{baulin2025discoveryengine} distills publications into a Conceptual Tensor---but none provides execution semantics or captures decision history.
+Unlike these formats, \ara{} jointly binds scientific logic, minimal executable code, and decision history into a single protocol with machine-verifiable reproducibility.
+
+\paragraph{Reproducibility infrastructure.}
+The reproducibility crisis in ML~\citep{baker2016reproducibility, pineau2021reproducibility} has motivated code-sharing standards~\citep{stodden2016enhancing}, scientific workflow engines~\citep{koster2012snakemake, ditommaso2017nextflow, crusoe2022cwl}, and computational notebooks~\citep{knuth1984literate, rule2018exploration}; yet workflows encode pipelines without claim semantics, notebooks remain documents with hidden state, and recent benchmarks~\citep{starace2025paperbench, liu2026scireasoning, kon2025expbench} collectively show that frontier agents cannot recover knowledge PDFs leave implicit---EXP-Bench reports only 0.5\% end-to-end experiment success despite 20--35\% component accuracy.
+On the verification side, LLMs detect fewer than 46\% of paper--code discrepancies~\citep{baumgartner2026scicoqa}, extending a longer line of scientific claim verification~\citep{wadden2020scifact} and attribution-based grounding~\citep{gao2023rarr} and motivating formal auditing criteria across provenance, soundness, claim decomposition, and cryptographic lineage~\citep{rasheed2026aar, huang2025decmetrics, radanliev2026aibom}.
+Unlike prior auditing proposals that address a single dimension, \ara{}'s Seal Certificates operationalize all of them in one enforceable mechanism.
+
+\paragraph{Negative knowledge and failed trajectories.}
+Recent work shows that failure traces become actionable only once annotated with root-cause structure~\citep{zhu2025agenterrorbench, zhang2025agentracer}, yet raw trajectory dumps~\citep{yang2024sweagent} remain difficult to leverage.
+Large-scale experiment logs~\citep{pinedaarango2021hpob, ying2019nasbench, gijsbers2019automl} retain $>$99.99\% more search history than their corresponding papers report, and process-level studies~\citep{wijk2025rebench, yamada2025aiscientistv2} confirm that human experts and agentic scientists both explore extensive dead ends that never surface in the write-up.
+Unlike raw trajectory archives, \ara{}'s exploration graph promotes dead ends to first-class \texttt{dead\_end} nodes with structured failure modes and claim cross-references, making negative knowledge machine-queryable rather than lost to narrative selection.
+
+\paragraph{Agent-oriented documentation and tooling.}
+A convergent body of work shows that agents benefit from structured, layered representations~\citep{openai2025agentsmd, vasilopoulos2026codifiedcontext} over flat corpora~\citep{lo2020s2orc, priem2022openalex}, and that even the strongest LLMs implement fewer than 40\% of novel contributions correctly, with \emph{semantic} misalignment as the dominant failure mode~\citep{jimenez2024swebench, chen2025scienceagentbench, hua2025researchcodebench}.
+Recent systems target this gap from three sides: pipelines that convert papers into executable code~\citep{seo2025papercoder} or interactive AI agents~\citep{miao2025paper2agent} post-hoc, or recover tacit knowledge through graph analysis and debugging~\citep{li2026tacit}; knowledge-graph approaches that mine background literature for technique--code links~\citep{liu2026knowledgegraphs, luo2025xkg}---yielding up to 10.9\% PaperBench gains but leaving the target contribution's decision history and epistemic structure unmodeled; and autonomous research agents that conduct experiments end-to-end~\citep{boiko2023coscientist, bran2024chemcrow, schmidgall2025agentlab, baek2025researchagent}, whose unstructured trajectory logs are themselves discarded once the resulting paper is written.
+Multi-agent frameworks~\citep{wu2024autogen}, skill-library standards~\citep{wang2023voyager, agentskills2025}, and artifact-mediated agent coordination~\citep{wang2026scienceclaw} further show that structured artifacts, not natural-language papers, are the natural unit of exchange for compounding agent capability---a premise our Live Research Manager (\S\ref{sec:live-pm}) instantiates.
+Unlike post-hoc recovery pipelines and background-knowledge graphs, \ara{} encodes claims, evidence, heuristics, and their executable bindings at authoring time, eliminating the recovery step entirely.

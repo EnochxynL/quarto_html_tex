@@ -1,0 +1,19 @@
+\section{Future Work}
+\label{sec:discussion}
+
+\paragraph{Near term: artifact lineage and self-maintaining ecosystems.}
+The most pressing near-term gap is artifact durability: like code repositories, \ara{}s decay without maintenance as dependencies rot and practices evolve, yet unmaintained artifacts are the community norm.
+The natural extension is a \emph{lineage mechanism} in which each \ara{} declares its parent artifacts and expresses its contribution as a structured diff, reducing both construction cost (authors specify only the delta) and verification cost (reviewers and agents re-check only the new contribution).
+Lineage also enables self-maintaining ecosystems: agents consuming an \ara{} detect and repair staleness, update deprecated dependencies, and propagate corrections upstream, so that every act of consumption becomes an act of maintenance.
+
+\paragraph{Medium term: knowledge graph, collaborative discovery, and continuous review.}
+Aggregated lineages form a queryable scientific knowledge graph that lifts collaboration and review from the document level to the corpus level.
+Cross-artifact claim alignment turns literature synthesis into subgraph queries, lets reviewer agents verify that reported baselines match what cited \ara{}s recorded, and exposes trajectory conflicts where a method claimed as successful elsewhere was documented as failing.
+Shared Exploration Graphs also enable collaboration formats impossible in the PDF ecosystem, from parallel continuation of open problems with documented dead ends to fine-grained attribution on live, evolving artifacts.
+Review evolves in parallel: there is no single accept moment, only a claim-confidence surface that rises with replications and falls with counter-evidence, freeing human expert attention for the judgments only humans make, namely novelty, significance, and taste.
+
+\paragraph{Long term: cross-disciplinary collective memory.}
+Our evaluation is restricted to machine learning, where \ara{}'s four-layer structure aligns naturally with the dominant contribution types: algorithms, architectures, and training procedures.
+Whether this structure generalizes to other disciplines remains an open question.
+The Cognitive and Evidence Layers are plausibly domain-agnostic, but the Physical Layer and Exploration Graph, both premised on iterable computational experiments, may require substantial adaptation for wet-lab sciences where execution is physical rather than computational.
+If these adaptations succeed, \ara{} provides a natural substrate for cross-disciplinary knowledge transfer, where documented failures in one field become actionable knowledge in another via graph traversal rather than literature search in unfamiliar notation.

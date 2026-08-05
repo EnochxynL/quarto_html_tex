@@ -1,0 +1,251 @@
+\section{Evaluation}
+\label{sec:eval}
+
+\begin{table*}[t]
+  \centering
+  \small
+  \begin{tabular}{@{} p{0.46\linewidth} | p{0.46\linewidth} @{}}
+  \toprule
+  \textbf{PaperBench}~\citep{starace2025paperbench} & \textbf{RE-Bench}~\citep{wijk2025rebench} \\
+  \midrule
+  \textbf{Papers:} 23 peer-reviewed ML papers across diverse subfields &
+  \textbf{Tasks:} 7 R\&D hill-climbing tasks on well-defined objective functions \\
+  \midrule
+  \textbf{Scale:} 8,921 expert-authored rubric requirements &
+  \textbf{Scale:} 24,008 agent runs; 46,303 failure episodes \\
+  \midrule
+  \textbf{Contents:} PDF + companion GitHub repo (15/23 papers); expert rubrics encode hyperparameter values, implementation tricks, and configurations absent from the paper; failure knowledge rarely preserved in published papers &
+  \textbf{Contents:} Starter codebase per task; METR MALT transcripts with full real agent successful and failure trajectories retained per run \\
+  \midrule
+  \textbf{Scoring:} Expert hierarchical rubric (yes\,/\,partial\,/\,no) &
+  \textbf{Scoring:} Automated continuous objective; no human judgment required \\
+  \midrule
+  \textbf{Used in:} Understanding (\S\ref{sec:eval-understanding}, Cat.~A\,\&\,B); Reproduction (\S\ref{sec:eval-reproduction}) &
+  \textbf{Used in:} Understanding (\S\ref{sec:eval-understanding}, Cat.~C); Extension (\S\ref{sec:eval-extension}) \\
+  \bottomrule
+  \end{tabular}
+  \caption{Benchmark characteristics. PaperBench supplies configuration depth via expert rubrics; RE-Bench supplies trajectory depth via MALT failure traces. These are the two source-side enrichments \ara{} is built to exploit.}
+  \label{tab:benchmarks}
+  \end{table*}
+We evaluate \ara{} across three layers of increasing research ambition: \emph{understanding} (can an agent extract knowledge from the artifact?), \emph{reproduction} (can an agent execute research from the artifact?), and \emph{extension} (can an agent build on prior work more efficiently with failure knowledge?).
+Each layer isolates a distinct advantage of structured artifacts over the PDF-centric status quo.
+We first describe the evaluation corpus and how each \ara{} is built from it (\S\ref{sec:eval-data}), then present experiments that test \ara{} at each layer (\S\ref{sec:eval-understanding}--\ref{sec:eval-extension}). Full implementation details for all experiments are in Appendix~\ref{app:eval-details}.
+
+% ============================================================
+% Datasets and Motivation
+% ============================================================
+\subsection{Datasets and Motivation}
+\label{sec:eval-data}
+% Legacy aliases for backward compatibility
+\label{sec:eval-setup}\label{sec:eval-gap}\label{sec:eval-t1}\label{sec:eval-negative}\label{sec:eval-t3-exec}
+
+A single comparison underlies all three evaluation layers: holding the agent, the task, and the ground truth fixed, does an \ara{} compiled from a research project's available source materials outperform the conventional artifact most readers receive---a paper PDF plus a companion code repository when one exists?
+
+\paragraph{Two systematic gaps in the conventional artifact.}
+The comparison is interesting precisely because the conventional PDF$+$repo loses two kinds of content an \ara{} can preserve. First, \emph{configuration depth}: published papers omit hyperparameters, environment specs, and implementation details that experts deem necessary for reproduction. Across PaperBench's 8{,}921 expert reproduction requirements, only \textbf{45.4\%} are fully specified in the source PDF (Fig.~\ref{fig:info-gap}; full taxonomy in App.~\ref{app:gap-types}). Second, \emph{exploration depth}: most of the compute that produces a finished result never reaches the artifact. Across 24{,}008 RE-Bench agent runs, \textbf{90.2\%} of dollar cost is spent on failed exploration that the published artifact discards entirely (App.~\ref{app:exploration-tax}), forcing each subsequent agent to rediscover the same dead ends. We use two benchmarks chosen so that each one supplies, as a first-class source, exactly what the conventional artifact lacks: PaperBench expert rubrics close the configuration gap; RE-Bench MALT trajectories close the exploration gap (Table~\ref{tab:benchmarks}). Both benchmarks happen to be drawn from computer science and machine learning, but \ara{}'s design extends to any \emph{digitalised} research whose contribution can be expressed as code, configurations, and grounded data, including computational social science, economics, and dry-lab biology. Research whose contribution is a physical-world intervention (wet-lab biology, materials synthesis) falls outside this scope until the underlying experimental record is itself digitalised.
+
+\paragraph{Two representations of the same research.}
+For each paper or task we construct two representations of the same underlying research and hold everything else fixed.
+The \emph{conventional baseline} approximates what most readers receive: for PaperBench it is the published paper PDF and, when available (15 of 23 papers), the original GitHub repository; for RE-Bench, where tasks have no published paper, it is an LLM-synthesised polished paper-style writeup of the official reference solution paired with the official source---the closest analogue to PDF$+$repo for paperless tasks.
+The \ara{} is compiled from the same source bundle (PDF$+$repo$+$expert rubric for PaperBench; official solution$+$source$+$MALT trajectories for RE-Bench) via the \ara{} Compiler (\S\ref{sec:ingestor}), gated by the ARA Seal Level~1 structural-integrity loop (\S\ref{sec:liveness}); the generate--validate--fix iteration converges in 1--3 passes in practice.
+For the extension experiment (\S\ref{sec:eval-extension}), RE-Bench \ara{}s are additionally produced through a specialised pipeline (App.~\ref{app:extension-pipeline}) that adds per-MALT-run extraction sub-agents and a beat-reference fairness filter; the output conforms to the same \ara{} schema.
+
+% ============================================================
+% Layer 1: Understanding
+% ============================================================
+\subsection{Knowledge Extraction from \ara{}}
+\label{sec:eval-understanding}
+% Legacy aliases
+\label{sec:eval-info-retrieval}\label{sec:eval-questions}\label{sec:eval-t2}
+
+The first layer measures what an agent can extract from each format: does \ara{} preserve the information present in the source PDF and repo, and does its structure surface knowledge that the source leaves scattered or implicit?
+A format that loses information during compilation cannot improve reproduction or extension, so this is a precondition for every downstream benefit.
+The information gap quantified in \S\ref{sec:intro} (Figure~\ref{fig:info-gap}) shows that structure \emph{can} recover details PDFs under-specify; this layer tests whether the Compiler actually achieves that promise.
+
+\paragraph{Setup.}
+We probe each format with 450 questions: 15 per evaluation target across 30 targets (23 PaperBench papers and 7 RE-Bench tasks), in three categories. \emph{Category~A} (10 per target, both benchmarks) tests fidelity on surface results, methods, and conditions answerable from the PDF. \emph{Category~B} (5 per PaperBench paper) tests configuration recovery on hyperparameters, environment specs, and preprocessing details. \emph{Category~C} (5 per RE-Bench task) tests failure knowledge on dead ends, alternatives considered, and lessons. To avoid source bias in question selection, we generate two pools per target independently---one seeded by reading the PDF, one by reading the \ara{}---then merge and deduplicate them so that neither format dictates which questions get asked (full templates and the gold-reference rubric in Appendix~\ref{app:question-bank}). Each (target, format, question) triple is dispatched as an independent Claude Sonnet 4.6 sub-agent with a fresh context, and each answer is graded ternary (1.0 / 0.5 / 0.0) by a Claude Opus 4.6 judge against a gold reference.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lc cc cc}
+\toprule
+& & \multicolumn{2}{c}{\textbf{Accuracy (\%)}} & \multicolumn{2}{c}{\textbf{Tokens (K/Q)}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+\textbf{Category} & $n$ & \textbf{ARA} & \textbf{BL} & \textbf{ARA} & \textbf{BL} \\
+\midrule
+A: Fidelity                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
+\quad PaperBench           & 230 & \textbf{96.7} & 89.8 & 86.3 & 97.7 \\
+\quad RE-Bench             &  70 & \textbf{92.1} & 51.4 & 79.0 & 58.2 \\
+\addlinespace
+\shortstack[l]{B: Detail \\ \scriptsize(PaperBench)} & 115 & \textbf{92.6} & 67.8 & 183.0 & 178.3 \\
+\addlinespace
+\shortstack[l]{C: Failure \\ \scriptsize(RE-Bench)}  &  35 & \textbf{81.4} & 15.7 & 139.3 & 58.0 \\
+\midrule
+\textbf{Overall}           & \textbf{450} & \textbf{93.7} & 72.4 & 114.0 & 109.1 \\
+\bottomrule
+\end{tabular}
+\caption{Understanding evaluation: accuracy and per-question token usage across 450 paired outcomes. ARA wins at every category and every benchmark; the per-category mechanism is unpacked in Appendix~\ref{app:understanding-per-category}.}
+\label{tab:understanding}
+\end{table}
+
+\paragraph{Results.}
+\ara{} outperforms the baseline at every category and every benchmark, with overall accuracy \textbf{93.7\% vs.\ 72.4\%} ($+21.3$\%) on 450 paired outcomes.
+The aggregate gap decomposes along three distinct mechanisms, each isolated by one category.
+On \textbf{Category~A}, where the answer is recoverable from the PDF, \ara{} wins $+14.8$\% \emph{while consuming 12\% fewer tokens}: PAPER.md's layer index turns linear document scanning into targeted file lookup.
+On \textbf{Category~B}, where the rubric supplies configuration details papers systematically omit, \ara{} wins $+24.8$\% at comparable token usage; the baseline can mine the companion repo, but \ara{}'s \texttt{src/configs/} centralises the same knowledge in a single agent-friendly file.
+On \textbf{Category~C}, where the answer lives only in the MALT trajectories, \ara{} wins $+65.7$\%; the baseline has no source for failure knowledge and abandons most queries with short empty answers (58K vs.\ 139K tokens).
+
+\paragraph{Token usage scales with question depth on \ara{}, not on the baseline.}
+On \ara{} the agent spends 61K tokens on explicit questions, 96K on scattered ones, and 153K on implicit-failure ones; baseline token usage stays roughly flat across the same tiers (83K to 118K), since linear PDF/repo scanning costs the same regardless of how deep the answer is. Per-category mechanism analysis and the full difficulty stratification are in App.~\ref{app:understanding-eval}.
+
+% ============================================================
+% Layer 2: Reproduction
+% ============================================================
+\subsection{Reproduction from \ara{}}
+\label{sec:eval-reproduction}
+% Legacy aliases
+\label{sec:eval-repro-cost}\label{sec:eval-t3-ext}
+
+The second layer tests whether structured artifacts translate understanding into action: can an agent reproduce experimental results more effectively from an \ara{} than from the traditional PDF$+$GitHub combination? Layer~1 measures what an agent knows; Layer~2 measures what it can do. The information gap from \S\ref{sec:intro} (Fig.~\ref{fig:info-gap}; 54.6\% of expert reproduction requirements partially or entirely absent from PDFs) names the concrete execution blockers \ara{}'s structured layers are designed to remove.
+
+\paragraph{Task curation.}
+We select 15 PaperBench papers with companion GitHub repositories and curate 10 reproduction tasks per paper (150 tasks total, 1{,}743 rubric requirements), stratified by difficulty (50 easy, 49 medium, 51 hard).
+Tasks describe \emph{what} to reproduce, not how; within each paper, subtasks are ordered by difficulty so the agent builds cumulatively (task design details in Appendix~\ref{app:repro-scoring}).
+
+\paragraph{Protocol.}
+For each paper, two coding agents receive the same mega-task but different source materials:
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+  \item \textbf{ARA agent}: the \ara{} artifact only (\texttt{PAPER.md}, \texttt{logic/}, \texttt{src/}, \texttt{evidence/}). No PDF or repository access.
+  \item \textbf{Baseline agent}: the paper PDF and companion GitHub repository.
+\end{itemize}
+Both agents use Claude Sonnet 4.6 with the same system prompt (differing only in source material paths) and per-paper token budgets of 14--20M tokens scaled by task complexity (cache reads discounted to 10\%).
+Expected numerical results are masked in agent prompts (replaced with \texttt{[X]\%}) to prevent parroting.
+After each run, a blinded Claude Opus 4.6 judge evaluates every rubric requirement as \emph{yes} (satisfied), \emph{partial} (partially addressed), or \emph{no} (not met), without knowing which condition produced the output.
+
+\paragraph{Scoring.}
+The primary metric is the \textbf{difficulty-weighted success rate}, weighting easy, medium, and hard subtasks at $1\!:\!2\!:\!3$ to emphasize harder tasks where structured information provides the most leverage (scoring formula, statistical tests, and per-difficulty breakdowns in Appendix~\ref{app:repro-scoring}).
+
+\paragraph{Results.}
+Across all 15 papers with complete paired runs (150 subtasks, 1{,}743 rubric requirements), \ara{} achieves a difficulty-weighted success rate of \textbf{64.4\%} vs.\ \textbf{57.4\%} for the baseline; the win/tie/loss breakdown across papers is 8/5/2 (per-paper numbers in Appendix~\ref{app:repro-per-paper}).
+Figure~\ref{fig:repro-difficulty} stratifies this aggregate by difficulty; the per-paper breakdown is deferred to Appendix~\ref{app:repro-per-paper} (Figure~\ref{fig:repro-difficulty-heatmap}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig_reproduction_difficulty.pdf}
+\caption{Aggregate reproduction success rates across all 15 papers, stratified by difficulty. The \ara{} advantage widens monotonically with difficulty ($+4.9\%$ easy, $+5.6\%$ medium, $+8.5\%$ hard), tracking the tiers where reproduction depends most heavily on configuration content the PDF underspecifies.}
+\label{fig:repro-difficulty}
+\end{figure}
+
+\paragraph{Analysis.}
+The \ara{} advantage grows with difficulty: easy subtasks (environment setup, model instantiation) are near-ceiling for both formats, and the gap opens on medium and hard subtasks where reproduction depends on configuration content the published PDF rarely supplies. The same pattern holds paper by paper (App.~\ref{app:repro-per-paper}): the largest \ara{} advantages (\texttt{fre}, \texttt{mechanistic-understanding}, \texttt{pinn}) are on papers with multi-stage training pipelines whose hyperparameter interactions PDFs describe only at a high level, and the gain concentrates in their medium and hard columns. For example, the \texttt{fre} \ara{} agent reimplemented the original JAX codebase in PyTorch (1.8\,GB GPU vs.\ JAX's 30.8\,GB), trained 17 models across three domains, and completed all medium and hard subtasks; the baseline agent fought the JAX environment and completed only 3 training attempts before its budget ran out. The one clear baseline win is \texttt{self-expansion}, where the \ara{} agent fabricated results that the blinded judge caught; narrow ties (\texttt{adaptive-pruning}, \texttt{rice}) occur on papers whose companion repositories partially compensate for the PDF gap. Across all 15 papers, fabrication occurred in 2 baseline runs and 1 \ara{} run: structured artifacts reduce but do not eliminate hallucinated results.
+
+% ============================================================
+% Layer 3: Extension
+% ============================================================
+\subsection{Extension from \ara{}}
+\label{sec:eval-extension}
+% Legacy aliases
+\label{sec:eval-extensibility}\label{sec:eval-pitfalls}\label{sec:eval-analysis}
+
+The third layer tests \ara{}'s most ambitious claim: that preserving the failure trajectory of prior research lets the next agent extend it more effectively.
+Section~\ref{sec:eval-data} documented that 59.2\% of agent tokens (and 90.2\% of dollar cost) on RE-Bench are spent on dead-end exploration that the published artifact discards.
+This layer asks whether handing the next agent a structured record of what was already tried and abandoned closes that gap in measurable downstream gains.
+
+\paragraph{Why RE-Bench, and which tasks.}
+Testing the claim demands tasks that admit open-ended improvement \emph{and} ship a corpus of \emph{real} agent failure traces, not author-imagined ones.
+RE-Bench~\citep{wijk2025rebench} satisfies both: each of its 7 tasks has a continuously valued automated scorer, and the METR MALT transcripts contain thousands of complete agent runs (with their dead ends) per task.
+We use 5 of the 7 tasks: \texttt{triton\_cumsum}, \texttt{restricted\_mlm}, \texttt{fix\_embedding}, \texttt{nanogpt\_chat\_rl}, and \texttt{rust\_codecontests}.
+The other two are excluded because their MALT corpora cannot supply a usable failure-trace layer: \texttt{optimize\_llm\_foundry} ships no MALT corpus at all, and \texttt{small\_scaling\_law}'s MALT runs are sparse, lack Claude-4 entries, and consist mostly of trivial parameter sweeps with no recorded strategic exploration; either case would leave \texttt{trace/} effectively empty by construction (Appendix~\ref{app:extension-tasks}).
+
+\paragraph{\ara{} construction (specialised RE-Bench pipeline).}
+RE-Bench inputs differ from a typical paper~+~repo: the source is an official reference solution plus thousands of MALT JSONL transcripts, and the failure-record layer dominates artifact value here.
+We therefore wrap the standard \ara{} compiler (\S\ref{sec:ingestor}) in a RE-Bench-specific pipeline (Appendix~\ref{app:extension-pipeline}) that (i)~lifts the official solution into \texttt{src/} and the reference-derived knowledge into \texttt{logic/} via the standard compiler, then (ii)~fans out one extraction sub-agent per MALT run to populate \texttt{trace/exploration\_tree.yaml} and \texttt{evidence/tables/malt\_attempts.md} with the dead ends and partial successes those runs produced.
+A direction-aware \emph{beat-reference filter} excludes any MALT scoring attempt that exceeded the reference, applied per attempt rather than per run.
+This is the experiment's central fairness rule: comparing \ara{} against a polished paper writeup is only meaningful if neither side carries a worked-out beating-reference solution that the agent could simply transcribe.
+Every retained node also carries a \texttt{source: official-solution} or \texttt{source: MALT~run\_id=\{id\}} provenance tag.
+
+\paragraph{Protocol.}
+Both agents start from an identical workdir: the official reference \texttt{solution.py}, a \texttt{score.sh} wrapper around the canonical RE-Bench scorer, training-data symlinks where applicable, and a \texttt{reference/} directory whose contents are the only independent variable.
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+  \item \textbf{Paper agent}: reads \texttt{reference/paper.md}, an LLM-synthesised academic-style writeup of the official solution (abstract, method, results, dev notes; the same beat-reference filter is applied so \texttt{paper.md} never contains a worked-out beating-reference variant), plus the official \texttt{src/} tree. This emulates the artifact a conventional published paper would supply (Appendix~\ref{app:extension-paper-baseline}).
+  \item \textbf{\ara{} agent}: reads the full \ara{} (\texttt{PAPER.md}, \texttt{logic/}, \texttt{src/}, \texttt{trace/}, \texttt{evidence/}); the \texttt{src/} and reference-derived \texttt{logic/} content match the paper agent's bundle, and the \texttt{trace/} and \texttt{evidence/} layers carry the failure record that the paper bundle has no analogue for.
+\end{itemize}
+Both agents are instructed to beat the reference score by editing \texttt{solution.py} and running \texttt{bash score.sh}; the result is the best score across all invocations during the run.
+We use the Claude Agent SDK~\citep{claudecodesdk2025} with a tool surface of \{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\} and a 8\,h SLURM wall clock + \$50 API-spend cap per run.
+All five tasks run on Claude Sonnet 4.6; for \texttt{triton\_cumsum} and \texttt{restricted\_mlm} we additionally ran the same comparison on the older Sonnet 4.5 base (Appendix~\ref{app:extension-cases}).
+Harness engineering, score-event extraction, and reproducibility details are in Appendix~\ref{app:extension-eval}.
+
+\paragraph{Results.}
+Figure~\ref{fig:extension-summary} reports the best-so-far envelope and the underlying scoring attempts per agent on each task, against wall-clock time and API spend. On \texttt{rust\_codecontests}, \texttt{nanogpt\_chat\_rl}, and \texttt{fix\_embedding} the \ara{} agent ends with the better best score; on \texttt{triton\_cumsum} and \texttt{restricted\_mlm} under Sonnet 4.6 the paper agent ends ahead. The trajectories surface three phenomena described below; per-task case studies and trace evidence (\texttt{file reads}, \texttt{ThinkingBlock} reasoning, edit history) are in Appendix~\ref{app:extension-cases}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/extension/summary_5tasks_46.pdf}
+\caption{Extension trajectories on five RE-Bench tasks under Claude Sonnet 4.6. One task per column: top row is score-vs-wall-clock-time, bottom row is score-vs-cumulative-cost; the y-axis is shared down each column. Faint markers are individual scoring attempts, solid lines are the best-so-far envelope, and stars mark the best attempt; dotted grey lines mark each task's RE-Bench reference. Arrows in the column titles indicate metric direction. \emph{Across all five tasks the \ara{} agent reaches a useful first move earlier than the paper agent, and ends with the better best score on \texttt{rust\_codecontests}, \texttt{nanogpt\_chat\_rl}, and \texttt{fix\_embedding}; on \texttt{triton\_cumsum} and \texttt{restricted\_mlm} the paper agent later overtakes via moves the trace does not name (an \texttt{int8} kernel redesign and focused depth on a single architecture, respectively). \S\ref{sec:eval-extension} unpacks why the early \ara{} lead does not hold on these two tasks and how the same comparison on the older Sonnet 4.5 base inverts the result.} Per-task case studies and Sonnet 4.5 trajectories for \texttt{triton\_cumsum} and \texttt{restricted\_mlm} are in Appendix~\ref{app:extension-cases}.}
+\label{fig:extension-summary}
+\end{figure*}
+
+\paragraph{Early acceleration across all five tasks.}
+The \ara{} agent reaches a useful first move earlier on every task, including the two it eventually trails on. The clearest case is \texttt{rust\_codecontests}: it commits to a hand-coded Rust library at $t = 9$\,min after reading heuristic \texttt{H12}, while the paper agent spends six hours on prompt-engineering variants and only at $t = 395$\,min, while inspecting the workdir, notices the same idea and starts populating the existing \texttt{few\_shots/} cache. On Sonnet 4.6 \texttt{triton\_cumsum}, the \ara{} agent scores $0.47$ at $t = 11$\,min using trace-derived ideas (\texttt{decoupled lookback}, \texttt{associative\_scan}), while the paper agent does not score until $t = 37$\,min and reasons from first principles. The same head start appears on \texttt{nanogpt\_chat\_rl} (heuristic \texttt{H08} pre-names a degenerate-output filter the paper agent has to discover by debugging) and on \texttt{fix\_embedding} (heuristics \texttt{H11}/\texttt{H13} mark permutation recovery as a documented dead end, but the paper agent tries it at $t = 19$\,min, abandons it on visible failure, then re-tries it at $t = 350$\,min having forgotten its own earlier failure). Across all five tasks the recorded heuristics and prior failures shorten the path to a first useful move; the question is whether that lead carries through to the final score.
+
+\paragraph{Late-phase reversal on Sonnet 4.6 triton and mlm.}
+On these two tasks the early lead does not hold, and the reversal is itself informative. On \texttt{triton\_cumsum}, the paper agent---with no menu to commit to---keeps redesigning the kernel and at $t = 47.7$\,min introduces an \texttt{int8} input compression motivated by the scorer's 8-bit input range, a move the trace never names; it iterates from there and finishes ahead. The \ara{} agent meanwhile sticks with the trace-recommended decoupled-lookback design. On \texttt{restricted\_mlm}, the paper agent commits to a single \texttt{ConvMLMDilated} tune for the full 8\,h, while the \ara{} agent implements every heuristic-named alternative architecture (\texttt{H11} ReLU-attention, \texttt{H07} MLPMixer, etc.), finds that none beats the simpler ConvMLM under Sonnet 4.6's optimisation, and ends behind. In both cases the \ara{} agent followed the trace faithfully; the trace simply was not the most creative option available to that model.
+
+\paragraph{A weaker base inverts the comparison.}
+For both tasks, paired Sonnet 4.5 trajectories show the opposite pattern (Appendix Figs.~\ref{fig:extension-triton-45},~\ref{fig:extension-mlm-45}): the \ara{} agent reaches $0.27$ on \texttt{triton\_cumsum} vs.\ $0.64$ for the paper agent, and $0.73$ on \texttt{restricted\_mlm} vs.\ $1.03$. A weaker base lacks the bandwidth to invent moves like the \texttt{int8} compression or to commit deeply to a single architecture, and the same heuristics that constrained Sonnet 4.6 give Sonnet 4.5 a productive ranked list of strategies to try. The artifact's value appears to scale with the gap between what the trace documents and what the agent can discover on its own.
+
+\paragraph{Outlook.}
+Taken together, the trajectories suggest that an \ara{} can aid human-agent and agent-agent communication by surfacing prior pitfalls and successful strategies, but that selectively hiding or contextualising parts of the trace may matter when the agent's own bandwidth exceeds what the documented playbook records. Marking trace nodes with model-class provenance, so successors can discount claims that no longer apply, is one such mechanism; we leave the broader design space to follow-up work.
+
+
+% ============================================================
+% ARA-Native Review Systems
+% ============================================================
+\subsection{\ara{}-Native Review Systems}
+\label{sec:eval-seal}
+
+Sections \ref{sec:eval-understanding}--\ref{sec:eval-extension} evaluate \ara{} as a \emph{format}; this subsection evaluates the \emph{review machinery} the format enables. We test whether the three-level Seal protocol (\S\ref{sec:review-system}) actually detects deficient artifacts on its three automated levels: structural integrity (Level~1), argumentative rigor (Level~2, the Rigor Auditor), and execution reproducibility (Level~3). The Stage~3 substantive-judgment layer, where human reviewers assess significance and novelty, has no automated oracle and we do not attempt to measure it.
+
+\paragraph{Level~1 (structural integrity).}
+Level~1 checks schema conformance, required-field presence, and cross-layer reference resolution. The Understanding experiment already shows the gate works in practice: every \ara{} in this paper passes Level~1 before use, and the 95.6\% Cat.~A accuracy (Table~\ref{tab:understanding}) means the gated artifacts are structurally complete enough for an agent to retrieve what the source actually contains (per-artifact iteration counts and failure-type distributions in App.~\ref{app:seal-eval-l1}).
+
+\paragraph{Level~2 (Rigor Auditor): mutation benchmark.}
+We benchmark the Rigor Auditor by injecting known errors into \ara{}s that already pass Level~1 and measuring the auditor's detection rate against the ground-truth injection manifest. Each injection is its own oracle, removing the need for human annotation. Concretely, we take the 23 PaperBench \ara{}s and seed each with five injections:
+\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
+  \item \emph{Fabricated claim}: a claim that cites a non-existent experiment.
+  \item \emph{Missing falsification}: a primary claim with its \texttt{Falsification criteria} field removed.
+  \item \emph{Orphan experiment}: an experiment whose \texttt{Verifies} field points to a non-existent claim.
+  \item \emph{Over-claim}: a narrow result whose \texttt{Statement} is broadened to universal scope.
+  \item \emph{Rebutted-branch leak}: a claim advocating an approach documented as \texttt{dead\_end} in the exploration tree.
+\end{itemize}
+The Rigor Auditor (a Claude Code SDK~\citep{claudecodesdk2025} agent that reads the artifact, builds cross-layer maps, scores six dimensions, and compiles a findings list; full protocol in App.~\ref{app:seal-eval-l2}) is then run on each injected \ara{}, and each finding is matched back to the manifest via its target entity.
+
+\paragraph{High recall on substantive injections, a blind spot on orphans.}
+Table~\ref{tab:seal-l2} reports per-type detection. The auditor catches 100\% of three high-severity classes (fabricated claims, rebutted-branch leaks, over-claims) and 91\% of missing falsifications, but only 22\% of orphan experiments. The asymmetry is interpretable: orphans require enumerating every experiment and cross-checking its \texttt{Verifies} target against the claim list, whereas the other four surface naturally inside the auditor's per-claim loop. The natural fix is to move orphan detection into Level~1 as a deterministic structural check.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{l c r r}
+\toprule
+\textbf{Injection type} & \textbf{Expected severity} & \textbf{$n$} & \textbf{Detected} \\
+\midrule
+Fabricated claim        & Critical & 23 & 23 (100\%) \\
+Rebutted-branch leak    & Critical & 23 & 23 (100\%) \\
+Over-claim (scope)      & Major    & 23 & 23 (100\%) \\
+Missing falsification   & Major    & 23 & 21 (91\%) \\
+Orphan experiment       & Minor    & 23 &  5 (22\%) \\
+\midrule
+\textbf{Overall}        &          & \textbf{115} & \textbf{95 (82.6\%)} \\
+\bottomrule
+\end{tabular}
+\caption{Rigor Auditor effectiveness on the mutation benchmark (23 \ara{}s $\times$ 5 injection types). The auditor catches all high-severity structural anomalies but exhibits a systematic blind spot on orphan experiments.}
+\label{tab:seal-l2}
+\end{table}
+
+\paragraph{Two LLM-as-judge pathologies in the auditor's scoring.}
+Two scoring-side biases emerge. First, \emph{grade inflation}: in 17 of 23 \ara{}s the auditor's reported overall mean is rounded up just enough to clear the Accept threshold. Second, \emph{finding--score decoupling}: even when the auditor correctly flags an injection as \emph{critical} (22 of 23 rebutted-branch-leak cases), the corresponding dimension score does not drop to the level the rubric prescribes. Both are documented LLM-as-judge failure modes~\citep{zheng2023judging}, and together they suggest LLMs should generate findings rather than grades, with the overall verdict computed deterministically from the findings list. Dimension distributions, the grade-inflation breakdown, and a per-paper detection heatmap are in App.~\ref{app:seal-eval-l2}.
+
+\paragraph{Level~3 (execution reproducibility).}
+Level~3's specification in \S\ref{sec:liveness}---read the artifact, reproduce central claims directionally under a compute budget, with numerical results masked---is exactly the \ara{}-condition protocol of the Reproduction experiment (\S\ref{sec:eval-reproduction}). The 64.4\% difficulty-weighted success rate measured there is therefore the Level-3 verification rate on well-formed artifacts, and the single result-fabrication that the blinded judge surfaced shows the verifier flags misrepresented results when they appear.
