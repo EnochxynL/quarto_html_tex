@@ -8,14 +8,9 @@
 关键观察是，在 AI 原生研究中，完整的研究轨迹——每一次设计选择、每一次失败实验、每一条来之不易的启发式规则——已经作为机器可读的文本存在于研究者与智能体之间的对话中。
 实时研究管理器将这些潜在信号结晶化为一个活态的 \ara{} 构件，该构件在后台有机地累积，对研究者而言零文档开销。\footnote{\url{github.com/AmberLJC/Agent-Native-Research-Artifact}}
 我们从 AI 原生范式中推导出设计原则（\S\ref{sec:design-principles}），并给出实现这些原则的系统（\S\ref{sec:lrm-design}；图~\ref{fig:lrm-overview}）。
-\end{markdown}
 
-\begin{figure}[t!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig_lrm_lifecycle_v5_attempt2.png}
-\caption{实时研究管理器在会话边界处运行：一个三阶段流水线（上下文采集器 $\to$ 事件路由器 $\to$ 成熟度追踪器）将每次研究者--智能体会话提炼为类型化事件，并随时间推移在各 \ara{} 层级中累积。}
-\label{fig:lrm-overview}
-\end{figure}
+![生命周期示意](figures/fig_lrm_lifecycle_v5_attempt2.png "实时研究管理器在会话边界处运行：一个三阶段流水线（上下文采集器 $\to$ 事件路由器 $\to$ 成熟度追踪器）将每次研究者--智能体会话提炼为类型化事件，并随时间推移在各 \ara{} 层级中累积。"){#fig:lrm-overview}
+\end{markdown}
 
 \begin{markdown}
 ## 设计原则 {#sec:design-principles}

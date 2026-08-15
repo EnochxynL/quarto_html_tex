@@ -90,10 +90,13 @@
 % 仍以原生 LaTeX 写在 \begin{markdown} 环境之外。
 % hybrid 使 \citep、\ara、\ref、\url、\texttt 等内联命令原样透传（已弃用但可用，
 % 仅产生日志警告）；texMathDollars 支持 $...$ 数学；headerAttributes 支持 {#label}。
-\usepackage[hybrid, texMathDollars, contentBlocks, rawAttribute, headerAttributes]{markdown}
+\usepackage[hybrid, texMathDollars, contentBlocks, rawAttribute, headerAttributes, linkAttributes]{markdown}
 
 % 用 markdown 语法书写列表：统一 itemize 为 leftmargin=*、itemsep=1pt（不显式指定
 % topsep）；enumerate 复刻 label=\textbf{P\arabic*.} 的效果。description 暂保留原生 LaTeX。
+% 图片 renderer 复刻原生单栏 figure：[!t] 放置、\centering、width=\linewidth、
+% caption=title、label={#id} 属性。需 \ExplSyntaxOn 包裹（内部用 \seq_map_inline:Nn）。
+\ExplSyntaxOn
 \markdownSetup{
   renderers = {
     ulBegin          = {\begin{itemize}[leftmargin=*, itemsep=1pt]},
@@ -101,8 +104,17 @@
     olBegin          = {\begin{enumerate}[leftmargin=2em, itemsep=1pt]},
     olItemWithNumber = {\item[\textbf{P#1.}]},
     olEnd            = {\end{enumerate}},
+    image            = {
+      \begin{figure}[!t]
+        \centering
+        \includegraphics[width=\linewidth, alt={#1}]{#3}
+        \caption{#4}
+        \seq_map_inline:Nn \l__markdown_image_identifiers_seq { \label{##1} }
+      \end{figure}
+    },
   }
 }
+\ExplSyntaxOff
 
 % 页眉短标题
 \icmltitlerunning{The Last Human-Written Paper: Agent-Native Research Artifacts}

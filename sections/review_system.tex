@@ -25,14 +25,9 @@
 未能通过结构检查、或经第二级审读后其论断仍明显缺乏支撑的构件，不会进入人类审稿阶段。
 
 ## ARA 认证：机器可验证的研究凭证 {#sec:liveness}
-\end{markdown}
 
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/fig_ara_seal.png}
-    \caption{ARA 认证是一个三级验证凭证。每一级测试构件的一个逐步增强的属性，在成本和广度上逐级提升：结构完整性（数秒，确定性）、论证严谨性（数分钟，基于量规锚定的智能体）以及执行可复现性（数小时至数天，沙箱化的编码智能体）。通过适用的级别后，会颁发一份认证证书，下游智能体在投入算力之前会对其进行检查。}
-    \label{fig:ara-seal}
-\end{figure}
+![ARA 认证](figures/fig_ara_seal.png "ARA 认证是一个三级验证凭证。每一级测试构件的一个逐步增强的属性，在成本和广度上逐级提升：结构完整性（数秒，确定性）、论证严谨性（数分钟，基于量规锚定的智能体）以及执行可复现性（数小时至数天，沙箱化的编码智能体）。通过适用的级别后，会颁发一份认证证书，下游智能体在投入算力之前会对其进行检查。"){#fig:ara-seal}
+\end{markdown}
 
 \begin{markdown}
 一篇 PDF 论文间接地赢得信任：会议声望、引用数量和作者声誉作为质量的代理指标，但无一能验证工作本身。
@@ -71,14 +66,9 @@ ARA 认证将其操作化为一个三级验证协议（图~\ref{fig:ara-seal}）
 下游智能体在投入算力之前检查此证书，从而避免冗余的重复验证。
 
 ## 三阶段评审流水线
-\end{markdown}
 
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/fig_review_pipeline_v2.png}
-    \caption{三阶段 \ara{} 原生评审流水线。第一至第二阶段调用图~\ref{fig:ara-seal} 中的 ARA 认证级别，在人类审稿人介入之前解决机械性问题和严谨性问题，将专家注意力重新导向新颖性和重要性。}
-    \label{fig:review-pipeline}
-\end{figure}
+![评审流水线](figures/fig_review_pipeline_v2.png "三阶段 \ara{} 原生评审流水线。第一至第二阶段调用图~\ref{fig:ara-seal} 中的 ARA 认证级别，在人类审稿人介入之前解决机械性问题和严谨性问题，将专家注意力重新导向新颖性和重要性。"){#fig:review-pipeline}
+\end{markdown}
 
 \begin{markdown}
 我们构想了一个模仿 CI/CD 实践的三阶段评审流水线（图~\ref{fig:review-pipeline}），其中每个阶段为下一阶段把关：概念验证、经验验证和人类判断。
