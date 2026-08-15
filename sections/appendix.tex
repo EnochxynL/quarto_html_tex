@@ -57,15 +57,11 @@
 智能体必须从思维上分解这个矩阵，才能知道例如“CompoNet在Freeway上，10个种子，每个任务1M时间步”是一个独立的运行。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}：62个叶子节点枚举 \{6个方法\} $\times$ \{3个任务序列\} $\times$ \{种子数，时间步数，已训练\}——每个都是独立的可验证需求（例如"CompoNet在Meta-World上：10个种子，1M时间步/任务，已训练"）。
-  \item \emph{bbox}：46个评估叶子节点交叉 \{5种模型大小\} $\times$ \{4个数据集\} $\times$ \{3种反馈类型\} $\times$ \{单步，全步\}推理模式。
-  \item \emph{pinn}：$\sim$1{,}273个叶子节点枚举 \{4个PDE问题\} $\times$ \{4个网络宽度\} $\times$ \{5个学习率\} $\times$ \{3个优化器\}的网格，每种组合是一次独立的训练运行。
-\end{itemize}
+- *self-composing-policies*：62个叶子节点枚举 \{6个方法\} $\times$ \{3个任务序列\} $\times$ \{种子数，时间步数，已训练\}——每个都是独立的可验证需求（例如"CompoNet在Meta-World上：10个种子，1M时间步/任务，已训练"）。
+- *bbox*：46个评估叶子节点交叉 \{5种模型大小\} $\times$ \{4个数据集\} $\times$ \{3种反馈类型\} $\times$ \{单步，全步\}推理模式。
+- *pinn*：$\sim$1{,}273个叶子节点枚举 \{4个PDE问题\} $\times$ \{4个网络宽度\} $\times$ \{5个学习率\} $\times$ \{3个优化器\}的网格，每种组合是一次独立的训练运行。
 
-\begin{markdown}
 **\ara{}的优势。**
 `experiments.md`文件将实验矩阵中的每个单元格明确列出，以结构化的`Setup`字段将模型、数据集和配置列为机器可读的键值对。
 智能体可以通过编程方式枚举所有运行，而无需解析表头。
@@ -76,15 +72,11 @@
 这些细节通常是分散的：指标定义出现在第3节，测试划分在第4节，评估轮数在附录中，层索引在图例中。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{mechanistic-understanding}："使用来自RealToxicityPrompts的1{,}199个提示，计算第0, 2, 4, 6, 8, 10, 12, 14, 16, 18层的$\delta_i$与$\delta_{\text{mlp},i}$之间的余弦相似度。"
-  \item \emph{fre}："评估在20个回合和5个随机种子上重复并取平均值；从评估任务环境中采样32个状态-奖励对。"
-  \item \emph{fre}："Chain-of-Thought基线已使用GPT-3.5 Turbo在所有数据集的测试划分上进行了评估。"
-\end{itemize}
+- *mechanistic-understanding*："使用来自RealToxicityPrompts的1{,}199个提示，计算第0, 2, 4, 6, 8, 10, 12, 14, 16, 18层的$\delta_i$与$\delta_{\text{mlp},i}$之间的余弦相似度。"
+- *fre*："评估在20个回合和5个随机种子上重复并取平均值；从评估任务环境中采样32个状态-奖励对。"
+- *fre*："Chain-of-Thought基线已使用GPT-3.5 Turbo在所有数据集的测试划分上进行了评估。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `experiments.md`中的每个实验条目都有一个声明式的`Procedure`字段，以有序列表形式指定评估步骤，以及一个`Metrics`字段来指明确切的指标。
 `configs/training.md`文件单独记录评估时的参数（例如束大小、回合数）。
@@ -96,15 +88,11 @@
 在PDF中，超参数通常集中在一个附录表格中，但表格行与具体实验条件之间的对应关系往往模糊不清。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}："AdamW优化器，学习率5e-6，权重衰减0.01；批量大小64；6{,}000个训练步。"
-  \item \emph{self-composing-policies}：29个叶子节点逐一枚举每个SAC和PPO参数（例如"SAC：目标平滑系数$\tau = 0.005$"；"PPO：GAE $\lambda = 0.95$"）。
-  \item \emph{pinn}："Adam优化器的学习率可设置为1E-5、1E-4、1E-3、1E-2或1E-1。"
-\end{itemize}
+- *bbox*："AdamW优化器，学习率5e-6，权重衰减0.01；批量大小64；6{,}000个训练步。"
+- *self-composing-policies*：29个叶子节点逐一枚举每个SAC和PPO参数（例如"SAC：目标平滑系数$\tau = 0.005$"；"PPO：GAE $\lambda = 0.95$"）。
+- *pinn*："Adam优化器的学习率可设置为1E-5、1E-4、1E-3、1E-2或1E-1。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `configs/training.md`文件为所有超参数提供了一个单一的权威位置，按实验组织。
 `heuristics.md`文件额外记录了*敏感度*标注（低/中/高）和有效的*边界*，这是PDF几乎从不提供的信息。
@@ -115,14 +103,10 @@
 这种"仪器化"知识在论文中很少明确说明——作者默认知道该记录什么，但并不将其作为方法的一部分加以记录。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}：71个叶子节点（占该论文评分标准的25\%）要求计算并保存训练成本、推理成本（美元/千题）以及所有数据集$\times$变体组合的评估成本。
-  \item \emph{self-composing-policies}："每10k时间步记录一次输出注意力分布"；"最终输出与内部策略之间的匹配率，每10k步保存一次。"
-\end{itemize}
+- *bbox*：71个叶子节点（占该论文评分标准的25\%）要求计算并保存训练成本、推理成本（美元/千题）以及所有数据集$\times$变体组合的评估成本。
+- *self-composing-policies*："每10k时间步记录一次输出注意力分布"；"最终输出与内部策略之间的匹配率，每10k步保存一次。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `experiments.md`的`Metrics`和`Procedure`字段可以明确列出需要记录什么以及记录的频率。
 `evidence/`层提供了预期输出格式的具体示例。
@@ -133,16 +117,12 @@
 这些在PaperBench评分标准中权重最高（权重=2），因为它们测试智能体是否*理解*结果，而不仅仅是代码是否运行了。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{mechanistic-understanding}："使用DPO适应后，残差流的主成分朝同一方向移动，且毒性向量的激活降低。"（权重=2）
-  \item \emph{mechanistic-understanding}："提取的token编码了有毒语言的不同特征：$\mathbf{W}$的token大多是脏话；MLP.vToxic是脏话和侮辱语的混合；SVD.uToxic编码了侮辱语和女性相关的性暗示。"（权重=2）
-  \item \emph{self-composing-policies}："CompoNet在所有三个任务序列上均取得比所有基线更高的平均性能和前向迁移。"
-  \item \emph{pinn}："与单独使用Adam或L-BFGS相比，Adam+L-BFGS始终获得最低的最小损失。"
-\end{itemize}
+- *mechanistic-understanding*："使用DPO适应后，残差流的主成分朝同一方向移动，且毒性向量的激活降低。"（权重=2）
+- *mechanistic-understanding*："提取的token编码了有毒语言的不同特征：$\mathbf{W}$的token大多是脏话；MLP.vToxic是脏话和侮辱语的混合；SVD.uToxic编码了侮辱语和女性相关的性暗示。"（权重=2）
+- *self-composing-policies*："CompoNet在所有三个任务序列上均取得比所有基线更高的平均性能和前向迁移。"
+- *pinn*："与单独使用Adam或L-BFGS相比，Adam+L-BFGS始终获得最低的最小损失。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `claims.md`文件明确陈述每个论断，并附有明确的`Falsification criteria`和指向验证该论断的实验的指针。
 `experiments.md`的`Expected outcome`字段记录了方向性预测（例如“方法A优于方法B”），而不透露确切数字，从而支持盲法复现。
@@ -154,15 +134,11 @@
 智能体必须在思维上将这三种来源组合起来，才能构建完整的规范。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}："CNN有三个卷积层，通道数为32、64和64，滤波器大小分别为8、4和3"；"SAC：隐藏维度$d_{\text{model}} = 256$；评论家网络有3层；激活函数为ReLU。"
-  \item \emph{fre}："GC-BC模型是一个MLP，具有三个隐藏层，每层大小512"；"每个激活函数前应用层归一化。"
-  \item \emph{mechanistic-understanding}："形式为$\text{softmax}(\mathbf{Wx})$的二分类器，其中$\mathbf{W}$的维度为$K \times 2$。"
-\end{itemize}
+- *self-composing-policies*："CNN有三个卷积层，通道数为32、64和64，滤波器大小分别为8、4和3"；"SAC：隐藏维度$d_{\text{model}} = 256$；评论家网络有3层；激活函数为ReLU。"
+- *fre*："GC-BC模型是一个MLP，具有三个隐藏层，每层大小512"；"每个激活函数前应用层归一化。"
+- *mechanistic-understanding*："形式为$\text{softmax}(\mathbf{Wx})$的二分类器，其中$\mathbf{W}$的维度为$K \times 2$。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `architecture.md`文件提供了一个单一位置，列出每个组件的维度、激活函数和输入/输出规范。
 `src/code/`中的代码桩提供了可执行的补充。
@@ -173,15 +149,11 @@
 在PDF中，方程通过编号引用，但读者必须追踪分散在多个节中的变量定义。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}："输出注意力：$\text{softmax}(qK^T / \sqrt{d_{\text{model}}}) \cdot V$"；"前向迁移：$\text{FTr}_i = (\text{AUC}_i - \text{AUC}_i^b) / (1 - \text{AUC}_i^b)$。"
-  \item \emph{pinn}："损失函数对应于第2.1节中描述的非线性最小二乘问题，相关的微分算子和边界/初始条件算子见附录A.1。"
-  \item \emph{fre}："值函数通过评论家Q值的期望回归目标进行更新"；"行动者通过优势加权回归（AWR）进行更新。"
-\end{itemize}
+- *self-composing-policies*："输出注意力：$\text{softmax}(qK^T / \sqrt{d_{\text{model}}}) \cdot V$"；"前向迁移：$\text{FTr}_i = (\text{AUC}_i - \text{AUC}_i^b) / (1 - \text{AUC}_i^b)$。"
+- *pinn*："损失函数对应于第2.1节中描述的非线性最小二乘问题，相关的微分算子和边界/初始条件算子见附录A.1。"
+- *fre*："值函数通过评论家Q值的期望回归目标进行更新"；"行动者通过优势加权回归（AWR）进行更新。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `algorithm.md`文件将算法作为一个自包含的伪代码块呈现，所有变量定义在作用域内。
 `concepts.md`文件定义符号并链接到使用每个符号的方程。
@@ -192,15 +164,11 @@
 这些是从PDF中最难恢复的内容，因为它们以附带评论、脚注或埋藏在密集段落中的单个句子的形式出现。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{self-composing-policies}："每个策略使用单个CNN编码器；新编码器用前一个编码器的权重初始化"（附录E.2）；"每个任务开始时重置评论家网络"；"对连续动作空间归一化求和向量。"
-  \item \emph{fre}："Transformer在其注意力上不使用因果掩码"；"Transformer中不使用位置嵌入"；"用于解码和编码的状态采样是分开进行的。"
-  \item \emph{pinn}："训练结束时保存L-BFGS的方向、步长和逆内积"（附录C.2）；"L-BFGS使用强Wolfe线搜索。"
-\end{itemize}
+- *self-composing-policies*："每个策略使用单个CNN编码器；新编码器用前一个编码器的权重初始化"（附录E.2）；"每个任务开始时重置评论家网络"；"对连续动作空间归一化求和向量。"
+- *fre*："Transformer在其注意力上不使用因果掩码"；"Transformer中不使用位置嵌入"；"用于解码和编码的状态采样是分开进行的。"
+- *pinn*："训练结束时保存L-BFGS的方向、步长和逆内积"（附录C.2）；"L-BFGS使用强Wolfe线搜索。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `heuristics.md`文件*专门设计用于*捕获这些内容。
 每个启发式规则条目包含`Rationale`（为什么重要）、`Sensitivity`（没有它性能会下降多少）和`Code ref`（在代码中的何处应用它）。
@@ -211,15 +179,11 @@
 这些细节在论文中常常说明不足（“我们使用标准的训练/测试划分”）或塞进附录的某个段落中。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}："将GSM8K划分为7{,}473个训练样本和1{,}319个测试样本"；"随机采样100个问题作为TruthfulQA测试集，其余717个用于训练。"
-  \item \emph{mechanistic-understanding}："创建了24{,}576对有毒性/无毒性续写"；"从RealToxicityPrompts中选择了295个输出token为`shit'的提示。"
-  \item \emph{pinn}："从255$\times$100网格中随机采样10{,}000个残差配置点；每个初始条件257个等距点，每个边界条件101个。"
-\end{itemize}
+- *bbox*："将GSM8K划分为7{,}473个训练样本和1{,}319个测试样本"；"随机采样100个问题作为TruthfulQA测试集，其余717个用于训练。"
+- *mechanistic-understanding*："创建了24{,}576对有毒性/无毒性续写"；"从RealToxicityPrompts中选择了295个输出token为‘shit’的提示。"
+- *pinn*："从255$\times$100网格中随机采样10{,}000个残差配置点；每个初始条件257个等距点，每个边界条件101个。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `configs/`目录提供了结构化的配置文件，包含精确的划分大小和采样参数。
 `environment.md`文件指定了数据集版本和下载URL。
@@ -230,15 +194,11 @@
 这些通常被认为是"显而易见"的，在论文中完全被省略，然而它们对复现至关重要。
 
 *示例：*
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-  \item \emph{bbox}："配置了davinci-002的API访问"；"通过Azure OpenAI API执行微调作业的代码"；"从HuggingFace以半精度加载Mixtral-8x7B-v0.1。"
-  \item \emph{self-composing-policies}：15个叶子节点枚举了具体的Gymnasium环境ID（例如\texttt{ALE/SpaceInvaders-v5}, \texttt{hammer-v2}）和所需软件包（来自Farama-Foundation的\texttt{Metaworld}）。
-  \item \emph{fre}："对于Ant Maze智能体，观察空间的XY坐标被离散化为32个区间。"
-\end{itemize}
+- *bbox*："配置了davinci-002的API访问"；"通过Azure OpenAI API执行微调作业的代码"；"从HuggingFace以半精度加载Mixtral-8x7B-v0.1。"
+- *self-composing-policies*：15个叶子节点枚举了具体的Gymnasium环境ID（例如`ALE/SpaceInvaders-v5`, `hammer-v2`）和所需软件包（来自Farama-Foundation的`Metaworld`）。
+- *fre*："对于Ant Maze智能体，观察空间的XY坐标被离散化为32个区间。"
 
-\begin{markdown}
 **\ara{}的优势。**
 `environment.md`文件列出了确切的包版本、模型标识符和硬件需求。
 `configs/model.md`文件记录了模型名称、大小和加载配置（例如精度、量化）。
@@ -680,18 +640,14 @@ sessions:
 #### 第3部分：ARA目录模式（第28--414行）。
 
 定义完整的目录结构和每个文件的字段级要求。这是智能体必须遵循的规范性模式规范。关键约束包括：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-    \item \textbf{PAPER.md}：包含标题、作者、年份、会议、DOI、领域、关键词、论断摘要和摘要的YAML前言部分。正文必须包含一个层索引表，列出每个文件及其单行描述。
-    \item \textbf{claims.md}：每个论断需要Statement、Status、Falsification criteria、Proof（引用实验ID而非文件路径）、Dependencies和Tags。
-    \item \textbf{experiments.md}：声明式验证计划（设置、步骤、指标、方向性预期结果）。确切的数值结果\emph{被禁止}——它们只能放在\texttt{/evidence/}中，以实现盲法复现。
-    \item \textbf{heuristics.md}：每个启发式规则需要Rationale、Sensitivity（低/中/高）、Bounds、Code ref和Source。
-    \item \textbf{exploration\_tree.yaml}：嵌套YAML树，带有类型化节点（\texttt{question}, \texttt{experiment}, \texttt{dead\_end}, \texttt{decision}, \texttt{pivot}）。至少8个节点，至少一个\texttt{dead\_end}和一个\texttt{decision}。死胡同必须记录假设、失败模式和教训。
-    \item \textbf{evidence/}：每个结果表格和定量图必须用精确的单元格值复现——不进行舍入，不省略。
-\end{itemize}
+- **PAPER.md**：包含标题、作者、年份、会议、DOI、领域、关键词、论断摘要和摘要的YAML前言部分。正文必须包含一个层索引表，列出每个文件及其单行描述。
+- **claims.md**：每个论断需要Statement、Status、Falsification criteria、Proof（引用实验ID而非文件路径）、Dependencies和Tags。
+- **experiments.md**：声明式验证计划（设置、步骤、指标、方向性预期结果）。确切的数值结果*被禁止*——它们只能放在`/evidence/`中，以实现盲法复现。
+- **heuristics.md**：每个启发式规则需要Rationale、Sensitivity（低/中/高）、Bounds、Code ref和Source。
+- **exploration\textunderscore{}tree.yaml**：嵌套YAML树，带有类型化节点（`question`, `experiment`, `dead_end`, `decision`, `pivot`）。至少8个节点，至少一个`dead_end`和一个`decision`。死胡同必须记录假设、失败模式和教训。
+- **evidence/**：每个结果表格和定量图必须用精确的单元格值复现——不进行舍入，不省略。
 
-\begin{markdown}
 #### 第4部分：四阶段推理协议（第416--454行）。
 
 该提示要求在文件生成之前进行结构化的思考过程：
@@ -921,35 +877,23 @@ what-will-my-model-forget & Continual learning & No  \\
 我们避免观点性问题（"这个架构好吗？"）和需要论文之外外部知识的问题（"这与BERT相比如何？"）。
 
 #### 类别A问题模板（每篇论文10个）。
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{架构与方法}（3个问题）："什么是[特定结构细节]？"（例如"编码器有几层？"、"多头注意力模块的输入和输出是什么？"）
-    \item \textbf{超参数与配置}（2个问题）："使用了什么[训练/优化细节]？"（例如"使用什么优化器及其超参数是什么？"、"以token计的批量大小是多少？"）
-    \item \textbf{结果与论断}（3个问题）："[模型变体]在[基准测试]上取得了什么[指标]？"（例如"基础模型在WMT 2014 EN-DE上取得了什么BLEU分数？"）
-    \item \textbf{原理与设计决策}（2个问题）："为什么做出[设计选择]而不是[替代方案]？"（例如"为什么使用缩放点积注意力而不是加法注意力？"）
-\end{itemize}
+- **架构与方法**（3个问题）："什么是[特定结构细节]？"（例如"编码器有几层？"、"多头注意力模块的输入和输出是什么？"）
+- **超参数与配置**（2个问题）："使用了什么[训练/优化细节]？"（例如"使用什么优化器及其超参数是什么？"、"以token计的批量大小是多少？"）
+- **结果与论断**（3个问题）："[模型变体]在[基准测试]上取得了什么[指标]？"（例如"基础模型在WMT 2014 EN-DE上取得了什么BLEU分数？"）
+- **原理与设计决策**（2个问题）："为什么做出[设计选择]而不是[替代方案]？"（例如"为什么使用缩放点积注意力而不是加法注意力？"）
 
-\begin{markdown}
 #### 类别B问题模板（每篇PaperBench论文5个）。
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{实现}（2个问题）："用正确的[维度/激活/结构]实现[特定模块]。"
-    \item \textbf{配置恢复}（2个问题）："写出具有指定精确参数的[优化器/训练/数据]配置。"
-    \item \textbf{调试与故障排除}（1个问题）："[失败场景]——找出原因并修复。"
-\end{itemize}
+- **实现**（2个问题）："用正确的[维度/激活/结构]实现[特定模块]。"
+- **配置恢复**（2个问题）："写出具有指定精确参数的[优化器/训练/数据]配置。"
+- **调试与故障排除**（1个问题）："[失败场景]——找出原因并修复。"
 
-\begin{markdown}
 #### 类别C问题模板（每个RE-Bench任务5个）。
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{死胡同知识}（3个问题）："有哪些方法被尝试过并失败了？"/"[方法]的记录失败模式是什么？"
-    \item \textbf{探索历史}（2个问题）："针对[决策]考虑过哪些替代方案？"/"从[死胡同]尝试中吸取了什么教训？"
-\end{itemize}
+- **死胡同知识**（3个问题）："有哪些方法被尝试过并失败了？"/"[方法]的记录失败模式是什么？"
+- **探索历史**（2个问题）："针对[决策]考虑过哪些替代方案？"/"从[死胡同]尝试中吸取了什么教训？"
 
-\begin{markdown}
 #### 评估智能体设置。
 
 对于每个（论文，格式，问题）三元组，我们实例化一个全新的子智能体（Claude Sonnet 4.6）。
@@ -958,15 +902,11 @@ what-will-my-model-forget & Continual learning & No  \\
 #### 评分标准。
 
 每个答案由独立评判员（Claude Opus 4.6）根据黄金参考答案按照三级制评分：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt]
-    \item \textbf{正确（1.0）}：答案在实质上与真实值匹配。细微的措辞差异是可以接受的；数值必须精确。
-    \item \textbf{部分正确（0.5）}：答案传达了主要洞察但遗漏了关键的次要细节。
-    \item \textbf{错误（0.0）}：答案包含事实性错误、与黄金答案相矛盾，或对无法回答的问题伪造了一个答案。
-\end{itemize}
+- **正确（1.0）**：答案在实质上与真实值匹配。细微的措辞差异是可以接受的；数值必须精确。
+- **部分正确（0.5）**：答案传达了主要洞察但遗漏了关键的次要细节。
+- **错误（0.0）**：答案包含事实性错误、与黄金答案相矛盾，或对无法回答的问题伪造了一个答案。
 
-\begin{markdown}
 ## 信息缺口类型分布 {#app:gap-types}
 
 #### 方法论。
@@ -1308,16 +1248,12 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 ## 分数事件提取 {#app:extension-scoring}
 
 分数事件仅通过规范评分器的JSON输出从`trace.jsonl`中提取，从不通过智能体评论或训练内部损失。按任务模式：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
-  \item \textbf{\texttt{triton\_cumsum}}：来自测试框架评分器的\texttt{\{"score": X, "message": \{"shape\_dtype\_match": True, "results\_match": True, "torch\_time\_ms": $…$, "solution\_time\_ms": Y\}\}}；原始指标为\texttt{solution\_time\_ms}。
-  \item \textbf{\texttt{restricted\_mlm}, \texttt{fix\_embedding}}：来自\texttt{local\_score.py}的\texttt{\{"score": X, "loss": Y, "compliant": $…$, "device": $…$\}}。
-  \item \textbf{\texttt{nanogpt\_chat\_rl}}：来自评分二进制的\texttt{\{"score": X, "message": \{"win\_vs\_gpt2-alpaca": Y, "win\_vs\_gpt2-xl": Z\}\}}。
-  \item \textbf{\texttt{rust\_codecontests}}：来自\texttt{local\_score.py}的\texttt{Score: X | N successes / 165}和\texttt{\{"score": X, "n\_problems": 165, "n\_successes": N\}}；我们接受任何一种作为规范，并通过\texttt{(round(t,1), N)}去重。
-\end{itemize}
+- **`triton_cumsum`**：来自测试框架评分器的`{"score": X, "message": {"shape_dtype_match": True, "results_match": True, "torch_time_ms": …, "solution_time_ms": Y}}`；原始指标为`solution_time_ms`。
+- **`restricted_mlm`, `fix_embedding`**：来自`local_score.py`的`{"score": X, "loss": Y, "compliant": …, "device": …}`。
+- **`nanogpt_chat_rl`**：来自评分二进制的`{"score": X, "message": {"win_vs_gpt2-alpaca": Y, "win_vs_gpt2-xl": Z}}`。
+- **`rust_codecontests`**：来自`local_score.py`的`Score: X | N successes / 165`和`{"score": X, "n_problems": 165, "n_successes": N}`；我们接受任何一种作为规范，并通过`(round(t,1), N)`去重。
 
-\begin{markdown}
 每次运行的成本从每条消息的`usage`字段根据Claude Sonnet列表定价重建，并重新缩放以匹配SDK的权威`total_cost_usd`，该值与Anthropic计费门户在舍入误差内一致。
 
 ## 按任务案例研究 {#app:extension-cases}
@@ -1476,15 +1412,11 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 #### 认证实现。
 
 每个验证级别实现为一个自动化检查器：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{级别1（结构完整性）}：一个Python脚本验证(a)~必需目录的存在（\texttt{/logic}, \texttt{/src}, \texttt{/trace}, \texttt{/evidence}），(b)~所有必需文件的存在，包括带有有效YAML前言部分的\texttt{PAPER.md}、\texttt{problem.md}、\texttt{claims.md}、\texttt{experiments.md}以及所有\texttt{solution/}文件，(c)~每个结构化文件的模式一致性（例如每个论断必须具有\texttt{Statement}, \texttt{Status}, \texttt{Falsification criteria}和\texttt{Proof}；每个实验必须具有\texttt{Verifies}, \texttt{Setup}, \texttt{Procedure}和\texttt{Expected outcome}；每个启发式规则必须具有\texttt{Rationale}, \texttt{Sensitivity}和\texttt{Bounds}），(d)~最小计数（$\geq 5$个概念，$\geq 3$个实验，$\geq 8$个探索树节点，至少一个\texttt{[dead\_end]}和一个\texttt{[decision]}），以及(e)~跨层引用解析：\texttt{claims.md}的\texttt{Proof}字段中引用的每个实验ID都解析为\texttt{experiments.md}中的一个条目；\texttt{experiments.md}的\texttt{Verifies}字段中引用的每个论断ID都解析为\texttt{claims.md}中的一个条目；\texttt{heuristics.md}中的每个\texttt{code\_ref}指向\texttt{/src}中的一个有效模块；\texttt{architecture.md}中声明的组件具有对应的代码桩；\texttt{exploration\_tree.yaml}中的论断引用解析为有效的论断ID。
-    \item \textbf{级别2（论证严谨性）}：在不执行代码或查阅外部来源的情况下，严谨性审计器在六个客观的、锚定在评分标准上的维度上评估构件的内容（证据相关性、可证伪性质量、范围校准、论证连贯性、探索完整性、方法论严谨性），每个维度按1到5分评分。输出是一份严谨性报告，定位到具体的\ara{}组件，包含按严重性排序的发现、逐字证据跨度以及从均值和每个维度下限导出的总评等级。
-    \item \textbf{级别3（执行可复现性）}：一个编码智能体读取\ara{}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec:eval-reproduction}）中使用的是相同的协议。
-\end{itemize}
+- **级别1（结构完整性）**：一个Python脚本验证(a)~必需目录的存在（`/logic`, `/src`, `/trace`, `/evidence`），(b)~所有必需文件的存在，包括带有有效YAML前言部分的`PAPER.md`、`problem.md`、`claims.md`、`experiments.md`以及所有`solution/`文件，(c)~每个结构化文件的模式一致性（例如每个论断必须具有`Statement`, `Status`, `Falsification criteria`和`Proof`；每个实验必须具有`Verifies`, `Setup`, `Procedure`和`Expected outcome`；每个启发式规则必须具有`Rationale`, `Sensitivity`和`Bounds`），(d)~最小计数（$\geq 5$个概念，$\geq 3$个实验，$\geq 8$个探索树节点，至少一个`[dead_end]`和一个`[decision]`），以及(e)~跨层引用解析：`claims.md`的`Proof`字段中引用的每个实验ID都解析为`experiments.md`中的一个条目；`experiments.md`的`Verifies`字段中引用的每个论断ID都解析为`claims.md`中的一个条目；`heuristics.md`中的每个`code_ref`指向`/src`中的一个有效模块；`architecture.md`中声明的组件具有对应的代码桩；`exploration_tree.yaml`中的论断引用解析为有效的论断ID。
+- **级别2（论证严谨性）**：在不执行代码或查阅外部来源的情况下，严谨性审计器在六个客观的、锚定在评分标准上的维度上评估构件的内容（证据相关性、可证伪性质量、范围校准、论证连贯性、探索完整性、方法论严谨性），每个维度按1到5分评分。输出是一份严谨性报告，定位到具体的\ara{}组件，包含按严重性排序的发现、逐字证据跨度以及从均值和每个维度下限导出的总评等级。
+- **级别3（执行可复现性）**：一个编码智能体读取\ara{}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec:eval-reproduction}）中使用的是相同的协议。
 
-\begin{markdown}
 #### 失败分类。
 
 对于每个认证级别的失败，我们记录失败的具体检查，并将其归类为以下类别之一：*缺失文件*、*缺失字段*、*悬空引用*、*类型不匹配*、*依赖解析失败*、*执行错误*或*非确定性*。
@@ -1518,17 +1450,13 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 #### 注入模式。
 
 五种类型针对不同的模式不变量：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=2pt]
-  \item \textbf{虚构论断}：追加一个其\texttt{Proof}引用一个不存在实验ID的论断；信号 = 悬空引用加上无依据的内容。
-  \item \textbf{缺失可证伪性}：从一个主要论断中删除\texttt{Falsification criteria}行；信号 = 必需字段缺失。
-  \item \textbf{孤立实验}：追加一个其\texttt{Verifies}字段引用不存在论断ID（例如\texttt{C99}）的实验；信号 = 证据不支持任何论断。
-  \item \textbf{过度论断}：将一个狭窄的\texttt{Statement}替换为全称范围模板，同时保持原始\texttt{Falsification criteria}和\texttt{Proof}不变；信号 = 论断广度与证据覆盖之间的范围不匹配。
-  \item \textbf{被反驳分支泄露}：追加一个倡导\texttt{trace/exploration\_tree.yaml}标记为\texttt{dead\_end}的方法的论断；信号 = 论断与探索记录之间的直接矛盾。
-\end{itemize}
+- **虚构论断**：追加一个其`Proof`引用一个不存在实验ID的论断；信号 = 悬空引用加上无依据的内容。
+- **缺失可证伪性**：从一个主要论断中删除`Falsification criteria`行；信号 = 必需字段缺失。
+- **孤立实验**：追加一个其`Verifies`字段引用不存在论断ID（例如`C99`）的实验；信号 = 证据不支持任何论断。
+- **过度论断**：将一个狭窄的`Statement`替换为全称范围模板，同时保持原始`Falsification criteria`和`Proof`不变；信号 = 论断广度与证据覆盖之间的范围不匹配。
+- **被反驳分支泄露**：追加一个倡导`trace/exploration_tree.yaml`标记为`dead_end`的方法的论断；信号 = 论断与探索记录之间的直接矛盾。
 
-\begin{markdown}
 #### 审计器与盲法化。
 
 严谨性审计器是一个智能体技能~\citep{agentskills2025}，按构件调用，仅授予构件目录；清单和源PDF被保留。它解析论断、实验、启发式规则、缺口和探索树节点；构建论断--实验、论断--依赖和被拒绝节点映射；在1--5锚点上给六个维度（$D_1$证据相关性，$D_2$可证伪性，$D_3$范围校准，$D_4$论证连贯性，$D_5$探索完整性，$D_6$方法论严谨性）评分；发出带有严重性标签（*critical*, *major*, *minor*, *suggestion*）的发现；并报告总评等级。完整技能规范（提示、锚点、阈值）随补充代码发布。

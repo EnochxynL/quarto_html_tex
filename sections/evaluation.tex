@@ -127,14 +127,10 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 #### 实验协议。
 
 对于每篇论文，两个编码智能体接收相同的巨型任务但不同的源材料：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
-  \item \textbf{ARA智能体}：仅使用\ara{}构件（\texttt{PAPER.md}、\texttt{logic/}、\texttt{src/}、\texttt{evidence/}）。无PDF或仓库访问权限。
-  \item \textbf{基线智能体}：论文PDF和配套GitHub仓库。
-\end{itemize}
+- **ARA智能体**：仅使用\ara{}构件（`PAPER.md`、`logic/`、`src/`、`evidence/`）。无PDF或仓库访问权限。
+- **基线智能体**：论文PDF和配套GitHub仓库。
 
-\begin{markdown}
 两个智能体均使用Claude Sonnet 4.6，具有相同的系统提示（仅在源材料路径上有差异），每篇论文的token预算为14--20M，按任务复杂度缩放（缓存读取按10\%折算）。预期数值结果在智能体提示中被掩盖（替换为`[X]%`）以防止机械复述。每次运行后，一个盲评的Claude Opus 4.6裁判在不了解哪个条件产生输出的前提下，将每条评分细则要求评定为*是*（满足）、*部分*（部分满足）或*否*（未满足）。
 
 #### 评分方式。
@@ -183,14 +179,10 @@ RE-Bench的输入不同于典型的论文~+~repo：源材料是官方参考解�
 #### 实验协议。
 
 两个智能体从相同的工作目录开始：官方参考`solution.py`、围绕规范RE-Bench评分器的`score.sh`包装脚本、适用的训练数据符号链接，以及一个`reference/`目录，其内容是唯一的自变量。
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
-  \item \textbf{论文智能体}：阅读\texttt{reference/paper.md}——一份由LLM合成的、官方解决方案的学术风格撰写文本（摘要、方法、结果、开发笔记；应用了相同的超越参考过滤器，使\texttt{paper.md}绝不包含已实现的超越参考变体），加上官方\texttt{src/}树。这模拟了传统已发表论文将提供的构件（附录~\ref{app:extension-paper-baseline}）。
-  \item \textbf{\ara{}智能体}：阅读完整\ara{}（\texttt{PAPER.md}、\texttt{logic/}、\texttt{src/}、\texttt{trace/}、\texttt{evidence/}）；\texttt{src/}和参考衍生的\texttt{logic/}内容与论文智能体的材料包匹配，而\texttt{trace/}和\texttt{evidence/}层承载了论文材料包无法提供的失败记录。
-\end{itemize}
+- **论文智能体**：阅读`reference/paper.md`——一份由LLM合成的、官方解决方案的学术风格撰写文本（摘要、方法、结果、开发笔记；应用了相同的超越参考过滤器，使`paper.md`绝不包含已实现的超越参考变体），加上官方`src/`树。这模拟了传统已发表论文将提供的构件（附录~\ref{app:extension-paper-baseline}）。
+- **\ara{}智能体**：阅读完整\ara{}（`PAPER.md`、`logic/`、`src/`、`trace/`、`evidence/`）；`src/`和参考衍生的`logic/`内容与论文智能体的材料包匹配，而`trace/`和`evidence/`层承载了论文材料包无法提供的失败记录。
 
-\begin{markdown}
 两个智能体均被指示通过编辑`solution.py`并运行`bash score.sh`来超越参考分数；结果取运行期间所有调用的最佳分数。我们使用Claude Agent SDK~\citep{claudecodesdk2025}，工具集为{`Bash`，`Read`，`Edit`，`Write`，`Glob`，`Grep`}，每次运行有8~h SLURM挂钟时间限制和\textdollar50 API支出上限。所有五个任务均在Claude Sonnet 4.6上运行；对于`triton_cumsum`和`restricted_mlm`，我们还在较旧的Sonnet 4.5基础上额外运行了相同比较（附录~\ref{app:extension-cases}）。实验平台工程、分数事件提取和可复现性细节见附录~\ref{app:extension-eval}。
 
 #### 结果。
@@ -239,17 +231,13 @@ RE-Bench的输入不同于典型的论文~+~repo：源材料是官方参考解�
 #### 第2级（严谨性审计器）：变异基准测试。
 
 我们通过向已通过第1级的\ara{}中注入已知错误，并对照真值注入清单衡量审计器的检测率，来对严谨性审计器进行基准测试。每次注入自身就是神谕，无需人工标注。具体而言，我们取23个PaperBench的\ara{}，每个注入五类错误：
-\end{markdown}
 
-\begin{itemize}[leftmargin=*, itemsep=1pt, topsep=2pt]
-  \item \emph{伪造论断}：引用不存在实验的论断。
-  \item \emph{缺失可证伪性标准}：一个删除了\texttt{可证伪性标准}字段的主论断。
-  \item \emph{孤立实验}：一个其\texttt{验证}字段指向不存在论断的实验。
-  \item \emph{过度声称}：一个窄范围结果，其\texttt{陈述}被扩大为普适范围。
-  \item \emph{被驳斥分支泄露}：一个倡导在探索图谱中被记录为\texttt{死胡同}之方法的论断。
-\end{itemize}
+- *伪造论断*：引用不存在实验的论断。
+- *缺失可证伪性标准*：一个删除了`可证伪性标准`字段的主论断。
+- *孤立实验*：一个其`验证`字段指向不存在论断的实验。
+- *过度声称*：一个窄范围结果，其`陈述`被扩大为普适范围。
+- *被驳斥分支泄露*：一个倡导在探索图谱中被记录为`死胡同`之方法的论断。
 
-\begin{markdown}
 严谨性审计器（一个Claude Code SDK~\citep{claudecodesdk2025}智能体，它读取构件，构建跨层映射，对六个维度评分，并编制发现清单；完整协议见附录~\ref{app:seal-eval-l2}）随后在每个注入后的\ara{}上运行，每个发现通过其目标实体匹配回注入清单。
 
 #### 对实质性注入具有高召回率，在孤立实验上存在盲区。

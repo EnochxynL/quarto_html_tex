@@ -92,6 +92,18 @@
 % 仅产生日志警告）；texMathDollars 支持 $...$ 数学；headerAttributes 支持 {#label}。
 \usepackage[hybrid, texMathDollars, contentBlocks, rawAttribute, headerAttributes]{markdown}
 
+% 用 markdown 语法书写列表：统一 itemize 为 leftmargin=*、itemsep=1pt（不显式指定
+% topsep）；enumerate 复刻 label=\textbf{P\arabic*.} 的效果。description 暂保留原生 LaTeX。
+\markdownSetup{
+  renderers = {
+    ulBegin          = {\begin{itemize}[leftmargin=*, itemsep=1pt]},
+    ulEnd            = {\end{itemize}},
+    olBegin          = {\begin{enumerate}[leftmargin=2em, itemsep=1pt]},
+    olItemWithNumber = {\item[\textbf{P#1.}]},
+    olEnd            = {\end{enumerate}},
+  }
+}
+
 % 页眉短标题
 \icmltitlerunning{The Last Human-Written Paper: Agent-Native Research Artifacts}
 
