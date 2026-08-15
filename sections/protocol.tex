@@ -6,9 +6,7 @@
 图~\ref{fig:lrm-overview}（\S\ref{sec:live-pm}）展示了实时研究管理器如何在长时间尺度上，在人--AI 研究过程与活态构件之间进行协调。
 
 ![目录结构](figures/fig_ara_directory_annotated.png "\ara{} 目录结构。每个文件的角色以内联注释标注；层级徽章标出四个顶层分区。跨层的\emph{取证绑定}将 \texttt{/logic} 中的论断链接至 \texttt{/evidence} 中的证据和 \texttt{/src} 中的代码。完整模式见附录~\ref{app:schema}；设计理由见附录~\ref{app:protocol-details}。"){#fig:ara-structure}
-\end{markdown}
 
-\begin{markdown}
 ## 设计理念 {#sec:philosophy}
 
 \ara{} 协议植根于唯一原则：**知识重于叙事**——研究过程中产生的有组织、不断演进的知识是第一位的科学对象；叙事性论文只是其编译视图。
@@ -25,9 +23,7 @@
 在每个层级内部，构件文本最大化每词元的信息密度：去除主观修饰语、模糊限定和叙事连接词，需要判断的陈述携带的是溯源信息而非修辞渲染。
 
 ![跨层结构](figures/fig_cross_layer_v2_attempt1.png "真实 \ara{} 的跨层结构。\texttt{/logic} 中的论断通过取证绑定链接至 \texttt{/src} 中的代码和 \texttt{/evidence} 中的证据。探索图谱（底部中央）捕获研究 DAG，其中死胡同节点（标记为 $\times$）保留了失败模式和教训。"){#fig:exploration-graph}
-\end{markdown}
 
-\begin{markdown}
 ## \ara{} 架构 {#sec:layers}
 
 一个智能体与某个研究构件交互时，有四种基本需求：*理解*贡献、*复现*贡献、*从过程中学习*，以及基于原始证据*验证*论断。
