@@ -90,7 +90,7 @@
 % 仍以原生 LaTeX 写在 \begin{markdown} 环境之外。
 % hybrid 使 \citep、\ara、\ref、\url、\texttt 等内联命令原样透传（已弃用但可用，
 % 仅产生日志警告）；texMathDollars 支持 $...$ 数学；headerAttributes 支持 {#label}。
-\usepackage[hybrid, texMathDollars, contentBlocks, pipeTables, rawAttribute, headerAttributes, linkAttributes]{markdown}
+\usepackage[hybrid, texMathDollars, contentBlocks, pipeTables, tableCaptions, tableAttributes, rawAttribute, headerAttributes, linkAttributes]{markdown}
 
 % 用 markdown 语法书写列表：统一 itemize 为 leftmargin=*、itemsep=1pt（不显式指定
 % topsep）；enumerate 复刻 label=\textbf{P\arabic*.} 的效果。description 暂保留原生 LaTeX。
@@ -114,6 +114,45 @@
     },
   }
 }
+\ExplSyntaxOff
+
+% 表格 renderer：复刻默认 booktabs 三线表渲染，并加回 [t] 放置与 \small（caption 已由
+% tableCaptions 移入 markdown 块内，故在此完整接管 table 渲染）。\makeatletter 供
+% \addto@hook 使用，\ExplSyntaxOn 供 \seq_map_inline:Nn 使用。
+\ExplSyntaxOn
+\makeatletter
+\markdownSetup{
+  renderers = {
+    table = {%
+      \markdownLaTeXTable={}%
+      \markdownLaTeXTableAlignment={}%
+      \markdownLaTeXTableEnd={%
+        \markdownLaTeXBottomRule
+        \end{tabular}}%
+      \ifx\empty#1\empty\else
+        \addto@hook\markdownLaTeXTable{%
+          \begin{table}[t]
+          \centering
+          \small
+          \setlength{\tabcolsep}{4pt}}%
+        \addto@hook\markdownLaTeXTableEnd{%
+          \caption{#1}}%
+      \fi
+      \seq_map_inline:Nn \l__markdown_table_identifiers_seq {%
+        \addto@hook\markdownLaTeXTableEnd{\label{##1}}%
+      }%
+      \ifx\empty#1\empty\else
+        \addto@hook\markdownLaTeXTableEnd{\end{table}}%
+      \fi
+      \addto@hook\markdownLaTeXTable{\begin{tabular}}%
+      \markdownLaTeXRowCounter=0%
+      \markdownLaTeXRowTotal=#2%
+      \markdownLaTeXColumnTotal=#3%
+      \markdownLaTeXRenderTableRow
+    },
+  }
+}
+\makeatother
 \ExplSyntaxOff
 
 % 页眉短标题

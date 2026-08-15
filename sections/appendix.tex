@@ -813,9 +813,6 @@ for /trace:
 表~\ref{tab:corpus}列出了理解和复现评估中使用的23篇PaperBench论文。请注意，PaperBench自身的协议禁止使用作者代码；我们在基线中放宽了这一点，使之拥有最强的立足点（PDF~+~配套GitHub仓库），使得"仓库可用性"成为我们实验框架的属性而非PaperBench的属性。在23篇论文中，15篇纳入复现实验；其余8篇被排除，因为忠实的端到端复现超出了我们每个任务的计算预算，或者需要不在我们评估框架范围内的专门基础设施（例如多天CLIP对抗微调、Isaac Gym RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。这8篇论文仅参与理解评估。
 \end{markdown}
 
-\begin{table}[h]
-\centering
-\small
 \begin{markdown}
 | **简称** | **领域** | **复现** |
 |:---|:---|:---:|
@@ -843,10 +840,9 @@ for /trace:
 | test-time-model-adapt. | Adaptation | Yes |
 | what-will-my-model-forget | Continual learning | No |
 | **总计：23** | | 15 |
+
+: 测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。"复现"列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。 {#tab:corpus}
 \end{markdown}
-\caption{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。"复现"列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
-\label{tab:corpus}
-\end{table}
 
 \begin{markdown}
 #### 语料库多样性。
@@ -915,10 +911,6 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 表~\ref{tab:info-gap}将8{,}921个需求按PaperBench任务类别划分。中位数论文显示45.3\%充分和47.9\%部分，证实了这一缺口是系统性的而非由异常值驱动。
 \end{markdown}
 
-\begin{table}[h]
-\centering
-\small
-\setlength{\tabcolsep}{4pt}
 \begin{markdown}
 | **任务类别** | **需求数** | **充分** | **部分** | **缺失** |
 |:---|---:|:---:|:---:|:---:|
@@ -926,10 +918,9 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 | Code Execution | 4,355 | 50.5\% | 47.9\% | 1.6\% |
 | Result Analysis | 624 | 60.6\% | 36.9\% | 2.6\% |
 | **总计** | **8,921** | **45.4\%** | **50.2\%** | **4.4\%** |
+
+: 23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。 {#tab:info-gap}
 \end{markdown}
-\caption{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
-\label{tab:info-gap}
-\end{table}
 
 \begin{markdown}
 #### 缺口类型细分。
@@ -940,9 +931,6 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 评估、指标与基准测试为30.0\%：论文通常声明了使用*哪些*指标，但未说明*如何*计算它们（分箱策略、置信区间、统计检验）。
 \end{markdown}
 
-\begin{table}[h]
-\centering
-\small
 \begin{markdown}
 | **缺口类型** | **数量** | **占缺口百分比** |
 |:---|---:|:---:|
@@ -955,10 +943,9 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 | Figure only | 499 | 5.1\% |
 | Ambiguous specification | 399 | 4.1\% |
 | Implicit assumption | 150 | 1.5\% |
+
+: 8,921个需求中信息缺口类型的分布。三个最大类别——缺失超参数、描述模糊和交叉引用——恰恰是结构化格式在设计上处理的缺口。 {#tab:gap-types}
 \end{markdown}
-\caption{8,921个需求中信息缺口类型的分布。三个最大类别——缺失超参数、描述模糊和交叉引用——恰恰是结构化格式在设计上处理的缺口。}
-\label{tab:gap-types}
-\end{table}
 
 \begin{markdown}
 ## 探索成本详细分解 {#app:exploration-tax}
