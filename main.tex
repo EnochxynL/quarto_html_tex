@@ -249,7 +249,7 @@
     }
     \vskip 14pt
     % 摘要正文（无标题，默认衬线字体）
-    \input{sections/abstract}
+    \markdownInput{sections/abstract.md}
     \vskip 14pt
     % 通讯作者 / 代码页脚（右侧附带 ARA Commons 徽标）。
     % 此处避免使用 \begin{minipage}[c]{...}，因为内部的 ']' 在
@@ -276,27 +276,27 @@
 \global\icml@noticeprintedtrue
 \makeatother
 
-\input{sections/introduction}
+\markdownInput{sections/introduction.md}
 \FloatBarrier
-\input{sections/protocol}
+\markdownInput{sections/protocol.md}
 \FloatBarrier
 \input{sections/live_pm}
 \FloatBarrier
-\input{sections/ingestor}
+\markdownInput{sections/ingestor.md}
 \FloatBarrier
 \input{sections/review_system}
 \FloatBarrier
-\input{sections/network}
+\markdownInput{sections/network.md}
 \FloatBarrier
 \input{sections/evaluation}
 \FloatBarrier
 \input{sections/related_work}
 \FloatBarrier
-\input{sections/discussion}
+\markdownInput{sections/discussion.md}
 \FloatBarrier
-\input{sections/limitations}
+\markdownInput{sections/limitations.md}
 \FloatBarrier
-\input{sections/conclusion}
+\markdownInput{sections/conclusion.md}
 
 \bibliography{references}
 \bibliographystyle{styles/icml2026}

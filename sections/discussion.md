@@ -1,4 +1,3 @@
-\begin{markdown}
 # Future Work {#sec:discussion}
 
 #### Near term: artifact lineage and self-maintaining ecosystems.
@@ -20,4 +19,3 @@
 这种结构能否推广到其他学科仍是一个悬而未决的问题。
 认知层和证据层可能是领域无关的，但物理层和探索图谱均以可迭代的计算实验为前提，对于执行是物理而非计算的湿实验科学，可能需要进行大量调整。
 如果这些调整成功，\ara{} 将为跨学科知识迁移提供天然基座，其中一个领域被记录下来的失败通过图谱遍历而非在不熟悉符号体系中进行文献搜索，成为另一领域中可操作的知识。
-\end{markdown}
