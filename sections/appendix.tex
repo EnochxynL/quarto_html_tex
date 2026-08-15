@@ -255,9 +255,8 @@ PaperBench评分标准中所有权重为2的需求都属于"结果解读"类别�
 
 本文论文完整的`ara/`目录如下所示。
 智能体的第一个动作是读取`PAPER.md`，它包含YAML前言部分和摘要（约500个token），足以在不加载任何层的情况下决定相关性。
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
+```text
 ara/
   PAPER.md                          # entry point
   logic/                            # Cognitive Layer
@@ -277,13 +276,11 @@ ara/
     README.md                       #   index of raw results
   staging/
     observations.yaml               #   94 unpromoted observations
-\end{lstlisting}
+```
 
-\begin{markdown}
 根清单`PAPER.md`：
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+```text
 ---
 title: "Agent-Native Research Artifacts"
 authors: ["Amber Liu", "Zechen Zhang"]
@@ -348,16 +345,14 @@ layers:
 - **Staging** (`staging/`): unpromoted observations
   - `observations.yaml` -- 94 preliminary observations
       (latest: 2026-04-26 cross-model and synthesis)
-\end{lstlisting}
+```
 
-\begin{markdown}
 ### 认知层：`logic/claims.md`
 
 每个论断带有一个机器可读的状态（`hypothesis`, `supported`, `testing`）、可证伪标准和指向证据层的证明指针，而不是内联结果。
 我们展示两个处于不同生命周期的论断。
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+```text
 # Claims
 
 ## C04: Universal Ingestor produces lossless
@@ -393,17 +388,15 @@ layers:
 - **Dependencies**: [C05]
 - **Tags**: exploration-graph, negative-knowledge
 ...                    <!-- 16 claims total -->
-\end{lstlisting}
+```
 
-\begin{markdown}
 ### 认知层：`logic/problem.md`
 
 问题文件将动机分解为类型化的观察（经验事实）、缺口（现有方法遗漏之处）以及连接它们的关键洞察。
 每个条目带有证据指针和含义字段，因此智能体无需阅读论文引言即可追踪完整的论证链。
 我们在每个部分展示一个有代表性的条目。
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+```text
 # Problem
 
 ## Observations
@@ -448,15 +441,13 @@ layers:
     eliminates both the Storytelling Tax and
     Engineering Tax.
 - **Derived from**: O1, O2, O3, O4, G1, G2
-\end{lstlisting}
+```
 
-\begin{markdown}
 ### 认知层：`logic/solution/heuristics.md`
 
 每个启发式规则记录了一个设计决策及其理由、来源（谁引入了它）和敏感度评级，使智能体知道哪些选择可以安全地改变。
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+```text
 # Heuristics
 
 ## H04: Directional verification over exact matching
@@ -483,16 +474,14 @@ layers:
 - **Code ref**: [code/artifacts/rebench-*/src/
     kernel/official_solution_notes.md]
 ...                    <!-- 18 heuristics total -->
-\end{lstlisting}
+```
 
-\begin{markdown}
 ### 探索图谱：`trace/exploration_tree.yaml`
 
 探索树将决策、死胡同和实验保存为一个可遍历的图谱。
 我们展示本文94节点树中每种类型的一个节点。
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
+```text
 tree:
   - id: N04
     type: decision
@@ -547,16 +536,14 @@ tree:
     evidence: [C13, C14, "code/eval/malt_analysis/
       exploration_tax_findings.json"]
 ...                    <!-- 94 nodes total -->
-\end{lstlisting}
+```
 
-\begin{markdown}
 ### 探索图谱：`trace/sessions/`
 
 每个研究会话被记录为一个结构化的YAML记录，捕获事件、AI操作、修改的文件、受影响的论断和开放线程。
 下面是一个会话（删节版）；`session_index.yaml`文件提供了所有36个会话的按时间顺序的单行摘要。
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
+```text
 # trace/sessions/2026-03-19_001.yaml
 session:
   id: "2026-03-19_001"
@@ -588,9 +575,9 @@ claims_touched: [C05]
 open_threads:
   - "Hyperparams buried in evidence/ not src/configs/
      -- move them and rerun (becomes N67)"
-\end{lstlisting}
+```
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize, language=]
+```text
 # trace/sessions/session_index.yaml (excerpt)
 sessions:
   - id: "2026-03-12_004"
@@ -608,9 +595,8 @@ sessions:
       calibration despite ARA finding near-optimal
       hyperparams"
 ...                    <!-- 36 sessions total -->
-\end{lstlisting}
+```
 
-\begin{markdown}
 完整的构件，包括所有16个论断、18个启发式规则、94个探索节点和36个会话记录，可在补充材料中的`ara/`处获得。
 \end{markdown}
 
@@ -651,9 +637,8 @@ sessions:
 #### 第4部分：四阶段推理协议（第416--454行）。
 
 该提示要求在文件生成之前进行结构化的思考过程：
-\end{markdown}
 
-\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+```text
 # Your 4-Stage Reasoning Process
 
 You MUST follow these 4 stages in order. Produce a
@@ -705,9 +690,8 @@ for /trace:
   alternatives as leaf nodes
 - Record key design decisions with alternatives
   considered
-\end{lstlisting}
+```
 
-\begin{markdown}
 #### 第5部分：输出格式和规则（第456--482行）。
 
 为`batch_write_files`指定XML分隔的输出格式，列出所有15个必需文件，并执行九个不变规则（例如"所有数值必须与论文中所述完全一致"，"绝不虚构论文中没有的论断、结果或启发式规则"）。

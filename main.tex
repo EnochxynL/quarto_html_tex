@@ -112,6 +112,9 @@
         \seq_map_inline:Nn \l__markdown_image_identifiers_seq { \label{##1} }
       \end{figure}
     },
+    inputFencedCode  = {%
+      \lstinputlisting[basicstyle=\ttfamily\scriptsize]{#1}%
+    },
   }
 }
 \ExplSyntaxOff
