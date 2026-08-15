@@ -86,6 +86,12 @@
   stringstyle=\color{red!60!black},
 }
 
+% Markdown 重写：正文、标题、公式用 markdown 语法；复杂元素（图表、列表、代码块）
+% 仍以原生 LaTeX 写在 \begin{markdown} 环境之外。
+% hybrid 使 \citep、\ara、\ref、\url、\texttt 等内联命令原样透传（已弃用但可用，
+% 仅产生日志警告）；texMathDollars 支持 $...$ 数学；headerAttributes 支持 {#label}。
+\usepackage[hybrid, texMathDollars, contentBlocks, rawAttribute, headerAttributes]{markdown}
+
 % 页眉短标题
 \icmltitlerunning{The Last Human-Written Paper: Agent-Native Research Artifacts}
 
