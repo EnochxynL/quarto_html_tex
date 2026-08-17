@@ -13,8 +13,12 @@
       "TodoWrite(*)",
       "Task(*)",
       "NotebookEdit(*)",
-      "mcp__*(*)",
-      "Bash(kpsewhich markdown.sty)"
+      "Bash(kpsewhich markdown.sty)",
+      "Bash(xelatex -shell-escape -interaction=nonstopmode -halt-on-error -jobname=main main.tex)",
+      "Bash(echo \"pass1: $?\")",
+      "Bash(bibtex main *)",
+      "Bash(echo \"bibtex: $?\")",
+      "Bash(echo \"pass2: $?\")"
     ]
   },
   "hooks": {
