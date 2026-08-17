@@ -170,7 +170,7 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 
 #### 为何选用RE-Bench，以及哪些任务。
 
-验证这一论断需要的任务必须同时允许开放式改进*并且*附带由*真实*智能体失败轨迹组成、而非作者想象的语料库。RE-Bench~\citep{wijk2025rebench}同时满足两者：其7个任务每个都有连续值的自动化评分器，且METR MALT转录记录每个任务包含数千次完整的智能体运行（及其死胡同）。我们使用7个任务中的5个：`triton_cumsum`、`restricted_mlm`、`fix_embedding`、`nanogpt_chat_rl`和`rust_codecontests`。其余两个被排除，因为其MALT语料无法提供可用的失败轨迹层：`optimize_llm_foundry`根本没有MALT语料，而`small_scaling_law`的MALT运行稀疏、缺乏Claude-4条目，且主要由无记录策略探索的简单参数扫描组成；无论哪种情况，都会导致`trace/`在构建时实际上为空（附录~\ref{app:extension-tasks}）。
+验证这一论断需要的任务必须同时允许开放式改进*并且*附带由*真实*智能体失败轨迹组成、而非作者想象的语料库。RE-Bench [@wijk2025rebench]同时满足两者：其7个任务每个都有连续值的自动化评分器，且METR MALT转录记录每个任务包含数千次完整的智能体运行（及其死胡同）。我们使用7个任务中的5个：`triton_cumsum`、`restricted_mlm`、`fix_embedding`、`nanogpt_chat_rl`和`rust_codecontests`。其余两个被排除，因为其MALT语料无法提供可用的失败轨迹层：`optimize_llm_foundry`根本没有MALT语料，而`small_scaling_law`的MALT运行稀疏、缺乏Claude-4条目，且主要由无记录策略探索的简单参数扫描组成；无论哪种情况，都会导致`trace/`在构建时实际上为空（附录~\ref{app:extension-tasks}）。
 
 #### \ara{}构建（专用RE-Bench流水线）。
 
@@ -183,7 +183,7 @@ RE-Bench的输入不同于典型的论文~+~repo：源材料是官方参考解�
 - **论文智能体**：阅读`reference/paper.md`——一份由LLM合成的、官方解决方案的学术风格撰写文本（摘要、方法、结果、开发笔记；应用了相同的超越参考过滤器，使`paper.md`绝不包含已实现的超越参考变体），加上官方`src/`树。这模拟了传统已发表论文将提供的构件（附录~\ref{app:extension-paper-baseline}）。
 - **\ara{}智能体**：阅读完整\ara{}（`PAPER.md`、`logic/`、`src/`、`trace/`、`evidence/`）；`src/`和参考衍生的`logic/`内容与论文智能体的材料包匹配，而`trace/`和`evidence/`层承载了论文材料包无法提供的失败记录。
 
-两个智能体均被指示通过编辑`solution.py`并运行`bash score.sh`来超越参考分数；结果取运行期间所有调用的最佳分数。我们使用Claude Agent SDK~\citep{claudecodesdk2025}，工具集为{`Bash`，`Read`，`Edit`，`Write`，`Glob`，`Grep`}，每次运行有8~h SLURM挂钟时间限制和\textdollar50 API支出上限。所有五个任务均在Claude Sonnet 4.6上运行；对于`triton_cumsum`和`restricted_mlm`，我们还在较旧的Sonnet 4.5基础上额外运行了相同比较（附录~\ref{app:extension-cases}）。实验平台工程、分数事件提取和可复现性细节见附录~\ref{app:extension-eval}。
+两个智能体均被指示通过编辑`solution.py`并运行`bash score.sh`来超越参考分数；结果取运行期间所有调用的最佳分数。我们使用Claude Agent SDK [@claudecodesdk2025]，工具集为{`Bash`，`Read`，`Edit`，`Write`，`Glob`，`Grep`}，每次运行有8~h SLURM挂钟时间限制和\textdollar50 API支出上限。所有五个任务均在Claude Sonnet 4.6上运行；对于`triton_cumsum`和`restricted_mlm`，我们还在较旧的Sonnet 4.5基础上额外运行了相同比较（附录~\ref{app:extension-cases}）。实验平台工程、分数事件提取和可复现性细节见附录~\ref{app:extension-eval}。
 
 #### 结果。
 
@@ -238,7 +238,7 @@ RE-Bench的输入不同于典型的论文~+~repo：源材料是官方参考解�
 - *过度声称*：一个窄范围结果，其`陈述`被扩大为普适范围。
 - *被驳斥分支泄露*：一个倡导在探索图谱中被记录为`死胡同`之方法的论断。
 
-严谨性审计器（一个Claude Code SDK~\citep{claudecodesdk2025}智能体，它读取构件，构建跨层映射，对六个维度评分，并编制发现清单；完整协议见附录~\ref{app:seal-eval-l2}）随后在每个注入后的\ara{}上运行，每个发现通过其目标实体匹配回注入清单。
+严谨性审计器（一个Claude Code SDK [@claudecodesdk2025]智能体，它读取构件，构建跨层映射，对六个维度评分，并编制发现清单；完整协议见附录~\ref{app:seal-eval-l2}）随后在每个注入后的\ara{}上运行，每个发现通过其目标实体匹配回注入清单。
 
 #### 对实质性注入具有高召回率，在孤立实验上存在盲区。
 
@@ -261,7 +261,7 @@ RE-Bench的输入不同于典型的论文~+~repo：源材料是官方参考解�
 \begin{markdown}
 #### 审计器评分中的两种LLM作为裁判的病态现象。
 
-评分侧出现两种偏差。第一，*分数膨胀*：在23个\ara{}中的17个上，审计器报告的总体平均分被向上取整到刚好越过接受阈值。第二，*发现--评分脱钩*：即使审计器正确地将某注入标记为*严重*（23例被驳斥分支泄露中的22例），相应维度的分数并未降至评分细则规定的水平。两者均为已有文献记载的LLM作为裁判的失败模式~\citep{zheng2023judging}，它们共同表明LLM应当生成发现而非分数，总体裁决应从发现列表确定性计算得出。维度分布、分数膨胀分解和各论文检测热力图见附录~\ref{app:seal-eval-l2}。
+评分侧出现两种偏差。第一，*分数膨胀*：在23个\ara{}中的17个上，审计器报告的总体平均分被向上取整到刚好越过接受阈值。第二，*发现--评分脱钩*：即使审计器正确地将某注入标记为*严重*（23例被驳斥分支泄露中的22例），相应维度的分数并未降至评分细则规定的水平。两者均为已有文献记载的LLM作为裁判的失败模式 [@zheng2023judging]，它们共同表明LLM应当生成发现而非分数，总体裁决应从发现列表确定性计算得出。维度分布、分数膨胀分解和各论文检测热力图见附录~\ref{app:seal-eval-l2}。
 
 #### 第3级（执行可复现性）。
 

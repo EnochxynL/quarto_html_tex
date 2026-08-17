@@ -90,7 +90,7 @@
 % 仍以原生 LaTeX 写在 \begin{markdown} 环境之外。
 % hybrid 使 \citep、\ara、\ref、\url、\texttt 等内联命令原样透传（已弃用但可用，
 % 仅产生日志警告）；texMathDollars 支持 $...$ 数学；headerAttributes 支持 {#label}。
-\usepackage[hybrid, texMathDollars, contentBlocks, pipeTables, tableCaptions, tableAttributes, rawAttribute, headerAttributes, linkAttributes, inlineNotes]{markdown}
+\usepackage[hybrid, texMathDollars, contentBlocks, pipeTables, tableCaptions, tableAttributes, rawAttribute, headerAttributes, linkAttributes, inlineNotes, citations]{markdown}
 
 % 用 markdown 语法书写列表：统一 itemize 为 leftmargin=*、itemsep=1pt（不显式指定
 % topsep）；enumerate 复刻 label=\textbf{P\arabic*.} 的效果。description 暂保留原生 LaTeX。

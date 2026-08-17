@@ -1,6 +1,18 @@
 {
   "permissions": {
     "allow": [
+      "Bash(kpsewhich markdown.sty)",
+      "Bash(xelatex -shell-escape -interaction=nonstopmode -halt-on-error -jobname=main main.tex)",
+      "Bash(echo \"pass1: $?\")",
+      "Bash(bibtex main *)",
+      "Bash(echo \"bibtex: $?\")",
+      "Bash(echo \"pass2: $?\")",
+      "Read(//c/Users/enoch/AppData/Roaming/MiKTeX/tex/latex/markdown/**)",
+      "Bash(python -)",
+      "Bash(python \"C:/Users/enoch/AppData/Local/Temp/convert_citations.py\")",
+      "Read(//c/Users/enoch/AppData/Roaming/MiKTeX/**)",
+      "Read(//c/Users/enoch/AppData/Local/Programs/**)",
+      "Read(//c/Users/enoch/AppData/Roaming/MiKTeX/tex/luatex/markdown/**)",
       "__claude-auto-approve__",
       "Bash(*)",
       "Edit(*)",
@@ -13,12 +25,15 @@
       "TodoWrite(*)",
       "Task(*)",
       "NotebookEdit(*)",
-      "Bash(kpsewhich markdown.sty)",
-      "Bash(xelatex -shell-escape -interaction=nonstopmode -halt-on-error -jobname=main main.tex)",
-      "Bash(echo \"pass1: $?\")",
-      "Bash(bibtex main *)",
-      "Bash(echo \"bibtex: $?\")",
-      "Bash(echo \"pass2: $?\")"
+      "Bash(echo \"BIBTEX exit: $?\")",
+      "Bash(echo \"PASS2 exit: $?\")",
+      "Bash(echo \"PASS3 exit: $?\")",
+      "Read(//tmp/**)",
+      "Bash(python -c \"import fitz; d=fitz.open\\('main.pdf'\\); print\\('pages:', d.page_count\\); import re; txt=''.join\\(p.get_text\\(\\) for p in d\\); print\\('triton.autotune in text:', 'triton.autotune' in txt\\); print\\('has \\(2026\\)-style cites:', bool\\(re.search\\(r'\\\\\\(20\\\\d\\\\d\\\\\\)', txt\\)\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(rm -f \"C:/Users/enoch/AppData/Local/Temp/convert_citations.py\")",
+      "Bash(grep -rn \"\\\\\\\\\\\\\\\\cite[a-z]*{\" sections/)",
+      "Bash(echo \"No remaining \\\\\\\\cite commands outside native LaTeX\")"
     ]
   },
   "hooks": {

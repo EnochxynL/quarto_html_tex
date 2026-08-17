@@ -12,7 +12,7 @@
 \begin{markdown}
 ## 复现关键信息分类体系 {#app:taxonomy}
 
-为了理解智能体复现一篇论文*需要什么*信息——以及PDF在哪些方面存在不足——我们分析了PaperBench~\citep{starace2025paperbench}中由专家编写的评分标准。PaperBench是一个评估AI智能体完整论文复现能力的基准测试。
+为了理解智能体复现一篇论文*需要什么*信息——以及PDF在哪些方面存在不足——我们分析了PaperBench [@starace2025paperbench]中由专家编写的评分标准。PaperBench是一个评估AI智能体完整论文复现能力的基准测试。
 每个评分标准将一篇论文分解为原子性的*叶子需求*：即可独立验证的条件，这些条件的集合构成一次忠实的复现。
 **范围说明。** 以下分类体系源自一个经过深度标注的5篇论文子集（3{,}050个叶子节点），选择该子集是为了在细粒度类别标注的可操作性方面取得平衡；\S\ref{sec:eval-understanding}和附录~\ref{app:gap-types}中报告的较粗粒度的按任务类别和缺口类型分布的频率，则在完整的23篇论文语料库（8{,}921个需求）上得到验证。该子集涵盖多个不同领域——黑盒LLM适应（BBox）、机制可解释性、持续RL（自组合策略）、物理信息神经网络（PINN）以及基于基础模型的RL（FRE）。
 
@@ -786,12 +786,12 @@ for /trace:
 
 #### 筛选标准。
 
-我们从PaperBench~\citep{starace2025paperbench}中提取评估语料库，该基准为ICML 2024论文提供了专家编写的层次化复现评分标准。
+我们从PaperBench [@starace2025paperbench]中提取评估语料库，该基准为ICML 2024论文提供了专家编写的层次化复现评分标准。
 我们将PaperBench公开发布的全部23篇论文作为我们的PaperBench语料库，不做任何排除：每篇论文都满足我们要求的三个属性：
 (1)~在顶级ML会议上通过同行评审（ICML 2024 Spotlight/Oral，另有两篇NeurIPS 2024工作坊发展论文），并公开提供PDF；
 (2)~涵盖多样化的ML子领域，以测试跨学科的广度；
 (3)~附带具有细粒度叶子需求的PaperBench评分标准，能够定量评估复现保真度。
-我们补充了来自RE-Bench~\citep{wijk2025rebench}的7个开放式研发任务，共产生30个评估目标，总计450个问题。
+我们补充了来自RE-Bench [@wijk2025rebench]的7个开放式研发任务，共产生30个评估目标，总计450个问题。
 
 #### 论文列表。
 
@@ -1125,7 +1125,7 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 
 ## 任务选择 {#app:extension-tasks}
 
-在7个RE-Bench~\citep{wijk2025rebench}任务中，我们在扩展评估中使用5个。表~\ref{tab:extension-task-card}列出了分数公式、方向、任务启动基线、RE-Bench参考分数、硬件需求以及每个任务的METR MALT语料库的模型覆盖范围。
+在7个RE-Bench [@wijk2025rebench]任务中，我们在扩展评估中使用5个。表~\ref{tab:extension-task-card}列出了分数公式、方向、任务启动基线、RE-Bench参考分数、硬件需求以及每个任务的METR MALT语料库的模型覆盖范围。
 \end{markdown}
 
 \begin{table*}[h]
@@ -1171,7 +1171,7 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 
 ## 测试框架工程 {#app:extension-harness}
 
-扩展测试框架将Claude Agent SDK~\citep{claudecodesdk2025}包装在一个SLURM启动的单智能体循环中，工具界面为$\{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\}$。网络访问（`WebFetch`, `WebSearch`）和在批处理模式下实际暂停会话的SDK内置功能（`ScheduleWakeup`, `EnterPlanMode`, `EnterWorktree`）被禁用。除了`reference/`外，智能体的工作目录在两个臂之间是相同的。
+扩展测试框架将Claude Agent SDK [@claudecodesdk2025]包装在一个SLURM启动的单智能体循环中，工具界面为$\{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\}$。网络访问（`WebFetch`, `WebSearch`）和在批处理模式下实际暂停会话的SDK内置功能（`ScheduleWakeup`, `EnterPlanMode`, `EnterWorktree`）被禁用。除了`reference/`外，智能体的工作目录在两个臂之间是相同的。
 
 需要三类工程修复来获得稳定的8小时轨迹。表~\ref{tab:harness-fixes}列举了每种观察到的失败模式、根本原因和已发布的修复。
 \end{markdown}
@@ -1423,7 +1423,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 #### 审计器与盲法化。
 
-严谨性审计器是一个智能体技能~\citep{agentskills2025}，按构件调用，仅授予构件目录；清单和源PDF被保留。它解析论断、实验、启发式规则、缺口和探索树节点；构建论断--实验、论断--依赖和被拒绝节点映射；在1--5锚点上给六个维度（$D_1$证据相关性，$D_2$可证伪性，$D_3$范围校准，$D_4$论证连贯性，$D_5$探索完整性，$D_6$方法论严谨性）评分；发出带有严重性标签（*critical*, *major*, *minor*, *suggestion*）的发现；并报告总评等级。完整技能规范（提示、锚点、阈值）随补充代码发布。
+严谨性审计器是一个智能体技能 [@agentskills2025]，按构件调用，仅授予构件目录；清单和源PDF被保留。它解析论断、实验、启发式规则、缺口和探索树节点；构建论断--实验、论断--依赖和被拒绝节点映射；在1--5锚点上给六个维度（$D_1$证据相关性，$D_2$可证伪性，$D_3$范围校准，$D_4$论证连贯性，$D_5$探索完整性，$D_6$方法论严谨性）评分；发出带有严重性标签（*critical*, *major*, *minor*, *suggestion*）的发现；并报告总评等级。完整技能规范（提示、锚点、阈值）随补充代码发布。
 
 #### 匹配与检出率。
 
