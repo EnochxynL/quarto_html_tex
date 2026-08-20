@@ -1,0 +1,42 @@
+/* 单源论文网页样式 */
+.header-panel {
+  background: #EEF3F9;
+  border-radius: 8px;
+  padding: 22px 24px;
+  margin-bottom: 2em;
+}
+.header-panel .hp-title {
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.header-panel .hp-subtitle {
+  color: #555;
+  margin: 0.4em 0 1em;
+}
+.header-panel .hp-authors {
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 0.4em;
+}
+.header-panel .hp-affiliations {
+  font-size: 0.85em;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 1.2em;
+}
+.header-panel .hp-abstract {
+  line-height: 1.7;
+  margin-bottom: 1em;
+}
+.header-panel .hp-footer {
+  font-size: 0.9em;
+  border-top: 1px solid #d6e0ee;
+  padding-top: 0.8em;
+}
+
+/* Ara 小写大写（正文里由短代码生成 <span class="ara">） */
+.ara {
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
+}

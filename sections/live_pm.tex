@@ -1,5 +1,5 @@
 \section{实时研究管理器}
-\label{sec:live-pm}
+\label{sec-live-pm}
 
 前一节定义了 \ara{} 协议：一种结构化的研究知识目标格式。
 一个自然的问题随之而来：\emph{谁来填充它？}
@@ -7,17 +7,17 @@
 
 关键观察是，在 AI 原生研究中，完整的研究轨迹——每一次设计选择、每一次失败实验、每一条来之不易的启发式规则——已经作为机器可读的文本存在于研究者与智能体之间的对话中。
 实时研究管理器将这些潜在信号结晶化为一个活态的 \ara{} 构件，该构件在后台有机地累积，对研究者而言零文档开销。\footnote{\url{github.com/AmberLJC/Agent-Native-Research-Artifact}}
-我们从 AI 原生范式中推导出设计原则（\S\ref{sec:design-principles}），并给出实现这些原则的系统（\S\ref{sec:lrm-design}；图~\ref{fig:lrm-overview}）。
+我们从 AI 原生范式中推导出设计原则（\S\ref{sec-design-principles}），并给出实现这些原则的系统（\S\ref{sec-lrm-design}；图~\ref{fig-lrm-overview}）。
 
 \begin{figure}[t!]
 \centering
 \includegraphics[width=\linewidth]{figures/fig_lrm_lifecycle_v5_attempt2.png}
 \caption{实时研究管理器在会话边界处运行：一个三阶段流水线（上下文采集器 $\to$ 事件路由器 $\to$ 成熟度追踪器）将每次研究者--智能体会话提炼为类型化事件，并随时间推移在各 \ara{} 层级中累积。}
-\label{fig:lrm-overview}
+\label{fig-lrm-overview}
 \end{figure}
 
 \subsection{设计原则}
-\label{sec:design-principles}
+\label{sec-design-principles}
 
 \paragraph{AI 原生研究。}
 计算机科学研究正日益\emph{AI 原生}化：研究者与通用编码智能体在整个研究生命周期中协作。
@@ -36,17 +36,17 @@ AI 原生研究消解了这一障碍：过程轨迹不是额外的交付物，�
     \item \textbf{忠实的知识溯源}：每个事件均标注来源（\texttt{user}、\texttt{ai-suggested}、\texttt{ai-executed}、\texttt{user-revised}），以保留认识论起源。原始观察先被暂存而非强行归类，随着证据累积逐步成熟为类型化事件，从而下游消费者不仅能重建\emph{得出了什么结论}，还能重建\emph{为何得出此结论}。
     \item \textbf{全面的轨迹捕获}：完整的分支研究过程，包括死胡同和转向，均被记录，并在捕获时建立跨层绑定。构件受版本控制，因此每个里程碑产生一个可导航的快照，而回溯性修订是一等操作，而非破坏性覆写。
 \end{enumerate}
-\noindent 每条原则的完整理由见附录~\ref{app:lrm-principles}。
+\noindent 每条原则的完整理由见附录~\ref{sec-lrm-principles}。
 
 \subsection{系统设计}
-\label{sec:lrm-design}
+\label{sec-lrm-design}
 
 \paragraph{概述。}
 我们将实时研究管理器实现为一个\emph{智能体技能}~\cite{agentskills2025}：一份轻量级的自然语言规约，当加载到通用编码智能体的上下文窗口中时，将其转变为一个领域专用的智能体（\textbf{P1}）。
 一个技能不需要自定义 SDK 或基础设施；它简单地将智能体已具备的工具（文件读取、写入、编辑、shell 执行）与 \ara{} 模式的领域知识进行组合，且构件质量会随底层语言模型的进步而自动提升。
 该技能是开源的，详见 \url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}。
 
-管理器在活跃研究期间保持静默，然后在每次对话结束时运行一个三阶段回溯流水线（\textbf{P1}；图~\ref{fig:lrm-overview}）。
+管理器在活跃研究期间保持静默，然后在每次对话结束时运行一个三阶段回溯流水线（\textbf{P1}；图~\ref{fig-lrm-overview}）。
 \textbf{上下文采集器}扫描会话记录——对话历史、工具输出、实验结果和代码差异——以提取具有研究意义的事件。
 \textbf{事件路由器}对每个事件进行分类，标注来源，并将其写入相应的 \ara{} 层级。
 \textbf{成熟度追踪器}审查暂存区，将已积累足够证据的观察提升为正式条目，并标记过时或冲突项。
@@ -55,9 +55,9 @@ AI 原生研究消解了这一障碍：过程轨迹不是额外的交付物，�
 
 \paragraph{上下文采集与事件路由。}
 上下文采集器扫描完整的会话记录，识别两类具有研究意义的活动：AI 智能体已执行的操作（如实验运行、代码变更、文献搜索）以及研究者已表达或确认的方向（如待测试的假设、设计选择、被放弃的方案）。
-事件路由器随后将每个提取出的事件归入七种类型之一（表~\ref{tab:event-types}），并标注来源（\textbf{P2}）——\texttt{user}、\texttt{ai-suggested}、\texttt{ai-executed} 或 \texttt{user-revised}。
+事件路由器随后将每个提取出的事件归入七种类型之一（表~\ref{tbl-event-types}），并标注来源（\textbf{P2}）——\texttt{user}、\texttt{ai-suggested}、\texttt{ai-executed} 或 \texttt{user-revised}。
 一个 \texttt{ai-suggested} 事件在研究者显式确认之前绝不自升级，从而保持构件的知识完整性。
-事件载荷遵循协议的事实密度要求（\S\ref{sec:philosophy}）：对话散文在提交到构件之前被提炼为电报式的、量化的语言。
+事件载荷遵循协议的事实密度要求（\S\ref{sec-philosophy}）：对话散文在提交到构件之前被提炼为电报式的、量化的语言。
 每个类型化事件被写入相应的 \ara{} 层级：轨迹事件（决策、实验、死胡同、转向）追加到探索图谱（\texttt{/trace/}），构建一条忠实的、按时序排列的研究轨迹记录，包括那些被尝试和放弃的方向（\textbf{P3}）；论断和启发式规则进入认知层（\texttt{/logic/}）；而难以归类的事件则暂存于 \texttt{/staging/} 中，等待后续提升。
 
 \begin{table*}[!t]
@@ -78,7 +78,7 @@ AI 原生研究消解了这一障碍：过程轨迹不是额外的交付物，�
 \bottomrule
 \end{tabular}
 \caption{研究事件类型及其结构化载荷。}
-\label{tab:event-types}
+\label{tbl-event-types}
 \vspace{-4pt}
 \end{table*}
 
@@ -88,9 +88,9 @@ AI 原生研究消解了这一障碍：过程轨迹不是额外的交付物，�
 \emph{周期性地}，当达到一个重大里程碑——假设被证实或证伪、工作原型完成、关键设计选择最终确定——成熟度追踪器将累积的观察\emph{结晶化}为构件中更结构化的层级。
 原始观察成熟为认知层（\texttt{/logic/}）中的正式论断，工作代码被记录到物理层（\texttt{/src/}），概念被添加到知识索引中。
 这种两阶段节奏反映了研究理解实际发展的方式：洞察始于零散的观察，而强制过早的结构化会扭曲记录。
-管理器将尚不可归类的内容暂存起来，仅当会话记录中的\emph{闭合信号}——话题放弃、研究者显式确认、关联实验的经验性解决，或构件级别的提交——表明该观察已被视为确定时，才进行结晶化（附录~\ref{app:lrm-maturity}）。
+管理器将尚不可归类的内容暂存起来，仅当会话记录中的\emph{闭合信号}——话题放弃、研究者显式确认、关联实验的经验性解决，或构件级别的提交——表明该观察已被视为确定时，才进行结晶化（附录~\ref{sec-lrm-maturity}）。
 当某个转向使先前的设计选择失效时，管理器会传播该变更：更新受影响构件条目（论断、启发式规则或配置）以反映新的方向，而探索图谱保留原始理由和修订原因。
 由于构件受版本控制，每次里程碑结晶化都会产生一次提交，使项目拥有其智力演进的可导航历史，正如 GitHub 为代码所做的那样。
 
 \paragraph{跨会话连续性。}
-管理器是无状态的；构件本身承载了跨会话的记忆。在会话结束时，它写入一份简短的会话记录（已捕获的事件、涉及到的论断、开放议题），并追加到运行中的会话索引中。下一次会话读取该索引以及当前的论断和暂存的观察，仅在与当前任务相关时才调出相应内容，而非以研究者并未要求的正式简报打头阵（附录~\ref{app:lrm-continuity}）。
+管理器是无状态的；构件本身承载了跨会话的记忆。在会话结束时，它写入一份简短的会话记录（已捕获的事件、涉及到的论断、开放议题），并追加到运行中的会话索引中。下一次会话读取该索引以及当前的论断和暂存的观察，仅在与当前任务相关时才调出相应内容，而非以研究者并未要求的正式简报打头阵（附录~\ref{sec-lrm-continuity}）。

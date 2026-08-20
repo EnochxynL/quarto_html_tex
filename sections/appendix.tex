@@ -3,24 +3,24 @@
 % ============================================================
 
 \section{ARA 协议与设计原理}
-\label{app:protocol-details}
+\label{sec-protocol-details}
 
 本附录汇集了\ara{}格式的完整协议规范、设计原理和验证细节。
 
 % ------------------------------------------------------------
 \subsection{复现关键信息分类体系}
-\label{app:taxonomy}
+\label{sec-taxonomy}
 
 为了理解智能体复现一篇论文\emph{需要什么}信息——以及PDF在哪些方面存在不足——我们分析了PaperBench~\citep{starace2025paperbench}中由专家编写的评分标准。PaperBench是一个评估AI智能体完整论文复现能力的基准测试。
 每个评分标准将一篇论文分解为原子性的\emph{叶子需求}：即可独立验证的条件，这些条件的集合构成一次忠实的复现。
-\textbf{范围说明。}以下分类体系源自一个经过深度标注的5篇论文子集（3{,}050个叶子节点），选择该子集是为了在细粒度类别标注的可操作性方面取得平衡；\S\ref{sec:eval-understanding}和附录~\ref{app:gap-types}中报告的较粗粒度的按任务类别和缺口类型分布的频率，则在完整的23篇论文语料库（8{,}921个需求）上得到验证。该子集涵盖多个不同领域——黑盒LLM适应（BBox）、机制可解释性、持续RL（自组合策略）、物理信息神经网络（PINN）以及基于基础模型的RL（FRE）。
+\textbf{范围说明。}以下分类体系源自一个经过深度标注的5篇论文子集（3{,}050个叶子节点），选择该子集是为了在细粒度类别标注的可操作性方面取得平衡；\S\ref{sec-eval-understanding}和附录~\ref{sec-gap-types}中报告的较粗粒度的按任务类别和缺口类型分布的频率，则在完整的23篇论文语料库（8{,}921个需求）上得到验证。该子集涵盖多个不同领域——黑盒LLM适应（BBox）、机制可解释性、持续RL（自组合策略）、物理信息神经网络（PINN）以及基于基础模型的RL（FRE）。
 
 通过将每个叶子节点归类到一个信息类型分类体系中，我们揭示了复现所需知识的\emph{多样性}，以及当这些知识散落于叙事性PDF中而非组织在结构化构件中时所产生的具体失败模式。
 
 \subsubsection{信息类别}
 
 我们识别出十类复现关键信息。
-表~\ref{tab:taxonomy}总结了各类别及其在分析评分标准中的频率分布。
+表~\ref{tbl-taxonomy}总结了各类别及其在分析评分标准中的频率分布。
 
 \begin{table*}[h]
 \centering
@@ -42,7 +42,7 @@
 \bottomrule
 \end{tabular}
 \caption{PaperBench评分标准中的复现关键信息分类体系。频率基于5篇论文的3{,}050个叶子需求计算得出。"PDF中的困难"列描述了从叙事型PDF中提取此类信息的主要挑战。"\ara{} 层"列指出了直接处理每个类别的\ara{}组件。}
-\label{tab:taxonomy}
+\label{tbl-taxonomy}
 \end{table*}
 
 下面我们定义每个类别，给出从PaperBench评分标准中抽取的具体示例，并解释\ara{}的结构如何应对底层的检索挑战。
@@ -220,7 +220,7 @@ PaperBench评分标准中所有权重为2的需求都属于"结果解读"类别�
 
 % ------------------------------------------------------------
 \subsection{物理层模式：内核 vs 仓库}
-\label{app:src-modes}
+\label{sec-src-modes}
 
 物理层（\texttt{/src}）采用两种模式之一，在\texttt{PAPER.md}前言部分声明（\texttt{src\_mode: kernel\,$|$\,repo}），以便消费的智能体立即调整其策略。
 这两种模式覆盖了经验性计算机科学中的主要贡献类型，即可执行代码作为自然的物理表示的情形。
@@ -240,10 +240,10 @@ PaperBench评分标准中所有权重为2的需求都属于"结果解读"类别�
 
 % ------------------------------------------------------------
 \subsection{ARA 示例：本文论文的自身构件}
-\label{app:schema}
+\label{sec-schema}
 
 本文论文本身即作为一个\ara{}构件进行维护。
-仓库根目录下的\texttt{ara/}目录包含了在研究过程中逐步填充的动态认知层、物理层和探索层（见\S\ref{sec:live-pm}）。
+仓库根目录下的\texttt{ara/}目录包含了在研究过程中逐步填充的动态认知层、物理层和探索层（见\S\ref{sec-live-pm}）。
 我们在下面复现了每个关键文件的摘录，以便读者对格式有一个具体的了解。
 所有条目都是真实的；仅出于篇幅考虑省略了尾部项目。
 
@@ -600,15 +600,15 @@ sessions:
 % ============================================================
 
 \section{编译器技能详情}
-\label{app:system-details}
+\label{sec-system-details}
 
-\ara{} 编译器（\S\ref{sec:ingestor}）被实现为一个\emph{智能体技能}：一个自包含的自然语言规范，当加载到任何通用编码智能体的上下文中时，将其转变为领域专用的编译系统。
+\ara{} 编译器（\S\ref{sec-ingestor}）被实现为一个\emph{智能体技能}：一个自包含的自然语言规范，当加载到任何通用编码智能体的上下文中时，将其转变为领域专用的编译系统。
 该技能规定了智能体\emph{应该做什么}以及\emph{需要什么领域知识}，但将所有执行机制（模型选择、工具调度、上下文管理）委托给宿主智能体。
 本附录复现了该技能规范的关键元素；完整定义可在补充代码中获取。\footnote{完整实现：\url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}。}
 
 % ------------------------------------------------------------
 \subsection{编译器技能规范}
-\label{app:ingestor-prompt}
+\label{sec-ingestor-prompt}
 
 编译器技能规范（约482行自然语言）分为五个部分。当加载到宿主智能体的上下文中时，它提供生成符合模式的\ara{}所需的全部领域知识。我们在下面复现了代表性元素；完整规范可在补充代码中获取。
 
@@ -694,16 +694,16 @@ for /trace:
 % ============================================================
 
 \section{实时研究管理器详情}
-\label{app:lrm-details}
+\label{sec-lrm-details}
 
-实时研究管理器（\S\ref{sec:live-pm}）是\ara{}系统中的第二个智能体技能。
+实时研究管理器（\S\ref{sec-live-pm}）是\ara{}系统中的第二个智能体技能。
 与编译器一样，它是一个自包含的自然语言规范，将通用编码智能体转变为领域专用系统；但与编译器不同，它持续地与研究者一起运行，而不是一次性编译。
-本附录详细阐述了\S\ref{sec:live-pm}中总结的设计原则、跨会话机制和提交工作流。
+本附录详细阐述了\S\ref{sec-live-pm}中总结的设计原则、跨会话机制和提交工作流。
 
 \subsection{设计原则原理}
-\label{app:lrm-principles}
+\label{sec-lrm-principles}
 
-\S\ref{sec:design-principles}中陈述的三条设计原则在下面进行了扩展并提供完整动机。
+\S\ref{sec-design-principles}中陈述的三条设计原则在下面进行了扩展并提供完整动机。
 
 \begin{description}[leftmargin=1.5em, itemsep=4pt, topsep=2pt]
     \item[P1. 静默、与框架无关的集成。]
@@ -727,7 +727,7 @@ for /trace:
 \end{description}
 
 \subsection{闭合驱动的结晶化}
-\label{app:lrm-maturity}
+\label{sec-lrm-maturity}
 
 原则P2要求观察结果"随着证据积累"而成熟，但\emph{证据积累}需要一个可操作的定义。
 基于计数的阈值（引用$N$次后提升）是任意的；单独询问一个LM"这成熟了吗？"缺乏依据。
@@ -747,7 +747,7 @@ for /trace:
 两个条目都被标记，矛盾作为一个具有未解决状态的\texttt{decision}节点追加到探索图谱中，解决推迟到下一次简报，由研究者明确裁定。
 
 \subsection{跨会话连续性}
-\label{app:lrm-continuity}
+\label{sec-lrm-continuity}
 
 无状态的编码智能体没有先前对话的记忆。
 如果管理器仅在每个会话边界读取构件，它知道构件\emph{包含什么}，但不知道它\emph{为什么}这样组织——哪些分类选择是非显而易见的，哪些观察是被有意识推迟的，哪些模式指导了过去的合并和提升。
@@ -763,10 +763,10 @@ for /trace:
 % ============================================================
 
 \section{测试语料库}
-\label{app:eval-details}
-\label{app:eval-corpus}
+\label{sec-eval-details}
+\label{sec-eval-corpus}
 
-本节定义了理解（附录~\ref{app:understanding-eval}）和复现（附录~\ref{app:reproduction-eval}）实验所使用的测试语料库。扩展实验（附录~\ref{app:extension-eval}）使用的RE-Bench任务在附录~\ref{app:extension-tasks}中单独记录。
+本节定义了理解（附录~\ref{sec-understanding-eval}）和复现（附录~\ref{sec-reproduction-eval}）实验所使用的测试语料库。扩展实验（附录~\ref{sec-extension-eval}）使用的RE-Bench任务在附录~\ref{sec-extension-tasks}中单独记录。
 
 \paragraph{筛选标准。}
 我们从PaperBench~\citep{starace2025paperbench}中提取评估语料库，该基准为ICML 2024论文提供了专家编写的层次化复现评分标准。
@@ -777,7 +777,7 @@ for /trace:
 我们补充了来自RE-Bench~\citep{wijk2025rebench}的7个开放式研发任务，共产生30个评估目标，总计450个问题。
 
 \paragraph{论文列表。}
-表~\ref{tab:corpus}列出了理解和复现评估中使用的23篇PaperBench论文。请注意，PaperBench自身的协议禁止使用作者代码；我们在基线中放宽了这一点，使之拥有最强的立足点（PDF~+~配套GitHub仓库），使得"仓库可用性"成为我们实验框架的属性而非PaperBench的属性。在23篇论文中，15篇纳入复现实验；其余8篇被排除，因为忠实的端到端复现超出了我们每个任务的计算预算，或者需要不在我们评估框架范围内的专门基础设施（例如多天CLIP对抗微调、Isaac Gym RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。这8篇论文仅参与理解评估。
+表~\ref{tbl-corpus}列出了理解和复现评估中使用的23篇PaperBench论文。请注意，PaperBench自身的协议禁止使用作者代码；我们在基线中放宽了这一点，使之拥有最强的立足点（PDF~+~配套GitHub仓库），使得"仓库可用性"成为我们实验框架的属性而非PaperBench的属性。在23篇论文中，15篇纳入复现实验；其余8篇被排除，因为忠实的端到端复现超出了我们每个任务的计算预算，或者需要不在我们评估框架范围内的专门基础设施（例如多天CLIP对抗微调、Isaac Gym RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。这8篇论文仅参与理解评估。
 
 \begin{table}[h]
 \centering
@@ -814,7 +814,7 @@ what-will-my-model-forget & Continual learning & No  \\
 \bottomrule
 \end{tabular}
 \caption{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。"复现"列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
-\label{tab:corpus}
+\label{tbl-corpus}
 \end{table}
 
 \paragraph{语料库多样性。}
@@ -827,13 +827,13 @@ what-will-my-model-forget & Continual learning & No  \\
 % ============================================================
 
 \section{理解评估}
-\label{app:understanding-eval}
+\label{sec-understanding-eval}
 
-本节报告理解实验（\S\ref{sec:eval-understanding}）的方法学和各层级结果。共享测试语料库见附录~\ref{app:eval-corpus}。
+本节报告理解实验（\S\ref{sec-eval-understanding}）的方法学和各层级结果。共享测试语料库见附录~\ref{sec-eval-corpus}。
 
 % ------------------------------------------------------------
 \subsection{题库与评分标准}
-\label{app:question-bank}
+\label{sec-question-bank}
 
 \paragraph{问题生成。}
 对于30个评估目标中的每一个（23篇PaperBench论文，7个RE-Bench任务），我们生成15个问题，分为三个类别：10个类别A（保真度：信息保留），5个类别B（配置和细节恢复）用于PaperBench论文，或5个类别C（失败和探索知识）用于RE-Bench任务。
@@ -875,13 +875,13 @@ what-will-my-model-forget & Continual learning & No  \\
 
 % ------------------------------------------------------------
 \subsection{信息缺口类型分布}
-\label{app:gap-types}
+\label{sec-gap-types}
 
 \paragraph{方法论。}
 PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复现论文结果必须满足的需求。对于23篇论文中8{,}921个叶子需求中的每一个，我们将需求与源PDF进行比较，并标记为\emph{充分}（PDF文本完全指定了所需内容）、\emph{部分}（部分组件已指定但缺少关键细节）或\emph{缺失}（PDF未涉及该需求）；每个标记附有标注者置信度评级（高/中/低）。当标签为部分或缺失时，我们还为需求附加一个缺口类型类别（缺失超参数、描述模糊、仅交叉引用等）。标记由每个（需求，PDF摘录）对的LLM作为评判员运行产生，评判员必须引用支持其决定的PDF段落；标题中的45.4\%充分数字由64\%的高置信度子集主导（完整流水线在\texttt{code/eval/pdf\_information\_gap.py}中）。
 
 \paragraph{按类别覆盖率。}
-表~\ref{tab:info-gap}将8{,}921个需求按PaperBench任务类别划分。中位数论文显示45.3\%充分和47.9\%部分，证实了这一缺口是系统性的而非由异常值驱动。
+表~\ref{tbl-info-gap}将8{,}921个需求按PaperBench任务类别划分。中位数论文显示45.3\%充分和47.9\%部分，证实了这一缺口是系统性的而非由异常值驱动。
 
 \begin{table}[h]
 \centering
@@ -899,11 +899,11 @@ Result Analysis        &   624 & 60.6\% & 36.9\% & 2.6\% \\
 \bottomrule
 \end{tabular}
 \caption{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
-\label{tab:info-gap}
+\label{tbl-info-gap}
 \end{table}
 
 \paragraph{缺口类型细分。}
-表~\ref{tab:gap-types}将8,921个复现需求按缺口类型细分。
+表~\ref{tbl-gap-types}将8,921个复现需求按缺口类型细分。
 三个最大类别——缺失超参数（26.2\%）、描述模糊（21.9\%）和仅交叉引用规范（13.4\%）——占所有缺口的60\%以上，且恰恰是结构化格式在设计上有意处理的信息类型。
 在细粒度层面，数据集获取仅达到5.4\%的充分覆盖率（25.5\%完全缺失）——语料库中没有一篇论文一致地提供了下载URL、预处理脚本或数据格式规范。
 评估、指标与基准测试为30.0\%：论文通常声明了使用\emph{哪些}指标，但未说明\emph{如何}计算它们（分箱策略、置信区间、统计检验）。
@@ -927,18 +927,18 @@ Implicit assumption        &   150 &  1.5\% \\
 \bottomrule
 \end{tabular}
 \caption{8,921个需求中信息缺口类型的分布。三个最大类别——缺失超参数、描述模糊和交叉引用——恰恰是结构化格式在设计上处理的缺口。}
-\label{tab:gap-types}
+\label{tbl-gap-types}
 \end{table}
 
 % ------------------------------------------------------------
 \subsection{探索成本详细分解}
-\label{app:exploration-tax}
+\label{sec-exploration-tax}
 
 \paragraph{这是什么度量（以及不是什么）。}
 在METR MALT语料库的24{,}008次智能体运行（21个前沿模型，228个任务）中，59.2\%的token和90.2\%的美元成本（总计\$63{,}483）花在了未达到任务参考分数的运行上。这不是浪费的研究努力：这些运行绘制了死胡同地图，排除了替代方案，缩小了下一个智能体应考虑的策略空间。成本只有在下游变得\emph{浪费}，当下一个智能体无法访问该探索记录而必须从头重新发现相同的死胡同时。因此，我们报告的探索税是如果失败记录未被传播时每个智能体的重新发现成本，而非任何单次运行的属性。
 
 \paragraph{分解。}
-表~\ref{tab:exploration-tax}给出了每次运行的分解。低于参考线的平均token成本是达到参考线运行成本的8.6倍（每次运行2.58M vs.\ 300K个token），中位数为113倍。在未达到参考线的59.2\%的token中，44.8\%花在了没有产生可度量改进的运行中，14.4\%花在了重新推导其他智能体已经产生的解决方案上。该模式集中在类似研究工作发生的地方：RE-Bench任务（最开放式的）在73.4\%的情况下低于参考线结束，而中等难度的HCAST任务为47.0\%，定义良好的SWAA任务为0.7\%。在每任务级别，简单任务在85.4\%的情况下达到参考线，中等难度为30.7\%，困难仅为15.1\%。
+表~\ref{tbl-exploration-tax}给出了每次运行的分解。低于参考线的平均token成本是达到参考线运行成本的8.6倍（每次运行2.58M vs.\ 300K个token），中位数为113倍。在未达到参考线的59.2\%的token中，44.8\%花在了没有产生可度量改进的运行中，14.4\%花在了重新推导其他智能体已经产生的解决方案上。该模式集中在类似研究工作发生的地方：RE-Bench任务（最开放式的）在73.4\%的情况下低于参考线结束，而中等难度的HCAST任务为47.0\%，定义良好的SWAA任务为0.7\%。在每任务级别，简单任务在85.4\%的情况下达到参考线，中等难度为30.7\%，困难仅为15.1\%。
 
 \begin{table}[h]
 \centering
@@ -956,14 +956,14 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 \bottomrule
 \end{tabular}
 \caption{24{,}008次智能体运行（21个前沿模型，228个任务）中低于参考线的探索成本。探索本身是必要的研究工作；成本只有在后续智能体因失败记录未被保留在已发布构件中而必须重新承担时才会变成浪费。}
-\label{tab:exploration-tax}
+\label{tbl-exploration-tax}
 \end{table}
 
 % ------------------------------------------------------------
 \subsection{按类别结果分析}
-\label{app:understanding-per-category}
+\label{sec-understanding-per-category}
 
-本小节将\S\ref{sec:eval-understanding}和表~\ref{tab:understanding}中总结的三个按类别结果解包为产生每个收益的具体结构机制。
+本小节将\S\ref{sec-eval-understanding}和表~\ref{tbl-understanding}中总结的三个按类别结果解包为产生每个收益的具体结构机制。
 
 \paragraph{类别A：通过渐进式信息披露以更低成本实现保真度。}
 \ara{}以高保真度保留了PDF可恢复的信息，同时检索所需的token更少。
@@ -973,7 +973,7 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 核心发现是，结构化组织在保持token使用量相当的同时提高了准确性，因为\ara{}的层分类体系将线性搜索转化为索引查找。
 
 \paragraph{类别B：通过集中式配置实现配置恢复。}
-与评分标准对齐的问题探查细粒度的实验细节（超参数值、环境规范、预处理步骤），这些是PaperBench评分标准要求但论文系统性省略的内容（所有缺口中26.2\%是缺失超参数；见附录~\ref{app:gap-types}）。
+与评分标准对齐的问题探查细粒度的实验细节（超参数值、环境规范、预处理步骤），这些是PaperBench评分标准要求但论文系统性省略的内容（所有缺口中26.2\%是缺失超参数；见附录~\ref{sec-gap-types}）。
 基线的67.8\%反映了成功的代码仓库挖掘：每个问题有专用的子智能体，它可以grep遍历配套的GitHub仓库来查找许多配置值。
 然而，\ara{}的\texttt{src/configs/}和\texttt{logic/requirements.md}层将这些知识集中到人类可读的文件中，将准确率提升至92.6\%，同时token使用量相当（每个问题183K vs.\ 178K）：智能体读取结构化配置文件，而不是搜索分散的代码库。
 剩下到100\%的差距反映了纸面和仓库中确实都不存在的细节，编译器无法合成这些细节。
@@ -986,7 +986,7 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 
 % ------------------------------------------------------------
 \subsection{统计细节}
-\label{app:understanding-stats}
+\label{sec-understanding-stats}
 
 对450个配对结果的McNemar检验得出$\chi^2 = 95.15$，总体$p < 10^{-10}$：\ara{}正确回答了141个基线遗漏的问题，而基线仅正确回答了18个\ara{}遗漏的问题。
 按类别来看，\ara{}的优势在所有三个类别中均高度显著：类别A（$+14.8\%$），类别B（$+24.8\%$）和类别C（$+65.7\%$，主要由于基线来源中缺乏探索知识）。
@@ -1013,13 +1013,13 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 % ============================================================
 
 \section{复现评估}
-\label{app:reproduction-eval}
+\label{sec-reproduction-eval}
 
-本节报告复现实验（\S\ref{sec:eval-reproduction}）的任务设计、评分和按论文分析。
+本节报告复现实验（\S\ref{sec-eval-reproduction}）的任务设计、评分和按论文分析。
 
 % ------------------------------------------------------------
 \subsection{复现任务设计与评分}
-\label{app:repro-scoring}
+\label{sec-repro-scoring}
 
 \paragraph{任务策划。}
 每个150个复现任务指定一个单一模型、一个单一方法和5--15个评分标准叶子需求作为成功标准，每篇论文按难度分层（$\geq$3个简单，$\geq$3个中等，$\geq$3个困难；总计：50个简单，49个中等，51个困难）。
@@ -1037,19 +1037,19 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 
 % ------------------------------------------------------------
 \subsection{按论文复现分析}
-\label{app:repro-per-paper}
+\label{sec-repro-per-paper}
 
-本节为复现实验（\S\ref{sec:eval-reproduction}）提供详细的按论文分析。
+本节为复现实验（\S\ref{sec-eval-reproduction}）提供详细的按论文分析。
 
 \paragraph{按难度分析。}
-总体的按难度模式（\ara{} 85.1\% vs.\ 基线80.2\%简单，68.5\% vs.\ 62.9\%中等，54.5\% vs.\ 46.0\%困难）在正文图~\ref{fig:repro-difficulty}中可视化。
-图~\ref{fig:repro-difficulty-heatmap}将此总体模式解析到每篇论文层面，表~\ref{tab:repro-per-difficulty}提供了支撑两者的完整按论文、按难度成功率。
+总体的按难度模式（\ara{} 85.1\% vs.\ 基线80.2\%简单，68.5\% vs.\ 62.9\%中等，54.5\% vs.\ 46.0\%困难）在正文图~\ref{fig-repro-difficulty}中可视化。
+图~\ref{fig-repro-difficulty-heatmap}将此总体模式解析到每篇论文层面，表~\ref{tbl-repro-per-difficulty}提供了支撑两者的完整按论文、按难度成功率。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/fig_reproduction_difficulty_heatmap.pdf}
 \caption{每篇论文\ara{}\,$-$\,基线差值（百分点），按各难度层级划分，按平均优势排序。绿色表示\ara{}获胜，红色表示基线获胜。收益集中在大多数论文的中等和困难列；少数基线获胜仅限于少量论文，最突出的是\texttt{self-expansion}和\texttt{ftrl}。}
-\label{fig:repro-difficulty-heatmap}
+\label{fig-repro-difficulty-heatmap}
 \end{figure}
 
 \begin{table*}[h]
@@ -1081,7 +1081,7 @@ test-time-model-adapt.  & 87.8 & 43.5 & 19.8 & 94.4 & 50.0 & 15.9 & 35.1 & 35.0 
 \bottomrule
 \end{tabular}
 \caption{按论文、按难度级别的复现成功率（\%）。简单、中等和困难列显示每个难度层级内的未加权成功率；最后两列显示难度加权比率（$1\!:\!2\!:\!3$权重）。Rice的按难度值是从加权分数和总体比率插值得到的，因为其按难度JSON条目是单独记录的。}
-\label{tab:repro-per-difficulty}
+\label{tbl-repro-per-difficulty}
 \end{table*}
 
 \paragraph{ARA大幅领先的论文。}
@@ -1104,15 +1104,15 @@ ARA优势最大的论文——\texttt{fre}（$+21.3\%$）、\texttt{mechanistic-
 % ============================================================
 
 \section{扩展评估}
-\label{app:extension-eval}
+\label{sec-extension-eval}
 
-本附录记录了\S\ref{sec:eval-extension}背后的方法论：我们使用哪些RE-Bench任务及其原因（附录~\ref{app:extension-tasks}），每个\ara{}如何从官方解决方案和先前的MALT轨迹编译而来（附录~\ref{app:extension-pipeline}），精炼论文臂基线\texttt{paper.md}是如何生成的（附录~\ref{app:extension-paper-baseline}），智能体测试框架的工程实现（附录~\ref{app:extension-harness}），我们如何从智能体轨迹中提取规范分数（附录~\ref{app:extension-scoring}），以及按任务案例研究和轨迹证据（附录~\ref{app:extension-cases}）。
+本附录记录了\S\ref{sec-eval-extension}背后的方法论：我们使用哪些RE-Bench任务及其原因（附录~\ref{sec-extension-tasks}），每个\ara{}如何从官方解决方案和先前的MALT轨迹编译而来（附录~\ref{sec-extension-pipeline}），精炼论文臂基线\texttt{paper.md}是如何生成的（附录~\ref{sec-extension-paper-baseline}），智能体测试框架的工程实现（附录~\ref{sec-extension-harness}），我们如何从智能体轨迹中提取规范分数（附录~\ref{sec-extension-scoring}），以及按任务案例研究和轨迹证据（附录~\ref{sec-extension-cases}）。
 
 % ------------------------------------------------------------
 \subsection{任务选择}
-\label{app:extension-tasks}
+\label{sec-extension-tasks}
 
-在7个RE-Bench~\citep{wijk2025rebench}任务中，我们在扩展评估中使用5个。表~\ref{tab:extension-task-card}列出了分数公式、方向、任务启动基线、RE-Bench参考分数、硬件需求以及每个任务的METR MALT语料库的模型覆盖范围。
+在7个RE-Bench~\citep{wijk2025rebench}任务中，我们在扩展评估中使用5个。表~\ref{tbl-extension-task-card}列出了分数公式、方向、任务启动基线、RE-Bench参考分数、硬件需求以及每个任务的METR MALT语料库的模型覆盖范围。
 
 \begin{table*}[h]
 \centering
@@ -1133,14 +1133,14 @@ ARA优势最大的论文——\texttt{fre}（$+21.3\%$）、\texttt{mechanistic-
 \bottomrule
 \end{tabular}
 \caption{RE-Bench任务卡片及扩展评估状态。\emph{分数公式}逐字转录自\texttt{metr-re-bench/ai\_rd\_<task>/ai\_rd\_<task>.py}；$\ell$表示验证损失，$t$为挂钟时间，$n_\text{solved}$为正确解决问题的数量，$\epsilon_\ell$/$\epsilon_p$为损失/参数预测误差。\emph{方向}：分数取向。\emph{启动}：未修改起始代码库的分数。\emph{参考}：原始RE-Bench评估中报告的最佳分数。\emph{Claude-4 MALT}：METR MALT语料库中Claude-4（Opus + Sonnet）运行的数量，分解为O$\langle$Opus$\rangle$/S$\langle$Sonnet$\rangle$。$^\dagger$ \texttt{rust\_codecontests}还有一个使用相同评分脚手架的10次\texttt{claude-3-7-sonnet}补充运行。$^\ddagger$仅有Claude-3.5/3.7和OpenAI运行。$^\S$未发布MALT语料库。}
-\label{tab:extension-task-card}
+\label{tbl-extension-task-card}
 \end{table*}
 
 底部两个任务被排除，因为它们的MALT语料库无法为实验提供可用的失败轨迹层。\texttt{optimize\_llm\_foundry}完全没有发布的MALT语料库，因此\texttt{trace/}从构造上就是空的。\texttt{small\_scaling\_law}的MALT语料库确实存在但在结构上是不充分的：它早于Claude-4（仅有Claude-3.5/3.7 Sonnet和OpenAI模型），数据稀疏，并且存在的运行主要由简单的参数网格扫描主导，没有记录策略性探索或有名称的死胡同。在这些运行上运行的提取流水线产生实际上为空的\texttt{trace/}和\texttt{evidence/}层，并消除了与纯论文基线的实验对比。我们将这两个任务推迟到后续工作中，后续工作将在Claude-4智能体上重新运行MALT收集（\texttt{optimize\_llm\_foundry}）或在策略空间引发实质性记录探索的任务上进行（\texttt{small\_scaling\_law}）。
 
 % ------------------------------------------------------------
 \subsection{ARA构建流水线}
-\label{app:extension-pipeline}
+\label{sec-extension-pipeline}
 
 每个RE-Bench \ara{}从两个来源编译：官方参考解决方案（逐字复制到\texttt{src/}）和任务的METR MALT转录（在低于参考线筛选下提取到\texttt{trace/}和\texttt{evidence/}）。编译器是任务无关的，具有在每个任务卡片中收集的按任务调节项（分数公式和方向、MALT JSONL路径、开发历史模式、已知危险）；编排器过程和共享子智能体提示存放在\texttt{code/rebench-pipeline/}中。
 
@@ -1152,17 +1152,17 @@ ARA优势最大的论文——\texttt{fre}（$+21.3\%$）、\texttt{mechanistic-
 
 % ------------------------------------------------------------
 \subsection{论文基线构建}
-\label{app:extension-paper-baseline}
+\label{sec-extension-paper-baseline}
 
 论文臂\texttt{reference/paper.md}是实验将\ara{}与之比较的传统构件：一篇由LLM合成的官方解决方案的学术风格写作，每个任务从\ara{}编译器摄入的相同来源中生成一次。合成提示产生一篇已发表方法论文的结构（摘要、问题设定、相关工作、方法、结果、讨论），应用相同的低于参考线筛选，因此两个捆绑包都不包含已完成的超出参考线解决方案。根据设计，\texttt{paper.md}仅保留有效的部分，反映了已发表论文通常报告最终方法而不包含被拒绝的替代方案或记录的死胡同的方式。
 
 % ------------------------------------------------------------
 \subsection{测试框架工程}
-\label{app:extension-harness}
+\label{sec-extension-harness}
 
 扩展测试框架将Claude Agent SDK~\citep{claudecodesdk2025}包装在一个SLURM启动的单智能体循环中，工具界面为$\{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\}$。网络访问（\texttt{WebFetch}, \texttt{WebSearch}）和在批处理模式下实际暂停会话的SDK内置功能（\texttt{ScheduleWakeup}, \texttt{EnterPlanMode}, \texttt{EnterWorktree}）被禁用。除了\texttt{reference/}外，智能体的工作目录在两个臂之间是相同的。
 
-需要三类工程修复来获得稳定的8小时轨迹。表~\ref{tab:harness-fixes}列举了每种观察到的失败模式、根本原因和已发布的修复。
+需要三类工程修复来获得稳定的8小时轨迹。表~\ref{tbl-harness-fixes}列举了每种观察到的失败模式、根本原因和已发布的修复。
 
 \begin{table*}[h]
 \centering
@@ -1189,14 +1189,14 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 \bottomrule
 \end{tabular}
 \caption{扩展评估中遇到的测试框架失败模式及在\texttt{code/extension-harness/harness.py}中发布的修复。根据我们的经验，四个修复对于在全部8小时SLURM分配的五个任务中的任何一个上完整运行而不在预算上限之前放弃智能体会话都是必要的。}
-\label{tab:harness-fixes}
+\label{tbl-harness-fixes}
 \end{table*}
 
 \paragraph{运行资源。}每次运行8小时SLURM挂钟时间和\$50硬API支出上限（由SDK强制执行），在1$\times$H100（\texttt{triton\_cumsum}，\texttt{fix\_embedding}，\texttt{nanogpt\_chat\_rl}），2$\times$H100 80\,GB（\texttt{restricted\_mlm}）或仅CPU（\texttt{rust\_codecontests}）上运行。\texttt{nanogpt\_chat\_rl}评判员在Replicate上运行（Llama-3-8B-Instruct），\texttt{rust\_codecontests}通过OpenAI \texttt{gpt-3.5-turbo-1106}路由生成；两个提供商的token都从智能体环境中清除用于所有其他LLM，以防止跨提供商回退。
 
 % ------------------------------------------------------------
 \subsection{分数事件提取}
-\label{app:extension-scoring}
+\label{sec-extension-scoring}
 
 分数事件仅通过规范评分器的JSON输出从\texttt{trace.jsonl}中提取，从不通过智能体评论或训练内部损失。按任务模式：
 
@@ -1211,28 +1211,28 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 % ------------------------------------------------------------
 \subsection{按任务案例研究}
-\label{app:extension-cases}
-\label{app:extension-trajectories}
+\label{sec-extension-cases}
+\label{sec-extension-trajectories}
 
-第\S\ref{sec:eval-extension}中的每个任务在此以轨迹案例研究的形式展开，以智能体自身的\texttt{trace.jsonl}和\texttt{ThinkingBlock}流为依据，顺序与图~\ref{fig:extension-summary}的列顺序相同。正文组合已显示Sonnet 4.6轨迹；对于\texttt{triton\_cumsum}（图~\ref{fig:extension-triton-45}）和\texttt{restricted\_mlm}（图~\ref{fig:extension-mlm-45}），我们还报告了在较旧的Sonnet 4.5基础上的相同配对比较，以使跨模型版本的对比可见。
+第\S\ref{sec-eval-extension}中的每个任务在此以轨迹案例研究的形式展开，以智能体自身的\texttt{trace.jsonl}和\texttt{ThinkingBlock}流为依据，顺序与图~\ref{fig-extension-summary}的列顺序相同。正文组合已显示Sonnet 4.6轨迹；对于\texttt{triton\_cumsum}（图~\ref{fig-extension-triton-45}）和\texttt{restricted\_mlm}（图~\ref{fig-extension-mlm-45}），我们还报告了在较旧的Sonnet 4.5基础上的相同配对比较，以使跨模型版本的对比可见。
 
 \subsubsection{案例研究：\texttt{triton\_cumsum}（GPU内核优化）}
-\label{sec:eval-extension-triton}
+\label{sec-eval-extension-triton}
 
-任务是为$10^8$个\texttt{int32}元素上的条件前缀和编写一个Triton内核：$Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{j之前有奇数个正数}]$，在H100上按$\log(t_\text{ms})$评分。双方从相同的官方解决方案开始：一个3遍Triton内核（奇偶扫描$\to$条件累加和$\to$块求和累加），具有自动调优的\texttt{BLOCK\_SIZE} / \texttt{NUM\_STAGES}。我们运行了四条轨迹：Claude Sonnet 4.5上的论文臂和\ara{}臂（我们拥有最长配对运行的模型）以及Sonnet 4.6上的（我们在其余评估中使用的模型重新运行）。Sonnet 4.6轨迹在正文图~\ref{fig:extension-summary}（最左列）中；下面的图~\ref{fig:extension-triton-45}显示了Sonnet 4.5配对运行。分析交叉参考了二者的轨迹。
+任务是为$10^8$个\texttt{int32}元素上的条件前缀和编写一个Triton内核：$Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{j之前有奇数个正数}]$，在H100上按$\log(t_\text{ms})$评分。双方从相同的官方解决方案开始：一个3遍Triton内核（奇偶扫描$\to$条件累加和$\to$块求和累加），具有自动调优的\texttt{BLOCK\_SIZE} / \texttt{NUM\_STAGES}。我们运行了四条轨迹：Claude Sonnet 4.5上的论文臂和\ara{}臂（我们拥有最长配对运行的模型）以及Sonnet 4.6上的（我们在其余评估中使用的模型重新运行）。Sonnet 4.6轨迹在正文图~\ref{fig-extension-summary}（最左列）中；下面的图~\ref{fig-extension-triton-45}显示了Sonnet 4.5配对运行。分析交叉参考了二者的轨迹。
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/extension/triton_45_paper_vs_ara.pdf}
-\caption{\texttt{triton\_cumsum}在Sonnet 4.5上：论文 vs.\ \ara{}分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线为原始RE-Bench参考值（0.47），该值是在不同的H100芯片上报告的；测试框架测量的每硬件基线（${\sim}0.64$）是双方的起点。4.6轨迹在正文组合图（图~\ref{fig:extension-summary}，最左列）中。}
-\label{fig:extension-triton-45}
+\caption{\texttt{triton\_cumsum}在Sonnet 4.5上：论文 vs.\ \ara{}分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线为原始RE-Bench参考值（0.47），该值是在不同的H100芯片上报告的；测试框架测量的每硬件基线（${\sim}0.64$）是双方的起点。4.6轨迹在正文组合图（图~\ref{fig-extension-summary}，最左列）中。}
+\label{fig-extension-triton-45}
 \end{figure*}
 
 \paragraph{两个机制沿模型划分。}
 四条轨迹沿模型清晰划分，而非沿智能体划分：两个Sonnet-4.5智能体保持官方内核的算法结构不变，只编辑\texttt{@triton.autotune}配置，而两个Sonnet-4.6智能体发布了真正的新内核设计，取代了3遍参考方案。
 
 \paragraph{Sonnet 4.5：轨迹条件下的自动调优扫描。}
-论文臂智能体用$\texttt{NUM\_STAGES} \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为\emph{"极端流水线——性能最高者"}在内嵌注释中，从未测试$\{4, 8\}$范围。\ara{}臂智能体相反选择了$\texttt{NUM\_STAGES} \in \{4, 8\}$，在$t = 4.3$分钟时在\texttt{ThinkingBlock}中逐字引用了启发式规则H01（\emph{"网格大小对H100固定为128（拥有132个SM）…"}），这是在读取\texttt{evidence/tables/malt\_attempts.md}和\texttt{src/configs/autotune.md}之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生\ara{}智能体在图~\ref{fig:extension-triton-45}中$\sim 0.27$ vs.\ 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
+论文臂智能体用$\texttt{NUM\_STAGES} \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为\emph{"极端流水线——性能最高者"}在内嵌注释中，从未测试$\{4, 8\}$范围。\ara{}臂智能体相反选择了$\texttt{NUM\_STAGES} \in \{4, 8\}$，在$t = 4.3$分钟时在\texttt{ThinkingBlock}中逐字引用了启发式规则H01（\emph{"网格大小对H100固定为128（拥有132个SM）…"}），这是在读取\texttt{evidence/tables/malt\_attempts.md}和\texttt{src/configs/autotune.md}之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生\ara{}智能体在图~\ref{fig-extension-triton-45}中$\sim 0.27$ vs.\ 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
 
 \paragraph{Sonnet 4.6：早期领先，后期论文智能体反超。}
 \ara{}智能体在$t = 11$分钟时首次调用\texttt{bash score.sh}并立即得分0.47，在前十分钟内使用轨迹浮现的思想编辑了内核（\texttt{解耦回看}、\texttt{associative\_scan}）。论文臂智能体直到$t = 37$分钟才评分，得分为0.38，早期挂钟时间花在阅读精炼写作和从第一性原理推理上。\ara{}智能体在迄今最佳方面领先到$t \approx 75$分钟，然后论文臂智能体通过在$t = 47.7$分钟引入的\texttt{int8}输入压缩反超（动机来自于评分器的$[-10, 9]$输入范围适合8位），结合每个块的奇偶追踪聚合，将总内存流量从$\sim$2\,GB降至0.5\,GB；它在剩余的运行中迭代这一设计。\ara{}智能体同时致力于链式扫描加解耦回看的重新设计，并在边界正确性调试上花费了后期计算，受启发式规则H13和轨迹报告的MALT上限所锚定。\texttt{int8}在$t = 40.5$分钟时在\ara{}智能体轨迹中出现过一次，作为一闪而过的想法，从未被实现。
@@ -1241,9 +1241,9 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 \ara{}构件在运行的两个阶段贡献了两件性质不同的东西。早期，它充当初始化器：智能体缩短了诊断阶段，选择了论文臂智能体遗漏的自动调优旋钮，并在几分钟内落地了改进的内核。后期，它充当锚点：智能体依赖于轨迹推荐的设计和轨迹报告的上限，并将计算花在确认锚点而非搜索锚点之外。
 
 \subsubsection{案例研究：\texttt{rust\_codecontests}（LLM作为工具脚手架）}
-\label{sec:eval-extension-rust}
+\label{sec-eval-extension-rust}
 
-任务是编写一个Python脚手架，通过调用\texttt{gpt-3.5-turbo-1106}为165个保留的Codeforces衍生问题生成Rust解决方案；分数是生成方案能编译并通过所有隐藏测试的问题比例。官方参考脚手架（分数0.127 = 21/165）使用每个问题18个候选的流水线，具有思维链提示、编译并公开测试筛选器以及幸存者投票阶段；它附带一个未使用的\texttt{few\_shots/}目录，接入脚手架的提示构建。双方从相同的脚手架开始。我们在Sonnet 4.6上每臂运行了一个种子（rust任务没有Sonnet-4.5配对数据）；轨迹出现在正文图~\ref{fig:extension-summary}（第二列）中。\ara{}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
+任务是编写一个Python脚手架，通过调用\texttt{gpt-3.5-turbo-1106}为165个保留的Codeforces衍生问题生成Rust解决方案；分数是生成方案能编译并通过所有隐藏测试的问题比例。官方参考脚手架（分数0.127 = 21/165）使用每个问题18个候选的流水线，具有思维链提示、编译并公开测试筛选器以及幸存者投票阶段；它附带一个未使用的\texttt{few\_shots/}目录，接入脚手架的提示构建。双方从相同的脚手架开始。我们在Sonnet 4.6上每臂运行了一个种子（rust任务没有Sonnet-4.5配对数据）；轨迹出现在正文图~\ref{fig-extension-summary}（第二列）中。\ara{}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
 
 \paragraph{轨迹将MALT数据点转化为可操作的指导。}
 \ara{}的证据层总结了22次先前的MALT运行，并浮现了一个高价值尝试：\texttt{supplement\_run\_5}（Claude-3.7-Sonnet）通过完全绕过gpt-3.5生成，对识别的题目名返回手动验证的Rust解决方案，分数达到0.097。关键的是$0.097 < 0.127$（任务参考值），因此原始MALT数据点本身说的是"手工编码输了"，而非"手工编码赢了"。启发式规则层将同一点重新表述为两条明确的规则，一条是规定性的，一条是禁止性的：\texttt{H12}（\emph{"在此任务上，手工编码的Rust解决方案库优于提示工程"}）和\texttt{H15}（\emph{"在所有已探索的单次补全变体中，GPT-3.5-turbo Rust生成器上限${\sim}0.05$--$0.10$"}）。H15将提示工程标记为已知死胡同；H12然后将低于参考线的库结果解读为未充分探索的方向而非失败。\ara{}智能体在第一分钟内读取了\texttt{heuristics.md}和MALT尝试表，并在$t = 9.9$分钟时就开始将手工编码的库作为中心策略进行推理；论文臂智能体的\texttt{paper.md}描述了参考脚手架，但不包含关于哪些消融方向是有产出的断言。
@@ -1258,9 +1258,9 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 \ara{}通过将一个低于参考线的单个MALT尝试蒸馏为一条规定性和一条禁止性启发式规则，将本需六小时的探索阶段压缩为一小时的引导。价值在于时机，而非内容：论文臂智能体的后期重新发现证明了模型可以自行找到这一策略；轨迹只是告诉它去哪里找。rust策略也是\emph{开放式的}（每个库条目增加一个已解决的问题），因此轨迹报告的MALT上限被解读为起跑线而非上界，\ara{}智能体攀升超越了这一上限——这是轨迹上限不同于triton上角色的一种情况，在triton上策略是闭式的，相同的上限充当锚点。
 
 \subsubsection{案例研究：\texttt{nanogpt\_chat\_rl}（在1.5B模型上的偏好RL）}
-\label{sec:eval-extension-nanogpt}
+\label{sec-eval-extension-nanogpt}
 
-任务是将GPT-2-XL（1.5B）通过RL微调为一个聊天机器人，在保留的聊天任务上比未调优模型获得更多的配对评判胜利。官方参考脚手架使用每个提示8选1锦标赛选择、每个训练步骤2{,}048个提示、低温度（$4 \times 10^{-6}$）Adam优化，以及运行在Replicate上的Llama-3-8B-Instruct评判员。分数是对\texttt{gpt2-alpaca}和\texttt{gpt2-xl}的平均胜率；智能体基线（未调优模型）得分为0.615，参考脚手架得分为0.85，RE-Bench人类上限为0.97。每个训练步骤消耗约40分钟的评判调用加上约10分钟的GPU训练；完整的8小时预算允许6--10次步骤+评分迭代。我们在Sonnet 4.6上每臂运行了一个种子：论文臂作为父运行加一次手动TIMEOUT恢复恢复；ARA臂作为单次运行。两条轨迹出现在正文图~\ref{fig:extension-summary}（第三列）中。
+任务是将GPT-2-XL（1.5B）通过RL微调为一个聊天机器人，在保留的聊天任务上比未调优模型获得更多的配对评判胜利。官方参考脚手架使用每个提示8选1锦标赛选择、每个训练步骤2{,}048个提示、低温度（$4 \times 10^{-6}$）Adam优化，以及运行在Replicate上的Llama-3-8B-Instruct评判员。分数是对\texttt{gpt2-alpaca}和\texttt{gpt2-xl}的平均胜率；智能体基线（未调优模型）得分为0.615，参考脚手架得分为0.85，RE-Bench人类上限为0.97。每个训练步骤消耗约40分钟的评判调用加上约10分钟的GPU训练；完整的8小时预算允许6--10次步骤+评分迭代。我们在Sonnet 4.6上每臂运行了一个种子：论文臂作为父运行加一次手动TIMEOUT恢复恢复；ARA臂作为单次运行。两条轨迹出现在正文图~\ref{fig-extension-summary}（第三列）中。
 
 \paragraph{早期分叉：重写算法 vs.\ 编排参考方案。}
 决定性的分叉在于\emph{每个智能体认定自己在解决哪个问题}。论文臂智能体在$t = 6.9$分钟时运行第一次评分，观察到0.616的起始分数对比0.85的参考值，并在$t = 7.6$分钟时承诺重写训练算法；到$t = 10.5$分钟时，它在\texttt{rl\_finetune\_v2.py}中有了一个自定义的DPO加SFT目标。\ara{}智能体的第一次评分在$t = 4.5$分钟，并在$t = 6.3$分钟时其\texttt{ThinkingBlock}明确引用了轨迹：\emph{"参考方案（8选1，4步，lr=4e-6，2048提示/步）得分${\sim}0.85$。没有MALT运行达到0.85，最佳为0.8184。来自Replicate的速率限制是绑定约束。激进的学习率导致崩溃。"} 它在$t = 19.8$分钟时的第一个脚本是一个延续框架，运行额外的参考风格步骤并在每次之后回滚到评分最佳的检查点。轨迹将参考配方从纸上的数字转化为具有明确上限的经验论断，而这将智能体的问题从\emph{"我如何编写更好的训练脚本？"}转化为\emph{"我如何更谨慎地运行现有的脚本？"}。
@@ -1275,9 +1275,9 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 在该任务上，轨迹贡献了三样东西：（i）一个经验锚点，将智能体的问题从算法重新设计转化为谨慎执行，将探索缩小到参考范围内的变体；（ii）一个错误修复词汇表，在智能体必须通过调试发现它们之前命名了退化输出过滤器和评分然后重启编排；（iii）一个具有内置延续标准的策略（运行一步，评分，保留最佳，重启，扫描LR变体，重复），使\ara{}智能体在整个预算范围内保持高效迭代，而论文臂智能体在耗尽算法替代方案后，只能通过自行声明的会话终止循环，直到测试框架的推回上限触发。然而，后期策略类是经验性的：轨迹缩小并结构化了扫描，但没有缩短它。
 
 \subsubsection{案例研究：\texttt{fix\_embedding}（恢复被置换的嵌入矩阵）}
-\label{sec:eval-extension-fixembed}
+\label{sec-eval-extension-fixembed}
 
-任务是恢复一个被损坏的GPT-2-XL的置换嵌入矩阵：\texttt{wte.weight}矩阵的50{,}257行被打乱，智能体必须尽可能恢复接近未损坏参考的验证损失性能。官方解决方案是一个3阶段适配器流水线，得分为0.26；RE-Bench人类上限为0.16。双方继承了一个工作目录，其中官方脚手架的训练脚本已经存在。两个臂运行相同的Sonnet 4.6模型、相同的种子、相同的测试框架和相同的GPU；它们之间\emph{唯一的}系统性差异是\texttt{reference/}的内容。轨迹出现在正文图~\ref{fig:extension-summary}（第四列）中；双方首先在$t \approx 4$分钟时测量损坏模型的基线（${\sim}2.20$），然后在第一轮适配器训练后（$t \approx 90$--$130$分钟）降至${\sim}0.4$。
+任务是恢复一个被损坏的GPT-2-XL的置换嵌入矩阵：\texttt{wte.weight}矩阵的50{,}257行被打乱，智能体必须尽可能恢复接近未损坏参考的验证损失性能。官方解决方案是一个3阶段适配器流水线，得分为0.26；RE-Bench人类上限为0.16。双方继承了一个工作目录，其中官方脚手架的训练脚本已经存在。两个臂运行相同的Sonnet 4.6模型、相同的种子、相同的测试框架和相同的GPU；它们之间\emph{唯一的}系统性差异是\texttt{reference/}的内容。轨迹出现在正文图~\ref{fig-extension-summary}（第四列）中；双方首先在$t \approx 4$分钟时测量损坏模型的基线（${\sim}2.20$），然后在第一轮适配器训练后（$t \approx 90$--$130$分钟）降至${\sim}0.4$。
 
 \paragraph{两个捆绑包的数据。}
 论文臂智能体的\texttt{reference/}包含一个134行的\texttt{paper.md}（官方解决方案写作）加三个官方配置文件：共5个文件。该写作在已发布的配方上是完整的（方程中的3阶段架构，每阶段可训练参数集，LR阶梯$10^{-3} \to 10^{-4} \to 8\times 10^{-5}$，二元组路标诊断，人类最佳上限，甚至有一条作者备注称\emph{"阶段C是流水线中验证最少的部分…如果阶段B尚未收敛，可能是不必要的"}）。\ara{}捆绑包为22个文件/5{,}887行，携带相同的算法内容通过10条参考派生的启发式规则（\texttt{H01}--\texttt{H10}），但增加了一个包含19次先前MALT运行的\texttt{exploration\_tree.yaml}、一个282行的每次评分尝试表格，以及\texttt{H11}--\texttt{H22}：从失败中派生的启发式规则，包括\texttt{H11}（\emph{"不要破坏性地替换损坏的wte"}）、\texttt{H13}（\emph{"手工构建的小到大嵌入上转换会崩溃"}）和\texttt{H22}（\emph{"在19次每次4M个token的MALT运行中，没有智能体达到了官方适配器流水线的水平"}）。
@@ -1301,15 +1301,15 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 这个案例是一次清晰的归因：唯一的系统性输入差异是参考内容，而该内容差异本身就是构件格式论断的一个清晰实例（论文保留有效的部分；\ara{}同时保留有效的和失败的部分）。三个下游行为差异每一个都映射到\ara{}捆绑包中存在而\texttt{paper.md}中缺失的特定失败记录元素。
 
 \subsubsection{案例研究：\texttt{restricted\_mlm}（受限掩码语言模型）}
-\label{sec:eval-extension-mlm}
+\label{sec-eval-extension-mlm}
 
-任务是在严格的PyTorch原语约束下设计和训练一个掩码语言模型：不允许\texttt{Conv1d}，不允许\texttt{Softmax}，不允许除法，不允许归一化层。分数为$\log(\ell_\text{val}{-}1.5)$；智能体基线（未训练的受限MLP）得分为1.84，官方解决方案（Tao的\texttt{ConvMLMWithBiBigrams}：二元组先验 + 通过\texttt{as\_strided}+\texttt{einsum}的1D卷积 + 可学习标量组合器）得分为1.13。我们运行了四条轨迹：Sonnet 4.5上的论文臂和ARA臂（种子1）以及Sonnet 4.6上的（种子0）。Sonnet 4.6轨迹出现在正文图~\ref{fig:extension-summary}（最右列）中；下面的图~\ref{fig:extension-mlm-45}显示了Sonnet 4.5配对运行。
+任务是在严格的PyTorch原语约束下设计和训练一个掩码语言模型：不允许\texttt{Conv1d}，不允许\texttt{Softmax}，不允许除法，不允许归一化层。分数为$\log(\ell_\text{val}{-}1.5)$；智能体基线（未训练的受限MLP）得分为1.84，官方解决方案（Tao的\texttt{ConvMLMWithBiBigrams}：二元组先验 + 通过\texttt{as\_strided}+\texttt{einsum}的1D卷积 + 可学习标量组合器）得分为1.13。我们运行了四条轨迹：Sonnet 4.5上的论文臂和ARA臂（种子1）以及Sonnet 4.6上的（种子0）。Sonnet 4.6轨迹出现在正文图~\ref{fig-extension-summary}（最右列）中；下面的图~\ref{fig-extension-mlm-45}显示了Sonnet 4.5配对运行。
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/extension/mlm_45_paper_vs_ara.pdf}
 \caption{\texttt{restricted\_mlm}在Sonnet 4.5上：论文 vs.\ \ara{}分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线标记未训练MLP基线（1.84）和RE-Bench参考值（1.13）。双方在$t = 0$时锚定在1.84基线；\ara{}-4.5的智能体前测试框架基线崩溃（损坏的起始检查点），智能体的第一个存活分数（$t \approx 5$分钟时1.43）反映轨迹推荐的\texttt{ConvMLMWithBiBigrams}架构已被换入（预计算的二元组表在未训练时得分${\sim}1.43$），我们将其锚定在1.84以匹配其他三个臂的实际基线测量值。\ara{}-4.5达到0.73 vs.\ 论文-4.5稳定在1.03——在较弱的基础上约30\%的相对领先。4.6轨迹在正文组合图中。}
-\label{fig:extension-mlm-45}
+\label{fig-extension-mlm-45}
 \end{figure*}
 
 \paragraph{跨模型版本的翻转。}
@@ -1319,7 +1319,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 每次运行的最终\texttt{solution/model.py}包含一个\texttt{BiBigramMLM}类加一个\texttt{ConvMLM*}变体（论文-4.5：\texttt{ConvMLMWithBiBigrams}；\ara{}-4.5：\texttt{ConvMLMComponent}；论文-4.6：\texttt{ConvMLMDilated}；\ara{}-4.6：\texttt{ConvMLMWithReLUAttn}加五个其他变体）。所有四个都使用了二元组先验，来自启发式规则\texttt{H04}的\texttt{as\_strided}+\texttt{einsum}卷积，以及官方Tao配方。论文臂智能体也发现了正确的架构；分叉不在于架构上限。
 
 \paragraph{差异在于是探索广度。}
-四个\texttt{model.py}文件在大小和类数量上差异显著。论文-4.5：9.8\,KB，3个类；\ara{}-4.5：8.9\,KB，3个类；论文-4.6：6.3\,KB，2个类；\ara{}-4.6：47\,KB，6+个类（\texttt{ConvMLMWithReLUAttn}, \texttt{ExtendedBiBigramMLM}, \texttt{ConvMLMWithLinearGlobal}, \texttt{ConvMLMWithGlobalContext}, \texttt{MLPMixerWithBiBigrams}, \texttt{ReLUAttentionMLM}）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及\texttt{ReLU-attention}一次，\texttt{MLPMixer}三次；\ara{}-4.6提及它们247次和73次。正文图~\ref{fig:extension-summary}最右列中的分数回归尖峰是可见的记录：每个朝向1.85或2.5的尖峰是一个新训练的替代架构被评分、发现有问题、被放弃，转而使用保存的最佳ConvMLM检查点。
+四个\texttt{model.py}文件在大小和类数量上差异显著。论文-4.5：9.8\,KB，3个类；\ara{}-4.5：8.9\,KB，3个类；论文-4.6：6.3\,KB，2个类；\ara{}-4.6：47\,KB，6+个类（\texttt{ConvMLMWithReLUAttn}, \texttt{ExtendedBiBigramMLM}, \texttt{ConvMLMWithLinearGlobal}, \texttt{ConvMLMWithGlobalContext}, \texttt{MLPMixerWithBiBigrams}, \texttt{ReLUAttentionMLM}）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及\texttt{ReLU-attention}一次，\texttt{MLPMixer}三次；\ara{}-4.6提及它们247次和73次。正文图~\ref{fig-extension-summary}最右列中的分数回归尖峰是可见的记录：每个朝向1.85或2.5的尖峰是一个新训练的替代架构被评分、发现有问题、被放弃，转而使用保存的最佳ConvMLM检查点。
 
 \paragraph{为什么\ara{}在Sonnet 4.5上获胜。}
 两个4.5智能体最终都调优了相同的ConvMLM家族。\ara{}智能体的\texttt{ThinkingBlock}在$t = 24$分钟时明确承诺（\emph{"这应该足以击败参考分数1.13"}）并排队了40k + 50k延续步骤。在$t = 26$分钟时，它将ReLU注意力搁置为\emph{"如果我想瞄准更高分的备选策略"}——对启发式规则的排序列表解读。拥有单一的主架构和一个经验上限（"没有MALT运行击败1.13"），\ara{}智能体在一个模型上花了约7小时持续微调并达到0.73。论文臂智能体没有等效的"没有先前智能体击败它"信号，没有对单一调优投入可比深度，稳定在1.03。胜利是在共享架构内由深度驱动的。
@@ -1329,7 +1329,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 % ------------------------------------------------------------
 \subsection{可复现性}
-\label{app:extension-repro}
+\label{sec-extension-repro}
 
 所有实验构件和代码存放在项目仓库中：\texttt{code/extension-harness/}包含SLURM启动的测试框架、按任务系统提示和评分脚本以及分析图表生成器；\texttt{code/rebench-pipeline/}包含\ara{}编译流水线（规则、编排器过程和共享子智能体提示）；\texttt{code/artifacts/rebench-<task>/}包含每个任务的完整\ara{}和论文臂智能体的\texttt{paper.md}-加-\texttt{src/}捆绑包。每次运行的\texttt{trace.jsonl}是权威事件日志；本文中的每个分数、成本和图表都可以通过\texttt{code/extension-harness/analysis/}中的分析脚本从中重建。
 
@@ -1338,11 +1338,11 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 % ============================================================
 
 \section{评审系统评估}
-\label{app:review-system}
+\label{sec-review-system}
 
 % ------------------------------------------------------------
 \subsection{ARA认证验证细节}
-\label{app:seal-details}
+\label{sec-seal-details}
 
 \paragraph{认证实现。}
 每个验证级别实现为一个自动化检查器：
@@ -1350,7 +1350,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 \begin{itemize}[leftmargin=*, itemsep=2pt]
     \item \textbf{级别1（结构完整性）}：一个Python脚本验证(a)~必需目录的存在（\texttt{/logic}, \texttt{/src}, \texttt{/trace}, \texttt{/evidence}），(b)~所有必需文件的存在，包括带有有效YAML前言部分的\texttt{PAPER.md}、\texttt{problem.md}、\texttt{claims.md}、\texttt{experiments.md}以及所有\texttt{solution/}文件，(c)~每个结构化文件的模式一致性（例如每个论断必须具有\texttt{Statement}, \texttt{Status}, \texttt{Falsification criteria}和\texttt{Proof}；每个实验必须具有\texttt{Verifies}, \texttt{Setup}, \texttt{Procedure}和\texttt{Expected outcome}；每个启发式规则必须具有\texttt{Rationale}, \texttt{Sensitivity}和\texttt{Bounds}），(d)~最小计数（$\geq 5$个概念，$\geq 3$个实验，$\geq 8$个探索树节点，至少一个\texttt{[dead\_end]}和一个\texttt{[decision]}），以及(e)~跨层引用解析：\texttt{claims.md}的\texttt{Proof}字段中引用的每个实验ID都解析为\texttt{experiments.md}中的一个条目；\texttt{experiments.md}的\texttt{Verifies}字段中引用的每个论断ID都解析为\texttt{claims.md}中的一个条目；\texttt{heuristics.md}中的每个\texttt{code\_ref}指向\texttt{/src}中的一个有效模块；\texttt{architecture.md}中声明的组件具有对应的代码桩；\texttt{exploration\_tree.yaml}中的论断引用解析为有效的论断ID。
     \item \textbf{级别2（论证严谨性）}：在不执行代码或查阅外部来源的情况下，严谨性审计器在六个客观的、锚定在评分标准上的维度上评估构件的内容（证据相关性、可证伪性质量、范围校准、论证连贯性、探索完整性、方法论严谨性），每个维度按1到5分评分。输出是一份严谨性报告，定位到具体的\ara{}组件，包含按严重性排序的发现、逐字证据跨度以及从均值和每个维度下限导出的总评等级。
-    \item \textbf{级别3（执行可复现性）}：一个编码智能体读取\ara{}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec:eval-reproduction}）中使用的是相同的协议。
+    \item \textbf{级别3（执行可复现性）}：一个编码智能体读取\ara{}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec-eval-reproduction}）中使用的是相同的协议。
 \end{itemize}
 
 \paragraph{失败分类。}
@@ -1358,28 +1358,28 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 % ------------------------------------------------------------
 \subsection{ARA认证有效性：评估细节}
-\label{app:seal-eval}
+\label{sec-seal-eval}
 
-本附录包含支撑\S\ref{sec:eval-seal}的方法论和按级别细分。
+本附录包含支撑\S\ref{sec-eval-seal}的方法论和按级别细分。
 
 % -------- Level 1 ----------
 \subsubsection{级别1：编译器收敛数据}
-\label{app:seal-eval-l1}
+\label{sec-seal-eval-l1}
 
 级别1验证结构正确性和完整性；我们通过在\ara{}生成和下游使用期间收集的两个复用信号来报告其有效性。
 
 \paragraph{编译器迭代次数。}
-23个PaperBench \ara{}和7个RE-Bench \ara{}中的每一个都在编译器的生成--验证--修复循环（\S\ref{sec:ingestor}）的$\leq 3$次迭代内收敛到通过级别1。首次迭代通过率为0/30；所有构件需要至少一轮反馈，确认了级别1是一个有意义的过滤器而非橡皮图章。
+23个PaperBench \ara{}和7个RE-Bench \ara{}中的每一个都在编译器的生成--验证--修复循环（\S\ref{sec-ingestor}）的$\leq 3$次迭代内收敛到通过级别1。首次迭代通过率为0/30；所有构件需要至少一轮反馈，确认了级别1是一个有意义的过滤器而非橡皮图章。
 
 \paragraph{失败类别分布。}
-在所有编译器迭代中，级别1失败细分如下：悬空跨层引用（42\%）、论断、实验或启发式规则上的缺失模式字段（31\%）、\texttt{exploration\_tree.yaml}中节点计数不足（14\%）、YAML或前言部分解析错误（8\%）以及缺失必需文件（5\%）。该分布在论文之间是稳定的，并与附录~\ref{app:seal-details}中的失败分类体系相匹配。
+在所有编译器迭代中，级别1失败细分如下：悬空跨层引用（42\%）、论断、实验或启发式规则上的缺失模式字段（31\%）、\texttt{exploration\_tree.yaml}中节点计数不足（14\%）、YAML或前言部分解析错误（8\%）以及缺失必需文件（5\%）。该分布在论文之间是稳定的，并与附录~\ref{sec-seal-details}中的失败分类体系相匹配。
 
 \paragraph{以理解作为生成\ara{}上级别1的证明。}
-理解评估（\S\ref{sec:eval-understanding}，表~\ref{tab:understanding}）是端到端的见证，证明级别1对生成的构件实施了它声称要实施的内容。每个进入该基准的\ara{}都已通过级别1；95.6\%的Cat.~A准确率则表明，经过级别1把关的\ara{}携带了智能体检索源中确实存在的信息所需的结构完整性。一个缺失必需字段或存在悬空跨层引用的构件将无法通过级别1并永远不会进入基准，因此4.4\%的残差受到源信息确实缺失的限制，而非构件的结构缺陷。
+理解评估（\S\ref{sec-eval-understanding}，表~\ref{tbl-understanding}）是端到端的见证，证明级别1对生成的构件实施了它声称要实施的内容。每个进入该基准的\ara{}都已通过级别1；95.6\%的Cat.~A准确率则表明，经过级别1把关的\ara{}携带了智能体检索源中确实存在的信息所需的结构完整性。一个缺失必需字段或存在悬空跨层引用的构件将无法通过级别1并永远不会进入基准，因此4.4\%的残差受到源信息确实缺失的限制，而非构件的结构缺陷。
 
 % -------- Level 2 ----------
 \subsubsection{级别2：变异基准测试}
-\label{app:seal-eval-l2}
+\label{sec-seal-eval-l2}
 
 \paragraph{设置与评估标准。}
 级别2基准测试在\emph{被变异}的\ara{}上对严谨性审计器进行压力测试，因此报告的等级不携带真实值信号；我们严格按审计器是否将注入的缺陷作为发现浮出来评分。语料库为通过级别1的23个PaperBench \ara{}；每个被注入每种类型一个（共115个变异）。所有注入记录在每个论文的\texttt{injection\_manifest.json}中，对审计器不可见。
@@ -1398,7 +1398,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 严谨性审计器是一个智能体技能~\citep{agentskills2025}，按构件调用，仅授予构件目录；清单和源PDF被保留。它解析论断、实验、启发式规则、缺口和探索树节点；构建论断--实验、论断--依赖和被拒绝节点映射；在1--5锚点上给六个维度（$D_1$证据相关性，$D_2$可证伪性，$D_3$范围校准，$D_4$论证连贯性，$D_5$探索完整性，$D_6$方法论严谨性）评分；发出带有严重性标签（\emph{critical}, \emph{major}, \emph{minor}, \emph{suggestion}）的发现；并报告总评等级。完整技能规范（提示、锚点、阈值）随补充代码发布。
 
 \paragraph{匹配与检出率。}
-每个注入通过以下规则匹配至多一个发现：如果(a)其\texttt{target\_entity}等于注入的目标实体，或(b)其\texttt{observation}包含与注入唯一关联的文字标识符（例如孤立的\texttt{C99}，被反驳分支的注入死胡同节点ID），则发现命中。计数命中时忽略严重性和维度分配。按类型检出率（表~\ref{tab:seal-l2-heatmap}）为虚构论断、过度论断和被反驳分支泄露均为23/23；缺失可证伪性为21/23，两次漏检（\texttt{bam} C02，\texttt{bbox} C04）被静默重新归因到相邻维度；孤立实验为5/23——一个系统性盲点，我们将其归因于审计器以论断为中心的遍历方式，从不枚举没有入向\texttt{Verifies}边的实验。
+每个注入通过以下规则匹配至多一个发现：如果(a)其\texttt{target\_entity}等于注入的目标实体，或(b)其\texttt{observation}包含与注入唯一关联的文字标识符（例如孤立的\texttt{C99}，被反驳分支的注入死胡同节点ID），则发现命中。计数命中时忽略严重性和维度分配。按类型检出率（表~\ref{tbl-seal-l2-heatmap}）为虚构论断、过度论断和被反驳分支泄露均为23/23；缺失可证伪性为21/23，两次漏检（\texttt{bam} C02，\texttt{bbox} C04）被静默重新归因到相邻维度；孤立实验为5/23——一个系统性盲点，我们将其归因于审计器以论断为中心的遍历方式，从不枚举没有入向\texttt{Verifies}边的实验。
 
 \begin{table*}[t]
 \centering
@@ -1434,8 +1434,8 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 \textbf{总检出 (/23)} & \textbf{23} & \textbf{21} & \textbf{5} & \textbf{23} & \textbf{23} \\
 \bottomrule
 \end{tabular}
-\caption{级别2变异基准测试的按论文$\times$按注入检出情况。\cmark{} = 已检出；\xmark{} = 漏检。孤立实验列揭示了\S\ref{sec:eval-seal}中讨论的系统性盲点。}
-\label{tab:seal-l2-heatmap}
+\caption{级别2变异基准测试的按论文$\times$按注入检出情况。\cmark{} = 已检出；\xmark{} = 漏检。孤立实验列揭示了\S\ref{sec-eval-seal}中讨论的系统性盲点。}
+\label{tbl-seal-l2-heatmap}
 \end{table*}
 
 \paragraph{诊断：分数-发现脱钩。}
@@ -1443,6 +1443,6 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 
 % -------- Level 3 ----------
 \subsubsection{级别3：执行可复现性}
-\label{app:seal-eval-l3}
+\label{sec-seal-eval-l3}
 
-级别3有效性等同于复现评估（\S\ref{sec:eval-reproduction}, 附录~\ref{app:reproduction-eval}）：一个编码智能体读取\ara{}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表~\ref{tab:repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录~\ref{app:reproduction-eval}了解任务设计、评分和按论文分析。
+级别3有效性等同于复现评估（\S\ref{sec-eval-reproduction}, 附录~\ref{sec-reproduction-eval}）：一个编码智能体读取\ara{}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表~\ref{tbl-repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录~\ref{sec-reproduction-eval}了解任务设计、评分和按论文分析。

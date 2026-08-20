@@ -8,3 +8,6 @@
 *.pdf
 *.synctex.gz
 index.tex
+*.html
+_site/
+*_files/

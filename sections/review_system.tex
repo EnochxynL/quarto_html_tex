@@ -1,5 +1,5 @@
 \section{\ara{} 验证与评审}
-\label{sec:review-system}
+\label{sec-review-system}
 
 专家人类注意力是科学评价中最稀缺的资源。
 顶级会议的审稿负载增长速度快于审稿人队伍的增长~\citep{aczel2021billiondollar}，而审稿人的精力日益被机械性验证（``代码能运行吗？''、``表~3 支持论断~2 吗？''）所消耗，而非用于只有领域专家才能提供的实质性判断。
@@ -7,12 +7,12 @@
 因为 \ara{} 提交\emph{就是}一个结构化的、机器可执行的构件，PDF 审稿主观检查的结构性属性变得客观可验证：模式一致性和跨层引用完整性要么确定性地通过，要么确定性地失败。
 更高阶的属性——信息完整性和核心论断的方向性可复现性——变得\emph{机器可评估}：自动化检查提供概率性证据，为人类审稿人提供信息依据，而非取代他们。
 这种分离将专家注意力从机械性检查重新导向只有人类才能提供的实质性判断：重要性、新颖性与品位。
-我们将\textbf{ARA 认证}定义为一个具有三个递增级别的机器可验证凭证（\S\ref{sec:liveness}，图~\ref{fig:ara-seal}），并描述了一个三阶段评审流水线（图~\ref{fig:review-pipeline}），该流水线利用这些级别将自动化验证与人类判断分离开来。
+我们将\textbf{ARA 认证}定义为一个具有三个递增级别的机器可验证凭证（\S\ref{sec-liveness}，图~\ref{fig-ara-seal}），并描述了一个三阶段评审流水线（图~\ref{fig-review-pipeline}），该流水线利用这些级别将自动化验证与人类判断分离开来。
 
 \subsection{设计原则}
-\label{sec:review-principles}
+\label{sec-review-principles}
 
-我们在下文中推导出两条设计原则；跨构件审稿——即通过智能体对智能体的 ARA 比较——只有在语料库达到临界规模时才有意义，相关讨论见 \S\ref{sec:discussion}。
+我们在下文中推导出两条设计原则；跨构件审稿——即通过智能体对智能体的 ARA 比较——只有在语料库达到临界规模时才有意义，相关讨论见 \S\ref{sec-discussion}。
 
 \paragraph{P1. 自动化机械性工作；将判断留给人类。}
 结构有效性、内部一致性和论断可复现性是客观属性，要么通过，要么不通过；而重要性、新颖性和品位则需要领域专业知识。
@@ -24,18 +24,18 @@
 未能通过结构检查、或经第二级审读后其论断仍明显缺乏支撑的构件，不会进入人类审稿阶段。
 
 \subsection{ARA 认证：机器可验证的研究凭证}
-\label{sec:liveness}
+\label{sec-liveness}
 
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/fig_ara_seal.png}
     \caption{ARA 认证是一个三级验证凭证。每一级测试构件的一个逐步增强的属性，在成本和广度上逐级提升：结构完整性（数秒，确定性）、论证严谨性（数分钟，基于量规锚定的智能体）以及执行可复现性（数小时至数天，沙箱化的编码智能体）。通过适用的级别后，会颁发一份认证证书，下游智能体在投入算力之前会对其进行检查。}
-    \label{fig:ara-seal}
+    \label{fig-ara-seal}
 \end{figure}
 
 一篇 PDF 论文间接地赢得信任：会议声望、引用数量和作者声誉作为质量的代理指标，但无一能验证工作本身。
 因为 \ara{} 将研究编码为带有显式论断-证据绑定的类型化、机器可遍历的数据，其质量变得\emph{可直接验证}。
-ARA 认证将其操作化为一个三级验证协议（图~\ref{fig:ara-seal}），其中每一级测试一个逐步增强的属性（实现细节见附录~\ref{app:seal-details}）。
+ARA 认证将其操作化为一个三级验证协议（图~\ref{fig-ara-seal}），其中每一级测试一个逐步增强的属性（实现细节见附录~\ref{sec-seal-details}）。
 
 \begin{description}[leftmargin=1.5em, itemsep=4pt, topsep=2pt]
     \item[Level 1 -- 结构完整性]
@@ -50,10 +50,10 @@ ARA 认证将其操作化为一个三级验证协议（图~\ref{fig:ara-seal}）
     \emph{证据相关性}，检查每个论断所引用的实验在类型感知蕴涵下是否实质性地回应了该论断所断言的内容（因果性论断需要隔离消融实验，泛化性论断需要异质测试条件，改进性论断需要基线比较）；
     \emph{可证伪性质量}，检查标准是否可操作、非重言式、范围匹配且无需访问专有数据即可独立检验；
     以及\emph{方法论严谨性}，涵盖基线充分性、消融覆盖度、统计报告以及指标-论断对齐。
-    另外三个维度——范围校准、论证连贯性以及探索完整性——定义于附录~\ref{app:seal-eval-l2}。
+    另外三个维度——范围校准、论证连贯性以及探索完整性——定义于附录~\ref{sec-seal-eval-l2}。
     发现结果按严重程度（\emph{严重}、\emph{重大}、\emph{轻微}、\emph{建议}）、逐字证据引用以及可操作建议进行收集；总体评分由均分和单维度底线综合得出。
     每一项检查都归结为构件内容中由量规锚定的属性，因此第二级保持客观；关于重要性、新颖性和品位的判断则留给第三阶段的人类审稿人。
-    参考严谨性审计器作为智能体技能发布~\citep{agentskills2025}；\footnote{\url{github.com/AmberLJC/Agent-Native-Research-Artifact}} 完整协议、维度量规以及评分阈值见附录~\ref{app:seal-eval-l2}。
+    参考严谨性审计器作为智能体技能发布~\citep{agentskills2025}；\footnote{\url{github.com/AmberLJC/Agent-Native-Research-Artifact}} 完整协议、维度量规以及评分阈值见附录~\ref{sec-seal-eval-l2}。
 
     \item[Level 3 -- 执行可复现性]
     验证构件的核心论断在经验上具有可复现性。
@@ -72,11 +72,11 @@ ARA 认证将其操作化为一个三级验证协议（图~\ref{fig:ara-seal}）
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/fig_review_pipeline_v2.png}
-    \caption{三阶段 \ara{} 原生评审流水线。第一至第二阶段调用图~\ref{fig:ara-seal} 中的 ARA 认证级别，在人类审稿人介入之前解决机械性问题和严谨性问题，将专家注意力重新导向新颖性和重要性。}
-    \label{fig:review-pipeline}
+    \caption{三阶段 \ara{} 原生评审流水线。第一至第二阶段调用图~\ref{fig-ara-seal} 中的 ARA 认证级别，在人类审稿人介入之前解决机械性问题和严谨性问题，将专家注意力重新导向新颖性和重要性。}
+    \label{fig-review-pipeline}
 \end{figure}
 
-我们构想了一个模仿 CI/CD 实践的三阶段评审流水线（图~\ref{fig:review-pipeline}），其中每个阶段为下一阶段把关：概念验证、经验验证和人类判断。
+我们构想了一个模仿 CI/CD 实践的三阶段评审流水线（图~\ref{fig-review-pipeline}），其中每个阶段为下一阶段把关：概念验证、经验验证和人类判断。
 
 \paragraph{第一阶段：概念验证（数分钟）。}
 第一阶段在不运行任何实验的情况下，检查构件是否\emph{格式正确且概念上得到充分支撑}。

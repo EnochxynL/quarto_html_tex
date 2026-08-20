@@ -1,11 +1,11 @@
 \section{相关工作}
-\label{sec:related}
+\label{sec-related}
 
 我们的工作综合了三个研究方向的思想——机器可读科学、可复现性基础设施和面向智能体的工具——并贡献了一个统一的协议，这是它们各自所无法单独提供的。
 
 \paragraph{现有工具的维度差距。}
 一个自然的质疑是，\ara{} 仅仅是将文档、版本控制和实验追踪——研究者已经在使用的三种工具——组合在一起。
-表~\ref{tab:dimension-gap} 说明了为什么即使\emph{同时}使用 PDF、GitHub 和追踪器（MLflow~\citep{zaharia2018mlflow}，Weights~\&~Biases~\citep{biewald2020wandb}），知识仍然被孤岛式地分割在三种彼此无关联的格式中——论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
+表~\ref{tbl-dimension-gap} 说明了为什么即使\emph{同时}使用 PDF、GitHub 和追踪器（MLflow~\citep{zaharia2018mlflow}，Weights~\&~Biases~\citep{biewald2020wandb}），知识仍然被孤岛式地分割在三种彼此无关联的格式中——论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
 \ara{} 并非通过替代这些工具，而是通过提供缺失的结构层来弥合这一差距：一个可执行的认识论图谱，其跨层绑定使这些连接显式化且可被机器遍历。
 
 \begin{table}[t]
@@ -23,8 +23,8 @@
 跨层绑定              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
 \bottomrule
 \end{tabular}
-\caption{现有研究构件的维度覆盖。每一行是智能体原生研究的一项需求（\S\ref{sec:intro}）。现有工具在结构上最多覆盖两个维度；\ara{} 通过显式的跨层绑定覆盖全部五个维度。{\color{green!50!black}\checkmark}~=~完整，{\color{orange}$\sim$}~=~部分（存在但非结构化或分散），{\color{red!70!black}$\times$}~=~缺失。}
-\label{tab:dimension-gap}
+\caption{现有研究构件的维度覆盖。每一行是智能体原生研究的一项需求（\S\ref{sec-intro}）。现有工具在结构上最多覆盖两个维度；\ara{} 通过显式的跨层绑定覆盖全部五个维度。{\color{green!50!black}\checkmark}~=~完整，{\color{orange}$\sim$}~=~部分（存在但非结构化或分散），{\color{red!70!black}$\times$}~=~缺失。}
+\label{tbl-dimension-gap}
 \end{table}
 
 \paragraph{机器可读的研究构件。}
@@ -45,5 +45,5 @@
 \paragraph{面向智能体的文档与工具。}
 一系列趋同的研究表明，相较于扁平语料库~\citep{lo2020s2orc, priem2022openalex}，智能体受益于结构化、分层的表示~\citep{openai2025agentsmd, vasilopoulos2026codifiedcontext}，而且即使是最强的大语言模型也只能正确实现不到 40\% 的新贡献，其中\emph{语义}错位是最主要的失败模式~\citep{jimenez2024swebench, chen2025scienceagentbench, hua2025researchcodebench}。
 最近的系统从三个方向针对这一差距：流水线方法，事后将论文转换为可执行代码~\citep{seo2025papercoder} 或交互式 AI 智能体~\citep{miao2025paper2agent}，或通过图谱分析和调试恢复隐性知识~\citep{li2026tacit}；知识图谱方法，从背景文献中挖掘技术--代码链接~\citep{liu2026knowledgegraphs, luo2025xkg}——最多带来 10.9\% 的 PaperBench 提升，但未建模目标贡献的决策历史和认知结构；以及端到端进行实验的自主研究智能体~\citep{boiko2023coscientist, bran2024chemcrow, schmidgall2025agentlab, baek2025researchagent}，其非结构化的轨迹日志在论文完成之后就被丢弃。
-多智能体框架~\citep{wu2024autogen}、技能库标准~\citep{wang2023voyager, agentskills2025} 以及基于构件的智能体协调~\citep{wang2026scienceclaw} 进一步表明，结构化构件而非自然语言论文，是复合智能体能力的自然交换单元——我们的实时研究管理器（\S\ref{sec:live-pm}）正是这一前提的具体实现。
+多智能体框架~\citep{wu2024autogen}、技能库标准~\citep{wang2023voyager, agentskills2025} 以及基于构件的智能体协调~\citep{wang2026scienceclaw} 进一步表明，结构化构件而非自然语言论文，是复合智能体能力的自然交换单元——我们的实时研究管理器（\S\ref{sec-live-pm}）正是这一前提的具体实现。
 与事后还原流水线和背景知识图谱不同，\ara{} 在创作时将论断、证据、启发式规则及其可执行绑定编码，完全消除了事后还原步骤。
