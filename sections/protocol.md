@@ -4,7 +4,7 @@
 我们分别阐述其设计理念（@sec-philosophy）和分层架构（@sec-layers）。
 图 \ref{fig-lrm-overview}（\ref{sec-live-pm}）展示了实时研究管理器如何在长时间尺度上，在人--AI 研究过程与活态构件之间进行协调。
 
-![Ara 目录结构。每个文件的角色以内联注释标注；层级徽章标出四个顶层分区。跨层的*取证绑定*将 `/logic` 中的论断链接至 `/evidence` 中的证据和 `/src` 中的代码。完整模式见附录 \ref{sec-schema}；设计理由见附录 \ref{sec-protocol-details}。](figures/fig_ara_directory_annotated.png){#fig-ara-structure}
+![Ara 目录结构。每个文件的角色以内联注释标注；层级徽章标出四个顶层分区。跨层的*取证绑定*将 `/logic` 中的论断链接至 `/evidence` 中的证据和 `/src` 中的代码。完整模式见附录 \ref{sec-app-schema}；设计理由见附录 \ref{sec-app-protocol-details}。](figures/fig_ara_directory_annotated.png){#fig-ara-structure}
 
 ## 设计理念 {#sec-philosophy}
 
@@ -26,8 +26,8 @@
 ## {{< ara >}} 架构 {#sec-layers}
 
 一个智能体与某个研究构件交互时，有四种基本需求：*理解*贡献、*复现*贡献、*从过程中学习*，以及基于原始证据*验证*论断。
-{{< ara >}} 将每种需求物化为一层专用层级（图 @fig-ara-structure），并以清单文件 `PAPER.md` 为根，其 YAML 前置元数据和层级索引使智能体能在 ${\sim}500$ 词元内判定相关性（附录 \ref{sec-schema}）。
-此分解的制定参考了基于 PaperBench 评分标准提炼的十类复现关键信息分类体系（附录 \ref{sec-taxonomy}）。
+{{< ara >}} 将每种需求物化为一层专用层级（图 @fig-ara-structure），并以清单文件 `PAPER.md` 为根，其 YAML 前置元数据和层级索引使智能体能在 ${\sim}500$ 词元内判定相关性（附录 \ref{sec-app-schema}）。
+此分解的制定参考了基于 PaperBench 评分标准提炼的十类复现关键信息分类体系（附录 \ref{sec-app-taxonomy}）。
 
 #### 认知层（`/logic`）。
 
@@ -39,7 +39,7 @@
 存放*如何实现*——针对贡献类型校准的可执行代码。
 算法性贡献使用*内核模式*：仅包含带有类型化 I/O 签名的核心模块，通常比完整仓库小一到两个数量级，从而编码智能体能够按需重新生成环境原生的样板代码。
 系统性贡献（CUDA 内核、分布式训练、系统架构）使用*仓库模式*：保留完整实现，但通过 `index.md` 清单加以标注，将每个源文件映射到其所实现的 {{< ara >}} 组件。
-`configs/` 为每个超参数标注理由和搜索范围；`environment.md` 锁定依赖、硬件和随机种子（模式规约、取证绑定及详细理由见附录 \ref{sec-src-modes}）。
+`configs/` 为每个超参数标注理由和搜索范围；`environment.md` 锁定依赖、硬件和随机种子（模式规约、取证绑定及详细理由见附录 \ref{sec-app-src-modes}）。
 
 #### 探索图谱（`/trace`）。
 
