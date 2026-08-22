@@ -196,6 +196,7 @@ format:
 
 ::: {.content-visible when-format="html"}
 
+```{=html}
 <div class="header-panel">
   <div class="hp-title">最后一篇人类撰写的论文：智能体原生研究构件</div>
   <div class="hp-subtitle">The Last Human-Written Paper: Agent-Native Research Artifacts</div>
@@ -229,6 +230,7 @@ format:
     &nbsp;·&nbsp; <strong>代码：</strong><a href="https://github.com/AmberLJC/Agent-Native-Research-Artifact">github.com/AmberLJC/Agent-Native-Research-Artifact</a>
   </div>
 </div>
+```
 
 :::
 
