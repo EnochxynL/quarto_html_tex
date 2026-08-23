@@ -16,7 +16,6 @@
 我们识别出十类复现关键信息。
 表 \ref{tab-taxonomy}总结了各类别及其在分析评分标准中的频率分布。
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table*}[h]
 \centering
@@ -41,32 +40,6 @@
 \label{tab-taxonomy}
 \end{table*}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-taxonomy">
-<thead>
-<tr><th><strong>类别</strong></th><th><strong>百分比</strong></th><th><strong>PDF中的困难</strong></th><th><strong><span class="ara">Ara</span> 层</strong></th></tr>
-</thead>
-<tbody>
-<tr><td>组合实验矩阵</td><td>24.1</td><td>隐含在行文中</td><td><code>experiments.md</code></td></tr>
-<tr><td>评估方案</td><td>18.5</td><td>分散在各节和附录中</td><td><code>experiments.md</code></td></tr>
-<tr><td>超参数</td><td>17.2</td><td>埋藏在附录表格中</td><td><code>configs/training.md</code></td></tr>
-<tr><td>指标记录</td><td>10.4</td><td>很少明确说明</td><td><code>experiments.md</code></td></tr>
-<tr><td>结果解读</td><td>8.6</td><td>与讨论混在一起</td><td><code>claims.md</code>, <code>evidence/</code></td></tr>
-<tr><td>架构规范</td><td>5.8</td><td>拆分在正文、图表和附录中</td><td><code>architecture.md</code></td></tr>
-<tr><td>数学公式</td><td>4.5</td><td>公式引用跨节断裂</td><td><code>algorithm.md</code></td></tr>
-<tr><td>实现技巧</td><td>4.2</td><td>脚注、附录旁注</td><td><code>heuristics.md</code></td></tr>
-<tr><td>数据流水线</td><td>3.8</td><td>预处理细节被省略</td><td><code>configs/</code>, <code>environment.md</code></td></tr>
-<tr><td>环境/基础设施</td><td>2.9</td><td>被视为已知</td><td><code>environment.md</code></td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">PaperBench评分标准中的复现关键信息分类体系。频率基于5篇论文的3,050个叶子需求计算得出。"PDF中的困难"列描述了从叙事型PDF中提取此类信息的主要挑战。"<span class="ara">Ara</span> 层"列指出了直接处理每个类别的<span class="ara">Ara</span>组件。</p>
-
-:::
-
 
 下面我们定义每个类别，给出从PaperBench评分标准中抽取的具体示例，并解释{{< ara >}}的结构如何应对底层的检索挑战。
 
@@ -710,7 +683,6 @@ for /trace:
 
 为`batch_write_files`指定XML分隔的输出格式，列出所有15个必需文件，并执行九个不变规则（例如"所有数值必须与论文中所述完全一致"，"绝不虚构论文中没有的论断、结果或启发式规则"）。
 
-
 # 实时研究管理器详情 {#sec-app-lrm-details}
 
 实时研究管理器（\S\ref{sec-live-pm}）是{{< ara >}}系统中的第二个智能体技能。
@@ -929,7 +901,6 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 
 表 \ref{tab-exploration-tax}给出了每次运行的分解。低于参考线的平均token成本是达到参考线运行成本的8.6倍（每次运行2.58M vs. 300K个token），中位数为113倍。在未达到参考线的59.2\%的token中，44.8\%花在了没有产生可度量改进的运行中，14.4\%花在了重新推导其他智能体已经产生的解决方案上。该模式集中在类似研究工作发生的地方：RE-Bench任务（最开放式的）在73.4\%的情况下低于参考线结束，而中等难度的HCAST任务为47.0\%，定义良好的SWAA任务为0.7\%。在每任务级别，简单任务在85.4\%的情况下达到参考线，中等难度为30.7\%，困难仅为15.1\%。
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table}[h]
 \centering
@@ -950,28 +921,6 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 \label{tab-exploration-tax}
 \end{table}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-exploration-tax">
-<thead>
-<tr><th><strong>指标</strong></th><th><strong>Token</strong></th><th><strong>成本</strong></th></tr>
-</thead>
-<tbody>
-<tr><td>Below-reference run rate (overall)</td><td colspan="2">31.6%</td></tr>
-<tr><td>Below-reference run rate (RE-Bench)</td><td colspan="2">73.4%</td></tr>
-<tr><td>Cost ratio: below-ref vs. ref (median)</td><td colspan="2">113$\times$</td></tr>
-<tr><td>Dead-end exploration</td><td>44.8%</td><td>—</td></tr>
-<tr><td>Re-derivation of known solutions</td><td>14.4%</td><td>—</td></tr>
-<tr><td><strong>Total below-reference exploration</strong></td><td><strong>59.2%</strong></td><td><strong>90.2%</strong></td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">24,008次智能体运行（21个前沿模型，228个任务）中低于参考线的探索成本。探索本身是必要的研究工作；成本只有在后续智能体因失败记录未被保留在已发布构件中而必须重新承担时才会变成浪费。</p>
-
-:::
-
 
 ## 按类别结果分析 {#sec-app-understanding-per-category}
 
@@ -1060,7 +1009,6 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 
 ![每篇论文Ara $-$ 基线差值（百分点），按各难度层级划分，按平均优势排序。绿色表示Ara获胜，红色表示基线获胜。收益集中在大多数论文的中等和困难列；少数基线获胜仅限于少量论文，最突出的是`self-expansion`和`ftrl`。](figures/fig_reproduction_difficulty_heatmap.pdf){#fig-repro-difficulty-heatmap}
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table*}[h]
 \centering
@@ -1094,39 +1042,6 @@ test-time-model-adapt.  & 87.8 & 43.5 & 19.8 & 94.4 & 50.0 & 15.9 & 35.1 & 35.0 
 \label{tab-repro-per-difficulty}
 \end{table*}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-repro-per-difficulty">
-<thead>
-<tr><th></th><th colspan="3"><strong>ARA (%)</strong></th><th colspan="3"><strong>基线 (%)</strong></th><th colspan="2"><strong>加权</strong></th></tr>
-<tr><th><strong>论文</strong></th><th>简单</th><th>中等</th><th>困难</th><th>简单</th><th>中等</th><th>困难</th><th>ARA</th><th>基线</th></tr>
-</thead>
-<tbody>
-<tr><td>adaptive-pruning</td><td>90.9</td><td>80.0</td><td>31.7</td><td>89.8</td><td>83.0</td><td>35.0</td><td>63.5</td><td>65.8</td></tr>
-<tr><td>all-in-one</td><td>90.4</td><td>92.0</td><td>61.1</td><td>91.3</td><td>87.5</td><td>42.0</td><td>72.8</td><td>60.4</td></tr>
-<tr><td>bam</td><td>97.1</td><td>97.1</td><td>77.6</td><td>100.0</td><td>95.1</td><td>89.5</td><td>88.2</td><td>93.2</td></tr>
-<tr><td>bbox</td><td>93.3</td><td>59.5</td><td>31.6</td><td>97.8</td><td>52.7</td><td>17.3</td><td>49.8</td><td>40.8</td></tr>
-<tr><td>fre</td><td>79.3</td><td>45.4</td><td>50.9</td><td>62.2</td><td>32.6</td><td>28.6</td><td>53.2</td><td>34.4</td></tr>
-<tr><td>ftrl</td><td>25.0</td><td>38.0</td><td>32.0</td><td>36.2</td><td>54.4</td><td>30.0</td><td>33.0</td><td>38.8</td></tr>
-<tr><td>mechanistic-und.</td><td>85.7</td><td>88.3</td><td>67.1</td><td>82.5</td><td>36.7</td><td>55.0</td><td>76.2</td><td>55.0</td></tr>
-<tr><td>pinn</td><td>96.2</td><td>93.8</td><td>89.8</td><td>78.8</td><td>75.0</td><td>65.9</td><td>92.2</td><td>71.0</td></tr>
-<tr><td>rice</td><td>72.3</td><td>72.1</td><td>65.8</td><td>74.1</td><td>73.9</td><td>68.0</td><td>69.9</td><td>71.8</td></tr>
-<tr><td>sample-specific-masks</td><td>95.6</td><td>29.8</td><td>31.1</td><td>95.6</td><td>35.7</td><td>25.7</td><td>42.7</td><td>42.3</td></tr>
-<tr><td>self-composing-pol.</td><td>87.5</td><td>46.5</td><td>52.3</td><td>93.3</td><td>36.0</td><td>37.2</td><td>57.3</td><td>47.8</td></tr>
-<tr><td>self-expansion</td><td>34.7</td><td>37.5</td><td>39.3</td><td>20.8</td><td>65.0</td><td>47.3</td><td>38.2</td><td>48.9</td></tr>
-<tr><td>sequential-neural</td><td>95.2</td><td>68.3</td><td>51.6</td><td>69.3</td><td>53.5</td><td>39.7</td><td>64.8</td><td>49.3</td></tr>
-<tr><td>stochastic-interpolants</td><td>97.7</td><td>100.0</td><td>74.1</td><td>95.5</td><td>100.0</td><td>72.4</td><td>86.7</td><td>85.3</td></tr>
-<tr><td>test-time-model-adapt.</td><td>87.8</td><td>43.5</td><td>19.8</td><td>94.4</td><td>50.0</td><td>15.9</td><td>35.1</td><td>35.0</td></tr>
-<tr><td><strong>均值</strong></td><td><strong>85.1</strong></td><td><strong>68.5</strong></td><td><strong>54.5</strong></td><td><strong>80.2</strong></td><td><strong>62.9</strong></td><td><strong>46.0</strong></td><td><strong>64.4</strong></td><td><strong>57.4</strong></td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">按论文、按难度级别的复现成功率（%）。简单、中等和困难列显示每个难度层级内的未加权成功率；最后两列显示难度加权比率（$1:2:3$权重）。Rice的按难度值是从加权分数和总体比率插值得到的，因为其按难度JSON条目是单独记录的。</p>
-
-:::
-
 
 #### ARA大幅领先的论文。
 
@@ -1153,7 +1068,6 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 
 在7个RE-Bench [@wijk2025rebench]任务中，我们在扩展评估中使用5个。表 \ref{tab-extension-task-card}列出了分数公式、方向、任务启动基线、RE-Bench参考分数、硬件需求以及每个任务的METR MALT语料库的模型覆盖范围。
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table*}[h]
 \centering
@@ -1177,29 +1091,6 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 \label{tab-extension-task-card}
 \end{table*}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-extension-task-card">
-<thead>
-<tr><th><strong>任务</strong></th><th><strong>分数公式</strong></th><th><strong>方向</strong></th><th><strong>启动</strong></th><th><strong>参考</strong></th><th><strong>硬件</strong></th><th><strong>Claude-4 MALT</strong></th><th><strong>已用</strong></th></tr>
-</thead>
-<tbody>
-<tr><td><code>triton_cumsum</code></td><td>$\log(t_\text{ms})$</td><td>$\downarrow$</td><td>1.56</td><td>0.47</td><td>1$\times$H100</td><td>22 (O13/S9)</td><td>yes</td></tr>
-<tr><td><code>restricted_mlm</code></td><td>$\log(\ell{-}1.5)$</td><td>$\downarrow$</td><td>1.81</td><td>1.13</td><td>2$\times$H100 80 GB</td><td>22 (O11/S11)</td><td>yes</td></tr>
-<tr><td><code>fix_embedding</code></td><td>$\log(\ell_\text{val}{-}1.5)$</td><td>$\downarrow$</td><td>2.20</td><td>0.26</td><td>1$\times$GPU</td><td>19 (O10/S9)</td><td>yes</td></tr>
-<tr><td><code>nanogpt_chat_rl</code></td><td>avg. pairwise win-rate</td><td>$\uparrow$</td><td>0.54</td><td>0.85</td><td>1$\times$GPU + judge</td><td>18 (O12/S6)</td><td>yes</td></tr>
-<tr><td><code>rust_codecontests</code></td><td>$n_\text{solved}/165$</td><td>$\uparrow$</td><td>0.00</td><td>0.13</td><td>CPU + LLM API</td><td>12 (O6/S6) + 10$^\dagger$</td><td>yes</td></tr>
-<tr><td><code>small_scaling_law</code></td><td>$1{-}(\epsilon_\ell{+}\epsilon_p)$</td><td>$\uparrow$</td><td>0.24</td><td>0.84</td><td>1$\times$GPU</td><td>0$^\ddagger$</td><td>no</td></tr>
-<tr><td><code>optimize_llm_foundry</code></td><td>$\log(t_\text{s})$</td><td>$\downarrow$</td><td>5.60</td><td>4.54</td><td>4$\times$H100</td><td>0$^\S$</td><td>no</td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">RE-Bench任务卡片及扩展评估状态。<em>分数公式</em>逐字转录自<code>metr-re-bench/ai_rd_&lt;task&gt;/ai_rd_&lt;task&gt;.py</code>；$\ell$表示验证损失，$t$为挂钟时间，$n_\text{solved}$为正确解决问题的数量，$\epsilon_\ell$/$\epsilon_p$为损失/参数预测误差。<em>方向</em>：分数取向。<em>启动</em>：未修改起始代码库的分数。<em>参考</em>：原始RE-Bench评估中报告的最佳分数。<em>Claude-4 MALT</em>：METR MALT语料库中Claude-4（Opus + Sonnet）运行的数量，分解为O$\langle$Opus$\rangle$/S$\langle$Sonnet$\rangle$。$^\dagger$ <code>rust_codecontests</code>还有一个使用相同评分脚手架的10次<code>claude-3-7-sonnet</code>补充运行。$^\ddagger$仅有Claude-3.5/3.7和OpenAI运行。$^\S$未发布MALT语料库。</p>
-
-:::
-
 
 底部两个任务被排除，因为它们的MALT语料库无法为实验提供可用的失败轨迹层。`optimize_llm_foundry`完全没有发布的MALT语料库，因此`trace/`从构造上就是空的。`small_scaling_law`的MALT语料库确实存在但在结构上是不充分的：它早于Claude-4（仅有Claude-3.5/3.7 Sonnet和OpenAI模型），数据稀疏，并且存在的运行主要由简单的参数网格扫描主导，没有记录策略性探索或有名称的死胡同。在这些运行上运行的提取流水线产生实际上为空的`trace/`和`evidence/`层，并消除了与纯论文基线的实验对比。我们将这两个任务推迟到后续工作中，后续工作将在Claude-4智能体上重新运行MALT收集（`optimize_llm_foundry`）或在策略空间引发实质性记录探索的任务上进行（`small_scaling_law`）。
 
@@ -1225,7 +1116,6 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 
 需要三类工程修复来获得稳定的8小时轨迹。表 \ref{tab-harness-fixes}列举了每种观察到的失败模式、根本原因和已发布的修复。
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table*}[h]
 \centering
@@ -1255,26 +1145,6 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 \label{tab-harness-fixes}
 \end{table*}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-harness-fixes">
-<thead>
-<tr><th><strong>失败模式</strong></th><th><strong>根本原因</strong></th><th><strong>修复</strong></th></tr>
-</thead>
-<tbody>
-<tr><td>SDK消息读取器在大型工具结果上中途崩溃；智能体进程在会话数小时后静默死亡。</td><td>SDK的stdin/stdout读取器上的默认<code>max_buffer_size</code>为1 MiB；长bash输出（训练日志、大目录列表、多问题JSON转储）在单个工具结果中超过它。</td><td>将SDK的<code>max_buffer_size</code>从1 MiB提高到16 MiB，并添加系统提示补充说明要求工具输出被管道截取或摘要；超过$\sim$10 MiB的工具返回仍会崩溃，但牢固地属于"智能体在做傻事"的范围。</td></tr>
-<tr><td>SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空间进程发送<code>SIGTERM</code>，即<code>claude</code> CLI本身。</td><td>智能体声明"会话完成"并运行<code>for i in {1..N}; do bash score.sh; done</code>批量批处理以"用尽预算"；每次调用产生一个新的CUDA上下文和Triton/PyTorch编译，GPU和主机内存的累积速度快于释放速度。</td><td>一个<code>PreToolUse</code> Bash钩子，在批量评分模式到达shell之前拒绝它们（$N{>}10$的<code>for</code>/<code>seq</code>循环，后台token，<code>while true</code>），并提供解释引导智能体进行串行评分而非绕过限制。提高cgroup内存上限有帮助但不够充分。</td></tr>
-<tr><td>智能体在自行声明"会话完成"后静默，浪费剩余数小时的挂钟时间。</td><td>SDK的停止循环触发器（<code>end_turn</code>, <code>stop_sequence</code>, <code>max_tokens</code>, <code>pause_turn</code>）在小默认计数后结束消费者循环；测试框架以未用完的预算终止。</td><td>推回上限提高到1,000，触发器集扩展到所有四个；每15轮注入中途提醒，引导智能体回到<code>reference/trace/</code>和<code>reference/evidence/</code>；恢复协议从其<code>session_id</code>重新启动崩溃的会话，使用强制恢复提示，告知智能体它是在停止循环中结束的，真正的工作仍待完成，预算是唯一合法的停止标准。</td></tr>
-<tr><td>最终的<code>score.sh</code>调用超时，且没有写入<code>final_score.json</code>。</td><td>默认的300 s评分器超时对于具有长编译/基准测试阶段的任务来说太紧张（Triton自动调优；165问题的<code>rust_codecontests</code>测试集在受速率限制的LLM调用下需要$\sim$2 小时）。</td><td>按任务定义超时：Triton为1,200 s（中途）/ 1,800 s（最终）；Rust为7,200 s / 10,800 s。当测试框架自身的最终评分阶段仍然超时时，一个单独的仅评分sbatch重新运行<code>bash score.sh</code>在现有工作目录的<code>solution_final.py</code>上。</td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">扩展评估中遇到的测试框架失败模式及在<code>code/extension-harness/harness.py</code>中发布的修复。根据我们的经验，四个修复对于在全部8小时SLURM分配的五个任务中的任何一个上完整运行而不在预算上限之前放弃智能体会话都是必要的。</p>
-
-:::
-
 
 #### 运行资源。
 
@@ -1476,7 +1346,6 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 每个注入通过以下规则匹配至多一个发现：如果(a)其`target_entity`等于注入的目标实体，或(b)其`observation`包含与注入唯一关联的文字标识符（例如孤立的`C99`，被反驳分支的注入死胡同节点ID），则发现命中。计数命中时忽略严重性和维度分配。按类型检出率（表 \ref{tab-seal-l2-heatmap}）为虚构论断、过度论断和被反驳分支泄露均为23/23；缺失可证伪性为21/23，两次漏检（`bam` C02，`bbox` C04）被静默重新归因到相邻维度；孤立实验为5/23——一个系统性盲点，我们将其归因于审计器以论断为中心的遍历方式，从不枚举没有入向`Verifies`边的实验。
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table*}[t]
 \centering
@@ -1516,46 +1385,6 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 \label{tab-seal-l2-heatmap}
 \end{table*}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-seal-l2-heatmap">
-<thead>
-<tr><th><strong>论文</strong></th><th><strong>虚构</strong></th><th><strong>缺失可证伪</strong></th><th><strong>孤立</strong></th><th><strong>过度论断</strong></th><th><strong>被反驳</strong></th></tr>
-</thead>
-<tbody>
-<tr><td>adaptive-pruning</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>all-in-one</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>bam</td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>bbox</td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>bridging-data-gaps</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>fre</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>ftrl</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>lbcs</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>lca-on-the-line</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>mechanistic-understanding</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>pinn</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>rice</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>robust-clip</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>sample-specific-masks</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>sapg</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>self-composing-policies</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>self-expansion</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>semantic-self-consistency</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>sequential-neural-score-estimation</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>stay-on-topic-cfg</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>stochastic-interpolants</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>test-time-model-adaptation</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td>what-will-my-model-forget</td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td><td><span class="bad">✗</span></td><td><span class="ok">✓</span></td><td><span class="ok">✓</span></td></tr>
-<tr><td><strong>总检出 (/23)</strong></td><td><strong>23</strong></td><td><strong>21</strong></td><td><strong>5</strong></td><td><strong>23</strong></td><td><strong>23</strong></td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">级别2变异基准测试的按论文$\times$按注入检出情况。<span class="ok">✓</span> = 已检出；<span class="bad">✗</span> = 漏检。孤立实验列揭示了[§sec-eval-seal]中讨论的系统性盲点。</p>
-
-:::
-
 
 #### 诊断：分数-发现脱钩。
 

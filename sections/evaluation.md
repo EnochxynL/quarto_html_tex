@@ -1,7 +1,6 @@
 
 # 评估 {#sec-eval}
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table*}[t]
   \centering
@@ -30,27 +29,6 @@
   \label{tab-benchmarks}
 \end{table*}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-benchmarks">
-<thead>
-<tr><th><strong>PaperBench</strong> [@starace2025paperbench]</th><th><strong>RE-Bench</strong> [@wijk2025rebench]</th></tr>
-</thead>
-<tbody>
-<tr><td><strong>论文：</strong> 23篇经同行评审的、横跨多个子领域的机器学习论文</td><td><strong>任务：</strong> 7个基于明确目标函数的研发爬山任务</td></tr>
-<tr><td><strong>规模：</strong> 8,921条由专家编写的评分细则要求</td><td><strong>规模：</strong> 24,008次智能体运行；46,303个失败episode</td></tr>
-<tr><td><strong>内容：</strong> PDF + 配套GitHub仓库（23篇中15篇有）；专家评分细则编码了论文中缺失的超参数值、实现技巧和配置信息；失败知识极少在已发表论文中保留</td><td><strong>内容：</strong> 每个任务的初始代码库；METR MALT转录记录，每次运行保留完整真实智能体的成功与失败轨迹</td></tr>
-<tr><td><strong>评分方式：</strong> 专家分层评分细则（是 / 部分 / 否）</td><td><strong>评分方式：</strong> 自动化连续目标函数；无需人工判断</td></tr>
-<tr><td><strong>用于：</strong> 理解（[§sec-eval-understanding]，A类 &amp; B类）；复现（[§sec-eval-reproduction]）</td><td><strong>用于：</strong> 理解（[§sec-eval-understanding]，C类）；扩展（[§sec-eval-extension]）</td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">基准测试特征。PaperBench 通过专家评分细则提供配置深度；RE-Bench 通过 MALT 失败轨迹提供探索轨迹深度。这两者正是<span class="ara">Ara</span>旨在利用的源端富化信息。</p>
-
-:::
-
 
 我们在三个研究野心递增的层次上评估{{< ara >}}：*理解*（智能体能否从构件中提取知识？）、*复现*（智能体能否根据构件执行研究？）和*扩展*（智能体能否借助失败知识更高效地在已有工作之上进行构建？）。每个层次分别隔离了结构化构件相对于以PDF为中心之现状的一项独特优势。我们首先描述评估语料库以及每个{{< ara >}}是如何从该语料库构建的（\S\ref{sec-eval-data}），然后展示在每个层次上测试{{< ara >}}的实验（\S\ref{sec-eval-understanding}--\ref{sec-eval-extension}）。所有实验的完整实现细节见附录 \ref{sec-app-eval-details}。
 
@@ -74,7 +52,6 @@
 
 我们使用450个问题探测每种格式：涵盖30个评估目标（23篇PaperBench论文和7个RE-Bench任务），每个目标15个问题，分为三类。*A类*（每个目标10个，两个基准测试均适用）测试对可从PDF中回答的表面结果、方法和条件的忠实度。*B类*（每篇PaperBench论文5个）测试对超参数、环境规格和预处理细节的配置恢复能力。*C类*（每个RE-Bench任务5个）测试对死胡同、已考虑的替代方案和经验教训的失败知识掌握。为避免问题选择中的来源偏差，我们为每个目标独立生成两个问题池——一个以阅读PDF为种子，一个以阅读{{< ara >}}为种子——然后合并并去重，使两种格式都无法决定哪些问题被提出（完整模板和金标准评分细则见附录 \ref{sec-app-question-bank}）。每个（目标，格式，问题）三元组作为一个独立的Claude Sonnet 4.6子智能体分发，拥有全新上下文，每个答案由Claude Opus 4.6裁判根据金标准进行三元评分（1.0 / 0.5 / 0.0）。
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{table}[t]
 \centering
@@ -100,29 +77,6 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 \label{tab-understanding}
 \end{table}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-
-<table class="paper-table" id="tab-understanding">
-<thead>
-<tr><th></th><th></th><th colspan="2"><strong>准确率（%）</strong></th><th colspan="2"><strong>Token（千/Q）</strong></th></tr>
-<tr><th><strong>类别</strong></th><th>$n$</th><th><strong>ARA</strong></th><th><strong>BL</strong></th><th><strong>ARA</strong></th><th><strong>BL</strong></th></tr>
-</thead>
-<tbody>
-<tr><td>A：忠实度</td><td>300</td><td><strong>95.6</strong></td><td>80.8</td><td>84.6</td><td>88.5</td></tr>
-<tr><td>PaperBench</td><td>230</td><td><strong>96.7</strong></td><td>89.8</td><td>86.3</td><td>97.7</td></tr>
-<tr><td>RE-Bench</td><td>70</td><td><strong>92.1</strong></td><td>51.4</td><td>79.0</td><td>58.2</td></tr>
-<tr><td>B：细节<br><small>(PaperBench)</small></td><td>115</td><td><strong>92.6</strong></td><td>67.8</td><td>183.0</td><td>178.3</td></tr>
-<tr><td>C：失败知识<br><small>(RE-Bench)</small></td><td>35</td><td><strong>81.4</strong></td><td>15.7</td><td>139.3</td><td>58.0</td></tr>
-<tr><td><strong>总计</strong></td><td><strong>450</strong></td><td><strong>93.7</strong></td><td>72.4</td><td>114.0</td><td>109.1</td></tr>
-</tbody>
-</table>
-
-<p class="table-caption">理解评估：450组成对结果上的准确率和每问题token用量。ARA在每个类别和每个基准测试上均获胜；各类别机制分析见附录 [§sec-app-understanding-per-category]。</p>
-
-:::
-
 
 #### 结果。
 
