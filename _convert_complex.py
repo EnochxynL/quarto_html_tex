@@ -1,15 +1,26 @@
-"""完整版：混合 .tex → .md，含复杂表转 HTML。
-- 简单表 -> 管道表
-- 复杂表 -> 门控 raw LaTeX(PDF) + raw HTML table(HTML)
-- description -> markdown
-- lstlisting -> 代码块
-- 数学 $...$ 保留（Pandoc/KaTeX 处理，实测 raw HTML 内也渲染）
-- 图 caption：swap ![短](path "长") -> ![长](path)，\ara{} -> 纯文本（短代码在 alt 不生效）
-"""
-import re, os
+"""Pre-render hook: 检测 sections/*.tex，按需转换为 sections/*.md。
 
-SRC = r"D:\MY_DOCUMENTS\download\arXiv-2604.24658v3 - Copy\sections"
-DST = r"D:\MY_DOCUMENTS\download\arXiv-2604.24658v3\sections"
+作为 Quarto pre-render hook 运行：
+  - 扫描 sections/ 目录下的 .tex 文件
+  - 如果对应的 .md 不存在或比 .tex 旧，则重新转换
+  - 转换规则：
+    * 简单表 -> 管道表
+    * 复杂表 -> 门控 raw LaTeX(PDF) + raw HTML table(HTML)
+    * description -> markdown
+    * lstlisting -> 代码块
+    * 数学 $...$ 保留（Pandoc/KaTeX 处理，实测 raw HTML 内也渲染）
+    * 图 caption：swap ![短](path "长") -> ![长](path)，\ara{} -> 纯文本（短代码在 alt 不生效）
+
+Usage:
+  自动（Quarto pre-render）: 在 index.qmd 中配置
+  手动: python _convert_complex.py [file1.tex file2.tex ...]
+"""
+import re, os, sys
+from pathlib import Path
+
+# 获取脚本所在目录作为基准
+SCRIPT_DIR = Path(__file__).parent
+SECTIONS_DIR = SCRIPT_DIR / "sections"
 
 # legacy alias：旧 label 指向的 canonical section
 ALIASES = {
@@ -306,8 +317,24 @@ def process_residue(raw):
     out.append(clean_residue(raw[pos:]))
     return "".join(out)
 
-def convert_file(fname):
-    src = open(os.path.join(SRC, fname), encoding="utf-8").read()
+def convert_file(tex_path):
+    """Convert a single .tex file to .md, preserving relative structure."""
+    tex_path = Path(tex_path)
+    if not tex_path.exists():
+        print(f"Warning: {tex_path} not found, skipping")
+        return
+    
+    md_path = tex_path.with_suffix('.md')
+    
+    # Skip if .md exists and is newer than .tex
+    if md_path.exists():
+        tex_mtime = tex_path.stat().st_mtime
+        md_mtime = md_path.stat().st_mtime
+        if md_mtime > tex_mtime:
+            print(f"Skipping {tex_path.name} (already up to date)")
+            return
+    
+    src = tex_path.read_text(encoding="utf-8")
     parts = re.split(r"\\begin\{markdown\}|\\end\{markdown\}", src)
     out = [process_residue(parts[0])]
     i = 1
@@ -317,11 +344,33 @@ def convert_file(fname):
         else:
             out.append(process_residue(parts[i]))
         i += 1
-    return "".join(out)
+    result = "".join(out)
+    
+    md_path.write_text(result, encoding="utf-8")
+    print(f"Converted {tex_path.name} -> {md_path.name} ({len(result)} chars)")
 
-for f in ["live_pm.tex", "review_system.tex", "related_work.tex", "evaluation.tex", "appendix.tex"]:
-    result = convert_file(f)
-    outname = f.replace(".tex", ".md")
-    with open(os.path.join(DST, outname), "w", encoding="utf-8") as fh:
-        fh.write(result)
-    print("=== %s -> %s (%d chars) ===" % (f, outname, len(result)))
+
+def main():
+    """Main entry point: auto-detect .tex files or process specified files."""
+    if len(sys.argv) > 1:
+        # Explicit files specified
+        for arg in sys.argv[1:]:
+            tex_path = Path(arg)
+            if not tex_path.is_absolute():
+                tex_path = SECTIONS_DIR / tex_path
+            convert_file(tex_path)
+    else:
+        # Auto-detect: find all .tex files in sections/
+        tex_files = list(SECTIONS_DIR.glob("*.tex"))
+        if not tex_files:
+            print("No .tex files found in sections/")
+            return
+        
+        for tex_path in tex_files:
+            convert_file(tex_path)
+    
+    print("Pre-render conversion complete")
+
+
+if __name__ == "__main__":
+    main()
