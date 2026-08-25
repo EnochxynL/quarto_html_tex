@@ -113,6 +113,10 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 5. **quarto reader 不消费管道表 caption 的 `{#id}`**（pandoc 原生消费，quarto 不消费）——残留文本留在 caption，attr.identifier 为空。HTML 转换时需在字符串层面提取 `{#id}` → `<table id>` 并移除残留。
 6. **quarto 的 Table 处理（main.lua）会清空非 `tbl-` 前缀的 attr.identifier** 并把 id 写回 caption 文本——这是管道表必须转 RawBlock 的原因。
 7. **Lua pattern 陷阱**：`\\S?\\ref` 在 Lua 里是"两个反斜杠 + 可选 S + ref"，匹配不了单反斜杠的 `\ref`——必须分两个 pattern 先匹配 `\S\ref` 再匹配 `\ref`（`\S\ref{X}` 还会被 pandoc 拆成两个独立 RawInline：`\S` 和 `\ref{X}`）。
+8. **pandoc 的 LaTeX reader 把 `\ref{X}` 解析成 Link 节点**（`reference-type=ref` 属性、链接文本 `[X]`）而非 RawInline——latex-tables.lua write 成 html 后是 `<a href="#X" data-reference-type="ref">[X]</a>`，`\ref{...}` 文本 gsub 匹配不到。crossref-html.lua 需额外处理该形态（`§` 前缀版去掉 ref_link 返回的 `§` 避免重复）。正文 markdown 路径不受影响（`\ref` 是 RawInline tex）。
+9. **pandoc.write 对长属性行换行**（`<a\nhref=...`），HTML 文本 pattern 匹配 `<a href` 会失败——用 `%s+` 吸收空白。注意 quarto render 的 writer options 与 `quarto run` 直调 pandoc.write 不同（后者 wrap=auto 必换行），调试时以实际渲染产物为准。
+10. **Lua pattern 里 `§?`（可选多字节 UTF-8 字符）匹配空分支失败**——`(§?)<a` 匹配不到无 `§` 前缀的 `<a`。拆成两个独立 gsub（带 `§` / 不带）。
+11. **quarto 交叉引用 `@fig-X` 后直接跟汉字会被吞进 citationId**（`@fig-X按难度` → id=`fig-X按难度`，quarto 找不到 → 渲染 `?@fig-X` + Strong 包住被吞文本）。pandoc 的 citation id 边界：汉字/ASCII 字母数字连续吞，全角标点（`，（）。、`）是边界。修复：内容层把后跟汉字的 `@fig-X` 改成 `[@fig-X]`（方括号是边界，quarto 渲染视觉等价）。
 
 ## 模板适配
 

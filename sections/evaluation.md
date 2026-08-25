@@ -109,7 +109,7 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 
 #### 结果。
 
-在所有15篇完成成对运行的论文中（150个子任务，1,743条评分细则要求），{{< ara >}}实现了**64.4\%** 的难度加权成功率，而基线为**57.4\%**；论文层面的胜/平/负分布为8/5/2（各论文数据见附录 \ref{sec-app-repro-per-paper}）。图 @fig-repro-difficulty按难度分层展示了这一总体结果；各论文分解见附录 \ref{sec-app-repro-per-paper}（图 @fig-repro-difficulty-heatmap）。
+在所有15篇完成成对运行的论文中（150个子任务，1,743条评分细则要求），{{< ara >}}实现了**64.4\%** 的难度加权成功率，而基线为**57.4\%**；论文层面的胜/平/负分布为8/5/2（各论文数据见附录 \ref{sec-app-repro-per-paper}）。图 [@fig-repro-difficulty]按难度分层展示了这一总体结果；各论文分解见附录 \ref{sec-app-repro-per-paper}（图 @fig-repro-difficulty-heatmap）。
 
 ![所有15篇论文的总体复现成功率，按难度分层。Ara的优势随难度单调递增（简单$+4.9\%$，中等$+5.6\%$，困难$+8.5\%$），恰好跟踪了复现最依赖PDF未充分指定的配置内容的难度层次。](figures/fig_reproduction_difficulty.pdf){#fig-repro-difficulty}
 
@@ -140,7 +140,7 @@ RE-Bench的输入不同于典型的论文 + repo：源材料是官方参考解�
 
 #### 结果。
 
-图 @fig-extension-summary报告了每个任务上每个智能体相对于挂钟时间和API支出的最优包络线和底层评分尝试。在`rust_codecontests`、`nanogpt_chat_rl`和`fix_embedding`上，{{< ara >}}智能体最终获得更好的最佳分数；在Sonnet 4.6下的`triton_cumsum`和`restricted_mlm`上，论文智能体最终领先。轨迹呈现出以下三个现象；各任务案例研究和轨迹证据（`文件读取`、`ThinkingBlock`推理、编辑历史）见附录 \ref{sec-app-extension-cases}。
+图 [@fig-extension-summary]报告了每个任务上每个智能体相对于挂钟时间和API支出的最优包络线和底层评分尝试。在`rust_codecontests`、`nanogpt_chat_rl`和`fix_embedding`上，{{< ara >}}智能体最终获得更好的最佳分数；在Sonnet 4.6下的`triton_cumsum`和`restricted_mlm`上，论文智能体最终领先。轨迹呈现出以下三个现象；各任务案例研究和轨迹证据（`文件读取`、`ThinkingBlock`推理、编辑历史）见附录 \ref{sec-app-extension-cases}。
 
 ![Claude Sonnet 4.6下五个RE-Bench任务的扩展轨迹。每列一个任务：上行为分数-挂钟时间图，下行为分数-累计成本图；每列上下共享y轴。淡色标记为单次评分尝试，实线为截至当前的最优包络线，星号为最佳尝试；灰色虚线标记每个任务的RE-Bench参考分数。列标题中的箭头指示指标方向。*在所有五个任务上，Ara智能体比论文智能体更早到达第一个有效动作，并在`rust_codecontests`、`nanogpt_chat_rl`和`fix_embedding`上以更好的最佳分数结束；在`triton_cumsum`和`restricted_mlm`上，论文智能体后来通过轨迹未命名的动作反超（分别为`int8`内核重新设计和单一架构上的聚焦深度）。第 \ref{sec-eval-extension}节解析了为何Ara的早期领先在这两个任务上未能保持，以及较旧Sonnet 4.5基础上的相同比较如何逆转了这一结果。*各任务案例研究和`triton_cumsum`与`restricted_mlm`的Sonnet 4.5轨迹见附录 \ref{sec-app-extension-cases}。](figures/extension/summary_5tasks_46.pdf){#fig-extension-summary}
 
