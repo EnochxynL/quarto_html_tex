@@ -1,11 +1,28 @@
--- latex-tables.lua (v2)
--- 路线 E 修正版：返回 RawBlock("html") 而不是 Table AST
+-- latex-tables.lua (v3) — 通用版
 -- 
--- HTML: raw LaTeX 表格 → pandoc.read → Table AST → pandoc.write(html) → RawBlock("html")
---       直接输出 HTML 字符串，绕过 main.lua 对 Table 的 crossref 处理（它会吃掉 id）
--- PDF:  保持原样（crossref.lua 对 tab- 前缀只警告不拦截）
+-- 核心能力：把 raw LaTeX 表格渲染为双格式
+--   HTML: raw LaTeX 表格 → pandoc.read → Table AST → pandoc.write(html) → RawBlock("html")
+--         直接输出 HTML 字符串，绕过 main.lua 对 Table 的 crossref 处理（它会吃掉 id）
+--   PDF:  保持原样（crossref.lua 对 tab- 前缀只警告不拦截）
+-- 
+-- 用法（filters 里按名称引用，如 paper-tables）：
+--   filters:
+--     - paper-tables
+--   format:
+--     pdf:
+--       paper-tables:
+--         label-prefix: tab-      # 表格 label 前缀（默认 tab-，crossref 只处理 tbl-）
 -- 
 -- 注意：源文件里的表格 label 必须用 tab- 前缀（crossref.lua 只处理 tbl-）
+
+-- 从 metadata 读取配置
+local function get_config()
+  local meta = pandoc.meta or {}
+  local cfg = (meta["paper-tables"] and meta["paper-tables"]["pdf"]) or {}
+  return {
+    label_prefix = cfg["label-prefix"] or "tab-",
+  }
+end
 
 function RawBlock(el)
   if el.format ~= "latex" then

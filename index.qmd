@@ -2,9 +2,7 @@
 shortcodes:
   - ara.lua
 filters:
-  - latex-tables.lua
-  - tables-to-tablestar.lua
-  - crossref-html.lua
+  - paper-tables
 format:
   pdf:
     pdf-engine: xelatex
@@ -15,6 +13,9 @@ format:
     cite-method: natbib
     biblio-style: styles/icml2026
     latex-clean: false
+    paper-tables:
+      table-env: table*
+      table-pos: htbp
     include-in-header:
       - text: |
           % 中文支持（需 xelatex 编译）

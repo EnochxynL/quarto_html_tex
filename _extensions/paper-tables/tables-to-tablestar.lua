@@ -1,10 +1,23 @@
--- tables-to-tablestar.lua
--- PDF：把 markdown 管道表（Pandoc Table）转成 table* + tabular。
+-- tables-to-tablestar.lua (v2) — 通用版
+-- PDF：把 markdown 管道表（Pandoc Table）转成 table* / table / longtable + tabular。
 -- 原因：双栏（\twocolumn）下 Pandoc 默认生成的 longtable 会报 "longtable not in 1-column mode"。
 -- HTML：交给 Pandoc 原生处理（管道表 → <table>）。
+-- 
+-- 配置（format 级别，如 pdf 下）：
+--   format:
+--     pdf:
+--       paper-tables:
+--         table-env: table*      # 表格环境：table*（双栏通栏）| table（单栏）| longtable
+--         table-pos: htbp        # 浮动位置参数
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
   return {}
 end
+
+-- 读取配置
+local meta = pandoc.meta or {}
+local cfg = (meta["paper-tables"] and meta["paper-tables"]["pdf"]) or {}
+local TABLE_ENV = cfg["table-env"] or "table*"
+local TABLE_POS = cfg["table-pos"] or "htbp"
 
 local ALIGN = { AlignLeft = "l", AlignRight = "r", AlignCenter = "c", AlignDefault = "l" }
 
@@ -76,12 +89,12 @@ function Table(tbl)
     label = "\\label{" .. id .. "}"
   end
 
-  local result = "\\begin{table*}[htbp]\n\\centering\n"
+  local result = "\\begin{" .. TABLE_ENV .. "}[" .. TABLE_POS .. "]\n\\centering\n"
     .. caption .. (caption ~= "" and "\n" or "")
     .. label .. (label ~= "" and "\n" or "")
     .. "\\begin{tabular}{" .. cstext .. "}\n"
     .. table.concat(lines, "\n") .. "\n"
-    .. "\\end{tabular}\n\\end{table*}"
+    .. "\\end{tabular}\n\\end{" .. TABLE_ENV .. "}"
 
   return { pandoc.RawBlock("latex", result) }
 end
