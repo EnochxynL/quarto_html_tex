@@ -6,7 +6,7 @@
 *.fls
 *.log
 *.out
-*.synctex.gz
+*.synctex*
 
 # Quarto 输出
 index.tex
