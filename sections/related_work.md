@@ -40,7 +40,7 @@
 #### 负向知识与失败轨迹。
 
 最近的研究表明，失败轨迹只有在标注了根因结构之后才变得可操作 [@zhu2025agenterrorbench; @zhang2025agentracer]，然而原始轨迹转储 [@yang2024sweagent] 仍然难以利用。
-大规模实验日志 [@pinedaarango2021hpob; @ying2019nasbench; @gijsbers2019automl] 保留了比其对应论文所报告的多 $>$99.99\% 的搜索历史，而过程层面的研究 [@wijk2025rebench; @yamada2025aiscientistv2] 证实，人类专家和智能体科学家都会探索大量从未出现在书面报告中的死胡同。
+大规模实验日志 [@pinedaarango2021hpob; @ying2019nasbench; @gijsbers2019automl] 保留了比其对应论文所报告的多 >99.99% 的搜索历史，而过程层面的研究 [@wijk2025rebench; @yamada2025aiscientistv2] 证实，人类专家和智能体科学家都会探索大量从未出现在书面报告中的死胡同。
 与原始轨迹档案不同，{{< ara >}} 的探索图谱将死胡同提升为一等的 `dead\_end` 节点，具有结构化的失败模式和论断交叉引用，使负向知识可被机器查询，而非因叙事筛选而丢失。
 
 #### 面向智能体的文档与工具。

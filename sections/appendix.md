@@ -53,7 +53,7 @@
 
 - *self-composing-policies*：62个叶子节点枚举 \{6个方法\} $\times$ \{3个任务序列\} $\times$ \{种子数，时间步数，已训练\}——每个都是独立的可验证需求（例如"CompoNet在Meta-World上：10个种子，1M时间步/任务，已训练"）。
 - *bbox*：46个评估叶子节点交叉 \{5种模型大小\} $\times$ \{4个数据集\} $\times$ \{3种反馈类型\} $\times$ \{单步，全步\}推理模式。
-- *pinn*：$\sim$1,273个叶子节点枚举 \{4个PDE问题\} $\times$ \{4个网络宽度\} $\times$ \{5个学习率\} $\times$ \{3个优化器\}的网格，每种组合是一次独立的训练运行。
+- *pinn*：~1,273个叶子节点枚举 \{4个PDE问题\} $\times$ \{4个网络宽度\} $\times$ \{5个学习率\} $\times$ \{3个优化器\}的网格，每种组合是一次独立的训练运行。
 
 **{{< ara >}}的优势。**
 `experiments.md`文件将实验矩阵中的每个单元格明确列出，以结构化的`Setup`字段将模型、数据集和配置列为机器可读的键值对。
@@ -175,7 +175,7 @@
 
 - *bbox*："将GSM8K划分为7,473个训练样本和1,319个测试样本"；"随机采样100个问题作为TruthfulQA测试集，其余717个用于训练。"
 - *mechanistic-understanding*："创建了24,576对有毒性/无毒性续写"；"从RealToxicityPrompts中选择了295个输出token为‘shit’的提示。"
-- *pinn*："从255$\times$100网格中随机采样10,000个残差配置点；每个初始条件257个等距点，每个边界条件101个。"
+- *pinn*："从255×100网格中随机采样10,000个残差配置点；每个初始条件257个等距点，每个边界条件101个。"
 
 **{{< ara >}}的优势。**
 `configs/`目录提供了结构化的配置文件，包含精确的划分大小和采样参数。
@@ -983,7 +983,7 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 
 #### 任务策划。
 
-每个150个复现任务指定一个单一模型、一个单一方法和5--15个评分标准叶子需求作为成功标准，每篇论文按难度分层（$\geq$3个简单，$\geq$3个中等，$\geq$3个困难；总计：50个简单，49个中等，51个困难）。
+每个150个复现任务指定一个单一模型、一个单一方法和5--15个评分标准叶子需求作为成功标准，每篇论文按难度分层（≥3个简单，≥3个中等，≥3个困难；总计：50个简单，49个中等，51个困难）。
 任务描述了复现*什么*，而不是如何复现——智能体自行决定其实现策略。
 在每篇论文内，10个子任务构成一个单一的*巨型任务*：智能体按难度排序接收所有子任务（简单$\to$中等$\to$困难），并像人类研究者一样自然地逐步构建，复用先前的工作。
 
@@ -1084,10 +1084,10 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 \texttt{rust\_codecontests}     & $n_\text{solved}/165$              & $\uparrow$   & 0.00 & 0.13 & CPU + LLM API        & 12 (O6/S6) + 10$^\dagger$ & yes \\
 \midrule
 \texttt{small\_scaling\_law}    & $1{-}(\epsilon_\ell{+}\epsilon_p)$ & $\uparrow$   & 0.24 & 0.84 & 1$\times$GPU         & 0$^\ddagger$       & no \\
-\texttt{optimize\_llm\_foundry} & $\log(t_\text{s})$                 & $\downarrow$ & 5.60 & 4.54 & 4$\times$H100        & 0$^\S$             & no \\
+\texttt{optimize\_llm\_foundry} & $\log(t_\text{s})$                 & $\downarrow$ & 5.60 & 4.54 & 4$\times$H100        & 0\textsuperscript{\S}             & no \\
 \bottomrule
 \end{tabular}
-\caption{RE-Bench任务卡片及扩展评估状态。\emph{分数公式}逐字转录自\texttt{metr-re-bench/ai\_rd\_<task>/ai\_rd\_<task>.py}；$\ell$表示验证损失，$t$为挂钟时间，$n_\text{solved}$为正确解决问题的数量，$\epsilon_\ell$/$\epsilon_p$为损失/参数预测误差。\emph{方向}：分数取向。\emph{启动}：未修改起始代码库的分数。\emph{参考}：原始RE-Bench评估中报告的最佳分数。\emph{Claude-4 MALT}：METR MALT语料库中Claude-4（Opus + Sonnet）运行的数量，分解为O$\langle$Opus$\rangle$/S$\langle$Sonnet$\rangle$。$^\dagger$ \texttt{rust\_codecontests}还有一个使用相同评分脚手架的10次\texttt{claude-3-7-sonnet}补充运行。$^\ddagger$仅有Claude-3.5/3.7和OpenAI运行。$^\S$未发布MALT语料库。}
+\caption{RE-Bench任务卡片及扩展评估状态。\emph{分数公式}逐字转录自\texttt{metr-re-bench/ai\_rd\_<task>/ai\_rd\_<task>.py}；$\ell$表示验证损失，$t$为挂钟时间，$n_\text{solved}$为正确解决问题的数量，$\epsilon_\ell$/$\epsilon_p$为损失/参数预测误差。\emph{方向}：分数取向。\emph{启动}：未修改起始代码库的分数。\emph{参考}：原始RE-Bench评估中报告的最佳分数。\emph{Claude-4 MALT}：METR MALT语料库中Claude-4（Opus + Sonnet）运行的数量，分解为O$\langle$Opus$\rangle$/S$\langle$Sonnet$\rangle$。$^\dagger$ \texttt{rust\_codecontests}还有一个使用相同评分脚手架的10次\texttt{claude-3-7-sonnet}补充运行。$^\ddagger$仅有Claude-3.5/3.7和OpenAI运行。\textsuperscript{\S}未发布MALT语料库。}
 \label{tab-extension-task-card}
 \end{table*}
 ```
@@ -1126,7 +1126,7 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 \midrule
 SDK消息读取器在大型工具结果上中途崩溃；智能体进程在会话数小时后静默死亡。
 & SDK的stdin/stdout读取器上的默认\texttt{max\_buffer\_size}为1\,MiB；长bash输出（训练日志、大目录列表、多问题JSON转储）在单个工具结果中超过它。
-& 将SDK的\texttt{max\_buffer\_size}从1\,MiB提高到16\,MiB，并添加系统提示补充说明要求工具输出被管道截取或摘要；超过$\sim$10\,MiB的工具返回仍会崩溃，但牢固地属于"智能体在做傻事"的范围。 \\
+& 将SDK的\texttt{max\_buffer\_size}从1\,MiB提高到16\,MiB，并添加系统提示补充说明要求工具输出被管道截取或摘要；超过~10 MiB的工具返回仍会崩溃，但牢固地属于"智能体在做傻事"的范围。 \\
 \addlinespace
 SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空间进程发送\texttt{SIGTERM}，即\texttt{claude} CLI本身。
 & 智能体声明"会话完成"并运行\texttt{for i in \{1..N\}; do bash score.sh; done}批量批处理以"用尽预算"；每次调用产生一个新的CUDA上下文和Triton/PyTorch编译，GPU和主机内存的累积速度快于释放速度。
@@ -1137,7 +1137,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 & 推回上限提高到1{,}000，触发器集扩展到所有四个；每15轮注入中途提醒，引导智能体回到\texttt{reference/trace/}和\texttt{reference/evidence/}；恢复协议从其\texttt{session\_id}重新启动崩溃的会话，使用强制恢复提示，告知智能体它是在停止循环中结束的，真正的工作仍待完成，预算是唯一合法的停止标准。 \\
 \addlinespace
 最终的\texttt{score.sh}调用超时，且没有写入\texttt{final\_score.json}。
-& 默认的300\,s评分器超时对于具有长编译/基准测试阶段的任务来说太紧张（Triton自动调优；165问题的\texttt{rust\_codecontests}测试集在受速率限制的LLM调用下需要$\sim$2\,小时）。
+& 默认的300\,s评分器超时对于具有长编译/基准测试阶段的任务来说太紧张（Triton自动调优；165问题的\texttt{rust\_codecontests}测试集在受速率限制的LLM调用下需要~2 小时）。
 & 按任务定义超时：Triton为1{,}200\,s（中途）/ 1{,}800\,s（最终）；Rust为7{,}200\,s / 10{,}800\,s。当测试框架自身的最终评分阶段仍然超时时，一个单独的仅评分sbatch重新运行\texttt{bash score.sh}在现有工作目录的\texttt{solution\_final.py}上。 \\
 \bottomrule
 \end{tabular}
@@ -1181,7 +1181,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 #### Sonnet 4.6：早期领先，后期论文智能体反超。
 
-{{< ara >}}智能体在$t = 11$分钟时首次调用`bash score.sh`并立即得分0.47，在前十分钟内使用轨迹浮现的思想编辑了内核（`解耦回看`、`associative_scan`）。论文臂智能体直到$t = 37$分钟才评分，得分为0.38，早期挂钟时间花在阅读精炼写作和从第一性原理推理上。{{< ara >}}智能体在迄今最佳方面领先到$t \approx 75$分钟，然后论文臂智能体通过在$t = 47.7$分钟引入的`int8`输入压缩反超（动机来自于评分器的$[-10, 9]$输入范围适合8位），结合每个块的奇偶追踪聚合，将总内存流量从$\sim$2 GB降至0.5 GB；它在剩余的运行中迭代这一设计。{{< ara >}}智能体同时致力于链式扫描加解耦回看的重新设计，并在边界正确性调试上花费了后期计算，受启发式规则H13和轨迹报告的MALT上限所锚定。`int8`在$t = 40.5$分钟时在{{< ara >}}智能体轨迹中出现过一次，作为一闪而过的想法，从未被实现。
+{{< ara >}}智能体在$t = 11$分钟时首次调用`bash score.sh`并立即得分0.47，在前十分钟内使用轨迹浮现的思想编辑了内核（`解耦回看`、`associative_scan`）。论文臂智能体直到$t = 37$分钟才评分，得分为0.38，早期挂钟时间花在阅读精炼写作和从第一性原理推理上。{{< ara >}}智能体在迄今最佳方面领先到$t \approx 75$分钟，然后论文臂智能体通过在$t = 47.7$分钟引入的`int8`输入压缩反超（动机来自于评分器的$[-10, 9]$输入范围适合8位），结合每个块的奇偶追踪聚合，将总内存流量从~2 GB降至0.5 GB；它在剩余的运行中迭代这一设计。{{< ara >}}智能体同时致力于链式扫描加解耦回看的重新设计，并在边界正确性调试上花费了后期计算，受启发式规则H13和轨迹报告的MALT上限所锚定。`int8`在$t = 40.5$分钟时在{{< ara >}}智能体轨迹中出现过一次，作为一闪而过的想法，从未被实现。
 
 #### 解读。
 
