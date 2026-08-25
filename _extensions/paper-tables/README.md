@@ -100,7 +100,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 
 | 文件 | 作用 |
 |------|------|
-| `latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理） |
+| `latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理）；表格内 `\citep{key}` → 子文档跑 `pandoc.utils.citeproc` 渲染 `(Author Year)` |
 | `tables-to-tablestar.lua` | PDF：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular；HTML：管道表/`{=html}` 表 → RawBlock(`<table>`)（`Pandoc()` 回调 + 手写递归，配置经 `doc.meta` 读取） |
 | `crossref-html.lua` | HTML：表格统一编号（caption 加"表 N："）+ 引用链接化（`\ref{tab-X}` → `<a href="#tab-X">表 N</a>`） |
 
@@ -117,6 +117,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 9. **pandoc.write 对长属性行换行**（`<a\nhref=...`），HTML 文本 pattern 匹配 `<a href` 会失败——用 `%s+` 吸收空白。注意 quarto render 的 writer options 与 `quarto run` 直调 pandoc.write 不同（后者 wrap=auto 必换行），调试时以实际渲染产物为准。
 10. **Lua pattern 里 `§?`（可选多字节 UTF-8 字符）匹配空分支失败**——`(§?)<a` 匹配不到无 `§` 前缀的 `<a`。拆成两个独立 gsub（带 `§` / 不带）。
 11. **quarto 交叉引用 `@fig-X` 后直接跟汉字会被吞进 citationId**（`@fig-X按难度` → id=`fig-X按难度`，quarto 找不到 → 渲染 `?@fig-X` + Strong 包住被吞文本）。pandoc 的 citation id 边界：汉字/ASCII 字母数字连续吞，全角标点（`，（）。、`）是边界。修复：内容层把后跟汉字的 `@fig-X` 改成 `[@fig-X]`（方括号是边界，quarto 渲染视觉等价）。
+12. **RawBlock 字符串内部不经过主文档 citeproc**——`{=latex}` 表格内的 `\citep{key}` 经 pandoc.read 解析为 Cite，内部 write 无 citeproc → HTML writer 输出**空 span**（静默消失，无文本无报错）。修复：latex-tables.lua 改 Pandoc(doc) 回调（元素回调拿不到 doc.meta 的 bibliography），表格子文档注入 `bibliography` 后调 `pandoc.utils.citeproc`（pcall 保护），`\citep{key}` → `(Starace et al. 2025)`。仅当文本含 `\cite` 时调用（省开销）。
 
 ## 模板适配
 
