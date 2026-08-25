@@ -1,6 +1,6 @@
--- tables-html.lua — HTML 方案：管道表 / {=html} 表 → RawBlock("html")
+-- html-md-tables.lua — HTML 方案：管道表 / {=html} 表 → RawBlock("html")
 --
--- 从 tables-to-tablestar.lua 拆出的 HTML 半边（PDF 半边见 tables-pdf.lua）。
+-- 从 tables-to-tablestar.lua 拆出的 HTML 半边（PDF 半边见 pdf-md-tables.lua）。
 --
 -- 方案（为什么管道表在 HTML 端要转 RawBlock）：
 --   quarto 的 Table 处理（main.lua）会：

@@ -1,6 +1,6 @@
--- tables-pdf.lua — PDF 方案：管道表 / {=html} 表 → table* / table / longtable + booktabs tabular
+-- pdf-md-tables.lua — PDF 方案：管道表 / {=html} 表 → table* / table / longtable + booktabs tabular
 --
--- 从 tables-to-tablestar.lua 拆出的 PDF 半边（HTML 半边见 tables-html.lua）。
+-- 从 tables-to-tablestar.lua 拆出的 PDF 半边（HTML 半边见 html-md-tables.lua）。
 --
 -- 方案（为什么管道表要转成 LaTeX 浮动体）：
 --   双栏（\twocolumn）下 Pandoc 默认生成的 longtable 会报 "longtable not in 1-column mode"，

@@ -1,20 +1,25 @@
--- latex-tables.lua (v4) — 通用版
--- 
--- 核心能力：把 raw LaTeX 表格渲染为双格式
+-- html-latex-tables.lua — HTML 方案：raw LaTeX 表格 → RawBlock("html")
+--
+-- 核心能力：把 {=latex} 复杂表格（\multicolumn、\shortstack、\cmidrule）渲染为双格式
 --   HTML: raw LaTeX 表格 → pandoc.read → Table AST → pandoc.write(html) → RawBlock("html")
 --         直接输出 HTML 字符串，绕过 main.lua 对 Table 的 crossref 处理（它会吃掉 id）
---   PDF:  保持原样（crossref.lua 对 tab- 前缀只警告不拦截）
--- 
+--   PDF:  保持原样（crossref.lua 对 tab- 前缀只警告不拦截），编号走 LaTeX 原生
+--
+-- 方案要点：
+--   1) 元素回调拿不到 pandoc.meta（nil/空表），只有 Pandoc(doc) 的 doc.meta 有完整
+--      metadata——因此用 Pandoc() 回调（与 html-md-tables.lua 等统一排版）
+--   2) 表格内 \citep{key} 经 pandoc.read 解析为 Cite，内部 write 无 citeproc →
+--      HTML writer 输出空 span（静默消失）。修复：表格子文档注入 bibliography 后调
+--      pandoc.utils.citeproc（pcall 保护），\citep{key} → (Starace et al. 2025)
+--   3) \cmark/\xmark（pifont 自定义命令）pandoc 的 LaTeX reader 不认识会丢弃 →
+--      预处理替换为 Unicode ✓/✗；\cmidrule 行剥离（Pandoc 不认识，会变成垃圾文本）
+--
 -- 用法（filters 里按名称引用，如 html-helper）：
 --   filters:
 --     - html-helper
--- 
--- v4 变更：RawBlock 回调 → Pandoc(doc) 回调
---   1) 元素回调拿不到 pandoc.meta（nil/空表），只有 Pandoc(doc) 的 doc.meta 有完整
---      metadata——表格内 \citep{key} 需要在子文档上跑 pandoc.utils.citeproc 才能
---      渲染出 (Author Year)，而 bibliography 路径必须从 doc.meta 读
---   2) 表格子文档注入 bibliography 后调 citeproc：\citep{key} → (Starace et al. 2025)
---      （主文档 citeproc 不处理 RawBlock 字符串内部，只能在这里自己调）
+if FORMAT ~= "html" and FORMAT ~= "html5" then
+  return {}
+end
 
 -- 递归找 Table 节点
 local function find_table(blocks)
@@ -88,35 +93,25 @@ local function convert_table(el, bibstr)
 end
 
 function Pandoc(doc)
-  -- PDF/LaTeX: 保持原样（crossref 让路因为 tab- 前缀）
-  if FORMAT == "latex" or FORMAT == "pdf" then
-    return nil
-  end
+  local bib = doc.meta and doc.meta["bibliography"]
+  local bibstr = bib and pandoc.utils.stringify(bib) or nil
 
-  -- HTML: 处理所有 raw LaTeX 表格块
-  if FORMAT == "html" or FORMAT == "html5" then
-    local bib = doc.meta and doc.meta["bibliography"]
-    local bibstr = bib and pandoc.utils.stringify(bib) or nil
-
-    local function process_blocks(blocks)
-      local out = {}
-      for _, b in ipairs(blocks) do
-        if b.t == "RawBlock" and b.format == "latex"
-          and (b.text:match("\\begin{table%*?}") or b.text:match("\\begin{tabular}")) then
-          out[#out + 1] = convert_table(b, bibstr)
-        elseif b.t == "Div" then
-          b.content = pandoc.List(process_blocks(b.content))
-          out[#out + 1] = b
-        else
-          out[#out + 1] = b
-        end
+  local function process_blocks(blocks)
+    local out = {}
+    for _, b in ipairs(blocks) do
+      if b.t == "RawBlock" and b.format == "latex"
+        and (b.text:match("\\begin{table%*?}") or b.text:match("\\begin{tabular}")) then
+        out[#out + 1] = convert_table(b, bibstr)
+      elseif b.t == "Div" then
+        b.content = pandoc.List(process_blocks(b.content))
+        out[#out + 1] = b
+      else
+        out[#out + 1] = b
       end
-      return out
     end
-
-    doc.blocks = pandoc.List(process_blocks(doc.blocks))
-    return doc
+    return out
   end
 
-  return nil
+  doc.blocks = pandoc.List(process_blocks(doc.blocks))
+  return doc
 end
