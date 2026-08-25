@@ -1,19 +1,146 @@
--- crossref-html.lua — HTML 里 raw \ref{X} 是 RawInline("tex")，之后会被 Quarto 转成坏数学。
--- 这里把它们转成占位符 [§X]。Phase 2 换成真正的链接。
-function RawInline(el)
-  if FORMAT ~= "html" then
-    return nil
-  end
-  if el.format ~= "tex" then
-    return nil
-  end
-  local ref = el.text:match("^\\ref{([^}]+)}$")
-  if ref then
-    return pandoc.Str("[§" .. ref .. "]")
-  end
-  ref = el.text:match("^\\S\\ref{([^}]+)}$")
-  if ref then
-    return pandoc.Str("[§" .. ref .. "]")
+-- crossref-html.lua (v2) — HTML 表格统一编号 + 引用链接化
+--
+-- 背景：所有表格（复杂表 / 管道表 / {=html} 表）在 HTML 端都已是 RawBlock("html")
+--（latex-tables.lua 与 tables-to-tablestar.lua 转换），quarto 的 Table 处理被绕过，
+-- 表格编号和 \ref 链接都需要本 filter 统一负责。
+--
+-- 职责：
+--   1) 按文档顺序统计所有 <table id="..."> → 编号映射
+--   2) 给 <caption> 加 "表 N：" 前缀（与 PDF 端 LaTeX 自动编号的文档顺序一致）
+--   3) 正文 RawInline("tex") 的 \ref{X} / \S\ref{X}：
+--        X 是表格 id → <a href="#X">表 N</a>（可点击）
+--        其他（章节等）→ 保持 [§X] 占位符
+--   4) RawBlock("html") 内部（caption 等）的 \S?\ref{X} 文本 → 同上
+--
+-- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，
+--       全部手写递归。
+if FORMAT ~= "html" and FORMAT ~= "html5" then
+  return {}
+end
+
+-- 引用替换：表格 → 链接；其他 → nil（调用方决定占位符）
+local function ref_link(ref, nums)
+  if nums[ref] then
+    return '<a href="#' .. ref .. '">表 ' .. nums[ref] .. "</a>"
   end
   return nil
+end
+
+function Pandoc(doc)
+  -- 1) 统计编号：所有含表格的 RawBlock 按文档顺序编号（无 id 也占序号，保证与 PDF 端一致）
+  local nums = {}
+  local counter = 0
+  local raw_tables = {}  -- { {rb=RawBlock, id=..., num=...}, ... }
+
+  local function collect(blocks)
+    for _, b in ipairs(blocks) do
+      if b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
+        counter = counter + 1
+        local id = b.text:match('id="([^"]+)"')
+        raw_tables[#raw_tables + 1] = { rb = b, id = id, num = counter }
+        if id then nums[id] = counter end
+      elseif b.t == "Div" then
+        collect(b.content)
+      end
+    end
+  end
+  collect(doc.blocks)
+
+  -- 2) + 4) 表格 RawBlock：替换内部引用 + caption 加编号前缀
+  -- 注意 Lua pattern：`\\S?\\ref` 需要两个反斜杠，`\ref`（单反斜杠）不匹配——必须分两个 pattern，先长后短
+  local function replace_in_text(text)
+    text = text:gsub("\\S\\ref{([^}]+)}", function(ref)
+      local link = ref_link(ref, nums)
+      if link then return link end
+      return "[§" .. ref .. "]"
+    end)
+    text = text:gsub("\\ref{([^}]+)}", function(ref)
+      local link = ref_link(ref, nums)
+      if link then return link end
+      return "[§" .. ref .. "]"
+    end)
+    return text
+  end
+
+  for _, t in ipairs(raw_tables) do
+    t.rb.text = replace_in_text(t.rb.text)
+    t.rb.text = t.rb.text:gsub("(<caption>)([^<]*)", function(open, cap)
+      if cap:match("^表 %d+[:：]") then return open .. cap end
+      return open .. "表 " .. t.num .. "：" .. cap
+    end, 1)
+  end
+
+  -- 3) 正文 inline 替换（手写递归）
+  local function walk_inlines(inlines)
+    local out = pandoc.List({})
+    for _, inl in ipairs(inlines) do
+      if inl.t == "RawInline" and inl.format == "tex" then
+        -- 注意：`\S\ref{X}` 会被解析成两个 RawInline（\S 和 \ref{X}），且 `\\S?\\ref` pattern 需要两个反斜杠
+        local ref = inl.text:match("^\\ref{([^}]+)}$")
+        if not ref then
+          ref = inl.text:match("^\\S\\ref{([^}]+)}$")
+        end
+        if ref then
+          local link = ref_link(ref, nums)
+          if link then
+            out:insert(pandoc.RawInline("html", link))
+          else
+            out:insert(pandoc.Str("[§" .. ref .. "]"))
+          end
+        else
+          out:insert(inl)
+        end
+      else
+        -- 递归进入 inline 容器（Strong/Emph/Span/Link/Quoted/Cite 等）
+        if inl.content and (inl.t == "Strong" or inl.t == "Emph" or inl.t == "Span"
+          or inl.t == "Link" or inl.t == "Quoted" or inl.t == "Cite") then
+          inl.content = walk_inlines(inl.content)
+        end
+        out:insert(inl)
+      end
+    end
+    return out
+  end
+
+  local function walk_blocks(blocks)
+    local out = {}
+    for _, b in ipairs(blocks) do
+      if b.t == "Para" or b.t == "Plain" or b.t == "Header" then
+        b.content = walk_inlines(b.content)
+      elseif b.t == "Div" or b.t == "BlockQuote" then
+        b.content = walk_blocks(b.content)
+      elseif b.t == "Figure" then
+        b.content = walk_blocks(b.content)
+      elseif b.t == "BulletList" or b.t == "OrderedList" then
+        for i, item in ipairs(b.content) do
+          b.content[i] = walk_blocks(item)
+        end
+      elseif b.t == "DefinitionList" then
+        for _, item in ipairs(b.content) do
+          -- item = {term (Inlines), defs (List of Blocks)}
+          item[1] = walk_inlines(item[1])
+          for j, def in ipairs(item[2]) do
+            item[2][j] = walk_blocks(def)
+          end
+        end
+      elseif b.t == "Table" then
+        -- 防御：HTML 端理论上没有原生 Table（tables-to-tablestar.lua 已转 RawBlock）
+        local function walk_cells(rows)
+          for _, row in ipairs(rows or {}) do
+            for _, c in ipairs(row.cells) do
+              c.content = walk_inlines(c.content)
+            end
+          end
+        end
+        if b.head then walk_cells(b.head.rows) end
+        for _, bd in ipairs(b.bodies) do walk_cells(bd.body) end
+        walk_cells(b.foot and b.foot.rows)
+      end
+      out[#out + 1] = b
+    end
+    return out
+  end
+
+  doc.blocks = pandoc.List(walk_blocks(doc.blocks))
+  return doc
 end

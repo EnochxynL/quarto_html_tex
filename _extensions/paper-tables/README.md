@@ -76,30 +76,41 @@ format:
 
 | 输入 | PDF | HTML |
 |------|-----|------|
-| `{=latex}` 复杂表 | raw LaTeX 原样传递（`xelatex` 编译） | `pandoc.read()` 解析为 Table AST → 补 caption/label → 渲染为 `<table>` |
-| Markdown 管道表 | 转成 `table*`/`table`/`longtable` + booktabs tabular（默认 Pandoc 生成的 longtable 在双栏下报错） | Pandoc 原生 `<table>` |
-| `{=html}` 直写表 | `pandoc.read()` 解析 `<table>` → 同一套 booktabs tabular（quarto 会把它解析为 Div 包裹的原生 Table，本扩展整体替换，避免 writer 重组） | 原样输出 |
+| `{=latex}` 复杂表 | raw LaTeX 原样传递（`xelatex` 编译） | `pandoc.read()` 解析为 Table AST → 补 caption/label → 渲染为 `<table>`（`paper-table` class） |
+| Markdown 管道表 | 转成 `table*`/`table`/`longtable` + booktabs tabular（默认 Pandoc 生成的 longtable 在双栏下报错） | 转 RawBlock(`<table>`)——quarto 的 Table 处理会清空 id 并把 `{#id}` 残留进 caption，必须绕过 |
+| `{=html}` 直写表 | `pandoc.read()` 解析 `<table>` → 同一套 booktabs tabular（quarto 会把它解析为 Div 包裹的原生 Table，本扩展整体替换，避免 writer 重组） | 转 RawBlock(`<table>`)（原样语义） |
+
+### HTML 端编号与引用（crossref-html.lua v2）
+
+quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都用 `tab-` 前缀绕开它，因此 **HTML 端编号和引用由 crossref-html.lua 统一负责**：
+
+- 所有 `<table>` 按文档顺序编号（与 PDF 端 LaTeX 自动编号一致），caption 加"表 N："前缀
+- 正文 ``\ref{tab-X}`` / ``\S\ref{tab-X}`` → ``<a href="#tab-X">表 N</a>``（可点击跳转）
+- 非表格引用（章节等）→ ``[§X]`` 占位符
 
 ### 关键约定
 
 1. **label 前缀必须用 `tab-`**（Quarto crossref.lua 只处理 `tbl-`，用 `tab-` 让它让路；否则它会拆碎 raw LaTeX 表格）
-2. 正文引用写 `\ref{tab-example}`（PDF 原生解析；HTML 由 `crossref-html.lua` 转为 `[§tab-example]` 占位符）
-3. `\cmidrule` 会在 HTML 侧自动剥离（Pandoc 不认识它）
+2. 正文引用写 ``\ref{tab-example}``（PDF 原生解析；HTML 由 `crossref-html.lua` 转为可点击链接）
+3. ``\cmidrule`` 会在 HTML 侧自动剥离（Pandoc 不认识它）
 
 ## 组件
 
 | 文件 | 作用 |
 |------|------|
 | `latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理） |
-| `tables-to-tablestar.lua` | PDF：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular（`Pandoc()` 回调 + 手写递归，配置经 `doc.meta` 读取） |
-| `crossref-html.lua` | HTML：`\ref{X}` → `[§X]` 占位符 |
+| `tables-to-tablestar.lua` | PDF：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular；HTML：管道表/`{=html}` 表 → RawBlock(`<table>`)（`Pandoc()` 回调 + 手写递归，配置经 `doc.meta` 读取） |
+| `crossref-html.lua` | HTML：表格统一编号（caption 加"表 N："）+ 引用链接化（`\ref{tab-X}` → `<a href="#tab-X">表 N</a>`） |
 
 ### 踩坑记录（实现注意）
 
-1. **`pandoc.meta` 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表**——只有 `Pandoc(doc)` 回调的 `doc.meta` 才有完整 metadata。因此 `tables-to-tablestar.lua` 用 `Pandoc()` 回调 + 手写递归遍历（`pandoc.walk_block` 在本 pandoc 版本不可靠：函数 filter 报错、表 filter 静默不调用）。
+1. **`pandoc.meta` 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表**——只有 `Pandoc(doc)` 回调的 `doc.meta` 才有完整 metadata。因此 `tables-to-tablestar.lua` 用 `Pandoc()` 回调 + 手写递归遍历（`pandoc.walk_block` 在本 pandoc 版本不可靠：函数 filter 报错、表 filter 静默不调用；`pandoc.walk_inline` 也报错）。
 2. **metadata 值是 MetaInlines（`[Str "x"]`）**，需 `pandoc.utils.stringify` 才能与字符串比较（否则 `== "bottom"` 恒为 false）。
 3. **quarto 把 `{=html}` 的 `<table>` 解析为 `Div(quarto-scaffold)` 包裹的原生 Table**，`<caption>` 文本被拆到独立的 `Plain` 块、Table.caption 为空。处理时需提取 Table + Plain，并**整体替换整个 Div**（只替换内部 Table 会被 quarto writer 重组：丢失位置参数、注入重复 label）。
 4. 提取 Table/caption 时**不能以"找到 Table"作为返回条件**——含 caption 的子树可能没有 Table。
+5. **quarto reader 不消费管道表 caption 的 `{#id}`**（pandoc 原生消费，quarto 不消费）——残留文本留在 caption，attr.identifier 为空。HTML 转换时需在字符串层面提取 `{#id}` → `<table id>` 并移除残留。
+6. **quarto 的 Table 处理（main.lua）会清空非 `tbl-` 前缀的 attr.identifier** 并把 id 写回 caption 文本——这是管道表必须转 RawBlock 的原因。
+7. **Lua pattern 陷阱**：`\\S?\\ref` 在 Lua 里是"两个反斜杠 + 可选 S + ref"，匹配不了单反斜杠的 `\ref`——必须分两个 pattern 先匹配 `\S\ref` 再匹配 `\ref`（`\S\ref{X}` 还会被 pandoc 拆成两个独立 RawInline：`\S` 和 `\ref{X}`）。
 
 ## 模板适配
 
