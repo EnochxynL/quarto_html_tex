@@ -75,6 +75,22 @@ function Pandoc(doc)
   -- 2) + 4) 表格 RawBlock：替换内部引用 + caption 加编号前缀
   -- 注意 Lua pattern：`\\S?\\ref` 需要两个反斜杠，`\ref`（单反斜杠）不匹配——必须分两个 pattern，先长后短
   local function replace_in_text(text)
+    -- 先处理 pandoc LaTeX reader 生成的 Link 形态：\ref{X} 在 latex reader 里是
+    -- Link(attrs: reference-type=ref, reference=X, 文本 "[X]")，latex-tables.lua
+    -- write 成 html 后形如 <a href="#X" data-reference-type="ref" ...>[X]</a>。
+    -- \S\ref{X} 的 \S 已被 reader 转成 § 字符（Str）留在文本里，此时去掉 ref_link
+    -- 返回的 § 前缀避免重复。
+    -- 注意：不能写成 (§?)<a ... —— Lua pattern 里 §? 的多字节可选匹配空分支会失败。
+    text = text:gsub("§<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
+      local link = ref_link(ref, nums, sec_nums)
+      if link then return link:gsub("^§", "") end
+      return "§[" .. label .. "]"
+    end)
+    text = text:gsub("<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
+      local link = ref_link(ref, nums, sec_nums)
+      if link then return link end
+      return "[" .. label .. "]"
+    end)
     text = text:gsub("\\S\\ref{([^}]+)}", function(ref)
       local link = ref_link(ref, nums, sec_nums)
       if link then return link end
