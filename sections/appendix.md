@@ -1393,3 +1393,20 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 ### 级别3：执行可复现性 {#sec-app-seal-eval-l3}
 
 级别3有效性等同于复现评估（\S\ref{sec-eval-reproduction}, 附录 \ref{sec-app-reproduction-eval}）：一个编码智能体读取{{< ara >}}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表 \ref{tab-repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录 \ref{sec-app-reproduction-eval}了解任务设计、评分和按论文分析。
+
+#### {=html} 直写表格的 PDF 端转换测试
+
+以下表格以 {=html} 直写（非 LaTeX、非管道表），用于验证 paper-tables 扩展的 HTML raw → LaTeX 兜底转换（PDF 端经 pandoc.read 解析为 Table AST 后按 booktabs 三线表输出）：
+
+```{=html}
+<table id="tab-html-raw-test">
+<caption>HTML 直写表格的 PDF 端转换测试</caption>
+<thead>
+<tr><th>方法</th><th>Q&A 准确率</th><th>复现成功率</th></tr>
+</thead>
+<tbody>
+<tr><td>ARA</td><td>93.7%</td><td>64.4%</td></tr>
+<tr><td>基线</td><td>72.4%</td><td>57.4%</td></tr>
+</tbody>
+</table>
+```

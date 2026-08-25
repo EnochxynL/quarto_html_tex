@@ -1,6 +1,6 @@
 # Paper-Tables
 
-Quarto 扩展：让同一份 LaTeX 表格源码同时渲染为 PDF（原生 LaTeX）和 HTML（`<table>`）。
+Quarto 扩展：让同一份表格源码同时渲染为 PDF（原生 LaTeX）和 HTML（`<table>`）。
 
 ## 解决的问题
 
@@ -33,6 +33,7 @@ format:
     paper-tables:
       table-env: table*    # table*（双栏通栏）| table（单栏）| longtable
       table-pos: htbp      # 浮动位置参数
+      caption-pos: top     # caption 位置：top（表上方，ICML 惯例）| bottom（表下方，AAAI/Springer 惯例）
 ---
 ```
 
@@ -55,12 +56,29 @@ format:
 ```
 ````
 
+也可以直写 HTML 表格（PDF 端自动转成 booktabs 三线表）：
+
+````markdown
+```{=html}
+<table id="tab-example2">
+<caption>HTML 直写的表格。</caption>
+<thead>
+<tr><th>a</th><th>b</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>2</td></tr>
+</tbody>
+</table>
+```
+````
+
 ## 行为
 
-| 输出 | 处理方式 |
-|------|---------|
-| **PDF** | raw LaTeX 原样传递，`xelatex` 编译（crossref.lua 对 `tab-` 前缀让路） |
-| **HTML** | `pandoc.read()` 解析为 Table AST → 补 caption/label → 渲染为 `<table>` |
+| 输入 | PDF | HTML |
+|------|-----|------|
+| `{=latex}` 复杂表 | raw LaTeX 原样传递（`xelatex` 编译） | `pandoc.read()` 解析为 Table AST → 补 caption/label → 渲染为 `<table>` |
+| Markdown 管道表 | 转成 `table*`/`table`/`longtable` + booktabs tabular（默认 Pandoc 生成的 longtable 在双栏下报错） | Pandoc 原生 `<table>` |
+| `{=html}` 直写表 | `pandoc.read()` 解析 `<table>` → 同一套 booktabs tabular（quarto 会把它解析为 Div 包裹的原生 Table，本扩展整体替换，避免 writer 重组） | 原样输出 |
 
 ### 关键约定
 
@@ -73,16 +91,24 @@ format:
 | 文件 | 作用 |
 |------|------|
 | `latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理） |
-| `tables-to-tablestar.lua` | PDF：Markdown 管道表 → `table*`/`table`/`longtable`（默认 Pandoc 生成的 longtable 在双栏下报错） |
+| `tables-to-tablestar.lua` | PDF：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular（`Pandoc()` 回调 + 手写递归，配置经 `doc.meta` 读取） |
 | `crossref-html.lua` | HTML：`\ref{X}` → `[§X]` 占位符 |
+
+### 踩坑记录（实现注意）
+
+1. **`pandoc.meta` 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表**——只有 `Pandoc(doc)` 回调的 `doc.meta` 才有完整 metadata。因此 `tables-to-tablestar.lua` 用 `Pandoc()` 回调 + 手写递归遍历（`pandoc.walk_block` 在本 pandoc 版本不可靠：函数 filter 报错、表 filter 静默不调用）。
+2. **metadata 值是 MetaInlines（`[Str "x"]`）**，需 `pandoc.utils.stringify` 才能与字符串比较（否则 `== "bottom"` 恒为 false）。
+3. **quarto 把 `{=html}` 的 `<table>` 解析为 `Div(quarto-scaffold)` 包裹的原生 Table**，`<caption>` 文本被拆到独立的 `Plain` 块、Table.caption 为空。处理时需提取 Table + Plain，并**整体替换整个 Div**（只替换内部 Table 会被 quarto writer 重组：丢失位置参数、注入重复 label）。
+4. 提取 Table/caption 时**不能以"找到 Table"作为返回条件**——含 caption 的子树可能没有 Table。
 
 ## 模板适配
 
-不同期刊模板只需改 `table-env`：
+不同期刊模板只需改 `table-env` / `caption-pos`：
 
 | 模板 | 配置 |
 |------|------|
-| ICML（双栏） | `table-env: table*` |
+| ICML（双栏） | `table-env: table*`，`caption-pos: top` |
 | IEEE（双栏） | `table-env: table`（配 `\hline` 风格需自行调） |
-| Springer（单栏） | `table-env: table` 或 `longtable` |
+| Springer（单栏） | `table-env: table` 或 `longtable`，`caption-pos: bottom` |
+| AAAI（单栏） | `table-env: table`，`caption-pos: bottom`（booktabs 三线表即 AAAI 推荐风格） |
 | 博客/HTML | 无需配置，默认走 HTML 分支 |
