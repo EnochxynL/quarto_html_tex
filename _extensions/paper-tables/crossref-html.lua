@@ -19,9 +19,9 @@ if FORMAT ~= "html" and FORMAT ~= "html5" then
 end
 
 -- 引用替换：表格 → 表 N；章节 → §N（自数编号）；图 → [fig-X]（quarto 锚点存在但编号在 writer 阶段生成，filter 拿不到）；其他 → nil（调用方决定占位符）
-local function ref_link(ref, nums, sec_nums)
-  if nums[ref] then
-    return '<a href="#' .. ref .. '">表 ' .. nums[ref] .. "</a>"
+local function ref_link(ref, tab_nums, sec_nums)
+  if tab_nums[ref] then
+    return '<a href="#' .. ref .. '">表 ' .. tab_nums[ref] .. "</a>"
   elseif sec_nums[ref] then
     return '<a href="#' .. ref .. '">§' .. sec_nums[ref] .. "</a>"
   elseif ref:match("^fig%-") then
@@ -31,18 +31,19 @@ local function ref_link(ref, nums, sec_nums)
 end
 
 function Pandoc(doc)
-  -- 1) 统计编号：所有含表格的 RawBlock 按文档顺序编号（无 id 也占序号，保证与 PDF 端一致）
-  local nums = {}
-  local counter = 0
+  -- 1) 统计编号：
+  -- 表格编号：所有含表格的 RawBlock 按文档顺序编号（无 id 也占序号，保证与 PDF 端一致）
+  local tab_nums = {}
+  local tab_counter = 0
   local raw_tables = {}  -- { {rb=RawBlock, id=..., num=...}, ... }
 
   local function collect(blocks)
     for _, b in ipairs(blocks) do
       if b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
-        counter = counter + 1
+        tab_counter = tab_counter + 1
         local id = b.text:match('id="([^"]+)"')
-        raw_tables[#raw_tables + 1] = { rb = b, id = id, num = counter }
-        if id then nums[id] = counter end
+        raw_tables[#raw_tables + 1] = { rb = b, id = id, num = tab_counter }
+        if id then tab_nums[id] = tab_counter end
       elseif b.t == "Div" then
         collect(b.content)
       end
@@ -82,22 +83,22 @@ function Pandoc(doc)
     -- 返回的 § 前缀避免重复。
     -- 注意：不能写成 (§?)<a ... —— Lua pattern 里 §? 的多字节可选匹配空分支会失败。
     text = text:gsub("§<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link:gsub("^§", "") end
       return "§[" .. label .. "]"
     end)
     text = text:gsub("<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link end
       return "[" .. label .. "]"
     end)
     text = text:gsub("\\S\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
     text = text:gsub("\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
@@ -123,7 +124,7 @@ function Pandoc(doc)
           ref = inl.text:match("^\\S\\ref{([^}]+)}$")
         end
         if ref then
-          local link = ref_link(ref, nums, sec_nums)
+          local link = ref_link(ref, tab_nums, sec_nums)
           if link then
             out:insert(pandoc.RawInline("html", link))
           else
