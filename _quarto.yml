@@ -1,5 +1,2 @@
 project:
   type: default
-  pre-render: _pre_render.py
-  render:
-    - "_build/index.qmd"

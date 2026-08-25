@@ -2,7 +2,7 @@
 我们的工作综合了三个研究方向的思想——机器可读科学、可复现性基础设施和面向智能体的工具——并贡献了一个统一的协议，这是它们各自所无法单独提供的。
 \paragraph{现有工具的维度差距。}
 一个自然的质疑是，\ara{} 仅仅是将文档、版本控制和实验追踪——研究者已经在使用的三种工具——组合在一起。
-表~\ref{tbl-dimension-gap} 说明了为什么即使\emph{同时}使用 PDF、GitHub 和追踪器（MLflow~\citep{zaharia2018mlflow}，Weights~\&~Biases~\citep{biewald2020wandb}），知识仍然被孤岛式地分割在三种彼此无关联的格式中——论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
+表~\ref{tab-dimension-gap} 说明了为什么即使\emph{同时}使用 PDF、GitHub 和追踪器（MLflow~\citep{zaharia2018mlflow}，Weights~\&~Biases~\citep{biewald2020wandb}），知识仍然被孤岛式地分割在三种彼此无关联的格式中——论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
 \ara{} 并非通过替代这些工具，而是通过提供缺失的结构层来弥合这一差距：一个可执行的认识论图谱，其跨层绑定使这些连接显式化且可被机器遍历。
 ```{=latex}
 \begin{table}[t]
@@ -21,7 +21,7 @@
 \bottomrule
 \end{tabular}
 \caption{现有研究构件的维度覆盖。每一行是智能体原生研究的一项需求（\S\ref{sec-intro}）。现有工具在结构上最多覆盖两个维度；\ara{} 通过显式的跨层绑定覆盖全部五个维度。{\color{green!50!black}\checkmark}~=~完整，{\color{orange}$\sim$}~=~部分（存在但非结构化或分散），{\color{red!70!black}$\times$}~=~缺失。}
-\label{tbl-dimension-gap}
+\label{tab-dimension-gap}
 \end{table}
 ```
 

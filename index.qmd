@@ -2,6 +2,7 @@
 shortcodes:
   - ara.lua
 filters:
+  - latex-tables.lua
   - tables-to-tablestar.lua
   - crossref-html.lua
 format:
