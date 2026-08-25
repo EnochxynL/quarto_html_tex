@@ -7,7 +7,7 @@
   \small
   \begin{tabular}{@{} p{0.46\linewidth} | p{0.46\linewidth} @{}}
   \toprule
-  \textbf{PaperBench}~[@starace2025paperbench] & \textbf{RE-Bench}~[@wijk2025rebench] \\
+  \textbf{PaperBench}~\citep{starace2025paperbench} & \textbf{RE-Bench}~\citep{wijk2025rebench} \\
   \midrule
   \textbf{论文：} 23篇经同行评审的、横跨多个子领域的机器学习论文 &
   \textbf{任务：} 7个基于明确目标函数的研发爬山任务 \\
