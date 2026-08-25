@@ -86,7 +86,9 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 
 - 所有 `<table>` 按文档顺序编号（与 PDF 端 LaTeX 自动编号一致），caption 加"表 N："前缀
 - 正文 ``\ref{tab-X}`` / ``\S\ref{tab-X}`` → ``<a href="#tab-X">表 N</a>``（可点击跳转）
-- 非表格引用（章节等）→ ``[§X]`` 占位符
+- 章节 ``\S\ref{sec-X}`` → ``<a href="#sec-X">§N</a>``（N 为按 Header 层级自数的编号，与 PDF 端一致）
+- 图 ``\ref{fig-X}`` → ``<a href="#fig-X">[fig-X]</a>``（quarto 锚点存在；图编号由 quarto writer 阶段生成，filter 拿不到）
+- 悬空引用（目标 id 不存在，如 ``\ref{sec-related}``）→ ``[§X]`` 占位符
 
 ### 关键约定
 

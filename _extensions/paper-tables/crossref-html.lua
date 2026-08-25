@@ -18,10 +18,14 @@ if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
 
--- 引用替换：表格 → 链接；其他 → nil（调用方决定占位符）
-local function ref_link(ref, nums)
+-- 引用替换：表格 → 表 N；章节 → §N（自数编号）；图 → [fig-X]（quarto 锚点存在但编号在 writer 阶段生成，filter 拿不到）；其他 → nil（调用方决定占位符）
+local function ref_link(ref, nums, sec_nums)
   if nums[ref] then
     return '<a href="#' .. ref .. '">表 ' .. nums[ref] .. "</a>"
+  elseif sec_nums[ref] then
+    return '<a href="#' .. ref .. '">§' .. sec_nums[ref] .. "</a>"
+  elseif ref:match("^fig%-") then
+    return '<a href="#' .. ref .. '">[' .. ref .. "]</a>"
   end
   return nil
 end
@@ -46,16 +50,38 @@ function Pandoc(doc)
   end
   collect(doc.blocks)
 
+  -- 章节编号：遍历 Header（含 Div 嵌套），按层级自数（1.1.1 格式，与 PDF 端 Pandoc number-sections 一致）
+  local sec_nums = {}
+  local sec_counters = { 0, 0, 0, 0, 0, 0 }
+  local function scan_headers(blocks)
+    for _, b in ipairs(blocks) do
+      if b.t == "Header" then
+        local lvl = b.level or 1
+        sec_counters[lvl] = sec_counters[lvl] + 1
+        for i = lvl + 1, 6 do sec_counters[i] = 0 end
+        local parts = {}
+        for i = 1, lvl do parts[i] = sec_counters[i] end
+        local id = b.attr and b.attr.identifier or ""
+        if id ~= "" then
+          sec_nums[id] = table.concat(parts, ".")
+        end
+      elseif b.t == "Div" then
+        scan_headers(b.content)
+      end
+    end
+  end
+  scan_headers(doc.blocks)
+
   -- 2) + 4) 表格 RawBlock：替换内部引用 + caption 加编号前缀
   -- 注意 Lua pattern：`\\S?\\ref` 需要两个反斜杠，`\ref`（单反斜杠）不匹配——必须分两个 pattern，先长后短
   local function replace_in_text(text)
     text = text:gsub("\\S\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, nums)
+      local link = ref_link(ref, nums, sec_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
     text = text:gsub("\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, nums)
+      local link = ref_link(ref, nums, sec_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
@@ -81,7 +107,7 @@ function Pandoc(doc)
           ref = inl.text:match("^\\S\\ref{([^}]+)}$")
         end
         if ref then
-          local link = ref_link(ref, nums)
+          local link = ref_link(ref, nums, sec_nums)
           if link then
             out:insert(pandoc.RawInline("html", link))
           else
