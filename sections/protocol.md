@@ -2,7 +2,7 @@
 
 智能体原生研究构件（{{< ara >}}）协议定义了一套文件系统本体，将计算机科学研究从叙事性文档转变为一个机器可执行的知识包。
 我们分别阐述其设计理念（@sec-philosophy）和分层架构（@sec-layers）。
-图 \ref{fig-lrm-overview}（\ref{sec-live-pm}）展示了实时研究管理器如何在长时间尺度上，在人--AI 研究过程与活态构件之间进行协调。
+图 @fig-lrm-overview（\ref{sec-live-pm}）展示了实时研究管理器如何在长时间尺度上，在人--AI 研究过程与活态构件之间进行协调。
 
 ![Ara 目录结构。每个文件的角色以内联注释标注；层级徽章标出四个顶层分区。跨层的*取证绑定*将 `/logic` 中的论断链接至 `/evidence` 中的证据和 `/src` 中的代码。完整模式见附录 \ref{sec-app-schema}；设计理由见附录 \ref{sec-app-protocol-details}。](figures/fig_ara_directory_annotated.png){#fig-ara-structure}
 

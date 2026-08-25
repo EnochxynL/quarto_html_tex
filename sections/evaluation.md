@@ -7,7 +7,7 @@
   \small
   \begin{tabular}{@{} p{0.46\linewidth} | p{0.46\linewidth} @{}}
   \toprule
-  \textbf{PaperBench}~\citep{starace2025paperbench} & \textbf{RE-Bench}~\citep{wijk2025rebench} \\
+  \textbf{PaperBench}~[@starace2025paperbench] & \textbf{RE-Bench}~[@wijk2025rebench] \\
   \midrule
   \textbf{论文：} 23篇经同行评审的、横跨多个子领域的机器学习论文 &
   \textbf{任务：} 7个基于明确目标函数的研发爬山任务 \\
@@ -38,7 +38,7 @@
 
 #### 传统构件中的两个系统性缺口。
 
-这个比较之所以有意义，正是因为传统PDF$+$repo会丢失两类{{< ara >}}能够保留的内容。第一，*配置深度*：已发表论文省略了专家认为复现所必需的超参数、环境规格和实现细节。在PaperBench的8,921条专家复现要求中，源PDF中仅有**45.4\%** 被完整指定（图 \ref{fig-info-gap}；完整分类见附录 \ref{sec-app-gap-types}）。第二，*探索深度*：产生最终结果的大部分算力从未进入构件。在24,008次RE-Bench智能体运行中，**90.2\%** 的美元成本消耗在被已发表构件完全丢弃的失败探索上（附录 \ref{sec-app-exploration-tax}），迫使每个后续智能体重新发现相同的死胡同。我们选用两个基准测试，使每个基准测试作为一等源信息恰好提供传统构件所缺失的内容：PaperBench的专家评分细则弥合了配置缺口；RE-Bench的MALT轨迹弥合了探索缺口（表 \ref{tab-benchmarks}）。这两个基准测试恰好源自计算机科学和机器学习领域，但{{< ara >}}的设计可扩展到任何其贡献可以表示为代码、配置和有据数据的*数字化*研究，包括计算社会科学、经济学和干实验生物学。其贡献为物理世界干预（湿实验生物学、材料合成）的研究不在本范围内，除非其底层实验记录本身被数字化。
+这个比较之所以有意义，正是因为传统PDF$+$repo会丢失两类{{< ara >}}能够保留的内容。第一，*配置深度*：已发表论文省略了专家认为复现所必需的超参数、环境规格和实现细节。在PaperBench的8,921条专家复现要求中，源PDF中仅有**45.4\%** 被完整指定（图 @fig-info-gap；完整分类见附录 \ref{sec-app-gap-types}）。第二，*探索深度*：产生最终结果的大部分算力从未进入构件。在24,008次RE-Bench智能体运行中，**90.2\%** 的美元成本消耗在被已发表构件完全丢弃的失败探索上（附录 \ref{sec-app-exploration-tax}），迫使每个后续智能体重新发现相同的死胡同。我们选用两个基准测试，使每个基准测试作为一等源信息恰好提供传统构件所缺失的内容：PaperBench的专家评分细则弥合了配置缺口；RE-Bench的MALT轨迹弥合了探索缺口（表 \ref{tab-benchmarks}）。这两个基准测试恰好源自计算机科学和机器学习领域，但{{< ara >}}的设计可扩展到任何其贡献可以表示为代码、配置和有据数据的*数字化*研究，包括计算社会科学、经济学和干实验生物学。其贡献为物理世界干预（湿实验生物学、材料合成）的研究不在本范围内，除非其底层实验记录本身被数字化。
 
 #### 同一研究的两种表示。
 
@@ -46,7 +46,7 @@
 
 ## 从{{< ara >}}中提取知识 {#sec-eval-understanding}
 
-第一层衡量智能体从每种格式中能够提取什么：{{< ara >}}是否保留了源PDF和仓库中存在的信息，其结构是否能将源材料中零散或隐含的知识浮现出来？在编译过程中丢失信息的格式无法改善复现或扩展，因此这是每一项下游收益的前提条件。\S\ref{sec-intro}中量化的信息缺口（图 \ref{fig-info-gap}）表明，结构*能够*恢复PDF未充分指定的细节；本层测试编译器是否真正实现了这一承诺。
+第一层衡量智能体从每种格式中能够提取什么：{{< ara >}}是否保留了源PDF和仓库中存在的信息，其结构是否能将源材料中零散或隐含的知识浮现出来？在编译过程中丢失信息的格式无法改善复现或扩展，因此这是每一项下游收益的前提条件。\S\ref{sec-intro}中量化的信息缺口（图 @fig-info-gap）表明，结构*能够*恢复PDF未充分指定的细节；本层测试编译器是否真正实现了这一承诺。
 
 #### 实验设置。
 
@@ -88,7 +88,7 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 
 ## 基于{{< ara >}}的复现 {#sec-eval-reproduction}
 
-第二层测试结构化构件能否将理解转化为行动：智能体能否从{{< ara >}}比从传统PDF$+$GitHub组合更有效地复现实验结果？第1层衡量智能体知道什么；第2层衡量智能体能做什么。\S\ref{sec-intro}中的信息缺口（图 \ref{fig-info-gap}；54.6\%的专家复现要求部分或完全缺失于PDF）指明了{{< ara >}}结构化各层旨在消除的具体执行障碍。
+第二层测试结构化构件能否将理解转化为行动：智能体能否从{{< ara >}}比从传统PDF$+$GitHub组合更有效地复现实验结果？第1层衡量智能体知道什么；第2层衡量智能体能做什么。\S\ref{sec-intro}中的信息缺口（图 @fig-info-gap；54.6\%的专家复现要求部分或完全缺失于PDF）指明了{{< ara >}}结构化各层旨在消除的具体执行障碍。
 
 #### 任务选取。
 
@@ -109,7 +109,7 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 
 #### 结果。
 
-在所有15篇完成成对运行的论文中（150个子任务，1,743条评分细则要求），{{< ara >}}实现了**64.4\%** 的难度加权成功率，而基线为**57.4\%**；论文层面的胜/平/负分布为8/5/2（各论文数据见附录 \ref{sec-app-repro-per-paper}）。图 \ref{fig-repro-difficulty}按难度分层展示了这一总体结果；各论文分解见附录 \ref{sec-app-repro-per-paper}（图 \ref{fig-repro-difficulty-heatmap}）。
+在所有15篇完成成对运行的论文中（150个子任务，1,743条评分细则要求），{{< ara >}}实现了**64.4\%** 的难度加权成功率，而基线为**57.4\%**；论文层面的胜/平/负分布为8/5/2（各论文数据见附录 \ref{sec-app-repro-per-paper}）。图 @fig-repro-difficulty按难度分层展示了这一总体结果；各论文分解见附录 \ref{sec-app-repro-per-paper}（图 @fig-repro-difficulty-heatmap）。
 
 ![所有15篇论文的总体复现成功率，按难度分层。Ara的优势随难度单调递增（简单$+4.9\%$，中等$+5.6\%$，困难$+8.5\%$），恰好跟踪了复现最依赖PDF未充分指定的配置内容的难度层次。](figures/fig_reproduction_difficulty.pdf){#fig-repro-difficulty}
 
@@ -140,7 +140,7 @@ RE-Bench的输入不同于典型的论文 + repo：源材料是官方参考解�
 
 #### 结果。
 
-图 \ref{fig-extension-summary}报告了每个任务上每个智能体相对于挂钟时间和API支出的最优包络线和底层评分尝试。在`rust_codecontests`、`nanogpt_chat_rl`和`fix_embedding`上，{{< ara >}}智能体最终获得更好的最佳分数；在Sonnet 4.6下的`triton_cumsum`和`restricted_mlm`上，论文智能体最终领先。轨迹呈现出以下三个现象；各任务案例研究和轨迹证据（`文件读取`、`ThinkingBlock`推理、编辑历史）见附录 \ref{sec-app-extension-cases}。
+图 @fig-extension-summary报告了每个任务上每个智能体相对于挂钟时间和API支出的最优包络线和底层评分尝试。在`rust_codecontests`、`nanogpt_chat_rl`和`fix_embedding`上，{{< ara >}}智能体最终获得更好的最佳分数；在Sonnet 4.6下的`triton_cumsum`和`restricted_mlm`上，论文智能体最终领先。轨迹呈现出以下三个现象；各任务案例研究和轨迹证据（`文件读取`、`ThinkingBlock`推理、编辑历史）见附录 \ref{sec-app-extension-cases}。
 
 ![Claude Sonnet 4.6下五个RE-Bench任务的扩展轨迹。每列一个任务：上行为分数-挂钟时间图，下行为分数-累计成本图；每列上下共享y轴。淡色标记为单次评分尝试，实线为截至当前的最优包络线，星号为最佳尝试；灰色虚线标记每个任务的RE-Bench参考分数。列标题中的箭头指示指标方向。*在所有五个任务上，Ara智能体比论文智能体更早到达第一个有效动作，并在`rust_codecontests`、`nanogpt_chat_rl`和`fix_embedding`上以更好的最佳分数结束；在`triton_cumsum`和`restricted_mlm`上，论文智能体后来通过轨迹未命名的动作反超（分别为`int8`内核重新设计和单一架构上的聚焦深度）。第 \ref{sec-eval-extension}节解析了为何Ara的早期领先在这两个任务上未能保持，以及较旧Sonnet 4.5基础上的相同比较如何逆转了这一结果。*各任务案例研究和`triton_cumsum`与`restricted_mlm`的Sonnet 4.5轨迹见附录 \ref{sec-app-extension-cases}。](figures/extension/summary_5tasks_46.pdf){#fig-extension-summary}
 
@@ -154,7 +154,7 @@ RE-Bench的输入不同于典型的论文 + repo：源材料是官方参考解�
 
 #### 较弱基础模型逆转了比较结果。
 
-对于这两个任务，成对的Sonnet 4.5轨迹显示出相反的模式（附录图 \ref{fig-extension-triton-45}、 \ref{fig-extension-mlm-45}）：{{< ara >}}智能体在`triton_cumsum`上达到$0.27$ vs. 论文智能体的$0.64$，在`restricted_mlm`上达到$0.73$ vs. $1.03$。较弱的基础模型缺乏能力去发明如`int8`压缩这样的动作或深度聚焦于单一架构，而同样那些约束了Sonnet 4.6的启发式规则却为Sonnet 4.5提供了一份富有成效的、有序的策略尝试清单。构件的价值似乎与轨迹所记录的内容和智能体自身能发现的内容之间的差距成比例。
+对于这两个任务，成对的Sonnet 4.5轨迹显示出相反的模式（附录图 @fig-extension-triton-45、 @fig-extension-mlm-45）：{{< ara >}}智能体在`triton_cumsum`上达到$0.27$ vs. 论文智能体的$0.64$，在`restricted_mlm`上达到$0.73$ vs. $1.03$。较弱的基础模型缺乏能力去发明如`int8`压缩这样的动作或深度聚焦于单一架构，而同样那些约束了Sonnet 4.6的启发式规则却为Sonnet 4.5提供了一份富有成效的、有序的策略尝试清单。构件的价值似乎与轨迹所记录的内容和智能体自身能发现的内容之间的差距成比例。
 
 #### 展望。
 

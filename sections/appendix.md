@@ -1004,8 +1004,8 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 
 #### 按难度分析。
 
-总体的按难度模式（{{< ara >}} 85.1\% vs. 基线80.2\%简单，68.5\% vs. 62.9\%中等，54.5\% vs. 46.0\%困难）在正文图 \ref{fig-repro-difficulty}中可视化。
-图 \ref{fig-repro-difficulty-heatmap}将此总体模式解析到每篇论文层面，表 \ref{tab-repro-per-difficulty}提供了支撑两者的完整按论文、按难度成功率。
+总体的按难度模式（{{< ara >}} 85.1\% vs. 基线80.2\%简单，68.5\% vs. 62.9\%中等，54.5\% vs. 46.0\%困难）在正文图 @fig-repro-difficulty中可视化。
+图 @fig-repro-difficulty-heatmap将此总体模式解析到每篇论文层面，表 \ref{tab-repro-per-difficulty}提供了支撑两者的完整按论文、按难度成功率。
 
 ![每篇论文Ara $-$ 基线差值（百分点），按各难度层级划分，按平均优势排序。绿色表示Ara获胜，红色表示基线获胜。收益集中在大多数论文的中等和困难列；少数基线获胜仅限于少量论文，最突出的是`self-expansion`和`ftrl`。](figures/fig_reproduction_difficulty_heatmap.pdf){#fig-repro-difficulty-heatmap}
 
@@ -1163,13 +1163,13 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 ## 按任务案例研究 {#sec-app-extension-cases}
 
-第\S\ref{sec-eval-extension}中的每个任务在此以轨迹案例研究的形式展开，以智能体自身的`trace.jsonl`和`ThinkingBlock`流为依据，顺序与图 \ref{fig-extension-summary}的列顺序相同。正文组合已显示Sonnet 4.6轨迹；对于`triton_cumsum`（图 \ref{fig-extension-triton-45}）和`restricted_mlm`（图 \ref{fig-extension-mlm-45}），我们还报告了在较旧的Sonnet 4.5基础上的相同配对比较，以使跨模型版本的对比可见。
+第\S\ref{sec-eval-extension}中的每个任务在此以轨迹案例研究的形式展开，以智能体自身的`trace.jsonl`和`ThinkingBlock`流为依据，顺序与图 @fig-extension-summary的列顺序相同。正文组合已显示Sonnet 4.6轨迹；对于`triton_cumsum`（图 @fig-extension-triton-45）和`restricted_mlm`（图 @fig-extension-mlm-45），我们还报告了在较旧的Sonnet 4.5基础上的相同配对比较，以使跨模型版本的对比可见。
 
 ### 案例研究：`triton_cumsum`（GPU内核优化） {#sec-eval-extension-triton}
 
-任务是为$10^8$个`int32`元素上的条件前缀和编写一个Triton内核：$Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{j之前有奇数个正数}]$，在H100上按$\log(t_\text{ms})$评分。双方从相同的官方解决方案开始：一个3遍Triton内核（奇偶扫描$\to$条件累加和$\to$块求和累加），具有自动调优的`BLOCK_SIZE` / `NUM_STAGES`。我们运行了四条轨迹：Claude Sonnet 4.5上的论文臂和{{< ara >}}臂（我们拥有最长配对运行的模型）以及Sonnet 4.6上的（我们在其余评估中使用的模型重新运行）。Sonnet 4.6轨迹在正文图 \ref{fig-extension-summary}（最左列）中；下面的图 \ref{fig-extension-triton-45}显示了Sonnet 4.5配对运行。分析交叉参考了二者的轨迹。
+任务是为$10^8$个`int32`元素上的条件前缀和编写一个Triton内核：$Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{j之前有奇数个正数}]$，在H100上按$\log(t_\text{ms})$评分。双方从相同的官方解决方案开始：一个3遍Triton内核（奇偶扫描$\to$条件累加和$\to$块求和累加），具有自动调优的`BLOCK_SIZE` / `NUM_STAGES`。我们运行了四条轨迹：Claude Sonnet 4.5上的论文臂和{{< ara >}}臂（我们拥有最长配对运行的模型）以及Sonnet 4.6上的（我们在其余评估中使用的模型重新运行）。Sonnet 4.6轨迹在正文图 @fig-extension-summary（最左列）中；下面的图 @fig-extension-triton-45显示了Sonnet 4.5配对运行。分析交叉参考了二者的轨迹。
 
-![`triton_cumsum`在Sonnet 4.5上：论文 vs.\ Ara分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线为原始RE-Bench参考值（0.47），该值是在不同的H100芯片上报告的；测试框架测量的每硬件基线（${\sim}0.64$）是双方的起点。4.6轨迹在正文组合图（图 \ref{fig-extension-summary}，最左列）中。](figures/extension/triton_45_paper_vs_ara.pdf){#fig-extension-triton-45}
+![`triton_cumsum`在Sonnet 4.5上：论文 vs.\ Ara分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线为原始RE-Bench参考值（0.47），该值是在不同的H100芯片上报告的；测试框架测量的每硬件基线（${\sim}0.64$）是双方的起点。4.6轨迹在正文组合图（图 @fig-extension-summary，最左列）中。](figures/extension/triton_45_paper_vs_ara.pdf){#fig-extension-triton-45}
 
 #### 两个机制沿模型划分。
 
@@ -1177,7 +1177,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 #### Sonnet 4.5：轨迹条件下的自动调优扫描。
 
-论文臂智能体用$`NUM_STAGES` \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为*"极端流水线——性能最高者"*在内嵌注释中，从未测试$\{4, 8\}$范围。{{< ara >}}臂智能体相反选择了$`NUM_STAGES` \in \{4, 8\}$，在$t = 4.3$分钟时在`ThinkingBlock`中逐字引用了启发式规则H01（*"网格大小对H100固定为128（拥有132个SM）…"*），这是在读取`evidence/tables/malt_attempts.md`和`src/configs/autotune.md`之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生{{< ara >}}智能体在图 \ref{fig-extension-triton-45}中$\sim 0.27$ vs. 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
+论文臂智能体用$`NUM_STAGES` \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为*"极端流水线——性能最高者"*在内嵌注释中，从未测试$\{4, 8\}$范围。{{< ara >}}臂智能体相反选择了$`NUM_STAGES` \in \{4, 8\}$，在$t = 4.3$分钟时在`ThinkingBlock`中逐字引用了启发式规则H01（*"网格大小对H100固定为128（拥有132个SM）…"*），这是在读取`evidence/tables/malt_attempts.md`和`src/configs/autotune.md`之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生{{< ara >}}智能体在图 @fig-extension-triton-45中$\sim 0.27$ vs. 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
 
 #### Sonnet 4.6：早期领先，后期论文智能体反超。
 
@@ -1189,7 +1189,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 ### 案例研究：`rust_codecontests`（LLM作为工具脚手架） {#sec-eval-extension-rust}
 
-任务是编写一个Python脚手架，通过调用`gpt-3.5-turbo-1106`为165个保留的Codeforces衍生问题生成Rust解决方案；分数是生成方案能编译并通过所有隐藏测试的问题比例。官方参考脚手架（分数0.127 = 21/165）使用每个问题18个候选的流水线，具有思维链提示、编译并公开测试筛选器以及幸存者投票阶段；它附带一个未使用的`few_shots/`目录，接入脚手架的提示构建。双方从相同的脚手架开始。我们在Sonnet 4.6上每臂运行了一个种子（rust任务没有Sonnet-4.5配对数据）；轨迹出现在正文图 \ref{fig-extension-summary}（第二列）中。{{< ara >}}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
+任务是编写一个Python脚手架，通过调用`gpt-3.5-turbo-1106`为165个保留的Codeforces衍生问题生成Rust解决方案；分数是生成方案能编译并通过所有隐藏测试的问题比例。官方参考脚手架（分数0.127 = 21/165）使用每个问题18个候选的流水线，具有思维链提示、编译并公开测试筛选器以及幸存者投票阶段；它附带一个未使用的`few_shots/`目录，接入脚手架的提示构建。双方从相同的脚手架开始。我们在Sonnet 4.6上每臂运行了一个种子（rust任务没有Sonnet-4.5配对数据）；轨迹出现在正文图 @fig-extension-summary（第二列）中。{{< ara >}}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
 
 #### 轨迹将MALT数据点转化为可操作的指导。
 
@@ -1209,7 +1209,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 ### 案例研究：`nanogpt_chat_rl`（在1.5B模型上的偏好RL） {#sec-eval-extension-nanogpt}
 
-任务是将GPT-2-XL（1.5B）通过RL微调为一个聊天机器人，在保留的聊天任务上比未调优模型获得更多的配对评判胜利。官方参考脚手架使用每个提示8选1锦标赛选择、每个训练步骤2,048个提示、低温度（$4 \times 10^{-6}$）Adam优化，以及运行在Replicate上的Llama-3-8B-Instruct评判员。分数是对`gpt2-alpaca`和`gpt2-xl`的平均胜率；智能体基线（未调优模型）得分为0.615，参考脚手架得分为0.85，RE-Bench人类上限为0.97。每个训练步骤消耗约40分钟的评判调用加上约10分钟的GPU训练；完整的8小时预算允许6--10次步骤+评分迭代。我们在Sonnet 4.6上每臂运行了一个种子：论文臂作为父运行加一次手动TIMEOUT恢复恢复；ARA臂作为单次运行。两条轨迹出现在正文图 \ref{fig-extension-summary}（第三列）中。
+任务是将GPT-2-XL（1.5B）通过RL微调为一个聊天机器人，在保留的聊天任务上比未调优模型获得更多的配对评判胜利。官方参考脚手架使用每个提示8选1锦标赛选择、每个训练步骤2,048个提示、低温度（$4 \times 10^{-6}$）Adam优化，以及运行在Replicate上的Llama-3-8B-Instruct评判员。分数是对`gpt2-alpaca`和`gpt2-xl`的平均胜率；智能体基线（未调优模型）得分为0.615，参考脚手架得分为0.85，RE-Bench人类上限为0.97。每个训练步骤消耗约40分钟的评判调用加上约10分钟的GPU训练；完整的8小时预算允许6--10次步骤+评分迭代。我们在Sonnet 4.6上每臂运行了一个种子：论文臂作为父运行加一次手动TIMEOUT恢复恢复；ARA臂作为单次运行。两条轨迹出现在正文图 @fig-extension-summary（第三列）中。
 
 #### 早期分叉：重写算法 vs. 编排参考方案。
 
@@ -1229,7 +1229,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 ### 案例研究：`fix_embedding`（恢复被置换的嵌入矩阵） {#sec-eval-extension-fixembed}
 
-任务是恢复一个被损坏的GPT-2-XL的置换嵌入矩阵：`wte.weight`矩阵的50,257行被打乱，智能体必须尽可能恢复接近未损坏参考的验证损失性能。官方解决方案是一个3阶段适配器流水线，得分为0.26；RE-Bench人类上限为0.16。双方继承了一个工作目录，其中官方脚手架的训练脚本已经存在。两个臂运行相同的Sonnet 4.6模型、相同的种子、相同的测试框架和相同的GPU；它们之间*唯一的*系统性差异是`reference/`的内容。轨迹出现在正文图 \ref{fig-extension-summary}（第四列）中；双方首先在$t \approx 4$分钟时测量损坏模型的基线（${\sim}2.20$），然后在第一轮适配器训练后（$t \approx 90$--$130$分钟）降至${\sim}0.4$。
+任务是恢复一个被损坏的GPT-2-XL的置换嵌入矩阵：`wte.weight`矩阵的50,257行被打乱，智能体必须尽可能恢复接近未损坏参考的验证损失性能。官方解决方案是一个3阶段适配器流水线，得分为0.26；RE-Bench人类上限为0.16。双方继承了一个工作目录，其中官方脚手架的训练脚本已经存在。两个臂运行相同的Sonnet 4.6模型、相同的种子、相同的测试框架和相同的GPU；它们之间*唯一的*系统性差异是`reference/`的内容。轨迹出现在正文图 @fig-extension-summary（第四列）中；双方首先在$t \approx 4$分钟时测量损坏模型的基线（${\sim}2.20$），然后在第一轮适配器训练后（$t \approx 90$--$130$分钟）降至${\sim}0.4$。
 
 #### 两个捆绑包的数据。
 
@@ -1258,7 +1258,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 ### 案例研究：`restricted_mlm`（受限掩码语言模型） {#sec-eval-extension-mlm}
 
-任务是在严格的PyTorch原语约束下设计和训练一个掩码语言模型：不允许`Conv1d`，不允许`Softmax`，不允许除法，不允许归一化层。分数为$\log(\ell_\text{val}{-}1.5)$；智能体基线（未训练的受限MLP）得分为1.84，官方解决方案（Tao的`ConvMLMWithBiBigrams`：二元组先验 + 通过`as_strided`+`einsum`的1D卷积 + 可学习标量组合器）得分为1.13。我们运行了四条轨迹：Sonnet 4.5上的论文臂和ARA臂（种子1）以及Sonnet 4.6上的（种子0）。Sonnet 4.6轨迹出现在正文图 \ref{fig-extension-summary}（最右列）中；下面的图 \ref{fig-extension-mlm-45}显示了Sonnet 4.5配对运行。
+任务是在严格的PyTorch原语约束下设计和训练一个掩码语言模型：不允许`Conv1d`，不允许`Softmax`，不允许除法，不允许归一化层。分数为$\log(\ell_\text{val}{-}1.5)$；智能体基线（未训练的受限MLP）得分为1.84，官方解决方案（Tao的`ConvMLMWithBiBigrams`：二元组先验 + 通过`as_strided`+`einsum`的1D卷积 + 可学习标量组合器）得分为1.13。我们运行了四条轨迹：Sonnet 4.5上的论文臂和ARA臂（种子1）以及Sonnet 4.6上的（种子0）。Sonnet 4.6轨迹出现在正文图 @fig-extension-summary（最右列）中；下面的图 @fig-extension-mlm-45显示了Sonnet 4.5配对运行。
 
 ![`restricted_mlm`在Sonnet 4.5上：论文 vs.\ Ara分数-时间（左）和分数-成本（右）。淡色标记为原始评分尝试，实线为迄今最佳包络线，星星标记最佳尝试位置。虚线标记未训练MLP基线（1.84）和RE-Bench参考值（1.13）。双方在$t = 0$时锚定在1.84基线；Ara-4.5的智能体前测试框架基线崩溃（损坏的起始检查点），智能体的第一个存活分数（$t \approx 5$分钟时1.43）反映轨迹推荐的`ConvMLMWithBiBigrams`架构已被换入（预计算的二元组表在未训练时得分${\sim}1.43$），我们将其锚定在1.84以匹配其他三个臂的实际基线测量值。Ara-4.5达到0.73 vs.\ 论文-4.5稳定在1.03——在较弱的基础上约30\%的相对领先。4.6轨迹在正文组合图中。](figures/extension/mlm_45_paper_vs_ara.pdf){#fig-extension-mlm-45}
 
@@ -1272,7 +1272,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 #### 差异在于是探索广度。
 
-四个`model.py`文件在大小和类数量上差异显著。论文-4.5：9.8 KB，3个类；{{< ara >}}-4.5：8.9 KB，3个类；论文-4.6：6.3 KB，2个类；{{< ara >}}-4.6：47 KB，6+个类（`ConvMLMWithReLUAttn`, `ExtendedBiBigramMLM`, `ConvMLMWithLinearGlobal`, `ConvMLMWithGlobalContext`, `MLPMixerWithBiBigrams`, `ReLUAttentionMLM`）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及`ReLU-attention`一次，`MLPMixer`三次；{{< ara >}}-4.6提及它们247次和73次。正文图 \ref{fig-extension-summary}最右列中的分数回归尖峰是可见的记录：每个朝向1.85或2.5的尖峰是一个新训练的替代架构被评分、发现有问题、被放弃，转而使用保存的最佳ConvMLM检查点。
+四个`model.py`文件在大小和类数量上差异显著。论文-4.5：9.8 KB，3个类；{{< ara >}}-4.5：8.9 KB，3个类；论文-4.6：6.3 KB，2个类；{{< ara >}}-4.6：47 KB，6+个类（`ConvMLMWithReLUAttn`, `ExtendedBiBigramMLM`, `ConvMLMWithLinearGlobal`, `ConvMLMWithGlobalContext`, `MLPMixerWithBiBigrams`, `ReLUAttentionMLM`）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及`ReLU-attention`一次，`MLPMixer`三次；{{< ara >}}-4.6提及它们247次和73次。正文图 @fig-extension-summary最右列中的分数回归尖峰是可见的记录：每个朝向1.85或2.5的尖峰是一个新训练的替代架构被评分、发现有问题、被放弃，转而使用保存的最佳ConvMLM检查点。
 
 #### 为什么{{< ara >}}在Sonnet 4.5上获胜。
 
