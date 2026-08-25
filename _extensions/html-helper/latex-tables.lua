@@ -5,9 +5,9 @@
 --         直接输出 HTML 字符串，绕过 main.lua 对 Table 的 crossref 处理（它会吃掉 id）
 --   PDF:  保持原样（crossref.lua 对 tab- 前缀只警告不拦截）
 -- 
--- 用法（filters 里按名称引用，如 paper-tables）：
+-- 用法（filters 里按名称引用，如 html-helper）：
 --   filters:
---     - paper-tables
+--     - html-helper
 -- 
 -- v4 变更：RawBlock 回调 → Pandoc(doc) 回调
 --   1) 元素回调拿不到 pandoc.meta（nil/空表），只有 Pandoc(doc) 的 doc.meta 有完整

@@ -1,9 +1,10 @@
-title: Paper-Tables
+title: HTML-Helper
 author: Enoch Xyn
-version: 1.3.0
+version: 1.4.0
 quarto-required: ">=1.4.0"
 contributes:
   filters:
     - latex-tables.lua
-    - tables-to-tablestar.lua
+    - tables-html.lua
+    - tables-pdf.lua
     - crossref-html.lua

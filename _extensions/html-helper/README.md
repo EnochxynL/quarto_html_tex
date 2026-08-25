@@ -1,4 +1,4 @@
-# Paper-Tables
+# HTML-Helper
 
 Quarto 扩展：让同一份表格源码同时渲染为 PDF（原生 LaTeX）和 HTML（`<table>`）。
 
@@ -13,13 +13,13 @@ Quarto 扩展：让同一份表格源码同时渲染为 PDF（原生 LaTeX）和
 ### 本地使用（当前项目）
 
 ```bash
-# 把 _extensions/paper-tables/ 复制到目标项目的 _extensions/ 下即可
+# 把 _extensions/html-helper/ 复制到目标项目的 _extensions/ 下即可
 ```
 
 ### 从 GitHub 分发（未来）
 
 ```bash
-quarto add <user>/paper-tables
+quarto add <user>/html-helper
 ```
 
 ## 用法
@@ -27,10 +27,10 @@ quarto add <user>/paper-tables
 ```yaml
 ---
 filters:
-  - paper-tables
+  - html-helper
 format:
   pdf:
-    paper-tables:
+    html-helper:
       table-env: table*    # table*（双栏通栏）| table（单栏）| longtable
       table-pos: htbp      # 浮动位置参数
       caption-pos: top     # caption 位置：top（表上方，ICML 惯例）| bottom（表下方，AAAI/Springer 惯例）
@@ -100,13 +100,14 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 
 | 文件 | 作用 |
 |------|------|
-| `latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理）；表格内 `\citep{key}` → 子文档跑 `pandoc.utils.citeproc` 渲染 `(Author Year)` |
-| `tables-to-tablestar.lua` | PDF：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular；HTML：管道表/`{=html}` 表 → RawBlock(`<table>`)（`Pandoc()` 回调 + 手写递归，配置经 `doc.meta` 读取） |
+| `latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理）；表格内 `\citep{key}` → 子文档跑 `pandoc.utils.citeproc` 渲染 `(Author Year)`。仅 HTML 生效，PDF 原样 |
+| `tables-html.lua` | **HTML 半边**（从 tables-to-tablestar 拆分）：管道表/`{=html}` 表 → RawBlock(`<table>`)（绕过 quarto 的 Table 处理：清 id + caption 残留 `{#id}`） |
+| `tables-pdf.lua` | **PDF 半边**（从 tables-to-tablestar 拆分）：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`） |
 | `crossref-html.lua` | HTML：表格统一编号（caption 加"表 N："）+ 引用链接化（`\ref{tab-X}` → `<a href="#tab-X">表 N</a>`） |
 
 ### 踩坑记录（实现注意）
 
-1. **`pandoc.meta` 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表**——只有 `Pandoc(doc)` 回调的 `doc.meta` 才有完整 metadata。因此 `tables-to-tablestar.lua` 用 `Pandoc()` 回调 + 手写递归遍历（`pandoc.walk_block` 在本 pandoc 版本不可靠：函数 filter 报错、表 filter 静默不调用；`pandoc.walk_inline` 也报错）。
+1. **`pandoc.meta` 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表**——只有 `Pandoc(doc)` 回调的 `doc.meta` 才有完整 metadata。因此 `tables-html.lua`/`tables-pdf.lua`/`crossref-html.lua` 都用 `Pandoc()` 回调 + 手写递归遍历（`pandoc.walk_block` 在本 pandoc 版本不可靠：函数 filter 报错、表 filter 静默不调用；`pandoc.walk_inline` 也报错）。
 2. **metadata 值是 MetaInlines（`[Str "x"]`）**，需 `pandoc.utils.stringify` 才能与字符串比较（否则 `== "bottom"` 恒为 false）。
 3. **quarto 把 `{=html}` 的 `<table>` 解析为 `Div(quarto-scaffold)` 包裹的原生 Table**，`<caption>` 文本被拆到独立的 `Plain` 块、Table.caption 为空。处理时需提取 Table + Plain，并**整体替换整个 Div**（只替换内部 Table 会被 quarto writer 重组：丢失位置参数、注入重复 label）。
 4. 提取 Table/caption 时**不能以"找到 Table"作为返回条件**——含 caption 的子树可能没有 Table。

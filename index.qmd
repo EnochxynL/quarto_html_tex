@@ -2,7 +2,7 @@
 shortcodes:
   - ara.lua
 filters:
-  - paper-tables
+  - html-helper
 format:
   pdf:
     pdf-engine: xelatex
@@ -13,7 +13,7 @@ format:
     cite-method: natbib
     biblio-style: styles/icml2026
     latex-clean: false
-    paper-tables:
+    html-helper:
       table-env: table*
       table-pos: htbp
     include-in-header:

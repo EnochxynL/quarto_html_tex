@@ -1,14 +1,18 @@
--- tables-to-tablestar.lua (v4) — 通用版
--- PDF：把 markdown 管道表（Pandoc Table）转成 table* / table / longtable + tabular。
---      也把 {=html} 直写的 <table> 解析成 Table AST 后走同一套转换（HTML raw → LaTeX 兜底）。
--- HTML：管道表也转 RawBlock("html")——quarto 的 Table 处理会清空非 tbl- 前缀的 id、
---      并把 {#id} 写回 caption 文本（残留）。转 RawBlock 后绕过，编号/链接由 crossref-html.lua 统一负责。
--- 原因：双栏（\twocolumn）下 Pandoc 默认生成的 longtable 会报 "longtable not in 1-column mode"。
+-- tables-pdf.lua — PDF 方案：管道表 / {=html} 表 → table* / table / longtable + booktabs tabular
+--
+-- 从 tables-to-tablestar.lua 拆出的 PDF 半边（HTML 半边见 tables-html.lua）。
+--
+-- 方案（为什么管道表要转成 LaTeX 浮动体）：
+--   双栏（\twocolumn）下 Pandoc 默认生成的 longtable 会报 "longtable not in 1-column mode"，
+--   且默认输出用 \LTcaptype{none} 关掉表格计数器。这里重写为 booktabs 三线普通浮动表，
+--   caption/label 由 LaTeX 原生处理（\caption + \label），编号走 LaTeX 编译时交叉引用。
+--   {=html} 直写的 <table> 在 PDF 端用 pandoc.read(text,"html") 解析成 Table AST 后
+--   走同一套转换（HTML raw → LaTeX 兜底）。
 --
 -- 配置（format 级别，如 pdf 下）：
 --   format:
 --     pdf:
---       paper-tables:
+--       html-helper:
 --         table-env: table*      # 表格环境：table*（双栏通栏）| table（单栏）| longtable
 --         table-pos: htbp        # 浮动位置参数
 --         caption-pos: top       # caption 位置：top（表上方，ICML 惯例）| bottom（表下方，AAAI/Springer 惯例）
@@ -18,7 +22,7 @@
 --   只有 Pandoc(doc) 回调的 doc.meta 才含完整 metadata。
 --   因此本 filter 用 Pandoc() 回调 + 手写递归，而非 Table()/RawBlock() 自动分发。
 --   metadata 值是 MetaInlines（[Str "x"]），需 pandoc.utils.stringify 才能比较。
-if FORMAT ~= "pdf" and FORMAT ~= "latex" and FORMAT ~= "html" and FORMAT ~= "html5" then
+if FORMAT ~= "pdf" and FORMAT ~= "latex" then
   return {}
 end
 
@@ -30,9 +34,9 @@ local function get_str(v, default)
   return s
 end
 
--- 从 doc.meta 读取配置（Pandoc() 回调里才能拿到）
+-- 从 doc.meta 读取配置（Pandoc() 回调里才能拿到）；兼容旧名 paper-tables
 local function read_config(meta)
-  local pt = meta["paper-tables"] or {}
+  local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   return {
     env = get_str(pdf["table-env"], "table*"),
@@ -171,7 +175,7 @@ local function extract_table_and_caption(blocks)
   return nil
 end
 
--- 手写递归遍历（pandoc.walk_block 在本 pandoc 版本行为不可靠：函数 filter 报错、表 filter 静默不调用）
+-- 手写递归遍历（pandoc.walk_block 在本 pandoc 版本行为不可靠）
 local function process_blocks(blocks, f)
   local out = {}
   for _, b in ipairs(blocks) do
@@ -193,19 +197,6 @@ function Pandoc(doc)
 
   local function transform(b)
     if b.t == "Table" then
-      if FORMAT == "html" or FORMAT == "html5" then
-        -- HTML：转 RawBlock("html")，绕过 quarto 的 Table 处理（清空 id + caption 残留 {#id}）
-        local html = pandoc.write(pandoc.Pandoc({ b }), "html")
-        html = html:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
-        -- quarto reader 不消费 caption 的 {#id}（残留文本）：提取为 <table id> 并移除残留
-        local cap_id = html:match("<caption>.-{#([^}]+)}")
-        if cap_id and not html:match('<table[^>]*id="') then
-          html = html:gsub("%s*{#([^}]+)}", "", 1)
-          html = html:gsub("<table", '<table id="' .. cap_id .. '"', 1)
-        end
-        html = html:gsub("<table", '<table class="paper-table"', 1)
-        return pandoc.RawBlock("html", html)
-      end
       return pandoc.RawBlock("latex", table_to_latex(b, cfg))
     elseif b.t == "Div" then
       -- quarto 把 {=html} 表格包在 Div(quarto-scaffold) 里：整体替换，避免 quarto writer 输出浮动体时重组
@@ -216,25 +207,14 @@ function Pandoc(doc)
         if not has_cap and found.caption then
           tbl.caption = pandoc.Caption(pandoc.Inlines(found.caption))
         end
-        if FORMAT == "html" or FORMAT == "html5" then
-          -- HTML：转 RawBlock("html")
-          local html = pandoc.write(pandoc.Pandoc({ tbl }), "html")
-          html = html:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
-          html = html:gsub("<table", '<table class="paper-table"', 1)
-          return pandoc.RawBlock("html", html)
-        end
         return pandoc.RawBlock("latex", table_to_latex(tbl, cfg))
       end
     elseif b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
       -- CLI pandoc（非 quarto）环境下 {=html} 保持 RawBlock；PDF 端走 pandoc.read 兜底
-      if FORMAT == "latex" or FORMAT == "pdf" then
-        local tbl = html_raw_to_table(b.text)
-        if tbl then
-          return pandoc.RawBlock("latex", table_to_latex(tbl, cfg))
-        end
+      local tbl = html_raw_to_table(b.text)
+      if tbl then
+        return pandoc.RawBlock("latex", table_to_latex(tbl, cfg))
       end
-      -- HTML 端：{=html} 原样输出
-      return nil
     end
     return nil
   end
