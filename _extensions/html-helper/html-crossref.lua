@@ -1,7 +1,7 @@
 -- crossref-html.lua (v2) — HTML 表格统一编号 + 引用链接化
 --
 -- 背景：所有表格（复杂表 / 管道表 / {=html} 表）在 HTML 端都已是 RawBlock("html")
---（latex-tables.lua 与 tables-to-tablestar.lua 转换），quarto 的 Table 处理被绕过，
+--（html-latex-tables.lua 与 html-md-tables.lua 转换），quarto 的 Table 处理被绕过，
 -- 表格编号和 \ref 链接都需要本 filter 统一负责。
 --
 -- 职责：
