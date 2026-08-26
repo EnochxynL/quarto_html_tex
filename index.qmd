@@ -68,6 +68,9 @@ format:
           \newcommand{\cmd}[1]{\texttt{ara~#1}}
           \newcommand{\storytax}{\emph{Storytelling Tax}}
           \newcommand{\engtax}{\emph{Engineering Tax}}
+          % 图浮动体默认顶到页面顶端（原始论文 [!t] 风格；quarto 生成的 \begin{figure} 无位置参数=默认 tbp 会沉底/穿插文中）
+          \usepackage{float}
+          \floatplacement{figure}{!t}
           \lstset{
             basicstyle=\ttfamily\small,
             breaklines=true,
