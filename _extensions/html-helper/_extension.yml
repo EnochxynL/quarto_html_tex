@@ -7,4 +7,5 @@ contributes:
     - html-latex-tables.lua
     - html-md-tables.lua
     - pdf-md-tables.lua
+    - html-pdf-images.lua
     - html-crossref.lua
