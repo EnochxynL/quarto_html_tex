@@ -42,8 +42,10 @@ local function walk_inlines(inlines)
     if il.t == "Image" and il.src:match("%.pdf$") then
       local ratio = pdf_aspect(il.src)
       if ratio then
+        -- #toolbar=0&navpanes=0：隐藏 Chrome/Edge PDF viewer 的工具栏与侧栏
+        -- （PDFium viewer 的 URL fragment 参数，fragment 不随请求发送）
         out[#out + 1] = pandoc.RawInline("html",
-          '<embed src="' .. il.src .. '" style="width:100%; aspect-ratio:' .. ratio .. '">')
+          '<embed src="' .. il.src .. '#toolbar=0&navpanes=0" style="width:100%; aspect-ratio:' .. ratio .. '">')
       else
         out[#out + 1] = il
       end
