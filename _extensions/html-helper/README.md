@@ -103,7 +103,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 | `html-latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理）；表格内 `\citep{key}` → 子文档跑 `pandoc.utils.citeproc` 渲染 `(Author Year)`。仅 HTML 生效，PDF 原样 |
 | `html-md-tables.lua` | **HTML 半边**（从 tables-to-tablestar 拆分）：管道表/`{=html}` 表 → RawBlock(`<table>`)（绕过 quarto 的 Table 处理：清 id + caption 残留 `{#id}`） |
 | `pdf-md-tables.lua` | **PDF 半边**（从 tables-to-tablestar 拆分）：**管道表**（顶层 Table）→ `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`）。只处理顶层 Table，Div 原样保留（{=html} 表交给 pdf-html-tables.lua） |
-| `pdf-html-tables.lua` | **PDF 端 `{=html}` 直写表**（从 pdf-md-tables 拆出）：`Div(quarto-scaffold)` 包裹的原生 Table → 单栏 `table`（默认）booktabs tabular。独立配置 `html-table-env`/`html-pos`（默认 `table`/`htbp`），table-caption-pos 与 pdf-md-tables 共享 |
+| `pdf-html-tables.lua` | **PDF 端 `{=html}` 直写表**（从 pdf-md-tables 拆出）：`Div(quarto-scaffold)` 包裹的原生 Table → 单栏 `table`（默认）booktabs tabular。独立配置 `html-table-env`/`html-table-pos`（默认 `table`/`htbp`），table-caption-pos 与 pdf-md-tables 共享 |
 | `html-pdf-embed.lua` | HTML 端 `.pdf` 源图 → `<embed style="width:100%; aspect-ratio:W/H">`（Lua 读 PDF 文件头 `/MediaBox` 明文算比例，浏览器自动算高度，保留矢量；多页取第一页；读不到则降级原样输出） |
 | `html-crossref.lua` | HTML：表格统一编号（caption 加"表 N："）+ 引用链接化（`\ref{tab-X}` → `<a href="#tab-X">表 N</a>`） |
 

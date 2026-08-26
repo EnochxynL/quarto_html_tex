@@ -15,7 +15,7 @@
 --     pdf:
 --       html-helper:
 --         html-table-env: table        # {=html} 表环境：table（单栏，默认）| table* | longtable
---         html-pos: htbp         # 浮动位置参数
+--         html-table-pos: htbp         # 浮动位置参数
 --         table-caption-pos: bottom    # caption 位置（与 pdf-md-tables 共享）
 --
 -- 注意（踩坑记录）：见 pdf-md-tables.lua 头部（meta 读取、平铺提升、stringify）。
@@ -37,7 +37,7 @@ local function read_config(meta)
   local pdf = pt["pdf"] or {}
   return {
     env = get_str(pdf["html-table-env"], get_str(pt["html-table-env"], "table")),
-    pos = get_str(pdf["html-pos"], get_str(pt["html-pos"], "htbp")),
+    pos = get_str(pdf["html-table-pos"], get_str(pt["html-table-pos"], "htbp")),
     cap_pos = get_str(pdf["table-caption-pos"], get_str(pt["table-caption-pos"], "top")),
   }
 end

@@ -24,7 +24,7 @@ format:
       md-table-pos: htbp
       table-caption-pos: bottom
       html-table-env: table
-      html-pos: htbp
+      html-table-pos: htbp
     # 图浮动体顶到页面顶端（原始论文 [!t] 风格；值会字面塞进 \begin{figure}[...]，
     # 须用 LaTeX 位置参数语法且加引号——! 开头会被 YAML 当 tag）
     fig-pos: "!t"
