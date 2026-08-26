@@ -11,10 +11,12 @@
 --     quarto 的章节编号（number-sections）在 writer 阶段才生成，filter 拿不到
 --      → 按 Header 层级自数（1.1.1），与 PDF 端 Pandoc number-sections 的编号规则一致。
 --  3. 图片引用：内容层已有的 @fig-X（fig前缀，quarto 原生语法）→ 走 quarto crossref（Figure N），不经过本 filter。
---     LaTeX 残留的 \ref{fig-X}（正文/表格 RawBlock 字符串内）→ RawInline tex / 字符串 → 
---     保证 \ref{fig-X} 至少可点击跳转，走本管线。
---     ref_link 的 fig- 分支把它们转成 <a href="#fig-X">[fig-X]</a>：只能显示 [fig-X] 占位而无法编号，因为
---     quarto reader 把图转成无 id 的 Div、fig- 锚点在 writer 阶段才注入，filter 阶段拿不到图编号。
+--     LaTeX 残留的 \ref{fig-X}（正文/表格 RawBlock 字符串内）→ RawInline tex / 字符串 → 走本管线。
+--     ref_link 的 fig- 分支输出 <a href="#fig-X">[fig-X]</a>：只能占位而无法自数出 Figure N，
+--     因为 quarto render 的 reader 把 {#fig-X} 消费进内部状态（main.lua crossref index），
+--     filter 阶段图节点是 Div→Div→Plain[caption]+Image 三层结构且无任何 id 信息
+--     （实测：Div/Image attr 全空、caption 无 {#id} 残留、doc.meta 无图 id 列表）——
+--     与章节 Header 的 id（保留在 attr.identifier）本质不同。图引用必须用 @fig-X。
 --  4. 文献引用：所有 [@key]（非 tbl/fig/sec 前缀，quarto 原生语法）按照 quarto citeproc 处理。
 --     表格内文献引用，是\cite{key}（RawBlock 字符串）→ RawInline tex → 本 filter 不处理，
 --     quarto 不碰 RawBlock 字符串，html-latex-tables.lua 子文档 `pandoc.read("latex")` + 子文档 citeproc 完全自建 
@@ -33,8 +35,9 @@ if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
 
--- 引用替换：表格 → 表 N；章节 → §N（自数编号）；图 → [fig-X]（兜底：filter 拿不到图编号，
--- 只保证 \ref{fig-X} 残留可点击跳转，编号由 quarto 原生 @fig-X 负责）；其他 → nil（调用方决定占位符）
+-- 引用替换：表格 → 表 N；章节 → §N（自数编号）；图 → [fig-X]（兜底：quarto reader 把图 id 消费进
+-- 内部状态，filter 阶段图节点（Div→Div→Plain[Image]）无任何 id 信息，无法自数——图引用必须用
+-- quarto 原生 @fig-X）；其他 → nil（调用方决定占位符）
 local function ref_link(ref, tab_nums, sec_nums)
   if tab_nums[ref] then
     return '<a href="#' .. ref .. '">表 ' .. tab_nums[ref] .. "</a>"
