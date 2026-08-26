@@ -42,6 +42,12 @@
 }
 
 /* 复杂表（HTML 侧由转换脚本生成 <table class="paper-table">） */
+/* PDF 图片：quarto 输出 <embed>（img-fluid 的 max-width 只设上限不强制撑满，
+   PDF 页面固有宽度小 → 显示小一圈）。强制宽度=容器，与 PNG 图一致 */
+embed[src$=".pdf"] {
+  width: 100%;
+  display: block;
+}
 /* caption 统一在表格下方（与 PDF 端 caption-pos: bottom 一致，ARA 原版惯例） */
 table caption {
   caption-side: bottom;
