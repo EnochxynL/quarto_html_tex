@@ -1,26 +1,2 @@
-# LaTeX 临时文件
-*.aux
-*.bbl
-*.blg
-*.fdb_latexmk
-*.fls
-*.log
-*.out
-*.synctex*
-
-# Quarto 输出
-index.tex
-*.pdf
-*.html
-_site/
-*_files/
 /.quarto/
 **/*.quarto_ipynb
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-
-# Pre-render 构建目录
-_build/
