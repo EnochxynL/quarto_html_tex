@@ -103,7 +103,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 | `html-latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理）；表格内 `\citep{key}` → 子文档跑 `pandoc.utils.citeproc` 渲染 `(Author Year)`。仅 HTML 生效，PDF 原样 |
 | `html-md-tables.lua` | **HTML 半边**（从 tables-to-tablestar 拆分）：管道表/`{=html}` 表 → RawBlock(`<table>`)（绕过 quarto 的 Table 处理：清 id + caption 残留 `{#id}`） |
 | `pdf-md-tables.lua` | **PDF 半边**（从 tables-to-tablestar 拆分）：管道表/`{=html}` 表 → `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`） |
-| `html-pdf-images.lua` | HTML 端把 `.pdf` 源图替换为同名 `.png`（quarto 对 PDF 图输出 `<embed>` 不可控：不撑满/高度比例失真；PNG `<img>` 固有比例正确）。约定：预处理 `pdftoppm -f 1 -l 1 -png -r 300` 生成同名 PNG |
+| `html-pdf-embed.lua` | HTML 端 `.pdf` 源图 → `<embed style="width:100%; aspect-ratio:W/H">`（Lua 读 PDF 文件头 `/MediaBox` 明文算比例，浏览器自动算高度，保留矢量；多页取第一页；读不到则降级原样输出） |
 | `html-crossref.lua` | HTML：表格统一编号（caption 加"表 N："）+ 引用链接化（`\ref{tab-X}` → `<a href="#tab-X">表 N</a>`） |
 
 ### 踩坑记录（实现注意）
@@ -123,7 +123,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 13. **quarto 把 `format.pdf` 下的扩展配置提升为顶层 meta（平铺）**——`format: pdf: html-helper: {table-env, table-pos, caption-pos}` 经 quarto 合并后 `doc.meta["html-helper"]` 是 `{table-env=..., caption-pos=..., table-pos=...}`（**无 `pdf` 嵌套层**，实证 keys）。若 read_config 读 `meta["html-helper"]["pdf"]` 恒为 nil → 全默认值：`table-env`/`table-pos` 默认恰等于示例值（table*/htbp）掩盖 bug，`caption-pos` 默认 top 导致管道表 caption 一直在表格上方。修复：read_config 嵌套优先（`html-helper.pdf.x`）、平铺回退（`html-helper.x`）。
 14. **quarto 无原生 PDF 图位置控制，但 `fig-pos` 可传 LaTeX 位置参数**——markdown 图生成的 `\begin{figure}` 默认无位置参数（LaTeX 默认 tbp：top 空间不足时沉底/穿插文中）。实测：`figure-placement: top`（metadata/format 级）不生效；`fig-pos: top` 把 `top` 字面塞进 `\begin{figure}[top]` → LaTeX 报错（fig-pos 文档上是 HTML 选项，但值会被**原样**写入 PDF 的 figure 位置参数）。**正解：`fig-pos: "!t"`**（format.pdf 下，值须用 LaTeX 位置参数语法并加引号——`!` 开头会被 YAML 当 tag）。备选：LaTeX 层 `\usepackage{float}` + `\floatplacement{figure}{!t}`（include-in-header）。**filter 方案不可行**：PDF 端图是带 `__quarto_custom_type="FloatRefTarget"` 标记的 Div，caption 纯文本无 `{#fig-X}`（id 被 quarto 消费进内部状态），整体转 RawBlock 绕开 main.lua → `\label{fig-X}` 丢失、交叉引用全断。
 15. **`number-sections: true` 默认编号到最深层级**——`####`（→ LaTeX `\paragraph`，pandoc 默认映射）和 `#####` 也会被编号：PDF 端 quarto 写 `\setcounter{secnumdepth}{5}`，HTML 端 h4/h5 也带 data-number。若要编号止于 subsubsection（原始论文的 \paragraph 无自动编号、secnumdepth 默认 3），用 **`number-depth: 3`**（顶层，一个配置同时控制 PDF 的 secnumdepth 与 HTML 的编号深度；`toc-depth` 只影响目录显示不影响编号）。
-16. **quarto 对 `.pdf` 源图在 HTML 端输出 `<embed>`（不可控）**——浏览器 PDF viewer 嵌入：`img-fluid` 的 `max-width:100%` 只设上限不强制撑满（PDF 页面固有宽度小 → 显示小一圈）；CSS 强制 `width:100%` 后高度又不按原图比例（viewer 行为，CSS 治不了）。**正解：HTML 端改用位图**——预处理 `pdftoppm -f 1 -l 1 -png -r 300` 把 `figures/*.pdf` 转成同名 `.png`，html-pdf-images.lua 在 HTML 端把 Image src 的 `.pdf` 换 `.png`（文件存在才换，防 broken image）；PDF 端不受影响（`.pdf` 矢量保真）。
+16. **quarto 对 `.pdf` 源图在 HTML 端输出 `<embed>`（不可控）**——浏览器 PDF viewer 嵌入：`img-fluid` 的 `max-width:100%` 只设上限不强制撑满（PDF 页面固有宽度小 → 显示小一圈）；CSS 强制 `width:100%` 后高度又不按原图比例（viewer 行为，CSS 治不了）。**正解：读 MediaBox 算比例 + CSS aspect-ratio**——PDF 文件头的 `/MediaBox [0 0 W H]` 是明文（页面对象通常未压缩），Lua `io.open` 读取匹配即可得宽高比；输出 `<embed style="width:100%; aspect-ratio:W/H">`，现代浏览器按比例自动算高度（Chrome 88+/Firefox 89+/Safari 15+）。**不用转 PNG**（保矢量、免预处理）。附带实证：pandoc 的 Image attr 会透传 `width`/`height` 到 embed（`{width=800px}` → `width="800"`），但 **`style` 键被丢弃**——所以只能 RawInline 输出。备选（已弃）：转同名 PNG（`pdftoppm -f 1 -l 1 -png -r 300`），损失矢量。
 
 ## 模板适配
 
