@@ -17,6 +17,9 @@ format:
       table-env: table*
       table-pos: htbp
       caption-pos: bottom
+    # 图浮动体顶到页面顶端（原始论文 [!t] 风格；值会字面塞进 \begin{figure}[...]，
+    # 须用 LaTeX 位置参数语法且加引号——! 开头会被 YAML 当 tag）
+    fig-pos: "!t"
     include-in-header:
       - text: |
           % 中文支持（需 xelatex 编译）
@@ -68,9 +71,6 @@ format:
           \newcommand{\cmd}[1]{\texttt{ara~#1}}
           \newcommand{\storytax}{\emph{Storytelling Tax}}
           \newcommand{\engtax}{\emph{Engineering Tax}}
-          % 图浮动体默认顶到页面顶端（原始论文 [!t] 风格；quarto 生成的 \begin{figure} 无位置参数=默认 tbp 会沉底/穿插文中）
-          \usepackage{float}
-          \floatplacement{figure}{!t}
           \lstset{
             basicstyle=\ttfamily\small,
             breaklines=true,
