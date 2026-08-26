@@ -3,6 +3,9 @@ shortcodes:
   - ara.lua
 filters:
   - html-helper
+# 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
+# 原始论文 secnumdepth 默认 3，paragraph 标题无自动编号）
+number-depth: 3
 format:
   pdf:
     pdf-engine: xelatex
