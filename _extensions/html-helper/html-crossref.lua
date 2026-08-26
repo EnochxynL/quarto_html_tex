@@ -18,15 +18,10 @@
 --     （实测：Div/Image attr 全空、caption 无 {#id} 残留、doc.meta 无图 id 列表）——
 --     与章节 Header 的 id（保留在 attr.identifier）本质不同。图引用必须用 @fig-X。
 --  4. 文献引用：所有 [@key]（非 tbl/fig/sec 前缀，quarto 原生语法）按照 quarto citeproc 处理。
---     表格内文献引用，是\cite{key}（RawBlock 字符串）→ RawInline tex → 本 filter 不处理，
+--     表格内文献引用，是 \cite{key} 或 \citep{key}（RawBlock 字符串）→ RawInline tex → 本 filter 不处理，
 --     quarto 不碰 RawBlock 字符串，html-latex-tables.lua 子文档 `pandoc.read("latex")` + 子文档 citeproc 完全自建 
---     cite 语法不需要本 filter 任何代码（实证）：
---       正文 [@key]/@key → Cite 节点 → quarto crossref 放行（非保留前缀）→ citeproc
---       渲染 (Author Year) + #ref- 链接 + 文末参考文献表；
---       表格内 \citep{key} → html-latex-tables.lua 子文档 citeproc（见上）。
---       实证：evaluation.md 表格块 \citep{starace2025paperbench} → "(Starace et al. 2025)"；
---       正文 [@medawar1963fraud; @canini2026stopwriting] → "(Medawar 1963; ...)" 带
---       doc-biblioref 链接（全文 99 处），本 filter 对 Cite 完全放行。
+--     cite 语法不需要本 filter 任何代码。
+--     正文 [@key]/@key → Cite 节点 → quarto crossref 放行（非保留前缀）→ citeproc 渲染 (Author Year) + #ref- 链接 + 文末参考文献表；
 -- 职责：
 --   1) 按文档顺序统计所有 <table id="..."> → 编号映射
 --   2) 给 <caption> 加 "表 N：" 前缀（与 PDF 端 LaTeX 自动编号的文档顺序一致）
