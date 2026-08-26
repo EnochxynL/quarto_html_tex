@@ -43,9 +43,10 @@ local function walk_inlines(inlines)
       local ratio = pdf_aspect(il.src)
       if ratio then
         -- #toolbar=0&navpanes=0：隐藏 Chrome/Edge PDF viewer 的工具栏与侧栏
-        -- （PDFium viewer 的 URL fragment 参数，fragment 不随请求发送）
+        -- #view=FitH：强制 fit width（viewer 默认缩放会留白，FitH 让页面水平占满框，
+        -- 框 aspect-ratio=页面比例 → 高度自然吻合）。fragment 不随请求发送
         out[#out + 1] = pandoc.RawInline("html",
-          '<embed src="' .. il.src .. '#toolbar=0&navpanes=0" style="width:100%; aspect-ratio:' .. ratio .. '">')
+          '<embed src="' .. il.src .. '#toolbar=0&navpanes=0&view=FitH" style="width:100%; aspect-ratio:' .. ratio .. '">')
       else
         out[#out + 1] = il
       end
