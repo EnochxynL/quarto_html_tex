@@ -14,9 +14,9 @@
 --   format:
 --     pdf:
 --       html-helper:
---         html-table-env: table        # {=html} 表环境：table（单栏，默认）| table* | longtable
---         html-table-pos: htbp         # 浮动位置参数
---         table-caption-pos: bottom    # caption 位置（与 pdf-md-tables 共享）
+--         html-table-env: table   # {=html} 表环境：table（单栏，默认）| table* | longtable
+--         html-table-pos: htbp    # 浮动位置参数
+--         table-caption-pos: bottom # caption 位置（与 pdf-md-tables 共享）
 --
 -- 注意（踩坑记录）：见 pdf-md-tables.lua 头部（meta 读取、平铺提升、stringify）。
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
@@ -32,6 +32,7 @@ local function get_str(v, default)
 end
 
 -- 从 doc.meta 读取配置（嵌套优先、平铺回退，见 README 踩坑 13）
+-- 键名：html-table-env/html-table-pos（{=html} 表）、table-caption-pos（与 pdf-md-tables 共享）
 local function read_config(meta)
   local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}

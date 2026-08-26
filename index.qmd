@@ -99,6 +99,11 @@ format:
     bibliography: references.bib
     title: "最后一篇人类撰写的论文：智能体原生研究构件"
     subtitle: "The Last Human-Written Paper: Agent-Native Research Artifacts"
+    html-helper:
+      # HTML 端表格子文档需解析的自定义宏（pandoc latex_macros 展开，通用配置；
+      # 必须放 html 格式下——html-latex-tables.lua 是 HTML filter，format.pdf 的配置不提升）
+      latex-macros: |
+        \newcommand{\ara}{\textsc{Ara}}
 ---
 
 ```{=latex}

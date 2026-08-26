@@ -14,7 +14,7 @@
 --       html-helper:
 --         md-table-env: table*      # 管道表环境：table*（双栏通栏）| table（单栏）| longtable
 --         md-table-pos: htbp        # 浮动位置参数
---         table-caption-pos: bottom    # caption 位置：top | bottom
+--         table-caption-pos: bottom # caption 位置：top | bottom（与 pdf-html-tables 共享）
 --
 -- 注意（踩坑记录）：
 --   pandoc.meta 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表；
@@ -37,6 +37,8 @@ local function get_str(v, default)
 end
 
 -- 从 doc.meta 读取配置（Pandoc() 回调里才能拿到）；兼容旧名 paper-tables
+-- 键名：md-table-env/md-table-pos（管道表）、table-caption-pos（caption 位置，
+-- 与 pdf-html-tables 共享）
 local function read_config(meta)
   local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
