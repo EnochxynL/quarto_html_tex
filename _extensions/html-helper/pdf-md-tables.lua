@@ -12,9 +12,9 @@
 --   format:
 --     pdf:
 --       html-helper:
---         table-env: table*      # 管道表环境：table*（双栏通栏）| table（单栏）| longtable
---         table-pos: htbp        # 浮动位置参数
---         caption-pos: bottom    # caption 位置：top | bottom
+--         md-table-env: table*      # 管道表环境：table*（双栏通栏）| table（单栏）| longtable
+--         md-table-pos: htbp        # 浮动位置参数
+--         table-caption-pos: bottom    # caption 位置：top | bottom
 --
 -- 注意（踩坑记录）：
 --   pandoc.meta 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表；
@@ -23,7 +23,7 @@
 --   顶层 meta（平铺，无 pdf 嵌套层）——read_config 嵌套优先、平铺回退（README 踩坑 13）。
 --   本 filter 只处理顶层 Table 节点（管道表）：{=html} 表的 Table 在
 --   Div(__quarto_custom_scaffold) 内部，递归进去会抢先把内部 Table 转成
---   table-env 环境——Div 一律原样保留，交给 pdf-html-tables.lua。
+--   md-table-env 环境——Div 一律原样保留，交给 pdf-html-tables.lua。
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
   return {}
 end
@@ -41,9 +41,9 @@ local function read_config(meta)
   local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   return {
-    env = get_str(pdf["table-env"], get_str(pt["table-env"], "table*")),
-    pos = get_str(pdf["table-pos"], get_str(pt["table-pos"], "htbp")),
-    cap_pos = get_str(pdf["caption-pos"], get_str(pt["caption-pos"], "top")),
+    env = get_str(pdf["md-table-env"], get_str(pt["md-table-env"], "table*")),
+    pos = get_str(pdf["md-table-pos"], get_str(pt["md-table-pos"], "htbp")),
+    cap_pos = get_str(pdf["table-caption-pos"], get_str(pt["table-caption-pos"], "top")),
   }
 end
 

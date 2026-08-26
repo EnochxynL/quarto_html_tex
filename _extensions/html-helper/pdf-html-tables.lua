@@ -1,7 +1,7 @@
 -- pdf-html-tables.lua — PDF 方案：{=html} 直写表 → table（单栏）booktabs tabular
 --
 -- 从 pdf-md-tables.lua 拆出的 {=html} 半边：管道表（顶层 Table）由 pdf-md-tables.lua
--- 处理（table-env 配置，当前 table* 双栏通栏）；{=html} 直写表走本 filter，
+-- 处理（md-table-env 配置，当前 table* 双栏通栏）；{=html} 直写表走本 filter，
 -- 默认单栏 table（HTML 直写表多为内容简短的验证/示例表，双栏通栏过宽）。
 --
 -- quarto 把 {=html} 的 <table> 解析为 Div(__quarto_custom_scaffold) 包裹的原生
@@ -14,9 +14,9 @@
 --   format:
 --     pdf:
 --       html-helper:
---         html-env: table        # {=html} 表环境：table（单栏，默认）| table* | longtable
+--         html-table-env: table        # {=html} 表环境：table（单栏，默认）| table* | longtable
 --         html-pos: htbp         # 浮动位置参数
---         caption-pos: bottom    # caption 位置（与 pdf-md-tables 共享）
+--         table-caption-pos: bottom    # caption 位置（与 pdf-md-tables 共享）
 --
 -- 注意（踩坑记录）：见 pdf-md-tables.lua 头部（meta 读取、平铺提升、stringify）。
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
@@ -36,9 +36,9 @@ local function read_config(meta)
   local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   return {
-    env = get_str(pdf["html-env"], get_str(pt["html-env"], "table")),
+    env = get_str(pdf["html-table-env"], get_str(pt["html-table-env"], "table")),
     pos = get_str(pdf["html-pos"], get_str(pt["html-pos"], "htbp")),
-    cap_pos = get_str(pdf["caption-pos"], get_str(pt["caption-pos"], "top")),
+    cap_pos = get_str(pdf["table-caption-pos"], get_str(pt["table-caption-pos"], "top")),
   }
 end
 

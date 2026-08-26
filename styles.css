@@ -49,7 +49,7 @@ embed[src$=".pdf"] {
   width: 100%;
   display: block;
 }
-/* caption 统一在表格下方（与 PDF 端 caption-pos: bottom 一致，ARA 原版惯例） */
+/* caption 统一在表格下方（与 PDF 端 table-caption-pos: bottom 一致，ARA 原版惯例） */
 table caption {
   caption-side: bottom;
   padding-top: 6px;
