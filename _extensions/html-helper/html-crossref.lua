@@ -10,7 +10,7 @@
 --     为保证 LaTeX 残留引用在 HTML 端可点击跳转，本 filter 必须自己抓 \ref{X} / \S\ref{X} 转成链接。
 --     quarto 的章节编号（number-sections）在 writer 阶段才生成，filter 拿不到
 --      → 按 Header 层级自数（1.1.1），与 PDF 端 Pandoc number-sections 的编号规则一致。
---  3. 图例引用：内容层已有的 @fig-X（fig前缀，quarto 原生语法）→ 走 quarto crossref（Figure N），不经过本 filter。
+--  3. 图片引用：内容层已有的 @fig-X（fig前缀，quarto 原生语法）→ 走 quarto crossref（Figure N），不经过本 filter。
 --     LaTeX 残留的 \ref{fig-X}（正文/表格 RawBlock 字符串内）→ RawInline tex / 字符串 → 
 --     保证 \ref{fig-X} 至少可点击跳转，走本管线。
 --     ref_link 的 fig- 分支把它们转成 <a href="#fig-X">[fig-X]</a>：只能显示 [fig-X] 占位而无法编号，因为
