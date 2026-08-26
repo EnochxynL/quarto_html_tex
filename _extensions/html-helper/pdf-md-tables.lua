@@ -35,13 +35,16 @@ local function get_str(v, default)
 end
 
 -- 从 doc.meta 读取配置（Pandoc() 回调里才能拿到）；兼容旧名 paper-tables
+-- 注意：quarto 把 format.pdf 下的 html-helper 提升为顶层 meta（平铺，无 pdf 嵌套层）——
+-- 实证：meta["html-helper"] keys = {table-env, caption-pos, table-pos}
+-- 故先读嵌套 html-helper.pdf.x（兼容手写嵌套），再回退平铺 html-helper.x
 local function read_config(meta)
   local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   return {
-    env = get_str(pdf["table-env"], "table*"),
-    pos = get_str(pdf["table-pos"], "htbp"),
-    cap_pos = get_str(pdf["caption-pos"], "top"),
+    env = get_str(pdf["table-env"], get_str(pt["table-env"], "table*")),
+    pos = get_str(pdf["table-pos"], get_str(pt["table-pos"], "htbp")),
+    cap_pos = get_str(pdf["caption-pos"], get_str(pt["caption-pos"], "top")),
   }
 end
 

@@ -119,6 +119,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 10. **Lua pattern 里 `§?`（可选多字节 UTF-8 字符）匹配空分支失败**——`(§?)<a` 匹配不到无 `§` 前缀的 `<a`。拆成两个独立 gsub（带 `§` / 不带）。
 11. **quarto 交叉引用 `@fig-X` 后直接跟汉字会被吞进 citationId**（`@fig-X按难度` → id=`fig-X按难度`，quarto 找不到 → 渲染 `?@fig-X` + Strong 包住被吞文本）。pandoc 的 citation id 边界：汉字/ASCII 字母数字连续吞，全角标点（`，（）。、`）是边界。修复：内容层把后跟汉字的 `@fig-X` 改成 `[@fig-X]`（方括号是边界，quarto 渲染视觉等价）。
 12. **RawBlock 字符串内部不经过主文档 citeproc**——`{=latex}` 表格内的 `\citep{key}` 经 pandoc.read 解析为 Cite，内部 write 无 citeproc → HTML writer 输出**空 span**（静默消失，无文本无报错）。修复：html-latex-tables.lua 改 Pandoc(doc) 回调（元素回调拿不到 doc.meta 的 bibliography），表格子文档注入 `bibliography` 后调 `pandoc.utils.citeproc`（pcall 保护），`\citep{key}` → `(Starace et al. 2025)`。仅当文本含 `\cite` 时调用（省开销）。
+13. **quarto 把 `format.pdf` 下的扩展配置提升为顶层 meta（平铺）**——`format: pdf: html-helper: {table-env, table-pos, caption-pos}` 经 quarto 合并后 `doc.meta["html-helper"]` 是 `{table-env=..., caption-pos=..., table-pos=...}`（**无 `pdf` 嵌套层**，实证 keys）。若 read_config 读 `meta["html-helper"]["pdf"]` 恒为 nil → 全默认值：`table-env`/`table-pos` 默认恰等于示例值（table*/htbp）掩盖 bug，`caption-pos` 默认 top 导致管道表 caption 一直在表格上方。修复：read_config 嵌套优先（`html-helper.pdf.x`）、平铺回退（`html-helper.x`）。
 
 ## 模板适配
 

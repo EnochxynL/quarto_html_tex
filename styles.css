@@ -42,6 +42,11 @@
 }
 
 /* 复杂表（HTML 侧由转换脚本生成 <table class="paper-table">） */
+/* caption 统一在表格下方（与 PDF 端 caption-pos: bottom 一致，ARA 原版惯例） */
+table caption {
+  caption-side: bottom;
+  padding-top: 6px;
+}
 table.paper-table {
   border-collapse: collapse;
   margin: 1.2em auto;
