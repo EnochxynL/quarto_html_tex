@@ -1,7 +1,7 @@
 -- html-crossref.lua — HTML 表格统一编号 + 引用链接化
 --
 -- 背景：
---  1. 表格引用：所有表格（复杂表 / 管道表 / {=html} 表）在 HTML 端都已是 RawBlock("html")
+--  1. 表格引用：所有表格（复杂表 / 管道表 / {=html} 表，绕开了 tbl 前缀）在 HTML 端都已是 RawBlock("html")
 --     （html-latex-tables.lua 与 html-md-tables.lua 转换），quarto 的 Table 处理被绕过，
 --     表格编号和 \ref 链接都需要本 filter 统一负责。
 --  2. 章节引用：内容层已有的 @sec-X（sec前缀，quarto 原生语法）→ 走 quarto crossref（Section N），不经过本 filter。
@@ -15,6 +15,9 @@
 --     保证 \ref{fig-X} 至少可点击跳转，走本管线。
 --     ref_link 的 fig- 分支把它们转成 <a href="#fig-X">[fig-X]</a>：只能显示 [fig-X] 占位而无法编号，因为
 --     quarto reader 把图转成无 id 的 Div、fig- 锚点在 writer 阶段才注入，filter 阶段拿不到图编号。
+--  4. 文献引用：所有 [@key]（非 tbl/fig/sec 前缀，quarto 原生语法）按照 quarto citeproc 处理。
+--     表格内文献引用，是\cite{key}（RawBlock 字符串）→ RawInline tex → 本 filter 不处理，
+--     quarto 不碰 RawBlock 字符串，html-latex-tables.lua 子文档 `pandoc.read("latex")` + 子文档 citeproc 完全自建 
 --     
 -- 职责：
 --   1) 按文档顺序统计所有 <table id="..."> → 编号映射
