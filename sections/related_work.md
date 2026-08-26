@@ -17,14 +17,14 @@
 \toprule
 & \textbf{PDF} & \textbf{GitHub} & \textbf{追踪器} & \textbf{\ara{}} \\
 \midrule
-结构化科学逻辑      & {\color{orange}$\sim$} & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
-可执行代码            & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
-探索轨迹              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
-有据可查的证据   & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\checkmark} \\
-跨层绑定              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\checkmark} \\
+结构化科学逻辑      & {\color{orange}$\sim$} & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\cmark} \\
+可执行代码            & {\color{red!70!black}$\times$} & {\color{green!50!black}\cmark} & {\color{red!70!black}$\times$} & {\color{green!50!black}\cmark} \\
+探索轨迹              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\cmark} \\
+有据可查的证据   & {\color{orange}$\sim$} & {\color{red!70!black}$\times$} & {\color{orange}$\sim$} & {\color{green!50!black}\cmark} \\
+跨层绑定              & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{red!70!black}$\times$} & {\color{green!50!black}\cmark} \\
 \bottomrule
 \end{tabular}
-\caption{现有研究构件的维度覆盖。每一行是智能体原生研究的一项需求（\S\ref{sec-intro}）。现有工具在结构上最多覆盖两个维度；\ara{} 通过显式的跨层绑定覆盖全部五个维度。{\color{green!50!black}\checkmark}~=~完整，{\color{orange}$\sim$}~=~部分（存在但非结构化或分散），{\color{red!70!black}$\times$}~=~缺失。}
+\caption{现有研究构件的维度覆盖。每一行是智能体原生研究的一项需求（\S\ref{sec-intro}）。现有工具在结构上最多覆盖两个维度；\ara{} 通过显式的跨层绑定覆盖全部五个维度。{\color{green!50!black}\cmark}~=~完整，{\color{orange}$\sim$}~=~部分（存在但非结构化或分散），{\color{red!70!black}$\times$}~=~缺失。}
 \label{tab-dimension-gap}
 \end{table}
 ```
