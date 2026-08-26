@@ -11,8 +11,7 @@
 --   2) 表格内 \citep{key} 经 pandoc.read 解析为 Cite，内部 write 无 citeproc →
 --      HTML writer 输出空 span（静默消失）。修复：表格子文档注入 bibliography 后调
 --      pandoc.utils.citeproc（pcall 保护），\citep{key} → (Starace et al. 2025)
---   3) \cmark/\xmark（pifont 自定义命令）pandoc 的 LaTeX reader 不认识会丢弃 →
---      预处理替换为 Unicode ✓/✗；\cmidrule 行剥离（Pandoc 不认识，会变成垃圾文本）
+--   3) \cmidrule 行剥离（Pandoc 不认识，会变成垃圾文本）
 --   4) 自定义宏（如 \ara{}）pandoc 不认识会丢弃——通过 metadata 配置注入：
 --      html-helper:
 --        latex-macros: |
@@ -78,11 +77,9 @@ end
 local function convert_table(el, bibstr, macros)
   -- 预处理：剥离 \cmidrule 行（Pandoc 不认识，会变成垃圾文本）
   local cleaned = el.text:gsub("\\cmidrule[^\n]*\n?", "")
-  -- 勾叉：\cmark/\xmark 是 pifont 自定义命令，pandoc 的 LaTeX reader 不认识会丢弃 → 替换为 Unicode
-  cleaned = cleaned:gsub("\\cmark%{%}?", "✓"):gsub("\\cmark", "✓")
-  cleaned = cleaned:gsub("\\xmark%{%}?", "✗"):gsub("\\xmark", "✗")
 
-  -- 自定义宏注入（latex_macros extension 展开；无配置时 prefix 为空）
+  -- 自定义宏注入（latex_macros extension 展开；\ara/\cmark/\xmark 等由
+  -- format.html.html-helper.latex-macros 配置声明，不硬编码；无配置时 prefix 为空）
   local prefix = (macros ~= "") and (macros .. "\n") or ""
   local doc = pandoc.read(prefix .. cleaned, "latex")
 

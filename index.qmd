@@ -102,8 +102,11 @@ format:
     html-helper:
       # HTML 端表格子文档需解析的自定义宏（pandoc latex_macros 展开，通用配置；
       # 必须放 html 格式下——html-latex-tables.lua 是 HTML filter，format.pdf 的配置不提升）
+      # 颜色须用 CSS 合法值（LaTeX 的 green!60!black 不是 CSS 语法，浏览器不认）
       latex-macros: |
         \newcommand{\ara}{\textsc{Ara}}
+        \newcommand{\cmark}{\textcolor{darkgreen}{✓}}
+        \newcommand{\xmark}{\textcolor{darkred}{✗}}
 ---
 
 ```{=latex}
