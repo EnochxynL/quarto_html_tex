@@ -36,12 +36,13 @@ if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
 
--- 引用替换：表格 → 表 N；章节 → §N（自数编号）；图 → [fig-X]（兜底：quarto reader 把图 id 消费进
--- 内部状态，filter 阶段图节点（Div→Div→Plain[Image]）无任何 id 信息，无法自数——图引用必须用
--- quarto 原生 @fig-X）；其他 → nil（调用方决定占位符）
+-- 引用替换：表格 → N（"表"字由内容层手写"表 \ref{tab-X}"提供，与 PDF 端机制一致——filter 只出
+-- 数字，避免"表 表 N"双表）；章节 → §N（\S 是 LaTeX 命令被 HTML writer 丢弃，filter 补 §）；
+-- 图 → [fig-X]（兜底：quarto reader 把图 id 消费进内部状态，filter 阶段图节点无 id 信息，
+-- 无法自数——图引用必须用 quarto 原生 @fig-X）；其他 → nil（调用方决定占位符）
 local function ref_link(ref, tab_nums, sec_nums)
   if tab_nums[ref] then
-    return '<a href="#' .. ref .. '">表 ' .. tab_nums[ref] .. "</a>"
+    return '<a href="#' .. ref .. '">' .. tab_nums[ref] .. "</a>"
   elseif sec_nums[ref] then
     return '<a href="#' .. ref .. '">§' .. sec_nums[ref] .. "</a>"
   elseif ref:match("^fig%-") then
