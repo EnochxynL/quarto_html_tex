@@ -16,6 +16,9 @@ format:
     cite-method: natbib
     biblio-style: styles/icml2026
     latex-clean: false
+    # 代码块走 listings 包（\lstset 样式，与原始论文一致；quarto 1.9+ 用
+    # syntax-highlighting: idiomatic 替代已失效的 listings: true，默认是 fancyvrb Shaded）
+    syntax-highlighting: idiomatic
     html-helper:
       table-env: table*
       table-pos: htbp
@@ -75,7 +78,7 @@ format:
           \newcommand{\storytax}{\emph{Storytelling Tax}}
           \newcommand{\engtax}{\emph{Engineering Tax}}
           \lstset{
-            basicstyle=\ttfamily\small,
+            basicstyle=\ttfamily\scriptsize,
             breaklines=true,
             frame=single,
             framesep=3pt,
