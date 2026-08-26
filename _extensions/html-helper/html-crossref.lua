@@ -1,9 +1,21 @@
 -- html-crossref.lua — HTML 表格统一编号 + 引用链接化
 --
--- 背景：所有表格（复杂表 / 管道表 / {=html} 表）在 HTML 端都已是 RawBlock("html")
---（html-latex-tables.lua 与 html-md-tables.lua 转换），quarto 的 Table 处理被绕过，
--- 表格编号和 \ref 链接都需要本 filter 统一负责。
---
+-- 背景：
+--  1. 表格引用：所有表格（复杂表 / 管道表 / {=html} 表）在 HTML 端都已是 RawBlock("html")
+--     （html-latex-tables.lua 与 html-md-tables.lua 转换），quarto 的 Table 处理被绕过，
+--     表格编号和 \ref 链接都需要本 filter 统一负责。
+--  2. 章节引用：内容层已有的 @sec-X（sec前缀，quarto 原生语法）→ 走 quarto crossref（Section N），不经过本 filter。
+--     LaTeX 残留的 \ref{X} / \S\ref{X} 在 pandoc markdown 里解析为 RawInline("tex")（不是 Cite 节点），
+--     quarto crossref 只消费 @sec-X（Cite），对 RawInline tex 不处理；HTML writer 更会忽略 RawInline tex。
+--     为保证 LaTeX 残留引用在 HTML 端可点击跳转，本 filter 必须自己抓 \ref{X} / \S\ref{X} 转成链接。
+--     quarto 的章节编号（number-sections）在 writer 阶段才生成，filter 拿不到
+--      → 按 Header 层级自数（1.1.1），与 PDF 端 Pandoc number-sections 的编号规则一致。
+--  3. 图例引用：内容层已有的 @fig-X（fig前缀，quarto 原生语法）→ 走 quarto crossref（Figure N），不经过本 filter。
+--     LaTeX 残留的 \ref{fig-X}（正文/表格 RawBlock 字符串内）→ RawInline tex / 字符串 → 
+--     保证 \ref{fig-X} 至少可点击跳转，走本管线。
+--     ref_link 的 fig- 分支把它们转成 <a href="#fig-X">[fig-X]</a>：只能显示 [fig-X] 占位而无法编号，因为
+--     quarto reader 把图转成无 id 的 Div、fig- 锚点在 writer 阶段才注入，filter 阶段拿不到图编号。
+--     
 -- 职责：
 --   1) 按文档顺序统计所有 <table id="..."> → 编号映射
 --   2) 给 <caption> 加 "表 N：" 前缀（与 PDF 端 LaTeX 自动编号的文档顺序一致）
@@ -11,25 +23,6 @@
 --        X 是表格 id → <a href="#X">表 N</a>（可点击）
 --        其他（章节等）→ 保持 [§X] 占位符
 --   4) RawBlock("html") 内部（caption 等）的 \S?\ref{X} 文本 → 同上
---
--- 设计说明：
---   为什么 section 也要走自己的引用处理管线？
---     内容源是 LaTeX，正文残留 \S\ref{sec-X}（LaTeX 引用语法）而非 quarto 的 @sec-X。
---     \S\ref{sec-X} 在 pandoc markdown 里解析为 RawInline("tex")（不是 Cite 节点），
---     quarto crossref 只消费 @sec-X（Cite），对 RawInline tex 不处理；HTML writer 更会
---     直接丢弃 RawInline(tex) → 引用静默消失。因此本 filter 必须自己抓 \ref{sec-X}
---     转成链接。编号来源：quarto 的章节编号（number-sections）在 writer 阶段才生成，
---     filter 拿不到 → 按 Header 层级自数（1.1.1），与 PDF 端 Pandoc number-sections
---     的编号规则一致。这与表格同理（tab- 绕开 quarto）：整套引用系统对
---     "LaTeX 残留语法"统一兜底。
---   为什么 figure 也有相关代码？
---     内容层图引用已统一为 @fig-X（quarto 原生语法）→ 走 quarto crossref（Figure N），
---     不经过本 filter。但正文/表格 RawBlock 字符串内仍可能出现 \ref{fig-X}
---     （LaTeX 残留）→ RawInline tex / 字符串 → 走本管线。ref_link 的 fig- 分支把它们
---     转成 <a href="#fig-X">[fig-X]</a>：只能显示 [fig-X] 占位而无法编号，因为
---     quarto reader 把图转成无 id 的 Div、fig- 锚点在 writer 阶段才注入，filter 阶段
---     拿不到图编号。此分支是兜底——保证 \ref{fig-X} 至少可点击跳转，编号由 quarto
---     原生的 @fig-X 引用负责。
 --
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，
 --       全部手写递归。
