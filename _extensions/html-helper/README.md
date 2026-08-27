@@ -106,6 +106,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 | `pdf-html-tables.lua` | **PDF 端 `{=html}` 直写表**（从 pdf-md-tables 拆出）：`Div(quarto-scaffold)` 包裹的原生 Table → 单栏 `table`（默认）booktabs tabular。独立配置 `html-table-env`/`html-table-pos`（默认 `table`/`htbp`），table-caption-pos 与 pdf-md-tables 共享 |
 | `html-pdf-embed.lua` | HTML 端 `.pdf` 源图 → `<embed style="width:100%; aspect-ratio:W/H">`（Lua 读 PDF 文件头 `/MediaBox` 明文算比例，浏览器自动算高度，保留矢量；多页取第一页；读不到则降级原样输出） |
 | `html-crossref.lua` | HTML：表格统一编号（caption 加"表 N："）+ 引用链接化（`\ref{tab-X}` → `<a href="#tab-X">表 N</a>`） |
+| `pdf-tbl-warn.lua` | **PDF 端 tbl- 前缀检测警告**：正文 `\ref{tbl-X}` → 警告改用 tab-（quarto 在 reader 阶段消费 tbl- id/label，表格前缀必须 tab-，防 PDF 端静默渲染 ??) |
 | `figref.py` | **post-render 脚本**：表格 caption 内图引用占位符 `<a href="#fig-X">[fig-X]</a>` → `<a href="#fig-X">Figure N</a>`（quarto 渲染完成后数 `<div id="fig-X" class="quarto-float quarto-figure">` 文档顺序，前缀从正文 quarto-xref 学习） |
 
 ### 踩坑记录（实现注意）
@@ -145,3 +146,4 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 | AAAI（单栏） | `md-table-env: table`，`table-caption-pos: bottom`（booktabs 三线表即 AAAI 推荐风格） |
 | 博客/HTML | 无需配置，默认走 HTML 分支 |
 23. **表格 caption 内图引用的 postprocess 自动编号（figref.py）**——`\ref{fig-X}` 在 RawBlock 字符串里，quarto crossref 是 AST 层遍历（只找 Cite 节点），**引用语法换什么都不生效**（实测：caption 里写 quarto 原生 `[@fig-X]` 渲染后字面残留）；filter 数不出编号（图 id 被 quarto 消费进内部状态）。**绕开时序的唯一构建时方案：quarto 渲染完成后再数成品**——`project.post-render`（`_quarto.yml`）挂 figref.py：① 数 `<div id="fig-X" class="quarto-float quarto-figure">` 包裹 div 的文档顺序 = 图编号（quarto 编号 = FloatRefTarget 顺序；`<figure>` 本体无 id，干净 id 在包裹 div 上，figcaption 的 id 带 `-caption-uuid` 后缀）；② 前缀（"Figure "/"图 "）从正文 `<a class="quarto-xref">Figure&nbsp;1</a>` 学习（零配置中英文通吃，学不到默认 "Figure "）；③ 替换 `<a href="#fig-X">[fig-X]</a>` 占位。三个实测坑：pandoc 把 LaTeX 的 `~`（`Figure~\ref`）转成 `&nbsp;` 且 caption 序列化词间换行分隔——前缀正则须吃 `&nbsp;` 和 `\r\n`；替换后 `</a>\n.`（句号被换行隔开）须修回 `</a>.` 与 PDF 端 "Figure 4." 一致；脚本对无占位文件不写回（ARL 零副作用回归）。fig-nums 配置逻辑已随方案定型移除（html-crossref.lua 一律输出占位符）——图编号零配置，全由脚本处理。
+24. **主文档 {=latex} 块的 RawBlock format 是 "tex"（include 文件是 "latex"）**——html-latex-tables 的转换条件若只认 "latex"，主文档（index.qmd）里直接写的 {=latex} 表格会静默转成空 `<div class="{=latex}">`（SkillOpt 表格全在 sections/ include 文件所以未暴露）。修复：条件兼容 `format == "latex" or format == "tex"`。顺带实证：**tbl- 前缀被 quarto 在 reader 阶段全面消费**——管道表 `{#tbl-X}` 进内部状态（caption 无残留、attr.identifier 清空，用户 filter 拿不到）；{=latex} 表格 PDF 端 `\label{tbl-X}` 被 main.lua float 识别剥离接管（表格拆碎）。因此**表格前缀必须用 tab-**（quarto 官方"非 float 让路"信号，knitr 兼容设计）；tbl- 仅在 {=latex} 表格的 HTML 端意外兼容（RawBlock 内容 quarto 不碰，id/引用/编号全通）。pdf-tbl-warn.lua 让 PDF 端 tbl- 引用的失败可见（警告而非静默 ??）。

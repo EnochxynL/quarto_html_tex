@@ -169,7 +169,9 @@ function Pandoc(doc)
   local function process_blocks(blocks)
     local out = {}
     for _, b in ipairs(blocks) do
-      if b.t == "RawBlock" and b.format == "latex"
+      -- format 兼容 "latex"（include 文件）与 "tex"（主文档 {=latex} 块，
+      -- 实测两者都会出现——踩坑 19 ③）
+      if b.t == "RawBlock" and (b.format == "latex" or b.format == "tex")
         and (b.text:match("\\begin{table%*?}") or b.text:match("\\begin{tabular}")) then
         out[#out + 1] = convert_table(b, bibstr, macros)
       elseif b.t == "Div" then

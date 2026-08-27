@@ -10,3 +10,4 @@ contributes:
     - pdf-html-tables.lua
     - html-pdf-embed.lua
     - html-crossref.lua
+    - pdf-tbl-warn.lua
