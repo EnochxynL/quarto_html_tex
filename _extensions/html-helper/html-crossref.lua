@@ -31,6 +31,21 @@
 --        其他（章节等）→ 保持 [§X] 占位符
 --   4) RawBlock("html") 内部（caption 等）的 \S?\ref{X} 文本 → 同上
 --
+-- 配置（format 级别，html-helper 命名空间；format.html 或 format.pdf 下均可，
+-- read_config 嵌套优先、平铺回退，见 README 踩坑 13）：
+--   format:
+--     html:
+--       html-helper:
+--         caption-prefix: "Table "   # caption 编号前缀：默认 "表 "（中文论文）；英文论文配 "Table "
+--         caption-sep: ": "          # 编号与标题间分隔符：默认 "："（中文全角）；英文论文配 ": "（半角+空格）
+--
+-- 填写注意：
+--   1) 配置值写"带尾随空格"的形式（"Table " / ": "）——YAML 提升会 trim 尾随空格
+--      （"Table " → "Table"），read_config 对配置值统一补回一个空格；默认值（Lua 字面）
+--      不经 YAML，原样保留（"表 " 带空格、"：" 无空格）。
+--   2) 图引用无配置：表格 caption 内 \ref{fig-X} 一律输出占位符 <a href="#fig-X">[fig-X]</a>，
+--      由项目级 post-render 脚本 figref.py 在渲染完成后自动编号（零配置，见 README 踩坑 23）。
+--
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，
 --       全部手写递归。
 if FORMAT ~= "html" and FORMAT ~= "html5" then
