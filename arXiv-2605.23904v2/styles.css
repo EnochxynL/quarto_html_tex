@@ -82,11 +82,12 @@ table.paper-table td:first-child {
 /* 组合表（\resizebox + minipage 多子表）：Pandoc 把 minipage 解析为
    div.minipage（外层容器 + 内层子表嵌套），横向并排显示（PDF 端是
    resizebox 缩放的三列/六列小表）。选择器只命中「外层 div 的直接子
-   div」（内层子表），外层容器保持块级占满——否则 33% 嵌套 33%
-   导致每个子表实际 ≈11% 宽，表格溢出盒子互相重叠 */
+   div」（内层子表），外层容器保持块级占满。
+   宽度不在此硬编码：由 html-latex-tables.lua 从 LaTeX 源读取
+   （\begin{minipage}{0.33\textwidth} → style="width: 33%"）注入每个
+   内层 div——不同组合表的列数/宽度（0.5×2、0.33×3、0.16×6）各自忠实。 */
 div.minipage > div.minipage {
   display: inline-block;
-  width: 33%;
   vertical-align: top;
   padding: 0 6px;
   box-sizing: border-box;

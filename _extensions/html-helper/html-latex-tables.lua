@@ -115,6 +115,41 @@ local function convert_table(el, bibstr, macros)
   local prefix = (macros ~= "") and (macros .. "\n") or ""
   local doc = pandoc.read(prefix .. cleaned, "latex")
 
+  -- minipage 宽度从 LaTeX 源读取（不猜测、不硬编码）：Pandoc 的 latex reader
+  -- 把 minipage 解析成 Div(class="minipage") 但不保留宽度参数——宽度在
+  -- 原文文本层提取，按文档顺序对应回 AST 的内层 div（外层载体 >1\textwidth
+  -- 的跳过；宽度信息注入 div 的 style，styles.css 不再硬编码 33%）。
+  -- 注意：l/c 列的宽度 LaTeX 端本来就不指定（内容自适应），HTML 端
+  -- table-layout:auto 即忠实，无需列宽猜测；对齐由 Pandoc colspec 保留。
+  local minipage_widths = {}
+  for w in cleaned:gmatch("\\begin{minipage}[^\\]*{%s*([%d%.]+)\\textwidth}") do
+    minipage_widths[#minipage_widths + 1] = tonumber(w)
+  end
+  local function is_minipage(b)
+    for _, cls in ipairs(b.classes or {}) do
+      if cls == "minipage" then return true end
+    end
+    return false
+  end
+  local function assign_mp_widths(blocks, idx)
+    for _, b in ipairs(blocks) do
+      if b.t == "Div" and is_minipage(b) then
+        local w = minipage_widths[idx]
+        idx = idx + 1
+        if w and w <= 1 then
+          b.attr = b.attr or pandoc.Attr()
+          b.attr.attributes = b.attr.attributes or {}
+          b.attr.attributes["style"] = "width: " .. math.floor(w * 1000 + 0.5) / 10 .. "%"
+        end
+      end
+      if b.content then
+        idx = assign_mp_widths(b.content, idx)
+      end
+    end
+    return idx
+  end
+  assign_mp_widths(doc.blocks, 1)
+
   -- 表格内 \citep/\citet 等：子文档跑 citeproc（主文档 citeproc 不碰 RawBlock 字符串）
   if cleaned:match("\\cite") then
     doc = run_citeproc(doc, bibstr)
