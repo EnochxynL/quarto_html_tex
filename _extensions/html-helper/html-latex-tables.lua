@@ -134,6 +134,17 @@ local function convert_table(el, bibstr, macros)
   local function assign_mp_widths(blocks, idx)
     for _, b in ipairs(blocks) do
       if b.t == "Div" and is_minipage(b) then
+        -- 容器检测：content 直接含其他 minipage div（外层载体）→ 加
+        -- minipage-row class，CSS 用 flex 排版（消除 inline-block 空白间隙，
+        -- 3×33% + 间隙 > 100% 会错误换行）；内层子表仍按注入宽度排布
+        local has_child_mp = false
+        for _, cb in ipairs(b.content or {}) do
+          if cb.t == "Div" and is_minipage(cb) then has_child_mp = true end
+        end
+        if has_child_mp then
+          b.classes = b.classes or {}
+          b.classes[#b.classes + 1] = "minipage-row"
+        end
         local w = minipage_widths[idx]
         idx = idx + 1
         if w and w <= 1 then
@@ -195,6 +206,24 @@ local function convert_table(el, bibstr, macros)
   -- 全部 <table> 都加（组合表 resizebox+minipage 的多个子表各自独立成表，
   -- 只加第一个会让 (b)(c)... 子表裸奔无边框）
   html = html:gsub("<table", '<table class="paper-table"')
+  -- 组合表（多个 <table>）caption 归属修正：Pandoc 把 table* 的 caption 挂到
+  -- 第一个子表（视觉上只出现在 (a) 下方）——移到所有子表之后，作为独立
+  -- caption div（HTML 的 <caption> 元素只能在 table 内，容器级需换 div）
+  local tbl_count = select(2, html:gsub("<table", "<table"))
+  if tbl_count > 1 then
+    local cs = html:find("<caption>", 1, true)
+    if cs then
+      local ce = html:find("</caption>", cs, true)
+      if ce then
+        local cap = html:sub(cs + 9, ce - 1)
+        html = html:sub(1, cs - 1) .. html:sub(ce + 10)
+        local lastpos = html:match(".*()</table>")
+        if lastpos then
+          html = html:sub(1, lastpos - 1) .. "</table>" .. '<div class="table-caption">' .. cap .. "</div>" .. html:sub(lastpos + 8)
+        end
+      end
+    end
+  end
   return pandoc.RawBlock("html", html)
 end
 

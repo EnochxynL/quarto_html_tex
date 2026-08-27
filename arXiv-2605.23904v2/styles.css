@@ -92,8 +92,39 @@ div.minipage > div.minipage {
   padding: 0 6px;
   box-sizing: border-box;
 }
+/* 组合表行容器（html-latex-tables.lua 检测到「minipage 含子 minipage」时
+   加的 class）：flex 排版消除 inline-block 空白间隙（3×33% + 间隙 > 100%
+   导致 (c) 错误换行）；子表按注入宽度（style="width: X%"）作为 flex 项排布 */
+div.minipage.minipage-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+/* 挤压：resizebox 的 HTML 对应物——LaTeX 端 tabular 内容比 minipage 宽时由
+   外层 resizebox 等比缩放兜底，HTML 无渲染后缩放原语，用 table-layout: fixed
+   强制表格宽度 = 容器宽度（内容换行挤入）。代价：列均分、长文字换行，
+   比例由内容自然宽度变为均分——数字列（短）不受影响。 */
+div.minipage > div.minipage table.paper-table {
+  table-layout: fixed;
+  width: 100%;
+}
+/* 挤压后列宽收窄，长词（表头/首列文字）必须允许断行，否则溢出单元格重叠 */
+div.minipage table.paper-table th,
+div.minipage table.paper-table td {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
 div.minipage table.paper-table {
   font-size: 0.85em;
+}
+/* 组合表 caption（Lua 从第一个子表移出到容器底部）：HTML 的 <caption> 元素
+   只能在 table 内，容器级 caption 用 div 呈现，居中于整组子表下方 */
+.table-caption {
+  text-align: center;
+  font-size: 0.85em;
+  color: #333;
+  line-height: 1.5;
+  padding: 8px 0 0;
+  width: 100%;
 }
 
 /* 学习规则盒（PDF 端 \fbox minipage 的 HTML 对应物） */
