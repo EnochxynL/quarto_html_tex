@@ -116,15 +116,15 @@ div.minipage table.paper-table td {
 div.minipage table.paper-table {
   font-size: 0.85em;
 }
-/* 组合表 caption（Lua 从第一个子表移出到容器底部）：HTML 的 <caption> 元素
-   只能在 table 内，容器级 caption 用 div 呈现，居中于整组子表下方 */
+/* 组合表 caption（Lua 从第一个子表移出到容器底部）：格式与普通 caption 统一
+   ——不显式指定 color/font-size，由 quarto bootstrap 的
+   `.table-caption, caption` 同组规则接管（灰色 .9rem 居中、padding .5rem）；
+   本规则只保留与普通 caption（styles.css 的 table caption 规则）对齐的
+   padding-top，其余格式不覆盖（教训：自定义 color:#333/font-size 会覆盖
+   bootstrap 同名 class，导致组合表 caption 与普通表观感分裂） */
 .table-caption {
   text-align: center;
-  font-size: 0.85em;
-  color: #333;
-  line-height: 1.5;
-  padding: 8px 0 0;
-  width: 100%;
+  padding-top: 6px;
 }
 
 /* 学习规则盒（PDF 端 \fbox minipage 的 HTML 对应物） */
