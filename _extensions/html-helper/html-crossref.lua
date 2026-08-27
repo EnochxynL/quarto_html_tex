@@ -12,11 +12,12 @@
 --      → 按 Header 层级自数（1.1.1），与 PDF 端 Pandoc number-sections 的编号规则一致。
 --  3. 图片引用：内容层已有的 @fig-X（fig前缀，quarto 原生语法）→ 走 quarto crossref（Figure N），不经过本 filter。
 --     LaTeX 残留的 \ref{fig-X}（正文/表格 RawBlock 字符串内）→ RawInline tex / 字符串 → 走本管线。
---     ref_link 的 fig- 分支输出 <a href="#fig-X">[fig-X]</a>：只能占位而无法自数出 Figure N，
+--     ref_link 的 fig- 分支输出占位 <a href="#fig-X">[fig-X]</a>：无法自数出 Figure N，
 --     因为 quarto render 的 reader 把 {#fig-X} 消费进内部状态（main.lua crossref index），
 --     filter 阶段图节点是 Div→Div→Plain[caption]+Image 三层结构且无任何 id 信息
 --     （实测：Div/Image attr 全空、caption 无 {#id} 残留、doc.meta 无图 id 列表）——
---     与章节 Header 的 id（保留在 attr.identifier）本质不同。图引用必须用 @fig-X。
+--     与章节 Header 的 id（保留在 attr.identifier）本质不同。占位由项目级 post-render
+--     脚本 figref.py 自动编号（quarto 渲染完成后数包裹 div 文档顺序）。
 --  4. 文献引用：所有 [@key]（非 tbl/fig/sec 前缀，quarto 原生语法）按照 quarto citeproc 处理。
 --     表格内文献引用，是 \cite{key} 或 \citep{key}（RawBlock 字符串）→ RawInline tex → 本 filter 不处理，
 --     quarto 不碰 RawBlock 字符串，html-latex-tables.lua 子文档 `pandoc.read("latex")` + 子文档 citeproc 完全自建 
@@ -38,28 +39,25 @@ end
 
 -- 引用替换：表格 → N（"表"字由内容层手写"表 \ref{tab-X}"提供，与 PDF 端机制一致——filter 只出
 -- 数字，避免"表 表 N"双表）；章节 → §N（\S 是 LaTeX 命令被 HTML writer 丢弃，filter 补 §）；
--- 图 → [fig-X]（兜底：quarto reader 把图 id 消费进内部状态，filter 阶段图节点无 id 信息，
--- 无法自数——图引用必须用 quarto 原生 @fig-X）；其他 → nil（调用方决定占位符）
-local function ref_link(ref, tab_nums, sec_nums, fig_nums)
+-- 图 → 占位 <a href="#fig-X">[fig-X]</a>：quarto reader 把图 id 消费进内部状态，filter 阶段
+-- 图节点无 id 信息无法自数——占位由项目级 post-render 脚本 figref.py 在渲染完成后自动编号
+-- （数 <div id="fig-X" class="quarto-float quarto-figure"> 文档顺序，见 README 踩坑 23）；
+-- 其他 → nil（调用方决定占位符）
+local function ref_link(ref, tab_nums, sec_nums)
   if tab_nums[ref] then
     return '<a href="#' .. ref .. '">' .. tab_nums[ref] .. "</a>"
   elseif sec_nums[ref] then
     return '<a href="#' .. ref .. '">§' .. sec_nums[ref] .. "</a>"
   elseif ref:match("^fig%-") then
-    -- 论文级 fig-nums 配置优先（表格 caption 内的图引用）；否则占位
-    local n = fig_nums and fig_nums[ref]
-    if n then
-      return '<a href="#' .. ref .. '">' .. n .. "</a>"
-    end
     return '<a href="#' .. ref .. '">[' .. ref .. "]</a>"
   end
   return nil
 end
 
 -- 从 doc.meta 读配置：caption-prefix（默认 "表 "，PDF 端 LaTeX 自动前缀随
--- 文档语言；英文论文配 "Table "）、caption-sep（默认 "："）、fig-nums
--- （表格/raw 文本内的图引用 \ref{fig-X} 无法自数——quarto 把图 id 消费进
--- 内部状态，filter 拿不到；论文级手动映射 fig-X → 编号，图顺序变动时维护）
+-- 文档语言；英文论文配 "Table "）、caption-sep（默认 "："）
+-- 图引用不做配置（fig-nums 已移除）：一律输出占位符，由 post-render 脚本
+-- figref.py 自动编号（零配置，见 README 踩坑 23）
 local function read_config(meta)
   local pt = meta["html-helper"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
@@ -69,18 +67,11 @@ local function read_config(meta)
   -- 默认值（Lua 字面）不经 YAML，原样保留（"表 " 带空格、"：" 无空格）
   local prefix = pv and (pandoc.utils.stringify(pv) .. " ") or "表 "
   local sep = sv and (pandoc.utils.stringify(sv) .. " ") or "：" 
-  local fig_nums = {}
-  local fn = pdf["fig-nums"] or pt["fig-nums"]
-  if fn then
-    for k, v in pairs(fn) do
-      fig_nums[k] = pandoc.utils.stringify(v)
-    end
-  end
-  return prefix, sep, fig_nums
+  return prefix, sep
 end
 
 function Pandoc(doc)
-  local cap_prefix, cap_sep, fig_nums = read_config(doc.meta)
+  local cap_prefix, cap_sep = read_config(doc.meta)
   -- 1) 统计编号：
   -- 表格编号：所有含表格的 RawBlock 按文档顺序编号（无 id 也占序号，保证与 PDF 端一致）
   local tab_nums = {}
@@ -139,22 +130,22 @@ function Pandoc(doc)
     -- 返回的 § 前缀避免重复。
     -- 注意：不能写成 (§?)<a ... —— Lua pattern 里 §? 的多字节可选匹配空分支会失败。
     text = text:gsub("§<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link:gsub("^§", "") end
       return "§[" .. label .. "]"
     end)
     text = text:gsub("<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link end
       return "[" .. label .. "]"
     end)
     text = text:gsub("\\S\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
     text = text:gsub("\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
+      local link = ref_link(ref, tab_nums, sec_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
@@ -180,7 +171,7 @@ function Pandoc(doc)
           ref = inl.text:match("^\\S\\ref{([^}]+)}$")
         end
         if ref then
-          local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
+          local link = ref_link(ref, tab_nums, sec_nums)
           if link then
             out:insert(pandoc.RawInline("html", link))
           else

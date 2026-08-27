@@ -102,7 +102,6 @@ format:
       # 字符串（AST 层遍历），html-crossref.lua 输出占位符，由项目级
       # post-render 脚本 figref.py 在渲染完成后自动编号（数 <div id="fig-X"
       # class="quarto-float quarto-figure"> 文档顺序，与 PDF 端 \ref 一致）。
-      # 若未配置 post-render，可在此显式声明 fig-nums 映射兜底。
       # HTML 端表格子文档解析用的自定义宏（pandoc latex_macros 展开，通用配置；
       # 必须放 html 格式下——html-latex-tables.lua 是 HTML filter）。
       # dvalp/dvaln 是简化版（去掉 \hphantom——HTML 无需列居中幻影）；
