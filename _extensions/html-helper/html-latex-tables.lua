@@ -207,8 +207,9 @@ local function convert_table(el, bibstr, macros)
   -- 只加第一个会让 (b)(c)... 子表裸奔无边框）
   html = html:gsub("<table", '<table class="paper-table"')
   -- 组合表（多个 <table>）caption 归属修正：Pandoc 把 table* 的 caption 挂到
-  -- 第一个子表（视觉上只出现在 (a) 下方）——移到所有子表之后，作为独立
-  -- caption div（HTML 的 <caption> 元素只能在 table 内，容器级需换 div）
+  -- 第一个子表（视觉上只出现在 (a) 下方）——移到整组子表之后（minipage-row
+  -- 容器闭合 </div> 之后、div.table* 之内），作为独立 caption div
+  -- （HTML 的 <caption> 元素只能在 table 内，容器级需换 div）
   local tbl_count = select(2, html:gsub("<table", "<table"))
   if tbl_count > 1 then
     local cs = html:find("<caption>", 1, true)
@@ -217,9 +218,31 @@ local function convert_table(el, bibstr, macros)
       if ce then
         local cap = html:sub(cs + 9, ce - 1)
         html = html:sub(1, cs - 1) .. html:sub(ce + 10)
-        local lastpos = html:match(".*()</table>")
-        if lastpos then
-          html = html:sub(1, lastpos - 1) .. "</table>" .. '<div class="table-caption">' .. cap .. "</div>" .. html:sub(lastpos + 8)
+        -- 找 minipage-row div 起点，数 <div>/</div> 配对到容器闭合
+        local rs = html:find("minipage-row", 1, true)
+        if rs then
+          local ds = html:sub(1, rs):match(".*()<div")
+          if ds then
+            local depth = 1  -- minipage-row div 自身算一层
+            local pos = ds + 4  -- 跳过自身 <div
+            while true do
+              -- 注意：查找起点是 pos 而非 pos+4——close 分支后 pos 已指向
+              -- </div> 之后，pos+4 会跳过紧邻的下一个 <div（如 (b) 紧跟
+              -- (a) 闭合），导致该子表 open 被跳过、闭合被误判为容器闭合
+              local od = html:find("<div", pos, true)
+              local cd = html:find("</div>", pos, true)
+              if not od and not cd then break end
+              if od and (not cd or od < cd) then
+                depth = depth + 1
+                pos = od + 4
+              else
+                depth = depth - 1
+                pos = cd + 6
+              end
+              if depth == 0 then break end
+            end
+            html = html:sub(1, pos - 1) .. '<div class="table-caption">' .. cap .. "</div>" .. html:sub(pos)
+          end
         end
       end
     end

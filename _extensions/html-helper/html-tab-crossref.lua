@@ -101,6 +101,14 @@ function Pandoc(doc)
       if cap:match("^" .. cap_prefix .. "%d+") then return open .. cap end
       return open .. cap_prefix .. t.num .. cap_sep .. cap
     end, 1)
+    -- 组合表 caption 已由 html-latex-tables 移出 table 为独立 div
+    -- （<caption> 元素只能在 table 内，容器级用 div），前缀同样要加；
+    -- 注意 pattern 里 class 名 table-caption 的连字符须转义 %-（否则被
+    -- 当作非贪婪修饰符，pattern 永远不匹配）
+    t.rb.text = t.rb.text:gsub('(<div class="table%-caption">)([^<]*)', function(open, cap)
+      if cap:match("^" .. cap_prefix .. "%d+") then return open .. cap end
+      return open .. cap_prefix .. t.num .. cap_sep .. cap
+    end, 1)
   end
 
   -- 3) 正文 inline 替换（手写递归；未命中原样保留）
