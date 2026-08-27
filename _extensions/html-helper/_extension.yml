@@ -9,5 +9,7 @@ contributes:
     - pdf-md-tables.lua
     - pdf-html-tables.lua
     - html-pdf-embed.lua
-    - html-crossref.lua
+    - html-tab-crossref.lua
+    - html-sec-crossref.lua
+    - html-fig-crossref.lua
     - pdf-tbl-warn.lua
