@@ -40,18 +40,47 @@ end
 -- 数字，避免"表 表 N"双表）；章节 → §N（\S 是 LaTeX 命令被 HTML writer 丢弃，filter 补 §）；
 -- 图 → [fig-X]（兜底：quarto reader 把图 id 消费进内部状态，filter 阶段图节点无 id 信息，
 -- 无法自数——图引用必须用 quarto 原生 @fig-X）；其他 → nil（调用方决定占位符）
-local function ref_link(ref, tab_nums, sec_nums)
+local function ref_link(ref, tab_nums, sec_nums, fig_nums)
   if tab_nums[ref] then
     return '<a href="#' .. ref .. '">' .. tab_nums[ref] .. "</a>"
   elseif sec_nums[ref] then
     return '<a href="#' .. ref .. '">§' .. sec_nums[ref] .. "</a>"
   elseif ref:match("^fig%-") then
+    -- 论文级 fig-nums 配置优先（表格 caption 内的图引用）；否则占位
+    local n = fig_nums and fig_nums[ref]
+    if n then
+      return '<a href="#' .. ref .. '">' .. n .. "</a>"
+    end
     return '<a href="#' .. ref .. '">[' .. ref .. "]</a>"
   end
   return nil
 end
 
+-- 从 doc.meta 读配置：caption-prefix（默认 "表 "，PDF 端 LaTeX 自动前缀随
+-- 文档语言；英文论文配 "Table "）、caption-sep（默认 "："）、fig-nums
+-- （表格/raw 文本内的图引用 \ref{fig-X} 无法自数——quarto 把图 id 消费进
+-- 内部状态，filter 拿不到；论文级手动映射 fig-X → 编号，图顺序变动时维护）
+local function read_config(meta)
+  local pt = meta["html-helper"] or meta["paper-tables"] or {}
+  local pdf = pt["pdf"] or {}
+  local pv = pdf["caption-prefix"] or pt["caption-prefix"]
+  local sv = pdf["caption-sep"] or pt["caption-sep"]
+  -- YAML 提升会 trim 尾随空格（"Table " → "Table"），配置值统一补一个空格；
+  -- 默认值（Lua 字面）不经 YAML，原样保留（"表 " 带空格、"：" 无空格）
+  local prefix = pv and (pandoc.utils.stringify(pv) .. " ") or "表 "
+  local sep = sv and (pandoc.utils.stringify(sv) .. " ") or "：" 
+  local fig_nums = {}
+  local fn = pdf["fig-nums"] or pt["fig-nums"]
+  if fn then
+    for k, v in pairs(fn) do
+      fig_nums[k] = pandoc.utils.stringify(v)
+    end
+  end
+  return prefix, sep, fig_nums
+end
+
 function Pandoc(doc)
+  local cap_prefix, cap_sep, fig_nums = read_config(doc.meta)
   -- 1) 统计编号：
   -- 表格编号：所有含表格的 RawBlock 按文档顺序编号（无 id 也占序号，保证与 PDF 端一致）
   local tab_nums = {}
@@ -62,9 +91,15 @@ function Pandoc(doc)
     for _, b in ipairs(blocks) do
       if b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
         tab_counter = tab_counter + 1
-        local id = b.text:match('id="([^"]+)"')
-        raw_tables[#raw_tables + 1] = { rb = b, id = id, num = tab_counter }
-        if id then tab_nums[id] = tab_counter end
+        -- 组合表（resizebox + minipage 多子表）在同一 RawBlock 里可能有多个
+        -- label（一个主 label + 别名，如 tab-transfer-all + 3 个别名）——
+        -- 全部收集，映射到同一编号
+        local ids = {}
+        for id in b.text:gmatch('id="([^"]+)"') do
+          ids[#ids + 1] = id
+          tab_nums[id] = tab_counter
+        end
+        raw_tables[#raw_tables + 1] = { rb = b, id = ids[1], num = tab_counter }
       elseif b.t == "Div" then
         collect(b.content)
       end
@@ -104,22 +139,22 @@ function Pandoc(doc)
     -- 返回的 § 前缀避免重复。
     -- 注意：不能写成 (§?)<a ... —— Lua pattern 里 §? 的多字节可选匹配空分支会失败。
     text = text:gsub("§<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, tab_nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
       if link then return link:gsub("^§", "") end
       return "§[" .. label .. "]"
     end)
     text = text:gsub("<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, tab_nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
       if link then return link end
       return "[" .. label .. "]"
     end)
     text = text:gsub("\\S\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, tab_nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
     text = text:gsub("\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, tab_nums, sec_nums)
+      local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
       if link then return link end
       return "[§" .. ref .. "]"
     end)
@@ -129,8 +164,8 @@ function Pandoc(doc)
   for _, t in ipairs(raw_tables) do
     t.rb.text = replace_in_text(t.rb.text)
     t.rb.text = t.rb.text:gsub("(<caption>)([^<]*)", function(open, cap)
-      if cap:match("^表 %d+[:：]") then return open .. cap end
-      return open .. "表 " .. t.num .. "：" .. cap
+      if cap:match("^" .. cap_prefix .. "%d+") then return open .. cap end
+      return open .. cap_prefix .. t.num .. cap_sep .. cap
     end, 1)
   end
 
@@ -145,7 +180,7 @@ function Pandoc(doc)
           ref = inl.text:match("^\\S\\ref{([^}]+)}$")
         end
         if ref then
-          local link = ref_link(ref, tab_nums, sec_nums)
+          local link = ref_link(ref, tab_nums, sec_nums, fig_nums)
           if link then
             out:insert(pandoc.RawInline("html", link))
           else

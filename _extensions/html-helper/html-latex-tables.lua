@@ -73,10 +73,42 @@ local function run_citeproc(doc, bibstr)
   return doc
 end
 
+-- 剥离行首 % 注释（LaTeX 的 % 注释会吃掉换行，把后续命令和上一行合并，
+-- 导致 pandoc 解析错位——实测 transfer_all 的 (a) 段头整行丢失）。
+-- 只删行首注释，不动数据里的转义 \%（如 20\% train）
+local function strip_line_comments(s)
+  local out = {}
+  for line in s:gmatch("([^\n]*)\n?") do
+    if not line:match("^[ \t]*%%") then
+      out[#out + 1] = line
+    end
+  end
+  return table.concat(out, "\n")
+end
+
 -- 单个 latex 表格块 → RawBlock("html")
 local function convert_table(el, bibstr, macros)
   -- 预处理：剥离 \cmidrule 行（Pandoc 不认识，会变成垃圾文本）
   local cleaned = el.text:gsub("\\cmidrule[^\n]*\n?", "")
+
+  -- 预处理：剥离 \resizebox{..}{..}{内容} 外壳（Pandoc 对 resizebox 直接放弃
+  -- 解析整个表格 → 空 div；内容保留，minipage 结构由 Pandoc 解析为 div 嵌套）
+  cleaned = cleaned:gsub("\\resizebox%b{}%b{}%b{}", function(m)
+    local inner = m:match("^\\resizebox%b{}%b{}(%b{})$")
+    if not inner then return m end
+    return inner:sub(2, -2)
+  end)
+
+  -- 剥离行首 % 注释（在 resizebox 剥离之后，覆盖其内容里的注释行）
+  cleaned = strip_line_comments(cleaned)
+
+  -- 预处理：\multicolumn{N}{align}{内容} 展开为内容文本（Pandoc 不认跨列，
+  -- 会丢弃整个单元格内容；展开后内容保留在首列，其余列由 Pandoc 补空）
+  cleaned = cleaned:gsub("\\multicolumn%b{}%b{}%b{}", function(m)
+    local inner = m:match("^\\multicolumn%b{}%b{}(%b{})$")
+    if not inner then return m end
+    return inner:sub(2, -2)
+  end)
 
   -- 自定义宏注入（latex_macros extension 展开；\ara/\cmark/\xmark 等由
   -- format.html.html-helper.latex-macros 配置声明，不硬编码；无配置时 prefix 为空）
@@ -88,12 +120,9 @@ local function convert_table(el, bibstr, macros)
     doc = run_citeproc(doc, bibstr)
   end
 
-  local tbl = find_table(doc.blocks)
-  if not tbl then
-    return el
-  end
-
-  -- 补 caption（Pandoc 的 LaTeX reader 会丢失它们）；caption 内的 \citep 同样过 citeproc
+  -- 补 caption（Pandoc 的 LaTeX reader 在某些结构下会丢失它们——组合表/嵌套
+  -- minipage 时尤其；丢失则从原文重新解析，已有则覆盖为同一内容）；caption 内
+  -- 的 \citep 同样过 citeproc
   local cap_match = cleaned:match("\\caption%b{}")
   if cap_match then
     local caption = cap_match:sub(10, -2)  -- 去掉 "\caption{" 和 "}"
@@ -102,19 +131,29 @@ local function convert_table(el, bibstr, macros)
       cap_ast = run_citeproc(cap_ast, bibstr)
     end
     if #cap_ast.blocks > 0 and cap_ast.blocks[1].content then
-      tbl.caption = pandoc.Caption(pandoc.Inlines(cap_ast.blocks[1].content))
+      local tbl = find_table(doc.blocks)
+      if tbl then
+        tbl.caption = pandoc.Caption(pandoc.Inlines(cap_ast.blocks[1].content))
+      end
     end
   end
 
-  -- 补 label
+  -- 补 label（Pandoc 对 table 环境内的 \label 通常已转 id；组合表嵌套时
+  -- 可能丢失——找到第一个表格补上，跨列组合表 id 落在最外层容器）
   local label = el.text:match("\\label{([^}]+)}")
   if label then
-    tbl.attr = tbl.attr or pandoc.Attr()
-    tbl.attr.identifier = label
+    local tbl = find_table(doc.blocks)
+    if tbl then
+      tbl.attr = tbl.attr or pandoc.Attr()
+      if tbl.attr.identifier == "" or not tbl.attr.identifier then
+        tbl.attr.identifier = label
+      end
+    end
   end
 
-  -- 渲染成 HTML 字符串
-  local html = pandoc.write(pandoc.Pandoc({tbl}), "html")
+  -- 整个子文档渲染成 HTML 字符串（保留 div.minipage 等嵌套结构，组合表的
+  -- 多个子表一次输出；html-crossref.lua 按 RawBlock 粒度计数，组合表 = 1 个编号）
+  local html = pandoc.write(doc, "html")
   -- 去掉包裹的 <p> 或多余结构，只保留表格部分
   html = html:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
   -- 加 paper-table class（styles.css 的表格样式选择器，否则复杂表无边框、靠左）

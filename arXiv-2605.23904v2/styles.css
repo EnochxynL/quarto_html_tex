@@ -1,0 +1,131 @@
+/* SkillOpt 单源论文网页样式（仿 arXiv-2604.24658v3/styles.css + 新增构造） */
+.header-panel {
+  background: #EEF3F9;
+  border-radius: 8px;
+  padding: 22px 24px;
+  margin-bottom: 2em;
+}
+.header-panel .hp-title {
+  font-size: 1.6em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.header-panel .hp-date {
+  color: #666;
+  font-size: 0.9em;
+  margin: 0.3em 0 1em;
+}
+.header-panel .hp-authors {
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 0.4em;
+}
+.header-panel .hp-affiliations {
+  font-size: 0.85em;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 1.2em;
+}
+.header-panel .hp-abstract {
+  line-height: 1.7;
+  margin-bottom: 1em;
+}
+.header-panel .hp-footer {
+  font-size: 0.9em;
+  border-top: 1px solid #d6e0ee;
+  padding-top: 0.8em;
+}
+
+/* SkillOpt 小号大写（{{< skillopt >}} 短代码生成 <span class="smallcaps">） */
+.smallcaps {
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
+}
+
+/* PDF 图片：html-pdf-embed.lua 输出 <embed style="width:100%; aspect-ratio:W/H"> */
+embed[src$=".pdf"] {
+  width: 100%;
+  display: block;
+}
+/* caption 统一在表格下方（与 PDF 端 table-caption-pos: bottom 一致） */
+table caption {
+  caption-side: bottom;
+  padding-top: 6px;
+}
+table.paper-table {
+  border-collapse: collapse;
+  margin: 1.2em auto;
+  font-size: 0.92em;
+  width: 100%;
+}
+table.paper-table th,
+table.paper-table td {
+  border-top: 1px solid #444;
+  border-bottom: 1px solid #444;
+  padding: 6px 10px;
+  text-align: center;
+  vertical-align: top;
+}
+table.paper-table thead th {
+  border-top: 2px solid #222;
+  font-weight: 700;
+  background: #f5f7fa;
+}
+table.paper-table tbody tr:last-child td {
+  border-bottom: 2px solid #222;
+}
+table.paper-table th:first-child,
+table.paper-table td:first-child {
+  text-align: left;
+}
+
+/* 组合表（\resizebox + minipage 多子表）：Pandoc 把 minipage 解析为
+   div.minipage，横向并排显示（PDF 端是 resizebox 缩放的三列/六列小表） */
+div.minipage {
+  display: inline-block;
+  width: 33%;
+  vertical-align: top;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+div.minipage table.paper-table {
+  font-size: 0.85em;
+}
+
+/* 学习规则盒（PDF 端 \fbox minipage 的 HTML 对应物） */
+.skill-excerpts {
+  border: 1px solid #444;
+  padding: 14px 18px;
+  font-size: 0.92em;
+  line-height: 1.6;
+  background: #fafbfc;
+  margin: 0.6em 0;
+}
+.skill-excerpts p {
+  margin: 0.5em 0;
+}
+
+/* 算法框（HTML 端手写版，对应 PDF 端 algorithm 浮动体） */
+.algorithm-box {
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 1.2em 0;
+  background: #fafbfc;
+  font-size: 0.92em;
+  line-height: 1.55;
+}
+.algorithm-box ol {
+  padding-left: 1.6em;
+}
+.algorithm-box li {
+  margin: 0.25em 0;
+}
+.algorithm-box ul {
+  margin: 0.15em 0;
+}
+
+/* 正文里 PDF 源图（html-pdf-embed.lua 的 aspect-ratio 内联样式已处理） */
+figure > embed[src$=".pdf"] {
+  margin: 0 auto;
+}
