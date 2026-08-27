@@ -156,8 +156,10 @@ local function convert_table(el, bibstr, macros)
   local html = pandoc.write(doc, "html")
   -- 去掉包裹的 <p> 或多余结构，只保留表格部分
   html = html:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
-  -- 加 paper-table class（styles.css 的表格样式选择器，否则复杂表无边框、靠左）
-  html = html:gsub("<table", '<table class="paper-table"', 1)
+  -- 加 paper-table class（styles.css 的表格样式选择器，否则复杂表无边框、靠左）；
+  -- 全部 <table> 都加（组合表 resizebox+minipage 的多个子表各自独立成表，
+  -- 只加第一个会让 (b)(c)... 子表裸奔无边框）
+  html = html:gsub("<table", '<table class="paper-table"')
   return pandoc.RawBlock("html", html)
 end
 
