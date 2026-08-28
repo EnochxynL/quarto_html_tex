@@ -98,6 +98,10 @@ format:
       # PDF 端 LaTeX 自动加 "Table N:"——两端一致。
       caption-prefix: "Table "
       caption-sep: ": "
+      # 算法块自定义宏（html-algorithm.lua 纯字符串翻译，不吃 latex-macros）：
+      # \ourmethod{} → SkillOpt（HTML 端算法 caption 显示）
+      algo-macros:
+        "\\ourmethod{}": "SkillOpt"
       # 表格 caption 内的图引用 \ref{fig-X}：quarto crossref 不碰 RawBlock
       # 字符串（AST 层遍历），html-crossref.lua 输出占位符，由项目级
       # post-render 脚本 figref.py 在渲染完成后自动编号（数 <div id="fig-X"

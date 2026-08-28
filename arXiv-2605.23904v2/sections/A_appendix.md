@@ -28,7 +28,6 @@ One-factor ablations vary a single scalar or component while holding the remaini
 
 Algorithm 1 expands the procedure used in the experiments. The central state variables are the current skill $s_{\mathrm{cur}}$, the best validation-gated skill $s_{\mathrm{best}}$, a selection-score cache $\mathcal{C}$, a step buffer $\mathcal{B}$ containing rejected edits and observed failure patterns, and an optimizer-side meta skill $m_{\mathrm{meta}}$ used only to guide future edit generation.
 
-::: {.content-visible when-format="pdf"}
 ```{=latex}
 \begin{algorithm}[t]
 \caption{\ourmethod{} skill optimization}
@@ -77,44 +76,6 @@ Algorithm 1 expands the procedure used in the experiments. The central state var
 \end{algorithmic}
 \end{algorithm}
 ```
-:::
-
-::: {.content-visible when-format="html"}
-<div class="algorithm-box">
-**Algorithm 1: SkillOpt skill optimization**
-
-**Require:** Frozen training model $M$, optimizer model $O$, harness $h$, splits $D_{\mathrm{train}},D_{\mathrm{sel}},D_{\mathrm{test}}$, initial skill $s_0$, epochs $E$, edit-budget schedule $L_t$, rollout batch size $B$, accumulation factor $A$, reflection minibatch size $B_m$
-
-**Ensure:** Best validation-gated skill $s_{\mathrm{best}}$ and held-out test score
-
-1. $s_{\mathrm{cur}} \gets s_0$, $s_{\mathrm{best}} \gets s_0$, $\mathcal{C} \gets \emptyset$, $\mathcal{B} \gets [\ ]$, $m_{\mathrm{meta}} \gets \emptyset$
-2. $\mathrm{score}_{\mathrm{cur}} \gets \mathrm{Evaluate}(M,h,s_0,D_{\mathrm{sel}})$; $\mathrm{score}_{\mathrm{best}} \gets \mathrm{score}_{\mathrm{cur}}$
-3. $\mathcal{C}[\mathrm{Hash}(s_0)] \gets \mathrm{score}_{\mathrm{cur}}$
-4. **for** $e=1$ to $E$ **do**
-   - Shuffle $D_{\mathrm{train}}$ into rollout batches; reset $\mathcal{B} \gets [\ ]$
-   - **for** each optimization step in epoch $e$ **do**
-     - Collect $A$ rollout batches by executing $h(M,x,s_{\mathrm{cur}})$ for sampled tasks $x$
-     - Split rollout evidence into failures and successes, then into minibatches of size $B_m$
-     - Ask $O$ to analyze failure minibatches and produce failure patch proposals
-     - Ask $O$ to analyze success minibatches and produce success patch proposals
-     - Ask $O$ to merge failure proposals, merge success proposals, and perform a final failure-prioritized merge
-     - Ask $O$ to rank merged edits and keep at most $L_t$ edits
-     - Apply the selected edits to obtain a candidate skill $\tilde{s}$
-     - **if** $\mathrm{Hash}(\tilde{s}) \in \mathcal{C}$ **then** $\mathrm{score}_{\mathrm{cand}} \gets \mathcal{C}[\mathrm{Hash}(\tilde{s})]$
-     - **else** $\mathrm{score}_{\mathrm{cand}} \gets \mathrm{Evaluate}(M,h,\tilde{s},D_{\mathrm{sel}})$; $\mathcal{C}[\mathrm{Hash}(\tilde{s})] \gets \mathrm{score}_{\mathrm{cand}}$
-     - **if** $\mathrm{score}_{\mathrm{cand}} > \mathrm{score}_{\mathrm{cur}}$ **then**
-       - $s_{\mathrm{cur}} \gets \tilde{s}$; $\mathrm{score}_{\mathrm{cur}} \gets \mathrm{score}_{\mathrm{cand}}$
-       - **if** $\mathrm{score}_{\mathrm{cand}} > \mathrm{score}_{\mathrm{best}}$ **then** $s_{\mathrm{best}} \gets \tilde{s}$; $\mathrm{score}_{\mathrm{best}} \gets \mathrm{score}_{\mathrm{cand}}$
-     - **else** Add rejected edits and observed failure patterns to $\mathcal{B}$
-   - **if** $e \geq 2$ and slow update is enabled **then**
-     - Compare the same sampled tasks under the previous and current epoch-end skills
-     - Ask $O$ for protected longitudinal guidance; validate the injected guidance through $D_{\mathrm{sel}}$
-   - **if** $e \geq 2$ and optimizer memory is enabled **then**
-     - Ask $O$ to update $m_{\mathrm{meta}}$ for future edit generation and selection
-5. $\mathrm{score}_{\mathrm{test}} \gets \mathrm{Evaluate}(M,h,s_{\mathrm{best}},D_{\mathrm{test}})$
-6. **return** $s_{\mathrm{best}}$, $\mathrm{score}_{\mathrm{test}}$
-</div>
-:::
 
 ## Optimizer Prompt Contracts {#sec-app-prompt-contracts}
 

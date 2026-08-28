@@ -52,7 +52,17 @@ local function read_config(meta)
   local sv = pt["algo-caption-sep"]
   local prefix = pv and (pandoc.utils.stringify(pv) .. " ") or "Algorithm "
   local sep = sv and (pandoc.utils.stringify(sv) .. " ") or ": "
-  return prefix, sep
+  -- 自定义宏表（algpseudocode 驼峰版常见：\ourmethod{} 等论文特有宏）：
+  --   html-helper: algo-macros: {"\\ourmethod{}": "SkillOpt"}
+  -- plain find 替换（pattern 的 { } 量词/转义坑不适用）
+  local macros = {}
+  local mv = pt["algo-macros"]
+  if mv then
+    for k, v in pairs(mv) do
+      macros[pandoc.utils.stringify(k)] = pandoc.utils.stringify(v)
+    end
+  end
+  return prefix, sep, macros
 end
 
 -- 平衡提取 {X}（X 可含嵌套大括号；调用前数学已保护为占位）
@@ -122,6 +132,22 @@ local function scan_tokens(text)
       table.insert(out, "<em>"); table.insert(stack, "textit"); i = i + 8
     elseif rest:match("^\\texttt{") then
       table.insert(out, "<code>"); table.insert(stack, "texttt"); i = i + 8
+    elseif rest:match("^\\Call{") then
+      -- 函数调用 \Call{f}{args} → f(args)（algpseudocode 驼峰版常用；
+      -- 参数内数学已被保护为占位，还原后正常渲染）
+      local fn = balanced_brace(rest:sub(6))
+      local rest2 = rest:sub(6 + #fn + 2)  -- 跳过 {fn}
+      local args = balanced_brace(rest2)
+      if fn and args then
+        table.insert(out, fn .. "(" .. args .. ")")
+        i = i + 6 + #fn + 2 + #args + 2
+      else
+        table.insert(out, "\\Call")
+        i = i + 5
+      end
+    elseif rest:match("^\\Return") then
+      table.insert(out, '<span class="algo-kw">return</span>')
+      i = i + 7
     elseif rest:sub(1, 1) == "{" then
       -- 裸 {（非命令参数，如 \ref{...} 的参数）：压 brace 标记并输出字面
       -- （否则 } 弹空栈被当跨行颜色闭合，\ref{eq:...} 的 } 会丢失）
@@ -154,9 +180,19 @@ local function scan_tokens(text)
   return table.concat(out)
 end
 
--- 行内容翻译：数学保护 → 扫描 → 还原 → \\ 转 <br>；~ 对齐序列 → 单空格
-local function translate_inline(line)
+-- 行内容翻译：数学保护 → 宏替换 → 扫描 → 还原 → \\ 转 <br>；~ 对齐序列 → 单空格
+local function translate_inline(line, macros)
   local t, m = protect_math(line)
+  -- 自定义宏替换（plain find；数学已保护为占位不受影响）
+  if macros then
+    for k, v in pairs(macros) do
+      local pos = t:find(k, 1, true)
+      while pos do
+        t = t:sub(1, pos - 1) .. v .. t:sub(pos + #k)
+        pos = t:find(k, pos + #v, true)
+      end
+    end
+  end
   t = t:gsub("\\\\", "\x02")
   t = scan_tokens(t)
   t = restore_math(t, m)
@@ -165,9 +201,26 @@ local function translate_inline(line)
   return t
 end
 
+-- 方言统一表：algorithmic.sty 全大写 与 algorithmicx/algpseudocode 驼峰 别名
+local UP = {
+  ["\\REQUIRE"]="\\REQUIRE", ["\\Require"]="\\REQUIRE", ["\\REQUIRE*"]="\\REQUIRE",
+  ["\\ENSURE"]="\\ENSURE", ["\\Ensure"]="\\ENSURE",
+  ["\\STATE"]="\\STATE", ["\\State"]="\\STATE",
+  ["\\FOR"]="\\FOR", ["\\For"]="\\FOR", ["\\FORALL"]="\\FOR",
+  ["\\ENDFOR"]="\\ENDFOR", ["\\EndFor"]="\\ENDFOR",
+  ["\\WHILE"]="\\WHILE", ["\\While"]="\\WHILE",
+  ["\\ENDWHILE"]="\\ENDWHILE", ["\\EndWhile"]="\\ENDWHILE",
+  ["\\REPEAT"]="\\REPEAT", ["\\Repeat"]="\\REPEAT",
+  ["\\UNTIL"]="\\UNTIL", ["\\Until"]="\\UNTIL",
+  ["\\IF"]="\\IF", ["\\If"]="\\IF",
+  ["\\ELSIF"]="\\ELSIF", ["\\ElsIf"]="\\ELSIF",
+  ["\\ELSE"]="\\ELSE", ["\\Else"]="\\ELSE",
+  ["\\ENDIF"]="\\ENDIF", ["\\EndIf"]="\\ENDIF",
+}
+
 -- 算法块翻译：整个 RawBlock 文本（含 \begin{figure} 外层可丢弃）
 -- 返回翻译后 HTML 字符串、编号、label 映射
-local function translate_block(text, num, cap_prefix, cap_sep)
+local function translate_block(text, num, cap_prefix, cap_sep, macros)
   -- 定位 \begin{algorithm 与配对 \end{algorithm}（精确子串，不误伤 algorithmic）
   local start = text:find("\\begin{algorithm}")
   if not start then return nil end
@@ -203,7 +256,7 @@ local function translate_block(text, num, cap_prefix, cap_sep)
   local cap_html = ""
   if caption then
     local t = caption:gsub("~~", "&nbsp;&nbsp;")
-    cap_html = translate_inline(t)
+    cap_html = translate_inline(t, macros)
   end
 
   -- 逐行翻译 algorithmic 体
@@ -245,37 +298,38 @@ local function translate_block(text, num, cap_prefix, cap_sep)
         table.remove(color_stack)
       else
         local cmd = trimmed:match("^(\\[A-Za-z]+)")
+        local cmd_u = cmd and UP[cmd]
         -- 非 REQUIRE/ENSURE 的命令行出现 → 退出续行模式
-        if cmd and cmd ~= "\\REQUIRE" and cmd ~= "\\ENSURE" then block_kind = nil end
-        if cmd == "\\REQUIRE" or cmd == "\\ENSURE" then
+        if cmd_u and cmd_u ~= "\\REQUIRE" and cmd_u ~= "\\ENSURE" then block_kind = nil end
+        if cmd_u == "\\REQUIRE" or cmd_u == "\\ENSURE" then
           local content = trimmed:sub(#cmd + 1)
           -- 不手动拼 <br>：translate_inline 已把 \\ 转 <br>（否则双 <br>）
-          local html = pop_colors(translate_inline(content))
-          if cmd == "\\REQUIRE" then
+          local html = pop_colors(translate_inline(content, macros))
+          if cmd_u == "\\REQUIRE" then
             require_html = (require_html or "") .. html
           else
             ensure_html = (ensure_html or "") .. html
           end
           if trimmed:sub(-2) == "\\\\" then
-            block_kind = (cmd == "\\REQUIRE") and "require" or "ensure"
+            block_kind = (cmd_u == "\\REQUIRE") and "require" or "ensure"
           else
             block_kind = nil
           end
         elseif block_kind and not cmd then
           -- REQUIRE/ENSURE 续行（无命令前缀的缩进行）
-          local html = pop_colors(translate_inline(trimmed))
+          local html = pop_colors(translate_inline(trimmed, macros))
           if block_kind == "require" then
             require_html = (require_html or "") .. html
           else
             ensure_html = (ensure_html or "") .. html
           end
           if trimmed:sub(-2) ~= "\\\\" then block_kind = nil end
-        elseif cmd == "\\STATE" then
+        elseif cmd_u == "\\STATE" then
           local content = trimmed:sub(#cmd + 1)
           -- 行尾注释：翻译后找 $\vartriangleleft$ 数学 span，其后片段 → algo-comment
           -- （plain find：分割 pattern 会消费掉 \vartriangleleft 数学本身——实证
           --   main 停在 {\color{CadetBlue} 且数学丢失；且 \v 转义坑）
-          local html = translate_inline(content)
+          local html = translate_inline(content, macros)
           local marker = '<span class="math inline">\\(\\vartriangleleft\\)</span>'
           local pos = html:find(marker, 1, true)
           if pos then
@@ -288,32 +342,60 @@ local function translate_block(text, num, cap_prefix, cap_sep)
           html = pop_colors(html)
           lines_out[#lines_out + 1] = string.rep("  ", indent)
             .. "<li" .. li_style() .. ">" .. html .. "</li>"
-        elseif cmd == "\\FOR" or cmd == "\\WHILE" or cmd == "\\REPEAT" then
-          local kwd = cmd == "\\FOR" and "for" or (cmd == "\\WHILE" and "while" or "repeat")
+        elseif cmd_u == "\\FOR" or cmd_u == "\\WHILE" or cmd_u == "\\REPEAT" then
+          local kwd = cmd_u == "\\FOR" and "for" or (cmd_u == "\\WHILE" and "while" or "repeat")
           local cond = ""
-          if cmd ~= "\\REPEAT" then
+          if cmd_u ~= "\\REPEAT" then
             -- sub(#cmd+1)：跳过命令名本身（off-by-one 教训：sub(#cmd) 会残留末字符）
             local inner = balanced_brace(trimmed:sub(#cmd + 1))
-            if inner then cond = translate_inline(inner) end
+            if inner then cond = translate_inline(inner, macros) end
           end
           lines_out[#lines_out + 1] = string.rep("  ", indent)
             .. "<li" .. li_style() .. ">" .. kw .. kwd .. '</span> ' .. cond .. " " .. kw .. "do</span>"
           indent = indent + 1
           lines_out[#lines_out + 1] = string.rep("  ", indent) .. "<ol>"
-        elseif cmd == "\\ENDFOR" or cmd == "\\ENDWHILE" or cmd == "\\UNTIL" then
+        elseif cmd_u == "\\IF" or cmd_u == "\\ELSIF" or cmd_u == "\\ELSE" or cmd_u == "\\ENDIF" then
+          -- 条件分支（同一 li 内多分支：if 体 ol 关/开，li 由 \IF 开 \ENDIF 闭）
+          if cmd_u == "\\IF" then
+            local inner = balanced_brace(trimmed:sub(#cmd + 1))
+            local cond = inner and translate_inline(inner, macros) or ""
+            lines_out[#lines_out + 1] = string.rep("  ", indent)
+              .. "<li" .. li_style() .. ">" .. kw .. "if</span> " .. cond .. " " .. kw .. "then</span>"
+            indent = indent + 1
+            lines_out[#lines_out + 1] = string.rep("  ", indent) .. "<ol>"
+          elseif cmd_u == "\\ELSIF" then
+            local inner = balanced_brace(trimmed:sub(#cmd + 1))
+            local cond = inner and translate_inline(inner, macros) or ""
+            lines_out[#lines_out + 1] = string.rep("  ", indent) .. "</ol>"
+            lines_out[#lines_out + 1] = string.rep("  ", indent - 1)
+              .. kw .. "else if</span> " .. cond .. " " .. kw .. "then</span>"
+            lines_out[#lines_out + 1] = string.rep("  ", indent) .. "<ol>"
+          elseif cmd_u == "\\ELSE" then
+            lines_out[#lines_out + 1] = string.rep("  ", indent) .. "</ol>"
+            lines_out[#lines_out + 1] = string.rep("  ", indent - 1)
+              .. kw .. "else</span>"
+            lines_out[#lines_out + 1] = string.rep("  ", indent) .. "<ol>"
+          else -- ENDIF
+            if indent > 0 then
+              lines_out[#lines_out + 1] = string.rep("  ", indent) .. "</ol>"
+              indent = indent - 1
+              lines_out[#lines_out + 1] = string.rep("  ", indent) .. "</li>"
+            end
+          end
+        elseif cmd_u == "\\ENDFOR" or cmd_u == "\\ENDWHILE" or cmd_u == "\\UNTIL" then
           if indent > 0 then
             lines_out[#lines_out + 1] = string.rep("  ", indent) .. "</ol>"
             indent = indent - 1
             local tail = ""
-            if cmd == "\\UNTIL" then
+            if cmd_u == "\\UNTIL" then
               local inner = balanced_brace(trimmed:sub(#cmd + 1))
-              if inner then tail = " " .. kw .. "until</span> " .. translate_inline(inner) end
+              if inner then tail = " " .. kw .. "until</span> " .. translate_inline(inner, macros) end
             end
             lines_out[#lines_out + 1] = string.rep("  ", indent) .. "</li>" .. tail
           end
         else
           -- 未知命令/裸文本：原样保留（回退原则）
-          lines_out[#lines_out + 1] = string.rep("  ", indent) .. pop_colors(translate_inline(trimmed))
+          lines_out[#lines_out + 1] = string.rep("  ", indent) .. pop_colors(translate_inline(trimmed, macros))
         end
       end
     end
@@ -341,7 +423,7 @@ local function translate_block(text, num, cap_prefix, cap_sep)
 end
 
 function Pandoc(doc)
-  local cap_prefix, cap_sep = read_config(doc.meta)
+  local cap_prefix, cap_sep, macros = read_config(doc.meta)
 
   -- 1) 收集算法块（文档顺序）编号
   local alg_nums = {}
@@ -364,7 +446,7 @@ function Pandoc(doc)
   --    format 必须 html 否则 HTML writer 丢弃；不能替换包装表字段——
   --    doc.blocks 持有原对象引用，替换包装表对文档无效果）
   for _, t in ipairs(raw_algos) do
-    local html, label = translate_block(t.rb.text, t.num, cap_prefix, cap_sep)
+    local html, label = translate_block(t.rb.text, t.num, cap_prefix, cap_sep, macros)
     if html then
       if label then alg_nums[label] = t.num end
       t.rb.format = "html"
