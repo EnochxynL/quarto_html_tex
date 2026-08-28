@@ -150,3 +150,7 @@ quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都�
 
 25. **html-crossref 拆分三 filter 的三个深层坑（回归修复实录）**——① **Lua pattern 参数只做字符串级转义**：要匹配字面引号，源码写 `"`（1 反斜杠）运行时就是 `"`；写 `\\\"`（3 反斜杠的"双重转义"）运行时变成 `"`（反斜杠+引号），**实测 pandoc Lua pattern 的 `\"` 不匹配字面引号**（gsub/find 全 nil，`<a href="#X">[X]</a>` 链接永不替换、静默残留 data-ref）。同理 match 匹配字面 `\ref` 用源码 2 字节 `\\ref{`（非 4 字节）。**调试手法：从 filter 文件提取 pattern 原样字节，在独立 `--lua-filter` 探针里对真实文本跑 match 实测**（Lua 字符串/pattern 双重转义脑内推演必错）；另外单字节 `\S`（`\S` 源码）在 Lua 5.4 编译期直接报 `invalid escape sequence`——S 式必须成对 `\\S`。② **quarto markdown 扩展集无 raw_tex：正文裸 `\ref{X}` 被数学化成 Math 节点**（HTML 输出 `<span class="math inline">\(\ref{X}\)</span>`），与 pandoc 独立解析（RawInline(tex)）不同——最小复现与真实管线结果可能相反（`Table \ref{tab-x}` 在 reftest 是 Math）；且**同一文档内两种形态并存**（英文段落上下文 → RawInline，中文括号 `（\ref{X}）` → Math）——walk_inlines 必须同时处理 RawInline + Math + Link(reference-type="ref") 三分支，缺一漏一片（本次 ARL 只转出 7 个 § 而非基线 113 个，正是 sec filter 缺 Math 分支 + pattern 字节错误叠加）。③ **Lua 标准库没有 string.rfind**（调试代码误用 → 直接崩 filter "attempt to call a nil value (method 'rfind')"，连累整个渲染静默中断）；④ **Table 节点 caption.long 是 [Block]**（Para/Plain 列表），caption 内的 Link 引用须遍历 `caption.long[*].content` 的 inlines（只遍历单元格会漏 caption 里的 `<a data-reference-type>` 残留）。回归基线：ARL §=113 / sec 链接=189 / tab 引用=17，SkillOpt tab 引用=24，双端占位清零。
 
+
+## 设计备忘（路线图）
+
+- **algorithm 块 → HTML filter**（algorithmic 语法翻译器）：动机 / 实证结论（pandoc 解析 algorithmic 不可用，须纯字符串翻译）/ 设计 sketch / 方言边界 / 触发条件——见 `README.design-notes.md`。触发条件：下一篇论文出现 algorithm 块时实现（YAGNI，SkillOpt 的 HTML 轨已工作）。
