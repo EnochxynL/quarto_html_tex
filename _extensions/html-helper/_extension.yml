@@ -11,5 +11,6 @@ contributes:
     - html-pdf-embed.lua
     - html-tab-crossref.lua
     - html-sec-crossref.lua
+    - html-algorithm.lua
     - html-fig-crossref.lua
     - pdf-tbl-warn.lua
