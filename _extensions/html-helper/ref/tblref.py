@@ -22,11 +22,19 @@ import os
 import re
 import sys
 
-# 表格 float 包裹 div：<div id="tbl-X" class="quarto-float quarto-figure ...">
+# 管道表 float 包裹 div：<div id="tbl-X" class="quarto-float quarto-figure ...">
 DIV_RE = re.compile(r'<div id="(tbl-[^"]+)" class="quarto-float quarto-figure')
 # quarto 渲染的表格 xref：<a href="#tbl-X" class="quarto-xref">Table&nbsp;1</a>
 XREF_RE = re.compile(
     r'<a href="#tbl-[^"]+" class="quarto-xref"[^>]*>\s*([^<&]+?)\s*&nbsp;?\s*\d+</a>')
+# 管道表 caption 格式学习：<figcaption ... quarto-float-tbl ...>Table&nbsp;1: 标题
+# 提取"数字前的词"（Table/表）与"数字后的分隔符"（: / ：）
+CAP_WORD_RE = re.compile(
+    r'<figcaption[^>]*quarto-float-tbl[^>]*>\s*([^<&\d]*?)&nbsp;?\s*\d+')
+CAP_SEP_RE = re.compile(
+    r'<figcaption[^>]*quarto-float-tbl[^>]*>\s*[^<&\d]*?&nbsp;?\s*\d+\s*([:：])')
+# 复杂表 caption 占位：<div class="table-caption">[TAB-CAP:6]标题</div>
+TAB_CAP_RE = re.compile(r'\[TAB-CAP:(\d+)\]')
 # 占位（可能带前缀残留，pandoc 把 ~ 转 &nbsp;）：<a href="#tbl-X">[tbl-X]</a>
 PLACEHOLDER_RE = re.compile(
     r'(?:Table|Tab\.?|表)(?:(?:&nbsp;)|[ \t~\r\n])*<a href="#(tbl-[^"]+)"[^>]*>\[(?:tbl-[^\]]+)\]</a>')
@@ -48,9 +56,7 @@ def process(path):
     tbl_nums = {}
     for i, m in enumerate(DIV_RE.finditer(html), 1):
         tbl_nums.setdefault(m.group(1), i)
-    if not tbl_nums:
-        print(f"tblref: {path} 无 tbl- 表格（跳过）")
-        return
+    # 无 tbl- 表格不早退：复杂表 [TAB-CAP] 占位仍需处理（SkillOpt 全复杂表场景）
 
     # 2) 前缀学习：优先从正文 quarto-xref "Table&nbsp;1" / "表&nbsp;1" 提取
     prefix = "Table "
@@ -60,7 +66,19 @@ def process(path):
             prefix = word + " "
             break
 
-    # 3) 替换占位（带前缀残留的先吃，裸占位兜底）
+    # 3) caption 格式学习：从管道表 figcaption 提取前缀词与分隔符
+    #    （"Table&nbsp;1: 标题" → word="Table" sep=":"）——复杂表 [TAB-CAP:N]
+    #    占位用同一格式填充，零配置且与管道表天然统一（跟随 quarto 语言设置）
+    cap_word, cap_sep = None, ": "
+    mw = CAP_WORD_RE.search(html)
+    if mw:
+        cap_word = mw.group(1).strip()
+    ms = CAP_SEP_RE.search(html)
+    if ms:
+        cap_sep = ms.group(1) + (" " if ms.group(1) == ":" else "")
+    cap_prefix = (cap_word + " ") if cap_word else prefix
+
+    # 4) 替换占位（带前缀残留的先吃，裸占位兜底）
     def repl(m, ref):
         n = tbl_nums.get(ref)
         if n is None:
@@ -72,11 +90,19 @@ def process(path):
     new_html, c2 = PLACEHOLDER_BARE_RE.subn(
         lambda m: repl(m, m.group(1)), new_html)
     count = c1 + c2
-    if count:
+
+    # 5) 复杂表 caption 占位填充（[TAB-CAP:N] → "Table N: "）
+    cap_count = 0
+    if TAB_CAP_RE.search(new_html):
+        new_html, cap_count = TAB_CAP_RE.subn(
+            lambda m: f"{cap_prefix}{m.group(1)}{cap_sep}", new_html)
+
+    if count or cap_count:
         new_html = PERIOD_FIX_RE.sub('</a>.', new_html)
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(new_html)
-        print(f"tblref: 替换 {count} 处表格引用占位（前缀 \"{prefix}\"，{len(tbl_nums)} 个表）→ {path}")
+        print(f"tblref: 替换 {count} 处表格引用占位 + {cap_count} 处 caption（前缀 "
+              f"\"{prefix}\"，caption 格式 \"{cap_prefix}N{cap_sep}\"，{len(tbl_nums)} 个表）→ {path}")
     else:
         print(f"tblref: {path} 无表格引用占位（{len(tbl_nums)} 个表，跳过）")
 

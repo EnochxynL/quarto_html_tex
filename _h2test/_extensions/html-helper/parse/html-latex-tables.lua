@@ -88,8 +88,20 @@ end
 
 -- 单个 latex 表格块 → RawBlock("html")
 local function convert_table(el, bibstr, macros)
+  -- caption 从原文提取（后续剥离 table 外壳会移除 \caption 文本）
+  local cap_match = el.text:match("\\caption%b{}")
   -- 预处理：剥离 \cmidrule 行（Pandoc 不认识，会变成垃圾文本）
   local cleaned = el.text:gsub("\\cmidrule[^\n]*\n?", "")
+
+  -- 预处理：剥离 table/table* 浮动体外壳（实证 2026-08-31：quarto main.lua
+  -- 之后的 pandoc.read latex reader 不解析浮动体 table 环境——整块变 Para
+  -- 导致表格消失；组合表靠 resizebox 剥离侥幸成功，简单表直接暴露。只留
+  -- 内核内容，caption/label 已从原文提取）
+  cleaned = cleaned:gsub("\\begin{table%*?}%[?[^]]*%]?\n?", "")
+  cleaned = cleaned:gsub("\\end{table%*?}\n?", "")
+  cleaned = cleaned:gsub("\\caption%b{}\n?", "")
+  cleaned = cleaned:gsub("\\label%b{}\n?", "")
+  cleaned = cleaned:gsub("\\centering\n?", "")  -- main.lua 环境下与顶层 tabular 组合解析异常（Div>Para）
 
   -- 预处理：剥离 \resizebox{..}{..}{内容} 外壳（Pandoc 对 resizebox 直接放弃
   -- 解析整个表格 → 空 div；内容保留，minipage 结构由 Pandoc 解析为 div 嵌套）
@@ -168,8 +180,8 @@ local function convert_table(el, bibstr, macros)
 
   -- 补 caption（Pandoc 的 LaTeX reader 在某些结构下会丢失它们——组合表/嵌套
   -- minipage 时尤其；丢失则从原文重新解析，已有则覆盖为同一内容）；caption 内
-  -- 的 \citep 同样过 citeproc
-  local cap_match = cleaned:match("\\caption%b{}")
+  -- 的 \citep 同样过 citeproc。cap_match 已在 convert_table 开头从原文提取
+  -- （table 外壳剥离会移除 \caption 文本）
   if cap_match then
     local caption = cap_match:sub(10, -2)  -- 去掉 "\caption{" 和 "}"
     local cap_ast = pandoc.read(prefix .. caption, "latex")  -- 宏定义同样注入
@@ -242,7 +254,15 @@ local function convert_table(el, bibstr, macros)
               if depth == 0 then break end
             end
             html = html:sub(1, pos - 1) .. '<div class="table-caption">' .. cap .. "</div>" .. html:sub(pos)
+          else
+            -- minipage-row 前的 <div 起点未找到：追加到末尾
+            html = html .. '<div class="table-caption">' .. cap .. "</div>"
           end
+        else
+          -- 无 minipage-row（简单并列 minipage，如 2 个子表无外层载体）：
+          -- caption 已从 table 内移出（上面 html:sub 删除），追加到末尾
+          -- （避免丢失——实证 2026-08-31：_h2test 组合表 rs=nil 导致 caption 消失）
+          html = html .. '<div class="table-caption">' .. cap .. "</div>"
         end
       end
     end

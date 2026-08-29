@@ -1,77 +1,60 @@
--- html-sec-crossref.lua — HTML 章节引用体系（Header 层级自数 + §N 链接）
+-- html-fig-crossref.lua — HTML 图引用占位 + 未知引用兜底
+-- 
+-- 处理 \ref{fig-X} 形式的图引用。
+-- 内容层 @fig-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+-- 
+-- 职责：
+--   1) 图引用 \ref{fig-X}（正文 RawInline + RawBlock 文本）→ 占位
+--      <a href="#fig-X">[fig-X]</a>：quarto reader 把图 id 消费进内部状态
+--      （main.lua crossref index），filter 阶段图节点无 id 信息无法自数——
+--      占位由项目级 post-render 脚本 figref.py 在渲染完成后自动编号
+--      （数 <div id="fig-X" class="quarto-float quarto-figure"> 文档顺序，
+--      见 README 踩坑 23）
+--   2) 兜底：所有剩余未解析的 \ref{X}（tab-/sec- 未命中的、未知引用）→ [§X] 占位
+--      ——本 filter 是引用链最后一个（tab → sec → fig），必须让失败可见
 --
--- 从 html-crossref.lua 拆出（sec 半边）。职责：
---   1) 按 Header 层级自数章节编号（1.1.1 格式，与 PDF 端 Pandoc number-sections 一致——
---      quarto 的章节编号在 writer 阶段才生成，filter 拿不到）
---   2) 章节引用 \ref{sec-X} / \S\ref{sec-X}（正文 RawInline + RawBlock 文本）
---      → <a href="#sec-X">§N</a>（\S 是 LaTeX 命令被 HTML writer 丢弃，filter 补 §）
---
--- 只处理 sec- 前缀；其他引用（tab-/fig-/未知）未命中时原样重拼保留——
--- filter 链顺序：html-tab-crossref → html-sec-crossref → html-fig-crossref（fig 最后兜底）。
--- 无配置。内容层 @sec-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+-- 无配置。
 --
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，全部手写递归。
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
 
--- 章节引用 → <a href="#sec-X">§N</a>；未命中 nil（原样保留给后续 filter）
-local function ref_link(ref, sec_nums)
-  if sec_nums[ref] then
-    return '<a href="#' .. ref .. '">§' .. sec_nums[ref] .. "</a>"
+-- 图引用 → 占位 <a href="#fig-X">[fig-X]</a>；其他前缀 → nil（由调用方决定兜底）
+local function ref_link(ref)
+  if ref:match("^fig%-") then
+    return '<a href="#' .. ref .. '">[' .. ref .. "]</a>"
   end
   return nil
 end
 
 function Pandoc(doc)
-  -- 1) 章节编号：遍历 Header（含 Div 嵌套），按层级自数（1.1.1）
-  local sec_nums = {}
-  local sec_counters = { 0, 0, 0, 0, 0, 0 }
-  local function scan_headers(blocks)
-    for _, b in ipairs(blocks) do
-      if b.t == "Header" then
-        local lvl = b.level or 1
-        sec_counters[lvl] = sec_counters[lvl] + 1
-        for i = lvl + 1, 6 do sec_counters[i] = 0 end
-        local parts = {}
-        for i = 1, lvl do parts[i] = sec_counters[i] end
-        local id = b.attr and b.attr.identifier or ""
-        if id ~= "" then
-          sec_nums[id] = table.concat(parts, ".")
-        end
-      elseif b.t == "Div" then
-        scan_headers(b.content)
-      end
-    end
-  end
-  scan_headers(doc.blocks)
-
-  -- 2) RawBlock 文本内章节引用替换（表格 caption 等；未命中原样重拼保留）
+  -- RawBlock 文本内图引用替换（表格 caption 内 \ref{fig-X} 的场景）
+  -- 未命中（非 fig- 前缀，即 tab-/sec- 未命中或未知）→ 兜底占位 [label] / [§ref]
   local function replace_in_text(text)
     text = text:gsub("§<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, sec_nums)
+      local link = ref_link(ref)
       if link then return link:gsub("^§", "") end
-      return "§<a href=\"#" .. ref .. "\">[" .. label .. "]</a>"
+      return "§[" .. label .. "]"
     end)
     text = text:gsub("<a%s+href=\"#([^\"]+)\"[^>]*>%[([^%]]+)%]</a>", function(ref, label)
-      local link = ref_link(ref, sec_nums)
+      local link = ref_link(ref)
       if link then return link end
-      return "<a href=\"#" .. ref .. "\">[" .. label .. "]</a>"
+      return "[" .. label .. "]"
     end)
     text = text:gsub("\\\\S\\\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, sec_nums)
+      local link = ref_link(ref)
       if link then return link end
-      return "\\S\\ref{" .. ref .. "}"
+      return "[§" .. ref .. "]"
     end)
     text = text:gsub("\\\\ref{([^}]+)}", function(ref)
-      local link = ref_link(ref, sec_nums)
+      local link = ref_link(ref)
       if link then return link end
-      return "\\ref{" .. ref .. "}"
+      return "[§" .. ref .. "]"
     end)
     return text
   end
 
-  -- RawBlock("html") 全部过一遍（表格 caption / {=html} 文本内的章节引用）
   local function walk_blocks_text(blocks)
     for _, b in ipairs(blocks) do
       if b.t == "RawBlock" and b.format == "html" then
@@ -83,7 +66,7 @@ function Pandoc(doc)
   end
   walk_blocks_text(doc.blocks)
 
-  -- 2) 正文 inline 替换（手写递归；未命中原样保留）
+  -- 正文 inline 替换：fig- → 占位链接；其他（tab-/sec- 未命中、未知）→ [§ref] 兜底
   local function walk_inlines(inlines)
     local out = pandoc.List({})
     for _, inl in ipairs(inlines) do
@@ -93,27 +76,28 @@ function Pandoc(doc)
           ref = inl.text:match("^\\S\\ref{([^}]+)}")
         end
         if ref then
-          local link = ref_link(ref, sec_nums)
+          local link = ref_link(ref)
           if link then
             out:insert(pandoc.RawInline("html", link))
           else
-            out:insert(inl)
+            out:insert(pandoc.Str("[§" .. ref .. "]"))
           end
         else
           out:insert(inl)
         end
       elseif inl.t == "Math" then
         -- quarto markdown 扩展集无 raw_tex：正文裸 \ref{X} 被数学化成 Math 节点
-        -- （实证：quarto render 输出 <span class="math inline">\(\ref{sec-x}\)</span>）
-        -- 未命中（非 sec-）原样保留给后续 filter（fig 兜底）
+        -- （实证：quarto render 输出 <span class="math inline">\(\ref{fig-x}\)</span>）
         local ref = inl.text:match("^\\ref{([^}]+)}")
         if not ref then
           ref = inl.text:match("^\\S\\ref{([^}]+)}")
         end
         if ref then
-          local link = ref_link(ref, sec_nums)
+          local link = ref_link(ref)
           if link then
             out:insert(pandoc.RawInline("html", link))
+          elseif not ref:match('^fig%-') then
+            out:insert(pandoc.Str("[§" .. ref .. "]"))
           else
             out:insert(inl)
           end
@@ -125,12 +109,12 @@ function Pandoc(doc)
         -- quarto reader 把正文 \ref{X} 解析成 Link（reference-type=ref，文本 [X]），
         -- 不是 RawInline——按引用处理（HTML writer 对 Link 输出 data-reference-type）
         local ref = inl.attr.attributes["reference"]
-        local link = ref_link(ref, sec_nums)
+        local link = ref_link(ref)
         if link then
           out:insert(pandoc.RawInline("html", link))
-        elseif true then
+        elseif not ref:match('^fig%-') then
           -- 未命中：fig 兜底占位（Str），tab/sec 原样保留给后续 filter
-          out:insert(inl)
+          out:insert(pandoc.Str("[§" .. ref .. "]"))
         else
           out:insert(inl)
         end

@@ -1,8 +1,8 @@
 ---
-title: "HTML-Helper2 Test"
+title: "HTML-Helper Test"
 filters:
-  - html-helper2
-  - pdf-helper2
+  - html-helper
+  - pdf-helper
 format:
   pdf:
     include-in-header:
@@ -13,10 +13,8 @@ format:
         \usepackage{graphicx}
   html:
     html-helper:
-      caption-prefix: "Table "
-      caption-sep: ": "
-      algo-caption-prefix: "Algorithm "
-      algo-caption-sep: ": "
+      algo-macros:
+        "\\ourmethod{}": "SkillOpt"
 ---
 
 ## 引用测试
@@ -40,6 +38,12 @@ quarto 原生引用（对照）：@tbl-pipe1。
 | 3 | 4 |
 
 : 管道表二 {#tbl-pipe2}
+
+| e | f |
+|---|---|
+| 5 | 6 |
+
+: 管道表三（原简单 latex 表改管道表） {#tbl-pipe3}
 
 ## 复杂表（tab-，filter 翻译）
 

@@ -10,30 +10,9 @@
 --   3) 表格引用 \ref{tbl-X}（正文 RawInline + RawBlock 文本）→ <a href="#tbl-X">N</a>
 --      （"表"字由内容层手写"表 \ref{tbl-X}"提供——filter 只出数字，避免"表 表 N"双表）
 --
--- 配置（format 级别，html-helper 命名空间；format.html 或 format.pdf 下均可，
--- read_config 嵌套优先、平铺回退，见 README 踩坑 13）：
---   format:
---     html:
---       html-helper:
---         caption-prefix: "Table "   # caption 编号前缀：默认 "表 "（中文论文）；英文论文配 "Table "
---         caption-sep: ": "          # 编号与标题间分隔符：默认 "："（中文全角）；英文论文配 ": "（半角+空格）
--- 填写注意：配置值写"带尾随空格"的形式——YAML 提升会 trim 尾随空格
--- （"Table " → "Table"），read_config 对配置值统一补回一个空格；默认值（Lua 字面）
--- 不经 YAML，原样保留（"表 " 带空格、"：" 无空格）。
---
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，全部手写递归。
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
-end
-
-local function read_config(meta)
-  local pt = meta["html-helper"] or meta["paper-tables"] or {}
-  local pdf = pt["pdf"] or {}
-  local pv = pdf["caption-prefix"] or pt["caption-prefix"]
-  local sv = pdf["caption-sep"] or pt["caption-sep"]
-  local prefix = pv and (pandoc.utils.stringify(pv) .. " ") or "表 "
-  local sep = sv and (pandoc.utils.stringify(sv) .. " ") or "："
-  return prefix, sep
 end
 
 -- 表格引用 → <a href="#tab-X">N</a>；未命中 nil（原样保留给后续 filter）
@@ -57,15 +36,19 @@ local function tbl_placeholder(ref)
 end
 
 function Pandoc(doc)
-  local cap_prefix, cap_sep = read_config(doc.meta)
-  -- 1) 表格编号统计：所有含表格的 RawBlock 按文档顺序编号（无 id 也占序号，
-  --    保证与 PDF 端一致）；组合表多 label 别名全部收集映射到同一编号
+  -- 1) 表格编号统计：全局序号（管道表 Table 节点 + 复杂表 RawBlock 混排计数，
+  --    与 quarto float 顺序同源——管道表编号由 tblref.py 数 float div，复杂表
+  --    编号 = 全局序号，二者连续不冲突）；组合表多 label 别名全部收集映射到同一编号
   local tab_nums = {}
   local tab_counter = 0
   local raw_tables = {}  -- { {rb=RawBlock, num=...}, ... }
   local function collect(blocks)
     for _, b in ipairs(blocks) do
-      if b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
+      if b.t == "Table" then
+        -- 管道表（tbl-，quarto 原生 float）：占全局序号但不记 id
+        -- （quarto reader 消费 tbl- id，filter 拿不到——编号由 tblref.py 后处理）
+        tab_counter = tab_counter + 1
+      elseif b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
         tab_counter = tab_counter + 1
         for id in b.text:gmatch('id="([^"]+)"') do
           tab_nums[id] = tab_counter
@@ -108,17 +91,19 @@ function Pandoc(doc)
 
   for _, t in ipairs(raw_tables) do
     t.rb.text = replace_in_text(t.rb.text)
+    -- caption 编号占位 [TAB-CAP:N]：前缀/分隔符由 tblref.py 从 quarto 管道表
+    -- figcaption 学习填充（零配置，与管道表格式统一——2026-08-31 定案）
     t.rb.text = t.rb.text:gsub("(<caption>)([^<]*)", function(open, cap)
-      if cap:match("^" .. cap_prefix .. "%d+") then return open .. cap end
-      return open .. cap_prefix .. t.num .. cap_sep .. cap
+      if cap:match("^%[TAB%-CAP:%d+%]") then return open .. cap end
+      return open .. "[TAB-CAP:" .. t.num .. "]" .. cap
     end, 1)
     -- 组合表 caption 已由 html-latex-tables 移出 table 为独立 div
     -- （<caption> 元素只能在 table 内，容器级用 div），前缀同样要加；
     -- 注意 pattern 里 class 名 table-caption 的连字符须转义 %-（否则被
     -- 当作非贪婪修饰符，pattern 永远不匹配）
     t.rb.text = t.rb.text:gsub('(<div class="table%-caption">)([^<]*)', function(open, cap)
-      if cap:match("^" .. cap_prefix .. "%d+") then return open .. cap end
-      return open .. cap_prefix .. t.num .. cap_sep .. cap
+      if cap:match("^%[TAB%-CAP:%d+%]") then return open .. cap end
+      return open .. "[TAB-CAP:" .. t.num .. "]" .. cap
     end, 1)
   end
 
