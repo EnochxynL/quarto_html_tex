@@ -3,6 +3,7 @@ shortcodes:
   - skillopt.lua
 filters:
   - html-helper
+  - pdf-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
 # 原始论文 article 默认 secnumdepth 3，paragraph 标题无自动编号）
 number-depth: 3

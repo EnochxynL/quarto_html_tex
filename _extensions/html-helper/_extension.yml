@@ -1,16 +1,13 @@
 title: HTML-Helper
 author: Enoch Xyn
-version: 1.4.0
+version: 2.0.0
 quarto-required: ">=1.4.0"
 contributes:
   filters:
     - html-latex-tables.lua
     - html-md-tables.lua
-    - pdf-md-tables.lua
-    - pdf-html-tables.lua
     - html-pdf-embed.lua
     - html-tab-crossref.lua
     - html-sec-crossref.lua
     - html-algorithm.lua
     - html-fig-crossref.lua
-    - pdf-tbl-warn.lua
