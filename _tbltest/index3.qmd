@@ -1,0 +1,33 @@
+---
+title: "Tbl Label Probe 3"
+format: pdf
+keep-tex: true
+---
+
+resizebox 复杂表格被 quarto 接管后的命运。\ref{tbl-resize}。
+
+```{=latex}
+\begin{table*}[h]
+\centering
+\caption{resizebox 组合表}
+\label{tbl-resize}
+\resizebox{1.12\textwidth}{!}{
+\begin{minipage}{0.33\textwidth}
+\begin{tabular}{ll}
+\hline
+A & B \\
+1 & 2 \\
+\hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\begin{tabular}{ll}
+\hline
+C & D \\
+3 & 4 \\
+\hline
+\end{tabular}
+\end{minipage}
+}
+\end{table*}
+```

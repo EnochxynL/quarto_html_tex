@@ -1,0 +1,23 @@
+---
+title: "Tbl Label Probe"
+format: pdf
+keep-tex: true
+---
+
+正文 LaTeX 原生引用：Table \ref{tbl-probe} 和 \ref{tbl-probe2}。
+
+@tbl-probe 是 quarto 原生引用。
+
+## 管道表（quarto 原生 float）
+
+| a | b |
+|---|---|
+| 1 | 2 |
+
+: 管道表一 {#tbl-probe}
+
+| c | d |
+|---|---|
+| 3 | 4 |
+
+: 管道表二 {#tbl-probe2}

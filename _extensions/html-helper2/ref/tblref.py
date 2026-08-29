@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""tblref.py — HTML 表格引用占位符自动编号（quarto post-render 脚本）
+
+背景（html-helper2 的 tbl- 通道）：
+  管道表用 {#tbl-X} 时 quarto 原生接管（reader 消费 id 进 crossref 内部状态，
+  用户 filter 拿不到 id 自数）——实证（2026-08-30）：
+    1) PDF 端：\\label{tbl-X} 原样写回中间 tex（\\ref{tbl-X} 在 LaTeX 层命中，
+       不 ??）；{=latex} 表格的 label 被挪进 \\caption 但保留（同样命中）。
+    2) HTML 端：quarto 输出 <div id="tbl-X" class="quarto-float quarto-figure ...">
+       包裹 div（锚点存在，编号 = FloatRefTarget 文档顺序）。
+  html-ref-tbl.lua 对正文 \\ref{tbl-X}（Math/RawInline/Link）输出占位
+  <a href="#tbl-X">[tbl-X]</a>（tab- 通道自数，tbl- 通道走后处理）。
+  本脚本在 quarto 渲染完成后数 tbl- float div 的文档顺序得编号，替换占位符。
+  编号与 quarto 原生 @tbl-X 引用同源（都数 FloatRefTarget 顺序），双引用语法
+  编号一致；前缀（"Table " / "表 "）从正文 quarto-xref 引用学习（零配置）。
+
+用法：由 quarto 自动调用（_quarto.yml project.post-render，与 figref.py 并列），
+  或手动: python tblref.py <file.html> [file2.html ...]
+环境变量：QUARTO_PROJECT_OUTPUT_FILES（quarto 传入，换行分隔的相对路径）
+"""
+import os
+import re
+import sys
+
+# 表格 float 包裹 div：<div id="tbl-X" class="quarto-float quarto-figure ...">
+DIV_RE = re.compile(r'<div id="(tbl-[^"]+)" class="quarto-float quarto-figure')
+# quarto 渲染的表格 xref：<a href="#tbl-X" class="quarto-xref">Table&nbsp;1</a>
+XREF_RE = re.compile(
+    r'<a href="#tbl-[^"]+" class="quarto-xref"[^>]*>\s*([^<&]+?)\s*&nbsp;?\s*\d+</a>')
+# 占位（可能带前缀残留，pandoc 把 ~ 转 &nbsp;）：<a href="#tbl-X">[tbl-X]</a>
+PLACEHOLDER_RE = re.compile(
+    r'(?:Table|Tab\.?|表)(?:(?:&nbsp;)|[ \t~\r\n])*<a href="#(tbl-[^"]+)"[^>]*>\[(?:tbl-[^\]]+)\]</a>')
+PLACEHOLDER_BARE_RE = re.compile(
+    r'<a href="#(tbl-[^"]+)"[^>]*>\[(?:tbl-[^\]]+)\]</a>')
+# 链接后句号被换行分隔（</a>\n.）→ 紧贴（PDF 端 "Table 4." 一致）
+PERIOD_FIX_RE = re.compile(r'</a>\s*\r?\n\s*\.')
+
+
+def process(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            html = fh.read()
+    except OSError as e:
+        print(f"tblref: 跳过 {path}: {e}")
+        return
+
+    # 1) 表格编号：数 tbl- float div 文档顺序（quarto 编号 = FloatRefTarget 顺序）
+    tbl_nums = {}
+    for i, m in enumerate(DIV_RE.finditer(html), 1):
+        tbl_nums.setdefault(m.group(1), i)
+    if not tbl_nums:
+        print(f"tblref: {path} 无 tbl- 表格（跳过）")
+        return
+
+    # 2) 前缀学习：优先从正文 quarto-xref "Table&nbsp;1" / "表&nbsp;1" 提取
+    prefix = "Table "
+    for m in XREF_RE.finditer(html):
+        word = m.group(1).strip()
+        if word:
+            prefix = word + " "
+            break
+
+    # 3) 替换占位（带前缀残留的先吃，裸占位兜底）
+    def repl(m, ref):
+        n = tbl_nums.get(ref)
+        if n is None:
+            return m.group(0)
+        return f'<a href="#{ref}">{prefix}{n}</a>'
+
+    new_html, c1 = PLACEHOLDER_RE.subn(
+        lambda m: repl(m, m.group(1)), html)
+    new_html, c2 = PLACEHOLDER_BARE_RE.subn(
+        lambda m: repl(m, m.group(1)), new_html)
+    count = c1 + c2
+    if count:
+        new_html = PERIOD_FIX_RE.sub('</a>.', new_html)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(new_html)
+        print(f"tblref: 替换 {count} 处表格引用占位（前缀 \"{prefix}\"，{len(tbl_nums)} 个表）→ {path}")
+    else:
+        print(f"tblref: {path} 无表格引用占位（{len(tbl_nums)} 个表，跳过）")
+
+
+def main():
+    files = []
+    env = os.environ.get("QUARTO_PROJECT_OUTPUT_FILES", "")
+    if env:
+        files = [f for f in env.splitlines() if f.strip().endswith((".html", ".htm"))]
+    files.extend(a for a in sys.argv[1:] if a.endswith((".html", ".htm")))
+    seen, uniq = set(), []
+    for f in files:
+        if f not in seen:
+            seen.add(f)
+            uniq.append(f)
+    if not uniq:
+        print("tblref: 无输出文件（QUARTO_PROJECT_OUTPUT_FILES 未设置且无参数）")
+        return
+    for f in uniq:
+        if os.path.exists(f):
+            process(f)
+        else:
+            print(f"tblref: 跳过（不存在）{f}")
+
+
+if __name__ == "__main__":
+    main()

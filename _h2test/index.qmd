@@ -1,0 +1,87 @@
+---
+title: "HTML-Helper2 Test"
+filters:
+  - html-helper2
+  - pdf-helper2
+format:
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage{algorithm}
+        \usepackage{algorithmic}
+        \usepackage{booktabs}
+        \usepackage{graphicx}
+  html:
+    html-helper:
+      caption-prefix: "Table "
+      caption-sep: ": "
+      algo-caption-prefix: "Algorithm "
+      algo-caption-sep: ": "
+---
+
+## 引用测试
+
+LaTeX 原生引用（Math 形态）：\ref{tbl-pipe1} 和 \ref{tbl-pipe2}。
+
+quarto 原生引用（对照）：@tbl-pipe1。
+
+复杂表引用：\ref{tab-complex}。算法引用：\ref{alg-test}。
+
+## 管道表（tbl-，quarto 原生）
+
+| a | b |
+|---|---|
+| 1 | 2 |
+
+: 管道表一 {#tbl-pipe1}
+
+| c | d |
+|---|---|
+| 3 | 4 |
+
+: 管道表二 {#tbl-pipe2}
+
+## 复杂表（tab-，filter 翻译）
+
+```{=latex}
+\begin{table*}[h]
+\centering
+\caption{resizebox 组合表}
+\label{tab-complex}
+\resizebox{1.12\textwidth}{!}{
+\begin{minipage}{0.33\textwidth}
+\begin{tabular}{ll}
+\hline
+\textbf{Sub A} & \textbf{Sub B} \\
+1 & 2 \\
+\hline
+\end{tabular}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+\begin{tabular}{ll}
+\hline
+\textbf{Sub C} & \textbf{Sub D} \\
+3 & 4 \\
+\hline
+\end{tabular}
+\end{minipage}
+}
+\end{table*}
+```
+
+## 算法（alg-，filter 翻译）
+
+```{=latex}
+\begin{algorithm}[H]
+\caption{Test algorithm}
+\label{alg-test}
+\begin{algorithmic}[1]
+\REQUIRE input $x$
+\STATE init $y \gets 0$
+\FOR{$i=1$ to $N$}
+\STATE $y \gets y + x$
+\ENDFOR
+\RETURN $y$
+\end{algorithmic}
+\end{algorithm}
+```

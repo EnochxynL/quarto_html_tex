@@ -1,0 +1,12 @@
+title: HTML-Helper2
+author: Enoch Xyn
+version: 0.1.0
+quarto-required: ">=1.4.0"
+contributes:
+  filters:
+    - format/html-pdf-embed.lua
+    - parse/html-latex-tables.lua
+    - parse/html-latex.lua
+    - ref/html-ref-tbl.lua
+    - ref/html-ref-sec.lua
+    - ref/html-ref-fig.lua

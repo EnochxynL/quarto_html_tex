@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\definecolor{CadetBlue}{RGB}{95,158,160}
+\title{TeX4ht Probe A: Old-style algorithmic + tables}
+\author{test}
+\begin{document}
+\maketitle
+
+Reference tests: Algorithm~\ref{alg:inference}, Table~\ref{tab:simple}.
+
+\section{Old-style algorithmic block (TD-MPC dialect)}
+
+\begin{algorithm}[t]
+\caption{~~TD-MPC {\color{CadetBlue}(\emph{inference})}}
+\label{alg:inference}
+\begin{algorithmic}[1]
+\REQUIRE Encoder $h_{\theta}$, policy $\pi_{\theta}$, dynamics $d_{\theta}$, value $V_{\theta}$, reward $R_{\theta}$, TD-MPC agent $\mathbb{A}$
+\STATE Initialize $\theta \leftarrow \theta_{0}$, $\phi_{\Gamma} \leftarrow \phi_{0}$
+\FOR{$e=1$ to $E$}
+    \STATE Encode state $\mathbf{z}_{t} \leftarrow h_{\theta}(\mathbf{s}_{t})$ \textcolor{CadetBlue}{\emph{// assuming TOLD model}}
+    \FOR{each iteration $j=1..J$}
+        \STATE $\mathbf{a}_{t} \leftarrow \pi_{\theta}(\mathbf{z}_{t})$
+        \STATE $\mathbf{z}_{t+1} \leftarrow d_{\theta}(\mathbf{z}_{t}, \mathbf{a}_{t})$
+        \STATE {\color{MidnightBlue} Sample ...}
+    \ENDFOR
+\ENDFOR
+\RETURN $\mathbf{a}_{t}$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Simple booktabs table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Setting} & \textbf{SearchQA} & \textbf{LiveMath} \\
+\midrule
+Full & 42.3 & 58.1 \\
+Ablated & 38.7 & 55.9 \\
+\bottomrule
+\end{tabular}
+\caption{Simple table with booktabs.}
+\label{tab:simple}
+\end{table}
+
+\end{document}
