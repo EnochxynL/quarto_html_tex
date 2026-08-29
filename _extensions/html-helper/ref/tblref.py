@@ -35,7 +35,7 @@ CAP_SEP_RE = re.compile(
     r'<figcaption[^>]*quarto-float-tbl[^>]*>\s*[^<&\d]*?&nbsp;?\s*\d+\s*([:：])')
 # 复杂表 caption 占位：<div class="table-caption">[TAB-CAP:6]标题</div>
 TAB_CAP_RE = re.compile(r'\[TAB-CAP:(\d+)\]')
-# 占位（可能带前缀残留，pandoc 把 ~ 转 &nbsp;）：<a href="#tbl-X">[tbl-X]</a>
+# 占位（可能带前缀残留，pandoc 把 ~ 转 &nbsp;）：<a href="#tbl-X">[tbl-X]</a>。如果不用它整体匹配、只替换占位符，就会变成 "Table Table 1" 双前缀
 PLACEHOLDER_RE = re.compile(
     r'(?:Table|Tab\.?|表)(?:(?:&nbsp;)|[ \t~\r\n])*<a href="#(tbl-[^"]+)"[^>]*>\[(?:tbl-[^\]]+)\]</a>')
 PLACEHOLDER_BARE_RE = re.compile(
