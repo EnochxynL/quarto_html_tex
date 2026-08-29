@@ -6,6 +6,15 @@
 -- 用户 filter 阶段 {=latex} 表格的 RawBlock 已只剩 caption（label/表格体被
 -- quarto 拿走），归一化 filter 对该路径无效。
 --
+-- 机制澄清（为什么配对正确的 tbl- 也会 ??）：tbl- 前缀是 quarto 原生
+-- @tbl-x 交叉引用的地盘——quarto crossref 体系在 reader 阶段把 tbl- 的
+-- id/label 消费进自己的内部状态（管道表 attr.identifier 清空、{=latex}
+-- 表格 \label 被剥离接管）。LaTeX 原生 \ref{tbl-x} 走不到 quarto 的
+-- crossref（quarto 只认 @tbl-x 语法），LaTeX 层又找不到已被消费的
+-- \label{tbl-x} → 悬空渲染 ??。因此这不是"标签引用错配"（人错配是
+-- \ref{tbl-b} 对 \label{tbl-a} 那种），而是 tbl- 资源被分配给 @ 体系后
+-- \ref 天然找不到它——即使 label/ref 配对正确也一样。
+--
 -- 结论：tbl- 前缀仅在 HTML 端受支持（RawBlock(html) quarto 不碰，id 原样保留，
 -- html-crossref.lua 不限前缀收集，\ref{tbl-X} 命中编号链接）；PDF 端内容层
 -- 表格前缀必须用 tab-（quarto 唯一放行的前缀）。本 filter 负责让 tbl- 输入
