@@ -1,132 +1,75 @@
 # HTML-Helper
 
-Quarto 扩展（能力 A）：**qmd(含 latex) → 单格式 HTML 翻译器**——用自定义 Lua 解析器做 pandoc 做不到的事（复杂表格/算法块/引用体系），本质是 pandoc 的超集。
+Quarto 扩展（能力 A 重构版）：**qmd(含 latex) → 单格式 HTML 翻译器**。三模块架构（format / parse / ref），目录结构替代单文件平铺——quarto 扩展支持子目录 filter（实证 2026-08-30）。
 
-姊妹扩展：[PDF-Helper](../pdf-helper/README.md)（能力 B：pdf(含 html 内容) → 期刊 sty 的 PDF 适配器）。
+## 架构
 
-## 架构：两个正交能力
-
-| | HTML-Helper | PDF-Helper |
-|---|---|---|
-| 能力 | qmd(含 latex) → 单格式 HTML | pdf(含 html 内容) → 期刊 sty 的 PDF |
-| 发展方向 | 语法扩展：应对层出不穷的 {=latex} block（tabular → algorithm → …） | 模板适配：适配更多期刊 sty（解析交给 LaTeX 编译器，再困难可用 {=latex} 兜底） |
-| 测试样本 | 语法片段 qmd | 期刊模板编译验证 |
-| 归属 | `_extensions/html-helper/` | `_extensions/pdf-helper/` |
-
-使用方两者都挂：`filters: [html-helper, pdf-helper]`——一次编译，双端自动。拆分为两个扩展是为了独立开发空间（演进方向/测试策略/失败模式不同），使用体验零损失。
-
-## 解决的问题
-
-论文写作中，复杂表格（`\multicolumn`、`\shortstack`、`\cmidrule`）、算法块（algorithmic）等 `{=latex}` 内容无法用 Markdown 表达，而 quarto 对 `{=latex}` 在 HTML 端**静默忽略**。本扩展在 Pandoc AST 层面翻译这些 LaTeX 内容块为 HTML：复杂表格（剥 resizebox/minipage/multicolumn → `<table>`）、算法（algorithmic/algpseudocode 双方言 → 嵌套列表）、引用体系（tab/sec/fig/alg 交叉引用）——**pandoc 解析不了的（实证：resizebox 弃表、algorithmic 命令吞毁、\ref 数学化）正是本扩展的功夫所在**。
-
-## 安装
-
-### 本地使用（当前项目）
-
-```bash
-# 把 _extensions/html-helper/ 复制到目标项目的 _extensions/ 下即可
 ```
-
-### 从 GitHub 分发（未来）
-
-```bash
-quarto add <user>/html-helper
+_extensions/html-helper2/
+  format/              格式微调，不利用文章语法结构
+    html-pdf-embed.lua     .pdf 源图 → <embed aspect-ratio>
+  parse/               语法解析
+    html-latex-tables.lua  复杂 {=latex} 表格（resizebox/minipage/multicolumn）→ <table>
+    html-latex.lua         algorithmic 算法块（双方言）→ algorithm-box 嵌套列表
+  ref/                 引用处理（双轨：tab- 自管 / tbl- 后处理）
+    html-ref-tbl.lua       \ref{tab-X} 自管编号；\ref{tbl-X} → 占位符（tblref.py 编号）
+    html-ref-sec.lua       \S\ref{sec-X} / \ref{sec-X} → §N 链接
+    html-ref-fig.lua       \ref{fig-X} → 占位链接（figref.py 编号）
+    figref.py              图占位后处理编号（数 quarto float div 顺序）
+    tblref.py              表格占位后处理编号（数 tbl- float div 顺序）
 ```
 
 ## 用法
 
 ```yaml
----
 filters:
-  - html-helper
-  - pdf-helper          # 只要 HTML 端则只挂 html-helper
+  - html-helper2
+  - pdf-helper2
 format:
   html:
     html-helper:
-      caption-prefix: "Table "   # 表格 caption 编号前缀（英文论文 "Table "；默认中文 "表 "）
-      caption-sep: ": "          # 编号与标题间分隔符（英文 ": "；默认中文 "："）
-      algo-caption-prefix: "Algorithm "  # 算法 caption 前缀（默认 "Algorithm "）
-      algo-caption-sep: ": "
-      algo-macros:               # 算法块自定义宏（纯字符串替换，如 \ourmethod{} → SkillOpt）
+      caption-prefix: "Table "
+      caption-sep: ": "
+      algo-macros:
         "\\ourmethod{}": "SkillOpt"
+project:
+  post-render:
+    - _extensions/html-helper2/ref/figref.py
+    - _extensions/html-helper2/ref/tblref.py
+```
+
+## 双轨引用通道（实证定案 2026-08-30）
+
+| 通道 | 表格形态 | 编号机制 | 适用 |
+|---|---|---|---|
+| **tbl-** | 管道表 `{#tbl-X}`（quarto 原生 float） | tblref.py 数 `<div id="tbl-X" class="quarto-float quarto-figure">` 文档顺序——与 quarto `@tbl-X` 编号同源（FloatRefTarget 顺序），双引用语法编号一致 | 新论文管道表 |
+| **tab-** | `{=latex}` 复杂表 `\label{tab-X}`（quarto 让路） | html-ref-tbl 自管（AST 统计 RawBlock 顺序） | 复杂表（resizebox 等）必须 tab- |
+
+**为什么复杂表必须 tab-**：实证——{=latex} resizebox 表格 + tbl- 被 quarto float 接管后，HTML 端 pandoc 解析失败 → **整个表格静默消失**（_tbltest/index3 实证）。tab- 让路后 RawBlock 保留，filter 翻译。
+
+**PDF 端 tbl- 不 ??**：quarto 对管道表 tbl- 的 `\label{tbl-X}` **原样写回中间 tex**（实证 index.tex）——LaTeX 原生 `\ref{tbl-X}` 命中。旧 pdf-tbl-warn 的"tbl- 是 @ 地盘、\ref 找不到"机制澄清**对管道表不成立**（已修正，pdf-helper2 里改为提示器）。
+
+## 迁移须知（旧论文 tab- → tbl-）
+
+html-helper2 **移除了 html-md-tables**（管道表 tbl- 走 quarto 原生，不需要它）。旧论文的 **tab- 管道表**会掉进裂缝（既不被 quarto 接管、又无 filter 翻译 → 不是 paper-table、引用占位）。迁移：
+
+1. 管道表 id：`{#tab-X}` → `{#tbl-X}`（caption 行）
+2. 指向管道表的引用：`\ref{tab-X}` → `\ref{tbl-X}`
+3. `{=latex}` 表格的 `\label{tab-X}` 和引用**保持 tab-**（不能改 tbl-，会触发 float 接管）
+
+判断依据：SkillOpt（全 {=latex} 表，无管道表）切换 html-helper2 无缝（11 表/占位 0 与基线一致）；ARL（52 行 tab- 管道表）切换后 paper-table 9/15、占位 5——需先迁移。
+
+## 算法 label 双形态
+
+html-latex.lua 正文引用支持 `alg:inference`（冒号，TD-MPC 风格）与 `alg-inference`（连字符，SkillOpt 风格）两种 label。
+
+## 实证样本（repo 内）
+
+- `_tbltest/`：路线 C 探针（管道表 tbl- label 原样写回、HTML float div 锚点、{=latex} 复杂表静默消失）
+- `_mk4ht-test/`：make4ht 探针（algorithmic 输出结构可用；tabular 在 MiKTeX 挂起——tex4ht 转换器死锁，分步 latex+tex4ht 可绕但输出纯文本）
+- `_h2test/`：html-helper2 全链路测试（双端渲染）
+
 ---
-```
-
-PDF 端配置（期刊模板适配）见 [PDF-Helper README](../pdf-helper/README.md)。
-
-在正文中写 LaTeX 表格：
-
-````markdown
-```{=latex}
-\begin{table*}[h]
-\centering
-\begin{tabular}{lcc}
-\toprule
-\textbf{列A} & \textbf{列B} & \textbf{列C} \\
-\midrule
-1 & 2 & 3 \\
-\bottomrule
-\end{tabular}
-\caption{表格标题。}
-\label{tab-example}
-\end{table*}
-```
-````
-
-也可以直写 HTML 表格（PDF 端自动转成 booktabs 三线表）：
-
-````markdown
-```{=html}
-<table id="tab-example2">
-<caption>HTML 直写的表格。</caption>
-<thead>
-<tr><th>a</th><th>b</th></tr>
-</thead>
-<tbody>
-<tr><td>1</td><td>2</td></tr>
-</tbody>
-</table>
-```
-````
-
-## 行为
-
-| 输入 | PDF | HTML |
-|------|-----|------|
-| `{=latex}` 复杂表 | raw LaTeX 原样传递（`xelatex` 编译） | `pandoc.read()` 解析为 Table AST → 补 caption/label → 渲染为 `<table>`（`paper-table` class） |
-| Markdown 管道表 | 转成 `table*`/`table`/`longtable` + booktabs tabular（默认 Pandoc 生成的 longtable 在双栏下报错） | 转 RawBlock(`<table>`)——quarto 的 Table 处理会清空 id 并把 `{#id}` 残留进 caption，必须绕过 |
-| `{=html}` 直写表 | `pandoc.read()` 解析 `<table>` → 同一套 booktabs tabular（quarto 会把它解析为 Div 包裹的原生 Table，本扩展整体替换，避免 writer 重组） | 转 RawBlock(`<table>`)（原样语义） |
-
-### HTML 端编号与引用（html-crossref.lua v2）
-
-quarto 只对 `tbl-` 前缀表格做编号/crossref，本扩展所有表格都用 `tab-` 前缀绕开它，因此 **HTML 端编号和引用由 html-crossref.lua 统一负责**：
-
-- 所有 `<table>` 按文档顺序编号（与 PDF 端 LaTeX 自动编号一致），caption 加"表 N："前缀
-- 正文 ``\ref{tab-X}`` / ``\S\ref{tab-X}`` → ``<a href="#tab-X">表 N</a>``（可点击跳转）
-- 章节 ``\S\ref{sec-X}`` → ``<a href="#sec-X">§N</a>``（N 为按 Header 层级自数的编号，与 PDF 端一致）
-- 图 ``\ref{fig-X}`` → ``<a href="#fig-X">[fig-X]</a>``（quarto 锚点存在；图编号由 quarto writer 阶段生成，filter 拿不到）
-- 悬空引用（目标 id 不存在，如 ``\ref{sec-related}``）→ ``[§X]`` 占位符
-
-### 关键约定
-
-1. **label 前缀必须用 `tab-`**（Quarto crossref.lua 只处理 `tbl-`，用 `tab-` 让它让路；否则它会拆碎 raw LaTeX 表格）
-2. 正文引用写 ``\ref{tab-example}``（PDF 原生解析；HTML 由 `html-crossref.lua` 转为可点击链接）
-3. ``\cmidrule`` 会在 HTML 侧自动剥离（Pandoc 不认识它）
-
-## 组件
-
-| 文件 | 作用 |
-|------|------|
-| `html-latex-tables.lua` | 核心：raw LaTeX 表格 → HTML `<table>`（返回 RawBlock 绕开 main.lua 的 id 清理）；表格内 `\citep{key}` → 子文档跑 `pandoc.utils.citeproc` 渲染 `(Author Year)`。仅 HTML 生效，PDF 原样 |
-| `html-md-tables.lua` | 管道表/`{=html}` 表 → RawBlock(`<table>`)（绕过 quarto 的 Table 处理：清 id + caption 残留 `{#id}`） |
-| `html-tab-crossref.lua` | 表格引用体系：`<table>` 文档顺序编号 + caption 前缀（`caption-prefix`/`caption-sep` 配置化）+ 正文 `\ref{tab-X}`（RawInline/Math/Link 三分支）→ `<a href="#tab-X">N</a>`；组合表 div 版 caption 前缀 |
-| `html-sec-crossref.lua` | 章节引用：`\S\ref{sec-X}` / `\ref{sec-X}` → `<a href="#sec-X">§N</a>`（按 Header 层级自数编号） |
-| `html-fig-crossref.lua` | 图引用 + 未知引用兜底：`\ref{fig-X}` → 占位链接（figref.py 后处理编号）；未命中引用 → `[§X]` 占位 |
-| `html-algorithm.lua` | 算法块翻译：algorithmic/algpseudocode 双方言 → 嵌套列表（`algorithm-box` div）；`\Call`/`\Return`/`\If`/跨行颜色/行尾注释；编号 `algo-caption-prefix`/`algo-caption-sep` + `algo-macros` 宏表 |
-| `html-pdf-embed.lua` | HTML 端 `.pdf` 源图 → `<embed style="width:100%; aspect-ratio:W/H">`（Lua 读 PDF 文件头 `/MediaBox` 明文算比例，浏览器自动算高度，保留矢量；多页取第一页；读不到则降级原样输出） |
-| `figref.py` | **post-render 脚本**：表格 caption 内图引用占位符 `<a href="#fig-X">[fig-X]</a>` → `<a href="#fig-X">Figure N</a>`（quarto 渲染完成后数 `<div id="fig-X" class="quarto-float quarto-figure">` 文档顺序，前缀从正文 quarto-xref 学习） |
-
-PDF 端组件（pdf-md-tables / pdf-html-tables / pdf-tbl-warn）见 [PDF-Helper README](../pdf-helper/README.md)。
 
 ### 踩坑记录（实现注意）
 

@@ -1,25 +1,26 @@
--- pdf-tbl-warn.lua — PDF 端 tbl- 前缀检测警告
+-- pdf-tbl-warn.lua — PDF 端 tbl- 前缀检测提示
 --
--- 背景：quarto main.lua（18268-18360，无配置开关）在用户 filter 之前/之中对
--- RawBlock(latex) 表格做 float 识别：\label{tbl-X} 被剥离、表格被接管重组
--- （{=latex} 保真破坏）；管道表生成的 \label{tbl-X 同样被吃掉。实证：
--- 用户 filter 阶段 {=latex} 表格的 RawBlock 已只剩 caption（label/表格体被
--- quarto 拿走），归一化 filter 对该路径无效。
+-- 背景（实证 2026-08-30，_tbltest 探针）：quarto 对 tbl- 表格的处理分两种：
+--   1) 管道表 {#tbl-X}：quarto reader 消费 id 进 crossref 内部状态（用户 filter
+--      AST 层看不到 id——这是 html-helper2 用 tblref.py 后处理编号的原因），
+--      但 PDF writer 把 \label{tbl-X} 原样写回中间 tex（实证：index.tex 里
+--      \caption{管道表一}\label{tbl-probe} 原样存在）——LaTeX 原生 \ref{tbl-X}
+--      在编译时命中，**不会 ??**。HTML 端锚点 <div id="tbl-X"
+--      class="quarto-float quarto-figure"> 也存在（quarto 需要它渲染 @tbl-X）。
+--   2) {=latex} 表格 \label{tbl-X}：main.lua float 识别接管——label 被挪进
+--      \caption{\label{tbl-X}...}（结构污染：caption 文本被插 label），表格体
+--      \resizebox 等原样保留（tex 实证）。\ref{tbl-X} 仍命中（label 实体在），
+--      但 caption 结构被 quarto 改动过。
 --
--- 机制澄清（为什么配对正确的 tbl- 也会 ??）：tbl- 前缀是 quarto 原生
--- @tbl-x 交叉引用的地盘——quarto crossref 体系在 reader 阶段把 tbl- 的
--- id/label 消费进自己的内部状态（管道表 attr.identifier 清空、{=latex}
--- 表格 \label 被剥离接管）。LaTeX 原生 \ref{tbl-x} 走不到 quarto 的
--- crossref（quarto 只认 @tbl-x 语法），LaTeX 层又找不到已被消费的
--- \label{tbl-x} → 悬空渲染 ??。因此这不是"标签引用错配"（人错配是
--- \ref{tbl-b} 对 \label{tbl-a} 那种），而是 tbl- 资源被分配给 @ 体系后
--- \ref 天然找不到它——即使 label/ref 配对正确也一样。
+-- 结论（修正 2026-08-29 版错误机制澄清）：tbl- 前缀在 PDF 端**不是必然 ??**——
+-- 旧版说"tbl- 是 @ 引用的地盘，\ref 天然找不到"对管道表不成立（label 原样
+-- 写回）。真正需要 tab- 的场景收窄为：{=latex} 复杂表格（resizebox 等）在
+-- HTML 端被 quarto 接管后静默消失（pandoc 解析 resizebox 失败→空输出，
+-- 实证 index3）——因此 {=latex} 复杂表仍须 tab- 让路给 html-latex-tables
+-- 翻译；管道表用 tbl- 走 quarto 原生（html-helper2 的 tbl- 通道）。
 --
--- 结论：tbl- 前缀仅在 HTML 端受支持（RawBlock(html) quarto 不碰，id 原样保留，
--- html-crossref.lua 不限前缀收集，\ref{tbl-X} 命中编号链接）；PDF 端内容层
--- 表格前缀必须用 tab-（quarto 唯一放行的前缀）。本 filter 负责让 tbl- 输入
--- 的失败可见：检测正文 \ref{tbl-X}（RawInline tex）→ 警告，防止 PDF 端静默
--- 渲染 "??"。
+-- 本 filter 保留为提示器：检测正文 \ref{tbl-X}（RawInline tex）→ 提示其
+-- 走 tbl- 通道（管道表 ✓ / {=latex} 表注意 caption 结构），不再是"警告 ?? "。
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
   return {}
 end
@@ -33,9 +34,10 @@ function Pandoc(doc)
         local ref = inl.text:match("^\\ref{tbl%-([^}]+)}")
         if ref and not warned[ref] then
           warned[ref] = true
-          io.stderr:write("WARN pdf-tbl-warn: \\ref{tbl-" .. ref ..
-            "} — tbl- 前缀在 PDF 端被 quarto 接管（表格拆碎），请改用 tab-" ..
-            ref .. " 融入 html-helper 引用框架。\n")
+          io.stderr:write("INFO pdf-tbl-warn: \\ref{tbl-" .. ref ..
+            "} 走 tbl- 通道（管道表 PDF label 原样写回可命中；{=latex} 表 label" ..
+            " 会被 quarto 挪进 caption 但实体保留）。若引用显示 ?? 或 caption" ..
+            " 异常，检查是否 {=latex} 表格被 quarto float 接管。\n")
         end
       elseif inl.content and (inl.t == "Strong" or inl.t == "Emph" or inl.t == "Span"
         or inl.t == "Link" or inl.t == "Quoted" or inl.t == "Cite") then

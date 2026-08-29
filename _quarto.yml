@@ -1,8 +1,11 @@
 project:
   type: default
-  # 渲染完成后处理 HTML 图引用占位符（html-crossref.lua 输出的
-  # <a href="#fig-X">[fig-X]</a> → <a href="#fig-X">Figure N</a>）：
-  # quarto 渲染完成时 @fig-X 编号已定（数 <div id="fig-X" class="quarto-float
-  # quarto-figure"> 文档顺序），figref.py 兜底替换。论文级 fig-nums 配置
-  # 优先于脚本（脚本只处理未命中的占位）。
-  post-render: _extensions/html-helper/figref.py
+  # 渲染完成后处理 HTML 引用占位符（html-ref-*.lua 输出的
+  # <a href="#fig-X">[fig-X]</a> / <a href="#tbl-X">[tbl-X]</a> →
+  # <a href="#fig-X">Figure N</a> / <a href="#tbl-X">Table N</a>）：
+  # quarto 渲染完成时 @fig-X/@tbl-X 编号已定（数 <div id="fig-X"/"tbl-X"
+  # class="quarto-float quarto-figure"> 文档顺序），figref.py/tblref.py
+  # 兜底替换。论文级 fig-nums 配置优先于脚本（脚本只处理未命中的占位）。
+  post-render:
+    - _extensions/html-helper/ref/figref.py
+    - _extensions/html-helper/ref/tblref.py
