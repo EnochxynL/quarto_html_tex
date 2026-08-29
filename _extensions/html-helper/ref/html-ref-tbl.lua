@@ -1,15 +1,14 @@
--- html-tab-crossref.lua — HTML 表格引用体系（编号 + caption 前缀 + 引用链接）
+-- html-ref-tbl.lua — HTML 表格引用体系（编号 + caption 前缀 + 引用链接）
 --
--- 从 html-crossref.lua 拆出（tab 半边）。职责：
+-- 处理 \ref{tbl-X} 形式的表格引用。
+-- 内容层 @tbl-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+--
+-- 职责：
 --   1) 统计所有含表格的 RawBlock（<table）按文档顺序编号
 --      （组合表 resizebox+minipage 多子表的多 label 别名 → 同一编号）
 --   2) <caption> 加 caption-prefix + 编号 + caption-sep（配置化，对齐 PDF 端 LaTeX 自动编号）
---   3) 表格引用 \ref{tab-X}（正文 RawInline + RawBlock 文本）→ <a href="#tab-X">N</a>
---      （"表"字由内容层手写"表 \ref{tab-X}"提供——filter 只出数字，避免"表 表 N"双表）
---
--- 只处理 tab- 前缀；其他引用（sec-/fig-/未知）未命中时原样重拼保留，
--- 由 html-sec-crossref / html-fig-crossref 处理（filter 链顺序：tab → sec → fig，
--- fig 最后做未知引用兜底）。
+--   3) 表格引用 \ref{tbl-X}（正文 RawInline + RawBlock 文本）→ <a href="#tbl-X">N</a>
+--      （"表"字由内容层手写"表 \ref{tbl-X}"提供——filter 只出数字，避免"表 表 N"双表）
 --
 -- 配置（format 级别，html-helper 命名空间；format.html 或 format.pdf 下均可，
 -- read_config 嵌套优先、平铺回退，见 README 踩坑 13）：

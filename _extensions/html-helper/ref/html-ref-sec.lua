@@ -1,14 +1,15 @@
 -- html-sec-crossref.lua — HTML 章节引用体系（Header 层级自数 + §N 链接）
---
--- 从 html-crossref.lua 拆出（sec 半边）。职责：
+-- 
+-- 处理 \ref{sec-X} / \S\ref{sec-X} 形式的章节引用。
+-- 内容层 @sec-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+-- 
+-- 职责：
 --   1) 按 Header 层级自数章节编号（1.1.1 格式，与 PDF 端 Pandoc number-sections 一致——
 --      quarto 的章节编号在 writer 阶段才生成，filter 拿不到）
 --   2) 章节引用 \ref{sec-X} / \S\ref{sec-X}（正文 RawInline + RawBlock 文本）
 --      → <a href="#sec-X">§N</a>（\S 是 LaTeX 命令被 HTML writer 丢弃，filter 补 §）
 --
--- 只处理 sec- 前缀；其他引用（tab-/fig-/未知）未命中时原样重拼保留——
--- filter 链顺序：html-tab-crossref → html-sec-crossref → html-fig-crossref（fig 最后兜底）。
--- 无配置。内容层 @sec-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+-- 无配置。
 --
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，全部手写递归。
 if FORMAT ~= "html" and FORMAT ~= "html5" then

@@ -1,6 +1,9 @@
 -- html-fig-crossref.lua — HTML 图引用占位 + 未知引用兜底
---
--- 从 html-crossref.lua 拆出（fig 半边 + 兜底职责）。职责：
+-- 
+-- 处理 \ref{fig-X} 形式的图引用。
+-- 内容层 @fig-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+-- 
+-- 职责：
 --   1) 图引用 \ref{fig-X}（正文 RawInline + RawBlock 文本）→ 占位
 --      <a href="#fig-X">[fig-X]</a>：quarto reader 把图 id 消费进内部状态
 --      （main.lua crossref index），filter 阶段图节点无 id 信息无法自数——
@@ -10,7 +13,7 @@
 --   2) 兜底：所有剩余未解析的 \ref{X}（tab-/sec- 未命中的、未知引用）→ [§X] 占位
 --      ——本 filter 是引用链最后一个（tab → sec → fig），必须让失败可见
 --
--- 无配置。内容层 @fig-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
+-- 无配置。
 --
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，全部手写递归。
 if FORMAT ~= "html" and FORMAT ~= "html5" then
