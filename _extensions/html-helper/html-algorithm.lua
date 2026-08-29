@@ -82,12 +82,32 @@ local function balanced_brace(s)
   return nil, nil  -- 未闭合
 end
 
+-- 数学内的 \Call{f}{a} → \mathrm{f}(a)
+-- （MathJax 不认识 \Call：会红色字面显示不渲染；\mathrm + 括号是标准数学命令。
+--   参数内可能再嵌套 \Call（罕见），循环处理；balanced_brace 深度计数支持嵌套。
+--   注意：pos 指向 \Call 的 \，{ 在 pos+5——sub(pos+5) 从 { 开始（balanced_brace
+--   要求以 { 开头；sub(pos+6) 会从内容首字符开始导致 fn 错位，实测 fn=valuate））
+local function expand_call(x)
+  local out = x
+  local pos = out:find("\\Call{", 1, true)  -- plain find（pattern 的 \C/{ 是坑）
+  while pos do
+    local fn, rest = balanced_brace(out:sub(pos + 5))
+    if not fn then break end
+    local args = balanced_brace(rest)
+    if not args then break end
+    local seg_len = 6 + #fn + #args + 3  -- \Call{ + fn + }{ + args + }
+    out = out:sub(1, pos - 1) .. "\\mathrm{" .. fn .. "}(" .. args .. ")" .. out:sub(pos + seg_len)
+    pos = out:find("\\Call{", pos + 1, true)
+  end
+  return out
+end
+
 -- 数学保护：$...$ / $$...$$ → 占位符表，返回（文本, 表）
 local function protect_math(text)
   local m = {}
   local n = 0
-  text = text:gsub("%$%$.-%$%$", function(x) n = n + 1; m[n] = x; return "\x01" .. n .. "\x01" end)
-  text = text:gsub("%$[^%$\n]-%$", function(x) n = n + 1; m[n] = x; return "\x01" .. n .. "\x01" end)
+  text = text:gsub("%$%$.-%$%$", function(x) n = n + 1; m[n] = expand_call(x); return "\x01" .. n .. "\x01" end)
+  text = text:gsub("%$[^%$\n]-%$", function(x) n = n + 1; m[n] = expand_call(x); return "\x01" .. n .. "\x01" end)
   return text, m
 end
 
