@@ -161,16 +161,18 @@ local function expand_call(x)
   return out
 end
 
--- 数学段外 \ref 处理：块内 label 留原生（lwarp aux 跨遍解析 →
--- <a href="#X">编号</a>）；块外 label 转 @@REF:{X}@@（块独立编译
--- 不知道块外编号，lwarp 输出 ?? 丢名——占位携带名字供第二遍还原；
--- 文本模式 { } 是 TeX 分组符，编译后被吞为 @@REF:X@@）
-local function refs_outside(seg, labelset)
+-- 数学段外 \ref 处理：\ref 一律保留原样（lwarp 原生处理）——块内
+-- label 由真实 aux 解析（<a href="#X">编号</a>）；块外 label 由
+-- preamble 预注入的 \newlabel 假条目解析（编号=@@REF 显示文本占位、
+-- href=label 真名——lwarp 原生输出 <a href="#X">@@REF:X@@</a>，
+-- 第二遍把显示文本换成编号）。块外被引用 label 收集进 ref_out_labels
+-- 供 build_tex 注入（探针实证：三条目 LaTeX 层/@lwarp/@lwarp@image）
+local function refs_outside(seg, labelset, ref_out)
   return seg:gsub("%\\ref%s*{([^}]+)}", function(ref)
-    if labelset and labelset[ref] then
-      return "\\ref{" .. ref .. "}" -- 块内 label：留 lwarp 原生解析
+    if not (labelset and labelset[ref]) then
+      ref_out[ref] = true -- 块外 label：注入假条目（去重）
     end
-    return "@@REF:{" .. ref .. "}@@"
+    return "\\ref{" .. ref .. "}" -- 原样保留（块内外都走 lwarp 原生）
   end)
 end
 
@@ -185,22 +187,23 @@ end
 
 -- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
 --   1) \Call → \mathrm{f}(a)（MathJax 不认自定义宏，红字）
---   2) 智能 \ref 占位：数学段外块内 label 留原生（lwarp 链接）、块外
---      转 @@REF；数学段内一律 @@REF（MathJax 不执行 \ref）
+--   2) \ref：数学段外原样保留（lwarp 原生 + \newlabel 注入）、数学段内
+--      一律 @@REF:{X}@@（MathJax 不执行 \ref）——返回 (body, ref_out)
 -- tex4ht 时代的 \mathrm→\text、下标加括号不再需要（lwarp 数学原样
 -- 给 MathJax，无 MiKTeX tex4ht 2022 \new:mfont bug 路径）
 local function math_preprocess(body, labelset)
   body = expand_call(body)
+  local ref_out = {}
   -- $...$ 数学段切分（算法块实证用行内数学；\\(...\\) 形态后续扩展）
   local out = {}
   local pos = 1
   while true do
     local d1 = body:find("%$", pos)
     if not d1 then
-      out[#out + 1] = refs_outside(body:sub(pos), labelset)
+      out[#out + 1] = refs_outside(body:sub(pos), labelset, ref_out)
       break
     end
-    out[#out + 1] = refs_outside(body:sub(pos, d1 - 1), labelset)
+    out[#out + 1] = refs_outside(body:sub(pos, d1 - 1), labelset, ref_out)
     local d2 = body:find("%$", d1 + 1)
     if not d2 then
       out[#out + 1] = body:sub(d1)
@@ -209,12 +212,14 @@ local function math_preprocess(body, labelset)
     out[#out + 1] = refs_inside(body:sub(d1, d2))
     pos = d2 + 1
   end
-  return table.concat(out)
+  return table.concat(out), ref_out
 end
 
 -- 组装独立 .tex：lwarp 必须最先加载（\LWR@ProvidesPackagePass 包装
--- 机制需要先于目标包）；计数器注入 = 全文编号对齐
-local function build_tex(body, counter_before, macros)
+-- 机制需要先于目标包）；计数器注入 = 全文编号对齐；块外 label 预注入
+-- \newlabel 假条目（preamble 专用）——LaTeX 层（\ref 显示文本=@@REF
+-- 占位）+ @lwarp 层（fileref → href=label 真名）+ @lwarp@image 层
+local function build_tex(body, counter_before, macros, ref_out)
   local t = { "\\documentclass{article}", "\\usepackage[mathjax]{lwarp}" }
   for _, p in ipairs(detect_packages(body, macros)) do
     t[#t + 1] = "\\usepackage{" .. p .. "}"
@@ -224,6 +229,16 @@ local function build_tex(body, counter_before, macros)
   end
   if counter_before and counter_before > 0 then
     t[#t + 1] = "\\setcounter{algorithm}{" .. counter_before .. "}"
+  end
+  -- 块外引用 label 的假条目（唯一性保证：ref_out 是 set）
+  -- @lwarp 条目的 fileref（第三参数）固定用 block（BaseJobname）——
+  -- 实证：fileref 用 label 名时，含数字的 label（alg-test2）会被 lwarp
+  -- 的 \LWR@htmlsectionfilename 当文件编号解析（显示 2 而非占位）；
+  -- 剥壳时 href 统一改 #label，文件名部分无所谓
+  for lab in pairs(ref_out or {}) do
+    t[#t + 1] = "\\newlabel{" .. lab .. "}{{@@REF:{" .. lab .. "}@@}{1}{}{" .. lab .. "}{}}"
+    t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp}{{" .. lab .. "}{1}{block}{}{}}"
+    t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp@image}{{0}{0}{}{}{}}"
   end
   t[#t + 1] = "\\begin{document}"
   t[#t + 1] = body
@@ -313,7 +328,11 @@ local function compile_block(body, counter_before, macros, labels)
   if labels then
     for _, lab in ipairs(labels) do labelset[lab] = true end
   end
-  f:write(build_tex(math_preprocess(body, labelset), counter_before, macros))
+  local body_pp, ref_out = math_preprocess(body, labelset)
+  local dbg = {}
+  for lab in pairs(ref_out) do dbg[#dbg + 1] = lab end
+  io.stderr:write("[lwarp-dbg] ref_out: " .. table.concat(dbg, ",") .. "\n")
+  f:write(build_tex(body_pp, counter_before, macros, ref_out))
   f:close()
 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
@@ -460,8 +479,9 @@ return {
       -- 引用可解析）。两种形态：
       --   数学内 @@REF:{X}@@（带花括号——lwarp 数学文本保留 { }，
       --     MathJax 不执行 \ref 所以一律占位）→ 纯文本编号
-      --   数学外 @@REF:X@@（无花括号——TeX 分组吞；块内 label 的
-      --     引用走 lwarp 原生不占位，此形态只含跨块/未知）→ 编号
+      --   数学外 @@REF:X@@（无花括号——\newlabel 假条目的显示文本，
+      --     TeX 分组吞；链接 <a href="#X"> 由 lwarp 原生输出）→
+      --     编号（链接保留，块内/跨块锚点都在主页面可跳转）
       -- 数学内不能放 HTML 链接（MathJax 不渲染 <a>），全部纯文本
       for _, blk in ipairs(doc.blocks) do
         if blk.t == "RawBlock" and blk.format == "html" then
