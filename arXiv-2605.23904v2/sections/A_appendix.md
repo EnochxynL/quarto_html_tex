@@ -35,7 +35,7 @@ Algorithm 1 expands the procedure used in the experiments. The central state var
 \begin{algorithmic}[1]
 \Require Frozen training model $M$, optimizer model $O$, harness $h$, splits $D_\mathrm{train},D_\mathrm{sel},D_\mathrm{test}$, initial skill $s_0$, epochs $E$, edit-budget schedule $L_t$, rollout batch size $B$, accumulation factor $A$, reflection minibatch size $B_m$
 \Ensure Best validation-gated skill $s_\mathrm{best}$ and held-out test score
-\State $s_\mathrm{cur} \gets s_0$, $s_\mathrm{best} \gets s_0$, $\mathcal{C} \gets \emptyset$, $\mathcal{B} \gets [\ ]$, $m_\mathrm{meta} \gets \emptyset$
+\State $s_\mathrm{cur} \gets s_0$, $s_\mathrm{best} \gets s_0$, $\mathcal{C} \gets \emptyset$, $\mathcal{B} \gets [\ ]$, $m_\mathrm{meta} \gets \emptyset$ \Comment{see Algorithm \ref{alg-skillopt-appendix}}
 \State $\mathrm{score}_\mathrm{cur} \gets \Call{Evaluate}{M,h,s_0,D_\mathrm{sel}}$; $\mathrm{score}_\mathrm{best} \gets \mathrm{score}_\mathrm{cur}$
 \State $\mathcal{C}[\Call{Hash}{s_0}] \gets \mathrm{score}_\mathrm{cur}$
 \For{$e=1$ to $E$}
