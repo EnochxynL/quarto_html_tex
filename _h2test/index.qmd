@@ -89,3 +89,22 @@ quarto 原生引用（对照）：@tbl-pipe1。
 \end{algorithmic}
 \end{algorithm}
 ```
+
+第二个算法块（编号应接续为 Algorithm 2）：
+
+```{=latex}
+\begin{algorithm}[H]
+\caption{Second algorithm}
+\label{alg-test2}
+\begin{algorithmic}[1]
+\REQUIRE input $z$
+\STATE init $w \gets 0$
+\WHILE{$w < 10$}
+\STATE $w \gets w + 1$
+\ENDWHILE
+\RETURN $w$
+\end{algorithmic}
+\end{algorithm}
+```
+
+正文引用第二个算法：\ref{alg-test2}。
