@@ -31,6 +31,11 @@
 --     \mathrm→\text（tex4ht 2022 版 \new:mfont 单 token 参数 bug——
 --     多字符内容必崩，\mathbf{x} 单字符侥幸成功）+ 无括号下标/上标加
 --     花括号（Gurari 规则：tex4ht 要求多部分下标必须括号）——见 math_preprocess
+--   - algpseudocode 缩进弱（用户记录 2026-09-01）：tex4ht 给 algorithmicx
+--     输出空格字符缩进（&nbsp;+空格串，white-space:pre 保留）——嵌套 2-3
+--     层仅 5-15 空格，视觉不明显；老式 algorithmic 反而是 ALIndent width
+--     缩进（CSS 宽度）。算法专门问题（非通用）——待 DOM 后处理优化：
+--     栈式扫描 span.algorithmic 嵌套层级 → padding-left: N×1.5em + 去空格
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
