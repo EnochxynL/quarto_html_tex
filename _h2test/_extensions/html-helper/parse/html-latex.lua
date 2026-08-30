@@ -102,16 +102,54 @@ local function read_config(meta)
   return pandoc.utils.stringify(v)
 end
 
+-- 平衡花括号提取（深度计数，支持嵌套参数——\Call 的 args 里可能嵌
+-- D_\text{sel} 等含花括号的数学；[^}]* 单层匹配会截断，实证括号错乱）
+local function balanced_brace(s)
+  local depth = 0
+  for i = 1, #s do
+    local c = s:sub(i, i)
+    if c == "{" then
+      depth = depth + 1
+    elseif c == "}" then
+      depth = depth - 1
+      if depth == 0 then return s:sub(2, i - 1), s:sub(i + 1) end
+    end
+  end
+  return nil, nil
+end
+
+-- 数学内的 \Call{f}{a} → \mathrm{f}(a)（旧 html-latex-algorithm.lua 方法移植：
+-- MathJax 不认识 \Call 会红字——\mathrm + 括号是标准数学命令；参数内可能
+-- 再嵌套 \Call，循环处理；plain find 避 pattern 转义坑；balanced_brace
+-- 深度计数支持嵌套。后续 math_preprocess 第一阶段把 \mathrm 转 \text）
+local function expand_call(x)
+  local out = x
+  local pos = out:find("\\Call{", 1, true)
+  while pos do
+    local fn, rest = balanced_brace(out:sub(pos + 5))
+    if not fn then break end
+    local args = balanced_brace(rest)
+    if not args then break end
+    local seg_len = 6 + #fn + #args + 3 -- \Call{ + fn + }{ + args + }
+    out = out:sub(1, pos - 1) .. "\\mathrm{" .. fn .. "}(" .. args .. ")" .. out:sub(pos + seg_len)
+    pos = out:find("\\Call{", pos + 1, true)
+  end
+  return out
+end
+
 -- 数学预处理（只作用于 make4ht 编译副本 block.tex——qmd 源不动、PDF 端不动，
 -- 等价变换不改语义）：
---   1) \mathrm → \text：tex4ht 2022 版 \new:mfont 只吃单 token 参数（\protect
+--   1) \Call{f}{a} → \mathrm{f}(a)（MathJax 不认 \Call——红字实证 7 处；
+--      移植旧 filter 的 balanced_brace 方法，支持嵌套参数）
+--   2) \mathrm → \text：tex4ht 2022 版 \new:mfont 只吃单 token 参数（\protect
 --      链剥参数括号），\mathrm{多字符} 必崩（\mathbf{x} 单字符侥幸成功）；
 --      \text（amsmath）同为 upright，实证 exit 0（Gurari 邮件线索）
---   2) 无括号下标/上标加花括号：tex4ht 要求多部分下标必须括号（Gurari 规则：
+--   3) 无括号下标/上标加花括号：tex4ht 要求多部分下标必须括号（Gurari 规则：
 --      "tex4ht insists that multi parts subscripts and superscripts should
 --      be braced"）——`_\text{train}` → `_{\text{train}}`（无括号时
 --      \n:text@: 崩）；已有括号/_单字符下标不匹配不受影响
 local function math_preprocess(body)
+  body = expand_call(body)
   body = body:gsub("%\\mathrm", "\\text")
   body = body:gsub("([_^])(\\[a-zA-Z]+)(%b{})", "%1{%2%3}")
   return body
