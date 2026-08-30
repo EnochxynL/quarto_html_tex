@@ -8,7 +8,7 @@ format:
     include-in-header:
       text: |
         \usepackage{algorithm}
-        \usepackage{algorithmic}
+        \usepackage{algpseudocode}
         \usepackage{booktabs}
         \usepackage{graphicx}
   html:
@@ -80,13 +80,13 @@ quarto 原生引用（对照）：@tbl-pipe1。
 \caption{Test algorithm}
 \label{alg-test}
 \begin{algorithmic}[1]
-\REQUIRE input $x$
-\STATE init $y \gets 0$
-\STATE See Algorithm \ref{alg-test2} and Eq. \ref{eq:loss}
-\FOR{$i=1$ to $N$}
-\STATE $y \gets y + x$
-\ENDFOR
-\RETURN $y$
+\Require input $x$
+\State init $y \gets 0$
+\State See Algorithm \ref{alg-test2} and Eq. \ref{eq:loss}
+\For{$i=1$ to $N$}
+\State $y \gets y + x$
+\EndFor
+\Return $y$
 \end{algorithmic}
 \end{algorithm}
 ```
@@ -98,13 +98,13 @@ quarto 原生引用（对照）：@tbl-pipe1。
 \caption{Second algorithm}
 \label{alg-test2}
 \begin{algorithmic}[1]
-\REQUIRE input $z$
-\STATE init $w \gets 0$
-\STATE See Algorithm \ref{alg-test} (backward)
-\WHILE{$w < 10$}
-\STATE $w \gets w + 1$
-\ENDWHILE
-\RETURN $w$
+\Require input $z$
+\State init $w \gets 0$
+\State See Algorithm \ref{alg-test} (backward)
+\While{$w < 10$}
+\State $w \gets w + 1$
+\EndWhile
+\Return $w$
 \end{algorithmic}
 \end{algorithm}
 ```
