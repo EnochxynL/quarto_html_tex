@@ -161,17 +161,55 @@ local function expand_call(x)
   return out
 end
 
+-- 数学段外 \ref 处理：块内 label 留原生（lwarp aux 跨遍解析 →
+-- <a href="#X">编号</a>）；块外 label 转 @@REF:{X}@@（块独立编译
+-- 不知道块外编号，lwarp 输出 ?? 丢名——占位携带名字供第二遍还原；
+-- 文本模式 { } 是 TeX 分组符，编译后被吞为 @@REF:X@@）
+local function refs_outside(seg, labelset)
+  return seg:gsub("%\\ref%s*{([^}]+)}", function(ref)
+    if labelset and labelset[ref] then
+      return "\\ref{" .. ref .. "}" -- 块内 label：留 lwarp 原生解析
+    end
+    return "@@REF:{" .. ref .. "}@@"
+  end)
+end
+
+-- 数学段内（$...$）\ref：一律占位 @@REF:{X}@@——lwarp mathjax 模式
+-- 数学内容 detokenize 原样给 MathJax，\ref 不被 LaTeX 执行（实证：
+-- \ref {alg-test2} 原样进数学文本 → MathJax 红字）；数学文本里
+-- { } 保留（无分组吞），第二遍按带花括号形态解析。数学内不能放
+-- HTML 链接（MathJax 不渲染 <a>），第二遍输出纯文本编号
+local function refs_inside(seg)
+  return seg:gsub("%\\ref%s*{([^}]+)}", "@@REF:{%1}@@")
+end
+
 -- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
 --   1) \Call → \mathrm{f}(a)（MathJax 不认自定义宏，红字）
---   2) \ref{X} → @@REF:{X}@@ 纯文本占位（跨块引用；lwarp 独立编译时
---      块外 label 未定义输出 ?? 且不携带 label 名——无法第二遍还原；
---      占位后：数学内 MathJax 渲染为文本不报错、数学外原样输出）
+--   2) 智能 \ref 占位：数学段外块内 label 留原生（lwarp 链接）、块外
+--      转 @@REF；数学段内一律 @@REF（MathJax 不执行 \ref）
 -- tex4ht 时代的 \mathrm→\text、下标加括号不再需要（lwarp 数学原样
 -- 给 MathJax，无 MiKTeX tex4ht 2022 \new:mfont bug 路径）
-local function math_preprocess(body)
+local function math_preprocess(body, labelset)
   body = expand_call(body)
-  body = body:gsub("%\\ref%s*{([^}]+)}", "@@REF:{%1}@@")
-  return body
+  -- $...$ 数学段切分（算法块实证用行内数学；\\(...\\) 形态后续扩展）
+  local out = {}
+  local pos = 1
+  while true do
+    local d1 = body:find("%$", pos)
+    if not d1 then
+      out[#out + 1] = refs_outside(body:sub(pos), labelset)
+      break
+    end
+    out[#out + 1] = refs_outside(body:sub(pos, d1 - 1), labelset)
+    local d2 = body:find("%$", d1 + 1)
+    if not d2 then
+      out[#out + 1] = body:sub(d1)
+      break
+    end
+    out[#out + 1] = refs_inside(body:sub(d1, d2))
+    pos = d2 + 1
+  end
+  return table.concat(out)
 end
 
 -- 组装独立 .tex：lwarp 必须最先加载（\LWR@ProvidesPackagePass 包装
@@ -270,7 +308,12 @@ local function compile_block(body, counter_before, macros, labels)
   local tex_path = CACHE .. "/block.tex"
   local f = io.open(tex_path, "w")
   if not f then return nil end
-  f:write(build_tex(math_preprocess(body), counter_before, macros))
+  -- 块内 label 集合（智能占位：块内引用留 lwarp 原生，块外才 @@REF）
+  local labelset = {}
+  if labels then
+    for _, lab in ipairs(labels) do labelset[lab] = true end
+  end
+  f:write(build_tex(math_preprocess(body, labelset), counter_before, macros))
   f:close()
 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
@@ -372,7 +415,6 @@ return {
     Pandoc = function(doc)
       local macros = read_config(doc.meta)
       local alg_nums = {}
-      local block_meta = {} -- doc.blocks 索引 → 本块 labels（第二遍配对用）
       local n = 0
       for i = 1, #doc.blocks do
         local blk = doc.blocks[i]
@@ -388,7 +430,6 @@ return {
             if ok and html then
               -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
               doc.blocks[i] = pandoc.RawBlock("html", html)
-              block_meta[i] = labels
             else
               -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）
               -- lwarp 明确不支持老式 algorithmic 包（checkloadnever 拦截，
@@ -415,24 +456,23 @@ return {
           blk.content = walk_inlines(blk.content, alg_nums)
         end
       end
-      -- 第二遍：块内 \ref 占位解析（@@REF:X@@ → 链接/编号/占位——此时
-      -- alg_nums 已含全部块，前向引用可解析；math_preprocess 输出
-      -- @@REF:{X}@@ 但 { } 是 LaTeX 分组符，编译后被吞（@@REF:X@@））
-      --   本块 label → <a href="#X">N</a>（lwarp 原生锚点可跳转）
-      --   其他块 label → 编号纯文本（跨块引用）
-      --   未知 → [X] 占位（保留 label 名可诊断）
-      for i, blk in ipairs(doc.blocks) do
+      -- 第二遍：块内 \ref 占位解析（此时 alg_nums 已含全部块，前向
+      -- 引用可解析）。两种形态：
+      --   数学内 @@REF:{X}@@（带花括号——lwarp 数学文本保留 { }，
+      --     MathJax 不执行 \ref 所以一律占位）→ 纯文本编号
+      --   数学外 @@REF:X@@（无花括号——TeX 分组吞；块内 label 的
+      --     引用走 lwarp 原生不占位，此形态只含跨块/未知）→ 编号
+      -- 数学内不能放 HTML 链接（MathJax 不渲染 <a>），全部纯文本
+      for _, blk in ipairs(doc.blocks) do
         if blk.t == "RawBlock" and blk.format == "html" then
-          local in_block = {}
-          local labels = block_meta[i]
-          if labels then
-            for _, lab in ipairs(labels) do in_block[lab] = true end
-          end
+          blk.text = blk.text:gsub("@@REF:{([^@]+)}@@", function(ref)
+            if alg_nums[ref] then
+              return tostring(alg_nums[ref])
+            end
+            return "[" .. ref .. "]"
+          end)
           blk.text = blk.text:gsub("@@REF:([^@]+)@@", function(ref)
             if alg_nums[ref] then
-              if in_block[ref] then
-                return '<a href="#' .. ref .. '">' .. alg_nums[ref] .. "</a>"
-              end
               return tostring(alg_nums[ref])
             end
             return "[" .. ref .. "]"

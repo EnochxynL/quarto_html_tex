@@ -101,6 +101,7 @@ quarto 原生引用（对照）：@tbl-pipe1。
 \Require input $z$
 \State init $w \gets 0$
 \State See Algorithm \ref{alg-test} (backward)
+\State $\mathrm{backref} \gets \ref{alg-test}$ and $\mathrm{selfref} \gets \ref{alg-test2}$
 \While{$w < 10$}
 \State $w \gets w + 1$
 \EndWhile
