@@ -219,8 +219,18 @@ local function compile_block(body, counter_before, macros, label)
   f:write(build_tex(math_preprocess(body), counter_before, macros))
   f:close()
 
-  -- make4ht 编译（cmd 语法；工作目录=缓存目录，输出 block.html/block.css）
-  local ok = os.execute("cd " .. CACHE .. " && make4ht block.tex >nul 2>&1")
+  -- mathjax 模式 config（\Preamble{mathjax}：html4-math.4ht 的
+  -- \:CheckOption{mathjax} 命中 → 数学输出 \(...\) LaTeX 文本 + MathJax
+  -- 脚本，位图/字体 class 归零（\tilde{s} 不再渲染成 block*.png）；
+  -- 数学由主页面 MathJax 渲染（quarto html 默认 mathjax 方法）
+  local cf = io.open(CACHE .. "/mj.cfg", "w")
+  if cf then
+    cf:write("\\Preamble{mathjax}\n\\begin{document}\n\\EndPreamble\n")
+    cf:close()
+  end
+
+  -- make4ht 编译（-c mj：mathjax 模式；cmd 语法；工作目录=缓存目录）
+  local ok = os.execute("cd " .. CACHE .. " && make4ht -c mj block.tex >nul 2>&1")
   if not ok then
     io.stderr:write("[html-latex] make4ht failed for block\n")
     return nil
