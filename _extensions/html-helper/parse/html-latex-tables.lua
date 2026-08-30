@@ -221,10 +221,12 @@ local function convert_table(el, bibstr, macros)
   local html = pandoc.write(doc, "html")
   -- 去掉包裹的 <p> 或多余结构，只保留表格部分
   html = html:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
-  -- 加 paper-table class（styles.css 的表格样式选择器，否则复杂表无边框、靠左）；
+  -- 加 bootstrap table class（与管道表一致——quarto 表格样式 = bootstrap .table，
+  -- 用户拍板 2026-08-31：不自定义 class（paper-table 已废弃），遵守 bootstrap 规范，
+  -- 复杂表与管道表同一样式源；caption-top 与 quarto 管道表一致）
   -- 全部 <table> 都加（组合表 resizebox+minipage 的多个子表各自独立成表，
   -- 只加第一个会让 (b)(c)... 子表裸奔无边框）
-  html = html:gsub("<table", '<table class="paper-table"')
+  html = html:gsub("<table", '<table class="caption-top table"')
   -- 组合表（多个 <table>）caption 归属修正：Pandoc 把 table* 的 caption 挂到
   -- 第一个子表（视觉上只出现在 (a) 下方）——移到整组子表之后（minipage-row
   -- 容器闭合 </div> 之后、div.table* 之内），作为独立 caption div

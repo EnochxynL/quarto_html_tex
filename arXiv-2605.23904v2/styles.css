@@ -52,39 +52,6 @@ table caption {
   caption-side: bottom;
   padding-top: 6px;
 }
-.quarto-float-tbl table,
-table.paper-table {
-  border-collapse: collapse;
-  margin: 1.2em auto;
-  font-size: 0.92em;
-  width: 100%;
-}
-.quarto-float-tbl table th,
-.quarto-float-tbl table td,
-table.paper-table th,
-table.paper-table td {
-  border-top: 1px solid #444;
-  border-bottom: 1px solid #444;
-  padding: 6px 10px;
-  text-align: center;
-  vertical-align: top;
-}
-.quarto-float-tbl table thead th,
-table.paper-table thead th {
-  border-top: 2px solid #222;
-  font-weight: 700;
-  background: #f5f7fa;
-}
-.quarto-float-tbl table tbody tr:last-child td,
-table.paper-table tbody tr:last-child td {
-  border-bottom: 2px solid #222;
-}
-.quarto-float-tbl table th:first-child,
-.quarto-float-tbl table td:first-child,
-table.paper-table th:first-child,
-table.paper-table td:first-child {
-  text-align: left;
-}
 
 /* 组合表（\resizebox + minipage 多子表）：Pandoc 把 minipage 解析为
    div.minipage（外层容器 + 内层子表嵌套），横向并排显示（PDF 端是
@@ -110,17 +77,17 @@ div.minipage.minipage-row {
    外层 resizebox 等比缩放兜底，HTML 无渲染后缩放原语，用 table-layout: fixed
    强制表格宽度 = 容器宽度（内容换行挤入）。代价：列均分、长文字换行，
    比例由内容自然宽度变为均分——数字列（短）不受影响。 */
-div.minipage > div.minipage table.paper-table {
+div.minipage > div.minipage table {
   table-layout: fixed;
   width: 100%;
 }
 /* 挤压后列宽收窄，长词（表头/首列文字）必须允许断行，否则溢出单元格重叠 */
-div.minipage table.paper-table th,
-div.minipage table.paper-table td {
+div.minipage table th,
+div.minipage table td {
   overflow-wrap: break-word;
   word-break: break-word;
 }
-div.minipage table.paper-table {
+div.minipage table {
   font-size: 0.85em;
 }
 /* 组合表 caption（Lua 从第一个子表移出到容器底部）：格式与普通 caption 统一
