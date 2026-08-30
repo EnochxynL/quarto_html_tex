@@ -82,6 +82,7 @@ quarto 原生引用（对照）：@tbl-pipe1。
 \begin{algorithmic}[1]
 \REQUIRE input $x$
 \STATE init $y \gets 0$
+\STATE See Algorithm \ref{alg-test2} and Eq. \ref{eq:loss}
 \FOR{$i=1$ to $N$}
 \STATE $y \gets y + x$
 \ENDFOR
@@ -99,6 +100,7 @@ quarto 原生引用（对照）：@tbl-pipe1。
 \begin{algorithmic}[1]
 \REQUIRE input $z$
 \STATE init $w \gets 0$
+\STATE See Algorithm \ref{alg-test} (backward)
 \WHILE{$w < 10$}
 \STATE $w \gets w + 1$
 \ENDWHILE

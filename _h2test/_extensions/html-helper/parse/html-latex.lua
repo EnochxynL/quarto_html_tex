@@ -31,6 +31,11 @@
 --     \mathrm→\text（tex4ht 2022 版 \new:mfont 单 token 参数 bug——
 --     多字符内容必崩，\mathbf{x} 单字符侥幸成功）+ 无括号下标/上标加
 --     花括号（Gurari 规则：tex4ht 要求多部分下标必须括号）——见 math_preprocess
+--   - algpseudocode 缩进弱（用户记录 2026-09-01）：tex4ht 给 algorithmicx
+--     输出空格字符缩进（&nbsp;+空格串，white-space:pre 保留）——嵌套 2-3
+--     层仅 5-15 空格，视觉不明显；老式 algorithmic 反而是 ALIndent width
+--     缩进（CSS 宽度）。算法专门问题（非通用）——待 DOM 后处理优化：
+--     栈式扫描 span.algorithmic 嵌套层级 → padding-left: N×1.5em + 去空格
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
@@ -51,6 +56,16 @@ end
 
 local function extract_label(text)
   return text:match("\\label{([^}]+)}")
+end
+
+-- 提取全部 label（复合块可含多 label——每个都要锚点；第一个做容器 id，
+-- 其余输出别名锚点 span——与 html-latex-tables 的别名方案同款）
+local function extract_labels(text)
+  local labels = {}
+  for lab in text:gmatch("\\label{([^}]+)}") do
+    labels[#labels + 1] = lab
+  end
+  return labels
 end
 
 -- 宏包检测（从块内容读取实际使用的宏包，不猜）
@@ -152,6 +167,11 @@ local function math_preprocess(body)
   body = expand_call(body)
   body = body:gsub("%\\mathrm", "\\text")
   body = body:gsub("([_^])(\\[a-zA-Z]+)(%b{})", "%1{%2%3}")
+  -- 块内 \ref{X} → @@REF:{X}@@ 纯文本占位（跨块引用；make4ht 独立编译
+  -- 时 \ref 未定义——数学外输出 ??、数学内 detokenize 后 MathJax 红字；
+  -- 纯文本标记两处都安全：tex4ht 原样输出 / MathJax 渲染为文本不报错；
+  -- 编号由 filter 嵌入时替换（alg 前缀有编号，其余保留 label 名占位）
+  body = body:gsub("%\\ref%s*{([^}]+)}", "@@REF:{%1}@@")
   return body
 end
 
@@ -245,7 +265,9 @@ local function scope_css(css)
 end
 
 -- 编译块 → 子页面 HTML；失败返回 nil（调用方原样保留）
-local function compile_block(body, counter_before, macros, label)
+-- labels：全部 label 列表（第一个做容器 id，其余别名锚点）
+-- alg_nums：label→编号表（块内 \ref 占位解析用）
+local function compile_block(body, counter_before, macros, labels, alg_nums)
   if not ensure_dir(CACHE) then
     io.stderr:write("[html-latex] mkdir " .. CACHE .. " failed\n")
     return nil
@@ -294,9 +316,17 @@ local function compile_block(body, counter_before, macros, label)
   inner = inline_images(inner)
   css = scope_css(css)
   -- 锚点：tex4ht 用 caption slug 做 id（skillopt-skill-optimization），
-  -- \label 名不输出——容器 id 补上 label（正文 \ref{alg-X} → #alg-X 可达）
-  local id_attr = (label and label ~= "") and (' id="' .. label .. '"') or ""
-  return '<div class="tex4ht-block"' .. id_attr .. "><style>" .. css .. "</style>" .. inner .. "</div>"
+  -- \label 名不输出——容器 id 补上 label；多 label 的其余输出别名锚点
+  -- （块内 \ref{X} → @@REF:{X}@@ 占位不在编译时解析——编号需全部块
+  -- 遍历完才齐（前向引用）；由 Pandoc 回调第二遍统一替换）
+  local id_attr = (labels and labels[1]) and (' id="' .. labels[1] .. '"') or ""
+  local aliases = ""
+  if labels then
+    for i = 2, #labels do
+      aliases = aliases .. '<span id="' .. labels[i] .. '" class="tex4ht-alias"></span>'
+    end
+  end
+  return '<div class="tex4ht-block"' .. id_attr .. "><style>" .. css .. "</style>" .. inner .. aliases .. "</div>"
 end
 
 -- 正文引用：\ref{alg-X} → <a href="#alg-X">N</a>（照搬旧 filter 协议）
@@ -339,9 +369,9 @@ return {
             -- 表格块：html-latex-tables.lua 的领地，跳过
           elseif is_algorithm_block(text) then
             n = n + 1
-            local label = extract_label(text)
-            if label then alg_nums[label] = n end
-            local ok, html = pcall(compile_block, text, n - 1, macros, label)
+            local labels = extract_labels(text)
+            if labels[1] then alg_nums[labels[1]] = n end
+            local ok, html = pcall(compile_block, text, n - 1, macros, labels, alg_nums)
             if ok and html then
               -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
               doc.blocks[i] = pandoc.RawBlock("html", html)
@@ -361,6 +391,19 @@ return {
       for _, blk in ipairs(doc.blocks) do
         if blk.t == "Para" or blk.t == "Plain" then
           blk.content = walk_inlines(blk.content, alg_nums)
+        end
+      end
+      -- 第二遍：块内 \ref 占位解析（@@REF:X@@ → 编号/占位——此时
+      -- alg_nums 已含全部块，前向引用可解析；math_preprocess 输出
+      -- @@REF:{X}@@ 但 { } 是 LaTeX 分组符，编译后被吞（@@REF:X@@））
+      for _, blk in ipairs(doc.blocks) do
+        if blk.t == "RawBlock" and blk.format == "html" then
+          blk.text = blk.text:gsub("@@REF:([^@]+)@@", function(ref)
+            if alg_nums[ref] then
+              return tostring(alg_nums[ref])
+            end
+            return "[" .. ref .. "]"
+          end)
         end
       end
       return doc
