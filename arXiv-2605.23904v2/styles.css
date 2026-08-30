@@ -1,105 +1,9 @@
-/* SkillOpt 单源论文网页样式（仿 arXiv-2604.24658v3/styles.css + 新增构造） */
-.header-panel {
-  background: #EEF3F9;
-  border-radius: 8px;
-  padding: 22px 24px;
-  margin-bottom: 2em;
-}
-.header-panel .hp-title {
-  font-size: 1.6em;
-  font-weight: 700;
-  line-height: 1.3;
-}
-.header-panel .hp-date {
-  color: #666;
-  font-size: 0.9em;
-  margin: 0.3em 0 1em;
-}
-.header-panel .hp-authors {
-  font-weight: 600;
-  line-height: 1.6;
-  margin-bottom: 0.4em;
-}
-.header-panel .hp-affiliations {
-  font-size: 0.85em;
-  color: #444;
-  line-height: 1.6;
-  margin-bottom: 1.2em;
-}
-.header-panel .hp-abstract {
-  line-height: 1.7;
-  margin-bottom: 1em;
-}
-.header-panel .hp-footer {
-  font-size: 0.9em;
-  border-top: 1px solid #d6e0ee;
-  padding-top: 0.8em;
-}
-
-/* SkillOpt 小号大写（{{< skillopt >}} 短代码生成 <span class="smallcaps">） */
-.smallcaps {
-  font-variant: small-caps;
-  letter-spacing: 0.02em;
-}
-
-/* PDF 图片：html-pdf-embed.lua 输出 <embed style="width:100%; aspect-ratio:W/H"> */
-embed[src$=".pdf"] {
-  width: 100%;
-  display: block;
-}
-/* caption 统一在表格下方（与 PDF 端 table-caption-pos: bottom 一致） */
-table caption {
-  caption-side: bottom;
-  padding-top: 6px;
-}
-
-/* 组合表（\resizebox + minipage 多子表）：Pandoc 把 minipage 解析为
-   div.minipage（外层容器 + 内层子表嵌套），横向并排显示（PDF 端是
-   resizebox 缩放的三列/六列小表）。选择器只命中「外层 div 的直接子
-   div」（内层子表），外层容器保持块级占满。
-   宽度不在此硬编码：由 html-latex-tables.lua 从 LaTeX 源读取
-   （\begin{minipage}{0.33\textwidth} → style="width: 33%"）注入每个
-   内层 div——不同组合表的列数/宽度（0.5×2、0.33×3、0.16×6）各自忠实。 */
-div.minipage > div.minipage {
-  display: inline-block;
-  vertical-align: top;
-  padding: 0 6px;
-  box-sizing: border-box;
-}
-/* 组合表行容器（html-latex-tables.lua 检测到「minipage 含子 minipage」时
-   加的 class）：flex 排版消除 inline-block 空白间隙（3×33% + 间隙 > 100%
-   导致 (c) 错误换行）；子表按注入宽度（style="width: X%"）作为 flex 项排布 */
-div.minipage.minipage-row {
-  display: flex;
-  flex-wrap: wrap;
-}
-/* 挤压：resizebox 的 HTML 对应物——LaTeX 端 tabular 内容比 minipage 宽时由
-   外层 resizebox 等比缩放兜底，HTML 无渲染后缩放原语，用 table-layout: fixed
-   强制表格宽度 = 容器宽度（内容换行挤入）。代价：列均分、长文字换行，
-   比例由内容自然宽度变为均分——数字列（短）不受影响。 */
-div.minipage > div.minipage table {
-  table-layout: fixed;
-  width: 100%;
-}
-/* 挤压后列宽收窄，长词（表头/首列文字）必须允许断行，否则溢出单元格重叠 */
-div.minipage table th,
-div.minipage table td {
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-div.minipage table {
-  font-size: 0.85em;
-}
-/* 组合表 caption（Lua 从第一个子表移出到容器底部）：格式与普通 caption 统一
-   ——不显式指定 color/font-size，由 quarto bootstrap 的
-   `.table-caption, caption` 同组规则接管（灰色 .9rem 居中、padding .5rem）；
-   本规则只保留与普通 caption（styles.css 的 table caption 规则）对齐的
-   padding-top，其余格式不覆盖（教训：自定义 color:#333/font-size 会覆盖
-   bootstrap 同名 class，导致组合表 caption 与普通表观感分裂） */
-.table-caption {
-  text-align: center;
-  padding-top: 6px;
-}
+/* SkillOpt 论文特有样式
+ *
+ * 共性样式（header-panel/smallcaps/复现标记/PDF图/算法框/组合表）已移入
+ * html-helper 插件默认样式（_extensions/html-helper/format/html-helper.css，
+ * :where() 零特异性，此处正常规则可覆盖）。
+ */
 
 /* 学习规则盒（PDF 端 \fbox minipage 的 HTML 对应物） */
 .skill-excerpts {
@@ -112,29 +16,4 @@ div.minipage table {
 }
 .skill-excerpts p {
   margin: 0.5em 0;
-}
-
-/* 算法框（HTML 端手写版，对应 PDF 端 algorithm 浮动体） */
-.algorithm-box {
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 16px 20px;
-  margin: 1.2em 0;
-  background: #fafbfc;
-  font-size: 0.92em;
-  line-height: 1.55;
-}
-.algorithm-box ol {
-  padding-left: 1.6em;
-}
-.algorithm-box li {
-  margin: 0.25em 0;
-}
-.algorithm-box ul {
-  margin: 0.15em 0;
-}
-
-/* 正文里 PDF 源图（html-pdf-embed.lua 的 aspect-ratio 内联样式已处理） */
-figure > embed[src$=".pdf"] {
-  margin: 0 auto;
 }
