@@ -22,6 +22,16 @@
 -- 用法（filters 里按名称引用，如 html-helper）：
 --   filters:
 --     - html-helper
+--
+-- 输出契约（与 ref 模块解耦的边界——ref 侧按以下形态注入编号占位，
+-- 改动输出结构须同步 ref/html-ref-tbl.lua 的定位 pattern）：
+--   a) 简单表 caption 留在 <caption> 内；组合表（minipage 结构）caption 移出
+--      table 为 <div class="table-caption">…</div>
+--   b) 多 label 别名输出 <span id="alias" class="table-alias"></span>（纯锚点，
+--      浏览器跳转目标，ref 脚本不消费）
+--   c) 全部 <table> 统一 class="caption-top table"（与 quarto 管道表同源样式）
+-- 本模块无任何 dofile/require/os.execute——与 ref 模块零代码依赖；
+-- 编号/引用完全交给 ref（html-ref-tbl.lua + tblref.py），本模块只翻译结构。
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
