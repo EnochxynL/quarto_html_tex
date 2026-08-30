@@ -149,6 +149,63 @@ local function ensure_dir(path)
   return io.open(path .. "/.probe", "w") ~= nil
 end
 
+local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+local function base64(data)
+  local out = {}
+  for i = 1, #data, 3 do
+    local a, b, c = data:byte(i, i + 2)
+    local n = (a or 0) * 65536 + (b or 0) * 256 + (c or 0)
+    out[#out + 1] = B64:sub(math.floor(n / 262144) % 64 + 1, math.floor(n / 262144) % 64 + 1)
+    out[#out + 1] = B64:sub(math.floor(n / 4096) % 64 + 1, math.floor(n / 4096) % 64 + 1)
+    out[#out + 1] = (b and B64:sub(math.floor(n / 64) % 64 + 1, math.floor(n / 64) % 64 + 1)) or "="
+    out[#out + 1] = (c and B64:sub(n % 64 + 1, n % 64 + 1)) or "="
+  end
+  return table.concat(out)
+end
+
+-- tex4ht 符号位图（\tilde{s} 等）base64 内联——make4ht 工作目录相对路径
+-- 渲染后断裂（404 裂图），内联后子页面完全自包含
+local function inline_images(html)
+  -- tex4ht 输出单引号属性（src='block0x.png'）——双引号兼容
+  local out = html:gsub("src=['\"](block%d+x%.png)['\"]", function(fname)
+    local f = io.open(CACHE .. "/" .. fname, "rb")
+    if not f then return 'src="' .. fname .. '"' end
+    local data = f:read("*a")
+    f:close()
+    return 'src="data:image/png;base64,' .. base64(data) .. '"'
+  end)
+  return out
+end
+
+-- css 作用域化：tex4ht css 是文档级（body/p 等裸选择器），内联后污染
+-- 主页面（实证：body{max-width:80ch} 把整个页面限宽 80ch）——body 级
+-- 规则丢弃（子页面无 body），其余选择器加 .tex4ht-block 前缀
+local function scope_css(css)
+  local out = {}
+  for rule in css:gmatch("[^}]+}") do
+    local sel, decl = rule:match("^%s*([^{]+)%s*{([^}]*)}")
+    if sel and decl then
+      sel = sel:gsub("%s+", " ")
+      if sel:match("^body") or sel:match("^html") then
+        -- body/html 级规则丢弃（子页面无 body 元素；@media print 内
+        -- body{max-width:none} 同被滤掉——嵌套 @media 少见，先整体滤）
+      elseif sel:match("^@") then
+        -- @media 块原样（其内部规则影响面小，后续完善）
+        out[#out + 1] = rule
+      else
+        local prefixed = {}
+        for s in sel:gmatch("[^,]+") do
+          s = s:gsub("^%s+", "")
+          prefixed[#prefixed + 1] = ".tex4ht-block " .. s
+        end
+        out[#out + 1] = table.concat(prefixed, ", ") .. "{" .. decl .. "}"
+      end
+    end
+  end
+  return table.concat(out, "\n")
+end
+
 -- 编译块 → 子页面 HTML；失败返回 nil（调用方原样保留）
 local function compile_block(body, counter_before, macros, label)
   if not ensure_dir(CACHE) then
@@ -185,6 +242,9 @@ local function compile_block(body, counter_before, macros, label)
   -- 剥文档壳取 body 内容；删 <link ...css>（改内联）
   local inner = html:match("<body>(.*)</body>") or html
   inner = inner:gsub("<link[^>]*>", "")
+  -- 图片 base64 内联（路径断裂修复）+ css 作用域化（主页面污染修复）
+  inner = inline_images(inner)
+  css = scope_css(css)
   -- 锚点：tex4ht 用 caption slug 做 id（skillopt-skill-optimization），
   -- \label 名不输出——容器 id 补上 label（正文 \ref{alg-X} → #alg-X 可达）
   local id_attr = (label and label ~= "") and (' id="' .. label .. '"') or ""
