@@ -20,20 +20,24 @@
 --         作用域化内联 → <div class="lwarp-block">
 --      失败回退：可见警告块（div.lwarp-failed + 原 LaTeX 源码）
 --   3) 正文 \ref{alg-X}（RawInline tex / Math / Link）→ <a href="#alg-X">N</a>
---   4) 块内 \ref{X} → @@REF:{X}@@ 占位（数学内 MathJax 渲染文本、
---      数学外原样；{ } 是 LaTeX 分组符编译后被吞为 @@REF:X@@）→
---      Pandoc 回调第二遍统一解析：
---        块内 label → <a href="#X">N</a>（lwarp 原生锚点 <a id>）
---        其他块 label → 编号文本（跨块引用）
---        未知 → [X] 占位
---
--- 数学预处理（lwarp 版——只剩两件；tex4ht 的 \mathrm→\text、下标
--- 加括号、位图内联、单引号属性兼容全部消失）：
---   1) \Call{f}{a} → \mathrm{f}(a)（MathJax 不认识 algpseudocode 的
---      \Call 会红字——数学文本层限制，lwarp 一样存在；展开为标准
---      数学命令。升级路径：MathJax 宏注入（lwarp 会把 \newcommand
---      定义输出给 MathJax——配置化，见 _mk4ht-test/lwcall.tex 探针）
---   2) \ref{X} → @@REF:{X}@@ 纯文本占位（跨块引用协议）
+--   4) 块内 \ref{X}（跨文档引用协议）：
+--      数学外：\ref 原样保留——块内 label 由真实 aux 解析（lwarp 原生
+--        链接）；块外 label 由 preamble 注入 \newlabel 假条目喂值
+--        （显示文本=@@REF:X@@ 占位、href=#X），lwarp 原生输出
+--        <a href="#X">@@REF:X@@</a>——Pandoc 回调第二遍填编号
+--      数学内：一律 @@REF:{X}@@ 纯文本占位（lwarp mathjax 模式
+--        detokenize 不执行 \ref；数学内不能放 HTML 链接）——第二遍
+--        填纯文本编号
+--      第二遍解析（alg_nums 齐后，前向引用可解析）：
+--        已知 label → 编号；未知 → [X] 占位（保留名可诊断）
+
+-- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
+--   1) \Call{f}{a} → \mathrm{f}(a)：\Call 是 algpseudocode 的文本层命令
+--      （\textsc{#1}(#2)，algpseudocode.sty:81）——被写进数学时 lwarp
+--      detokenize 给 MathJax 会红字（MathJax 不认识 \textsc/\ifthenelse）；
+--      展开为标准数学命令，语义等价（\textsc 小型大写 ≈ \mathrm 正体）
+--   2) \ref：数学段外原样保留（lwarp 原生 + \newlabel 假条目注入）、
+--      数学段内一律 @@REF:{X}@@（detokenize 不执行 \ref）——返回 (body, ref_out)
 --
 -- 边界（与其它模块解耦）：
 --   - 表格块跳过——html-latex-tables.lua 处理
@@ -66,8 +70,8 @@ local function is_algorithm_block(text)
 end
 
 -- 提取全部 label（复合块可含多 label——lwarp 原生为每个 \label 输出
--- <a id> 锚点，故不需要容器 id/别名 span；labels 表用于块内 \ref
--- 解析时区分"本块 label"（链接）与"跨块 label"（纯文本编号））
+-- <a id> 锚点，故不需要容器 id/别名 span；labels 表用于构建 labelset
+-- （数学外引用本块 label 时无需注入假条目——真实 aux 自解析）
 local function extract_labels(text)
   local labels = {}
   for lab in text:gmatch("\\label{([^}]+)}") do
@@ -323,15 +327,13 @@ local function compile_block(body, counter_before, macros, labels)
   local tex_path = CACHE .. "/block.tex"
   local f = io.open(tex_path, "w")
   if not f then return nil end
-  -- 块内 label 集合（智能占位：块内引用留 lwarp 原生，块外才 @@REF）
+  -- 块内 label 集合（labelset）：数学外引用本块 label 时保留原样走
+  -- lwarp 原生（真实 aux），不注入假条目
   local labelset = {}
   if labels then
     for _, lab in ipairs(labels) do labelset[lab] = true end
   end
   local body_pp, ref_out = math_preprocess(body, labelset)
-  local dbg = {}
-  for lab in pairs(ref_out) do dbg[#dbg + 1] = lab end
-  io.stderr:write("[lwarp-dbg] ref_out: " .. table.concat(dbg, ",") .. "\n")
   f:write(build_tex(body_pp, counter_before, macros, ref_out))
   f:close()
 
