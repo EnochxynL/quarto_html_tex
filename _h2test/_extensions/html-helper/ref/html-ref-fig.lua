@@ -1,4 +1,4 @@
--- html-fig-crossref.lua — HTML 图引用占位 + 未知引用兜底
+-- html-ref-fig.lua — HTML 图引用占位 + 未知引用兜底
 -- 
 -- 处理 \ref{fig-X} 形式的图引用。
 -- 内容层 @fig-X（quarto 原生语法）走 quarto crossref，不经过本 filter。

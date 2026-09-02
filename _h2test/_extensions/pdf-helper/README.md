@@ -50,7 +50,7 @@ format:
 |------|------|
 | `pdf-md-tables.lua` | **管道表**（顶层 Table）→ `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`）。只处理顶层 Table，Div 原样保留（{=html} 表交给 pdf-html-tables.lua） |
 | `pdf-html-tables.lua` | **`{=html}` 直写表**：`Div(quarto-scaffold)` 包裹的原生 Table → 单栏 `table`（默认）booktabs tabular。独立配置 `html-table-env`/`html-table-pos`（默认 `table`/`htbp`），table-caption-pos 与 pdf-md-tables 共享 |
-| `pdf-tbl-warn.lua` | **tbl- 前缀检测警告**：正文 `\ref{tbl-X}` → 警告改用 tab-。机制：tbl- 是 quarto 原生 @tbl-x 引用的地盘（reader 阶段消费 id/label 进 crossref 内部状态），LaTeX 原生 \ref 走不到 quarto crossref、LaTeX 层又找不到被消费的 label → 悬空 ??；非人错配，即使 label/ref 配对正确也一样 |
+| `pdf-ref-tbl.lua` | **tbl- 引用提示器**（INFO 日志，不改文档）：正文 `\ref{tbl-X}` → 提示通道行为。实证 2026-08-30：管道表 `{#tbl-X}` 的 `\label{tbl-X}` 被 PDF writer 原样写回中间 tex——LaTeX 原生 \ref 编译命中，**不 ??**（旧版"tbl- 必 ??"判断对管道表不成立）；{=latex} 表 label 被 float 接管挪进 caption（实体保留）但复杂表仍须 tab- 让路（HTML 端 float 接管静默消失） |
 
 ## 行为
 

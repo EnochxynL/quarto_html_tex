@@ -6,4 +6,4 @@ contributes:
   filters:
     - pdf-md-tables.lua
     - pdf-html-tables.lua
-    - pdf-tbl-warn.lua
+    - pdf-ref-tbl.lua

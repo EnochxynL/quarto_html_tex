@@ -6,9 +6,17 @@
 -- 职责：
 --   1) 统计所有含表格的 RawBlock（<table）按文档顺序编号
 --      （组合表 resizebox+minipage 多子表的多 label 别名 → 同一编号）
---   2) <caption> 加 caption-prefix + 编号 + caption-sep（配置化，对齐 PDF 端 LaTeX 自动编号）
+--   2) caption 零配置：注入 [TAB-CAP:N] 占位（N=本 filter 数的全局序号）→
+--      tblref.py post-render 从 quarto 管道表 figcaption 学习前缀/分隔符填充
+--      （"Table " + ": "；配置项 caption-prefix/sep 已删——2026-08-31 定案）
 --   3) 表格引用 \ref{tbl-X}（正文 RawInline + RawBlock 文本）→ <a href="#tbl-X">N</a>
 --      （"表"字由内容层手写"表 \ref{tbl-X}"提供——filter 只出数字，避免"表 表 N"双表）
+--
+-- 与 parse 模块的边界（单向 DOM 契约）：[TAB-CAP:N] 的注入位置依赖
+-- parse/html-latex-tables.lua 的 caption 输出形态——<caption>（简单表）与
+-- <div class="table-caption">（组合表移出形态）两处 gsub 定位；parse 改结构
+-- 须同步本文件 pattern。除此外零代码依赖（无 dofile/require/os.execute）：
+-- parse 只翻译结构，本模块只做编号/引用，互不干涉。
 --
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，全部手写递归。
 if FORMAT ~= "html" and FORMAT ~= "html5" then

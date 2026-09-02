@@ -22,6 +22,16 @@
 -- 用法（filters 里按名称引用，如 html-helper）：
 --   filters:
 --     - html-helper
+--
+-- 输出契约（与 ref 模块解耦的边界——ref 侧按以下形态注入编号占位，
+-- 改动输出结构须同步 ref/html-ref-tbl.lua 的定位 pattern）：
+--   a) 简单表 caption 留在 <caption> 内；组合表（minipage 结构）caption 移出
+--      table 为 <div class="table-caption">…</div>
+--   b) 多 label 别名输出 <span id="alias" class="table-alias"></span>（纯锚点，
+--      浏览器跳转目标，ref 脚本不消费）
+--   c) 全部 <table> 统一 class="caption-top table"（与 quarto 管道表同源样式）
+-- 本模块无任何 dofile/require/os.execute——与 ref 模块零代码依赖；
+-- 编号/引用完全交给 ref（html-ref-tbl.lua + tblref.py），本模块只翻译结构。
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
@@ -199,6 +209,7 @@ local function convert_table(el, bibstr, macros)
   -- 补 label（Pandoc 对 table 环境内的 \label 通常已转 id；组合表嵌套时
   -- 可能丢失——找到第一个表格补上，跨列组合表 id 落在最外层容器）
   local label = el.text:match("\\label{([^}]+)}")
+  local aliases = {}
   if label then
     local tbl = find_table(doc.blocks)
     if tbl then
@@ -207,6 +218,12 @@ local function convert_table(el, bibstr, macros)
         tbl.attr.identifier = label
       end
     end
+    -- 别名 label（组合表多 \label：如 SkillOpt 的 tab-transfer-all + cross-* ×3）：
+    -- 正文可引用任一别名，全部映射到同一编号（html-ref-tbl 的 gmatch 收集
+    -- HTML 里所有 id=，别名锚点保证 tab_nums[alias] 命中）
+    for a in el.text:gmatch("\\label{([^}]+)}") do
+      if a ~= label then aliases[#aliases + 1] = a end
+    end
   end
 
   -- 整个子文档渲染成 HTML 字符串（保留 div.minipage 等嵌套结构，组合表的
@@ -214,10 +231,12 @@ local function convert_table(el, bibstr, macros)
   local html = pandoc.write(doc, "html")
   -- 去掉包裹的 <p> 或多余结构，只保留表格部分
   html = html:gsub("^%s*<p>", ""):gsub("</p>%s*$", "")
-  -- 加 paper-table class（styles.css 的表格样式选择器，否则复杂表无边框、靠左）；
+  -- 加 bootstrap table class（与管道表一致——quarto 表格样式 = bootstrap .table，
+  -- 用户拍板 2026-08-31：不自定义 class（paper-table 已废弃），遵守 bootstrap 规范，
+  -- 复杂表与管道表同一样式源；caption-top 与 quarto 管道表一致）
   -- 全部 <table> 都加（组合表 resizebox+minipage 的多个子表各自独立成表，
   -- 只加第一个会让 (b)(c)... 子表裸奔无边框）
-  html = html:gsub("<table", '<table class="paper-table"')
+  html = html:gsub("<table", '<table class="caption-top table"')
   -- 组合表（多个 <table>）caption 归属修正：Pandoc 把 table* 的 caption 挂到
   -- 第一个子表（视觉上只出现在 (a) 下方）——移到整组子表之后（minipage-row
   -- 容器闭合 </div> 之后、div.table* 之内），作为独立 caption div
@@ -266,6 +285,10 @@ local function convert_table(el, bibstr, macros)
         end
       end
     end
+  end
+  -- 别名 label 锚点（正文引用任一别名 → 同一编号；html-ref-tbl gmatch 收集）
+  for _, a in ipairs(aliases) do
+    html = html .. '<span id="' .. a .. '" class="table-alias"></span>'
   end
   return pandoc.RawBlock("html", html)
 end

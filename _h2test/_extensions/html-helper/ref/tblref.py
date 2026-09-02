@@ -35,7 +35,7 @@ CAP_SEP_RE = re.compile(
     r'<figcaption[^>]*quarto-float-tbl[^>]*>\s*[^<&\d]*?&nbsp;?\s*\d+\s*([:：])')
 # 复杂表 caption 占位：<div class="table-caption">[TAB-CAP:6]标题</div>
 TAB_CAP_RE = re.compile(r'\[TAB-CAP:(\d+)\]')
-# 占位（可能带前缀残留，pandoc 把 ~ 转 &nbsp;）：<a href="#tbl-X">[tbl-X]</a>
+# 占位（可能带前缀残留，pandoc 把 ~ 转 &nbsp;）：<a href="#tbl-X">[tbl-X]</a>。如果不用它整体匹配、只替换占位符，就会变成 "Table Table 1" 双前缀
 PLACEHOLDER_RE = re.compile(
     r'(?:Table|Tab\.?|表)(?:(?:&nbsp;)|[ \t~\r\n])*<a href="#(tbl-[^"]+)"[^>]*>\[(?:tbl-[^\]]+)\]</a>')
 PLACEHOLDER_BARE_RE = re.compile(
@@ -56,9 +56,7 @@ def process(path):
     tbl_nums = {}
     for i, m in enumerate(DIV_RE.finditer(html), 1):
         tbl_nums.setdefault(m.group(1), i)
-    if not tbl_nums:
-        print(f"tblref: {path} 无 tbl- 表格（跳过）")
-        return
+    # 无 tbl- 表格不早退：复杂表 [TAB-CAP] 占位仍需处理（SkillOpt 全复杂表场景）
 
     # 2) 前缀学习：优先从正文 quarto-xref "Table&nbsp;1" / "表&nbsp;1" 提取
     prefix = "Table "
