@@ -24,3 +24,6 @@ __pycache__/
 
 # Pre-render 构建目录
 _build/
+
+_mk4ht-test/
+**/.quarto/
