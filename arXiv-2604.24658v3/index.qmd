@@ -1,97 +1,14 @@
 ---
 shortcodes:
   - ara.lua
+# HTML 端主文档（pdf 端见 main.qmd——两插件分工：index.qmd 走 html-helper、
+# main.qmd 走 pdf-helper，sections/ 共享；渲染：quarto render index.qmd）
 filters:
   - html-helper
-  - pdf-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
 # 原始论文 secnumdepth 默认 3，paragraph 标题无自动编号）
 number-depth: 3
 format:
-  pdf:
-    pdf-engine: xelatex
-    keep-tex: true
-    documentclass: article
-    number-sections: true
-    citeproc: false
-    cite-method: natbib
-    biblio-style: styles/icml2026
-    latex-clean: false
-    # 代码块走 listings 包（\lstset 样式，与原始论文一致；quarto 1.9+ 用
-    # syntax-highlighting: idiomatic 替代已失效的 listings: true，默认是 fancyvrb Shaded）
-    syntax-highlighting: idiomatic
-    html-helper:
-      md-table-env: table*
-      md-table-pos: htbp
-      table-caption-pos: bottom
-      html-table-env: table
-      html-table-pos: htbp
-    # 图浮动体顶到页面顶端（原始论文 [!t] 风格；值会字面塞进 \begin{figure}[...]，
-    # 须用 LaTeX 位置参数语法且加引号——! 开头会被 YAML 当 tag）
-    fig-pos: "!t"
-    include-in-header:
-      - text: |
-          % 中文支持（需 xelatex 编译）
-          \usepackage{ctex}
-          \usepackage{microtype}
-          \usepackage{graphicx}
-          \usepackage{subcaption}
-          \usepackage{booktabs}
-          \usepackage{hyperref}
-          \newcommand{\theHalgorithm}{\arabic{algorithm}}
-          \usepackage[preprint]{styles/icml2026}
-          \PassOptionsToPackage{hyphens}{url}
-          \usepackage{url}
-          \usepackage{amsfonts}
-          \usepackage{amsmath}
-          \usepackage{amsthm}
-          \usepackage{nicefrac}
-          \usepackage{xcolor}
-          \usepackage{listings}
-          \usepackage{algorithm}
-          \usepackage{algorithmic}
-          \usepackage{enumitem}
-          \usepackage{multirow}
-          \usepackage{stfloats}
-          \usepackage{placeins}
-          \usepackage{tikz}
-          \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds}
-          \usepackage{helvet}
-          \usepackage{tcolorbox}
-          \usepackage{pifont}
-          \newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
-          \newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
-          \definecolor{abstractbg}{HTML}{EEF3F9}
-          \newtcolorbox{headerpanel}{%
-            colback=abstractbg,
-            colframe=abstractbg,
-            arc=8pt,
-            boxrule=0pt,
-            left=18pt, right=18pt, top=16pt, bottom=14pt,
-            width=\textwidth,
-            enlarge left by=0pt,
-            enlarge right by=0pt,
-          }
-          \theoremstyle{definition}
-          \newtheorem{definition}{定义}[section]
-          \newcommand{\ara}{\textsc{Ara}}
-          \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
-          \newcommand{\layer}[1]{\texttt{/#1}}
-          \newcommand{\cmd}[1]{\texttt{ara~#1}}
-          \newcommand{\storytax}{\emph{Storytelling Tax}}
-          \newcommand{\engtax}{\emph{Engineering Tax}}
-          \lstset{
-            basicstyle=\ttfamily\scriptsize,
-            breaklines=true,
-            frame=single,
-            framesep=3pt,
-            columns=fullflexible,
-            backgroundcolor=\color{gray!5},
-            keywordstyle=\color{blue!70!black},
-            commentstyle=\color{green!50!black},
-            stringstyle=\color{red!60!black},
-          }
-          \icmltitlerunning{The Last Human-Written Paper: Agent-Native Research Artifacts}
   html:
     theme: cosmo
     toc: true
@@ -102,122 +19,12 @@ format:
     subtitle: "The Last Human-Written Paper: Agent-Native Research Artifacts"
     html-helper:
       # HTML 端表格子文档需解析的自定义宏（pandoc latex_macros 展开，通用配置；
-      # 必须放 html 格式下——html-latex-tables.lua 是 HTML filter，format.pdf 的配置不提升）
       # 颜色须用 CSS 合法值（LaTeX 的 green!60!black 不是 CSS 语法，浏览器不认）
       latex-macros: |
         \newcommand{\ara}{\textsc{Ara}}
         \newcommand{\cmark}{\textcolor{darkgreen}{✓}}
         \newcommand{\xmark}{\textcolor{darkred}{✗}}
 ---
-
-```{=latex}
-\twocolumn[
-  \thispagestyle{plain}
-  \begin{headerpanel}
-    \raggedright
-    % 标题
-    {\sffamily\bfseries\fontsize{19}{23}\selectfont
-      最后一篇人类撰写的论文：\\
-      智能体原生研究构件\par
-    }
-    \vskip 12pt
-    % 作者列表
-    {\sffamily\bfseries\normalsize
-      Jiachen Liu\textsuperscript{1,\,*},\ %
-      Jiaxin Pei\textsuperscript{2},\ %
-      Jintao Huang\textsuperscript{3},\ %
-      Chenglei Si\textsuperscript{2},\ %
-      Ao Qu\textsuperscript{4},\ %
-      Xiangru Tang\textsuperscript{5},\ %
-      Runyu Lu\textsuperscript{1},\ %
-      Lichang Chen\textsuperscript{6},\ %
-      Xiaoyan Bai\textsuperscript{7},\ %
-      Haizhong Zheng\textsuperscript{8},\ %
-      Carl Chen\textsuperscript{9},\ %
-      Zhiyang Chen\textsuperscript{10},\ %
-      Haojie Ye\textsuperscript{11},\ %
-      Yujuan Fu\textsuperscript{12},\ %
-      Zexue He\textsuperscript{2},\ %
-      Zijian Jin\textsuperscript{13},\ %
-      Zhenyu Zhang\textsuperscript{2},\ %
-      Shangquan Sun\textsuperscript{14},\ %
-      Maestro Harmon\textsuperscript{15},\ %
-      Dianzhuo Wang\textsuperscript{16},\ %
-      Qian-ze Zhu\textsuperscript{16},\ %
-      Jianqiao Zeng,\ %
-      Jiachen Sun\textsuperscript{17},\ %
-      Mingyuan Wu\textsuperscript{18},\ %
-      Baoyu Zhou\textsuperscript{19},\ %
-      Chenyu You\textsuperscript{20},\ %
-      Shijian Lu\textsuperscript{14},\ %
-      Yiming Qiu\textsuperscript{21},\ %
-      Fan Lai\textsuperscript{18},\ %
-      Yuan Yuan\textsuperscript{22},\ %
-      Yao Li\textsuperscript{23},\ %
-      Junyuan Hong\textsuperscript{24},\ %
-      Ruihao Zhu\textsuperscript{25},\ %
-      Beidi Chen\textsuperscript{8},\ %
-      Alex Pentland\textsuperscript{2},\ %
-      Ang Chen\textsuperscript{1},\ %
-      Mosharaf Chowdhury\textsuperscript{1},\ %
-      Zechen Zhang\textsuperscript{16,\,15}\par
-    }
-    \vskip 6pt
-    % 单位
-    {\small
-      \textsuperscript{1}University of Michigan,\ %
-      \textsuperscript{2}Stanford University,\ %
-      \textsuperscript{3}Ohio State University,\ %
-      \textsuperscript{4}MIT,\ %
-      \textsuperscript{5}Yale University,\ %
-      \textsuperscript{6}Meta Superintelligence Labs,\ %
-      \textsuperscript{7}University of Chicago,\ %
-      \textsuperscript{8}Carnegie Mellon University,\ %
-      \textsuperscript{9}University of Washington,\ %
-      \textsuperscript{10}University of Toronto,\ %
-      \textsuperscript{11}NVIDIA,\ %
-      \textsuperscript{12}Meta,\ %
-      \textsuperscript{13}New York University,\ %
-      \textsuperscript{14}Nanyang Technological University,\ %
-      \textsuperscript{15}Orchestra Research,\ %
-      \textsuperscript{16}Harvard University,\ %
-      \textsuperscript{17}LinkedIn,\ %
-      \textsuperscript{18}UIUC,\ %
-      \textsuperscript{19}Arizona State University,\ %
-      \textsuperscript{20}Stony Brook University,\ %
-      \textsuperscript{21}University of Hong Kong,\ %
-      \textsuperscript{22}Boston College,\ %
-      \textsuperscript{23}Portland State University,\ %
-      \textsuperscript{24}National University of Singapore,\ %
-      \textsuperscript{25}Cornell University\par
-    }
-    \vskip 14pt
-    % 摘要正文（已内联）
-    科学出版将分支式、迭代式的研究过程压缩为线性叙事，抛弃了探索过程中发现的大部分内容。这种编纂方式带来了两种结构性成本：一是\textbf{叙事税}，即失败的实验、被拒绝的假设以及分支探索过程被抛弃以适应线性叙事；二是\textbf{工程税}，即满足审稿人需求的叙述与满足智能体需求的规范之间的鸿沟导致关键的实现细节未被书写。这些成本对人类读者而言尚可容忍，但当AI智能体需要对已发表的工作进行理解、复现和扩展时，它们便成为关键障碍。我们提出\textbf{智能体原生研究构件（\ara{}）}，这是一种以可被智能体执行的研究包替代叙事性论文的协议，其结构围绕四个层展开：科学逻辑、具备完整规范的可执行代码、保留被编纂过程抛弃之失败的探索图谱，以及将每个论断锚定于原始输出的证据。三个机制支撑整个生态系统：\textbf{实时研究管理器}，在日常开发过程中捕获决策与死胡同；\textbf{\ara{} 编译器}，将既有PDF和代码仓库转换为 \ara{}；以及\textbf{\ara{} 原生审阅系统}，自动执行客观性检查（类似文本的语法检查器），从而使人类审稿人能够专注于重要性、新颖性和品味。在 PaperBench 和 RE-Bench 上，\ara{} 将问答准确率从 72.4\% 提升至 93.7\%，将复现成功率从 57.4\% 提升至 64.4\%。在 RE-Bench 的五项开放式扩展任务中，\ara{} 中保留的失败轨迹加速了研究进展，但也可能根据智能体自身的能力，限制有能力的智能体跳出先前运行的框架。
-    \vskip 14pt
-    % 通讯作者 / 代码页脚
-    \noindent
-    \parbox{0.70\linewidth}{%
-      \noindent\textbf{通讯作者：}\ Jiachen Liu (\href{mailto:amberljc@umich.edu}{amberljc@umich.edu})\par
-      \vskip 2pt
-      \noindent\textbf{代码：}\ \href{https://github.com/AmberLJC/Agent-Native-Research-Artifact}{github.com/AmberLJC/Agent-Native-Research-Artifact}%
-    }\hfill
-    $\vcenter{\hbox{\sffamily\bfseries\small ARA Commons}}\,\vcenter{\hbox{\includegraphics[height=30pt]{figures/brace-a_mark.png}}}$
-  \end{headerpanel}
-]
-```
-
-```{=latex}
-\ifdefined\hypersetup
-  \hypersetup{pdftitle={The Last Human-Written Paper: Agent-Native Research Artifacts}}
-\fi
-
-\makeatletter
-\global\icml@noticeprintedtrue
-\makeatother
-```
-
-::: {.content-visible when-format="html"}
 
 ```{=html}
 <div class="header-panel">
@@ -257,35 +64,24 @@ format:
 
 :::
 
+
 {{< include sections/introduction.md >}}
 
 {{< include sections/protocol.md >}}
 
-```{=latex}
-\FloatBarrier
-```
 
 {{< include sections/live_pm.md >}}
 
 {{< include sections/ingestor.md >}}
 
-```{=latex}
-\FloatBarrier
-```
 
 {{< include sections/review_system.md >}}
 
 {{< include sections/network.md >}}
 
-```{=latex}
-\FloatBarrier
-```
 
 {{< include sections/evaluation.md >}}
 
-```{=latex}
-\FloatBarrier
-```
 
 {{< include sections/related_work.md >}}
 
@@ -295,10 +91,5 @@ format:
 
 {{< include sections/conclusion.md >}}
 
-```{=latex}
-\FloatBarrier
-\bibliography{references}
-\appendix
-```
 
 {{< include sections/appendix.md >}}
