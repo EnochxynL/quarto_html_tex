@@ -174,77 +174,217 @@ local function strip_ifthenelse(s)
   return table.concat(out)
 end
 
--- MathJax 宏注入：从"文档层声明的宏包"（latex-packages）源提取
--- "进数学的文本命令"定义 → MathJax 翻译。
--- 背景：\Call 是 algpseudocode 的文本命令（\textsc{f}(a)——包内定义），
--- 被写进数学时 lwarp 数学文本 detokenize 原样给 MathJax——不认识红字。
--- 方案（用户拍板 2026-09-02）：MathJax tex.macros 配置注入——包清单来自
--- latex-packages（文档层声明——不硬编码包来源），定义体从包源平衡提取
--- （零手写）；翻译规则（语义等价）：\textproc{X}→\text{X（smallcaps
--- MathJax 不可得→正体近似）、\ifthenelse 剥离。
+-- MathJax 宏自动注入（零显式配置——与 counters.lua 同构的扫描发现，
+-- 用户拍板 2026-09-02）：
+-- 背景：\Call 等文本命令被写进数学时，lwarp 数学文本 detokenize 原样
+-- 给 MathJax——不认识红字。方案：扫描全文 RawBlock 数学内容（$...$）
+-- 收集 \CMD——对每个命令在"用户定义源"（块内/latex-macros 的
+-- \newcommand/\def）与"latex-packages 声明包的源"查定义——找到则翻译
+-- 成 MathJax tex.macros 注入。
+-- 定义驱动过滤：MathJax 内建命令（\mathrm/\gets/\mathcal…）在定义源
+-- 找不到 → 自动跳过——无需 MathJax 命令白名单。
+-- 翻译规则：\ifthenelse 剥离（取 else 分支）+ 无参别名展开
+-- （\textproc→\textsc——查同源定义）；翻译后仍含未知命令（如 \textsc
+-- MathJax 侧不支持时）由 MathJax 渲染暴露——降级不崩。
 -- 注入机制（实证 2026-09-02）：MathJax 4 不处理文档文本中的
--- \newcommand（v3 功能移除）；tex.macros 必须加载前配置——filter 只动
--- body，故输出 body 开头同步 <script>window.MathJax=...>（同步 script
--- 先于 head 的 defer tex-chtml.js 执行）。
--- 提取规则表：包 → {锚点前缀, MathJax 宏名}——algpseudocode 的数学文本
--- 命令（\Call——当前唯一实证会进数学的；\Function/\Procedure 环境级）。
--- 返回 script 文本（无规则包/找不到/提取失败返回空——红字降级）
-local MATH_MACRO_SOURCES = {
-  algpseudocode = { { "\\algnewcommand\\Call[", "Call" } },
-}
+-- \newcommand；tex.macros 须加载前配置——filter 只动 body，故输出
+-- body 开头同步 <script>window.MathJax=...>（同步 script 先于 head 的
+-- defer tex-chtml.js 执行）。
+-- 返回 script 文本（无命令/无定义/翻译失败返回空——红字降级）
 
--- 从单个包源提取命令定义 → MathJax macros 条目
-local function extract_pkg_macros(pkg, specs)
+-- 收集文本 $...$ 数学段里的 \CMD 控制序列
+local function collect_math_cmds(text, cmds)
+  local pos = 1
+  while true do
+    local d1 = text:find("%$", pos)
+    if not d1 then break end
+    local d2 = text:find("%$", d1 + 1)
+    if not d2 then break end
+    for cmd in text:sub(d1 + 1, d2 - 1):gmatch("\\([a-zA-Z]+)") do
+      cmds[cmd] = true
+    end
+    pos = d2 + 1
+  end
+end
+
+-- 平衡提取（从 src 的 open 位置数深度到匹配 }——返回内部内容）
+local function take_balanced(src, open)
+  local depth, k = 0, open
+  while k <= #src do
+    local c = src:sub(k, k)
+    if c == "{" then depth = depth + 1
+    elseif c == "}" then
+      depth = depth - 1
+      if depth == 0 then return src:sub(open + 1, k - 1) end
+    end
+    k = k + 1
+  end
+  return nil
+end
+
+-- 收集用户 \newcommand 定义（{name, nargs=nil|N, body}——body 平衡提取）
+-- 形态：\newcommand{\X}[N]{body} / \newcommand\X[N]{body} / \newcommand{\X}{body}
+local function collect_user_defs(text, defs)
+  local pos = 1
+  while true do
+    local i = text:find("\\newcommand", pos, true)
+    if not i then break end
+    local j = i + #"\\newcommand"
+    if text:sub(j, j) == "*" then j = j + 1 end -- \newcommand*
+    local name, rest
+    if text:sub(j, j) == "{" then
+      local nb = text:find("}", j + 1, true)
+      if not nb then break end
+      name = text:sub(j + 2, nb - 1) -- 剥 {\X
+      rest = text:sub(nb + 1)
+    else
+      local m = text:sub(j):match("^\\([a-zA-Z]+)")
+      if not m then break end
+      name = m
+      rest = text:sub(j + 1 + #m)
+    end
+    local nargs
+    local nb = rest:match("^%[([^%]]+)%]")
+    if nb then nargs = tonumber(nb) end
+    local open = rest:find("{", 1, true)
+    local body = open and take_balanced(rest, open)
+    if body then
+      defs[name] = { nargs = nargs, body = body }
+      pos = i + 1
+    else
+      break
+    end
+  end
+end
+
+-- 包源找数学命令的定义（同时收集包内全部定义——别名展开用）
+-- 返回 defs（name → {nargs, body}）——只含 want 命令 + 无参别名候选
+local function collect_pkg_defs(pkg, want, out_defs)
   local p = io.popen("kpsewhich " .. pkg .. ".sty 2>nul")
-  if not p then return {} end
+  if not p then return end
   local path = p:read("*l")
   p:close()
-  if not path or path == "" then return {} end
+  if not path or path == "" then return end
   local f = io.open(path, "r")
-  if not f then return {} end
+  if not f then return end
   local src = f:read("*a")
   f:close()
-  local macros = {}
-  for _, spec in ipairs(specs) do
-    local i = src:find(spec[1], 1, true)
-    if i then
-      local head = src:sub(i + #spec[1]) -- 参数数开头：2]{body}
-      local nargs = head:match("^(%d+)")
-      local open = src:find("{", i + #spec[1], 1, true)
-      if nargs and open then
-        local depth, k = 0, open
-        while k <= #src do
-          local c = src:sub(k, k)
-          if c == "{" then
-            depth = depth + 1
-          elseif c == "}" then
-            depth = depth - 1
-            if depth == 0 then break end
-          end
-          k = k + 1
+  -- 各类定义形态：\algnewcommand\X[N]{...} / \newcommand\X[N]{...} /
+  -- \newcommand{\X}[N]{...} / \def\X#1#2{...}
+  local function try_find(prefix)
+    local pos = 1
+    while true do
+      local i = src:find(prefix, pos, true)
+      if not i then break end
+      local j = i + #prefix
+      if src:sub(j, j) == "*" then j = j + 1 end
+      local name, rest
+      if src:sub(j, j) == "{" then
+        local nb = src:find("}", j + 1, true)
+        if not nb then break end
+        name = src:sub(j + 2, nb - 1)
+        rest = src:sub(nb + 1)
+      else
+        local m = src:sub(j):match("^\\([a-zA-Z]+)")
+        if not m then pos = i + 1 break end
+        name = m
+        rest = src:sub(j + 1 + #m)
+      end
+      local nargs
+      local nb2 = rest:match("^%[([^%]]+)%]")
+      if nb2 then nargs = tonumber(nb2) end
+      local open = rest:find("{", 1, true)
+      if open then
+        local body = take_balanced(rest, open)
+        if body then
+          out_defs[name] = { nargs = nargs, body = body }
         end
-        if depth == 0 and k > open then
-          local body = src:sub(open + 1, k - 1)
-          body = body:gsub("\\textproc{", "\\text{", 1)
-          body = strip_ifthenelse(body)
-          -- MathJax macros 值 = JS 字符串（\\ → \）；#1/#2 参数引用
-          local js_body = body:gsub("\\", "\\\\")
-          macros[#macros + 1] = '"' .. spec[2] .. '": ["' .. js_body .. '", ' .. nargs .. "]"
+      end
+      pos = i + 1
+    end
+  end
+  try_find("\\newcommand")
+  try_find("\\algnewcommand")
+  try_find("\\providecommand")
+  try_find("\\def\\")
+end
+
+-- 内核文本字体命令 → MathJax \text 内等价映射（实证 2026-09-02：
+-- \textsc 在 MathJax 渲染为松散字面 \textsc𝐸𝑣𝑎𝑙𝑢𝑎𝑡𝑒——官方 unlikely to
+-- support——smallcaps 无可用等价 → 正体 \text 近似（smallcaps 本质是
+-- 正体字形）；仅收录实证失败项——其余内核字体命令（\textbf/\textit/
+-- \textrm/\textsf/\texttt）MathJax 支持，无需映射——零猜测）
+local TEXT_FONT_MAP = {
+  textsc = "text",
+}
+
+-- 翻译文本字体：body 里 \textsc{X} → \text{X}
+local function translate_text_fonts(body)
+  for from, to in pairs(TEXT_FONT_MAP) do
+    body = body:gsub("\\" .. from .. "{", "\\" .. to .. "{")
+  end
+  return body
+end
+
+-- 无参别名展开：\A{X} → A 的定义体{X}（A 无参且定义体是纯命令）
+local function expand_aliases(body, defs)
+  local changed = true
+  while changed do
+    changed = false
+    for name, d in pairs(defs) do
+      if not d.nargs and d.body:match("^%\\[a-zA-Z]+$") then
+        local pat = "\\" .. name .. "{"
+        if body:find(pat, 1, true) then
+          body = body:gsub(pat, d.body .. "{", 1)
+          changed = true
         end
       end
     end
   end
-  return macros
+  return body
 end
 
--- 入口：packages = 文档层 latex-packages 声明——只提取有规则的包
-local function extract_mathjax_macros(packages)
+-- 主流程：扫描全文 → 收集数学命令 + 用户定义 → 包源补定义 → 翻译注入
+local function extract_mathjax_macros(doc)
+  local cmds, defs = {}, {}
+  local packages = {}
+  for _, p in ipairs(read_packages(doc.meta)) do packages[p] = true end
+  -- latex-macros（用户宏定义区）
+  local macros_tex = read_config(doc.meta)
+  collect_user_defs(macros_tex, defs)
+  -- 全文 RawBlock
+  for _, blk in ipairs(doc.blocks) do
+    if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
+      collect_math_cmds(blk.text, cmds)
+      collect_user_defs(blk.text, defs)
+    end
+  end
+  -- 需要定义的命令 = 数学里出现且用户定义没有的
+  local need = {}
+  for cmd in pairs(cmds) do
+    if not defs[cmd] then need[cmd] = true end
+  end
+  -- 包源补定义（latex-packages 声明驱动）
+  if next(need) then
+    for pkg in pairs(packages) do
+      collect_pkg_defs(pkg, need, defs)
+    end
+  end
+  -- 翻译注入（只对数学里出现的命令）
   local macros = {}
-  for _, pkg in ipairs(packages or {}) do
-    local specs = MATH_MACRO_SOURCES[pkg]
-    if specs then
-      local found = extract_pkg_macros(pkg, specs)
-      for _, m in ipairs(found) do macros[#macros + 1] = m end
+  for cmd in pairs(cmds) do
+    local d = defs[cmd]
+    if d and d.body then
+      local body = expand_aliases(d.body, defs)
+      body = translate_text_fonts(body)
+      body = strip_ifthenelse(body)
+      if body ~= "" and not body:match("^\\[a-zA-Z]+$") then
+        -- 空参命令或无参（如 \textproc 定义体 \textsc——纯命令）跳过：
+        -- 无参命令 MathJax 宏无意义（除非定义体是文本）
+        local nargs = d.nargs or 0
+        local js_body = body:gsub("\\", "\\\\")
+        macros[#macros + 1] = '"' .. cmd .. '": ["' .. js_body .. '", ' .. nargs .. "]"
+      end
     end
   end
   if #macros == 0 then return "" end
@@ -548,10 +688,10 @@ end
 return {
   {
     Pandoc = function(doc)
-      -- MathJax 宏注入（主页面级——body 开头同步 script 设 window.MathJax
-      -- tex.macros，MathJax 渲染块内数学前认识包命令如 \Call——包清单来自
-      -- latex-packages 文档层声明，定义源=宏包源文件，零硬编码）
-      local mj_macros = extract_mathjax_macros(read_packages(doc.meta))
+      -- MathJax 宏注入（主页面级——扫描全文自动发现数学里的文本命令，
+      -- 定义来自用户/latex-packages 包源——body 开头同步 script 设
+      -- window.MathJax tex.macros；零显式配置）
+      local mj_macros = extract_mathjax_macros(doc)
       if mj_macros ~= "" then
         table.insert(doc.blocks, 1, pandoc.RawBlock("html", mj_macros))
       end
