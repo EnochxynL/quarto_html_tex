@@ -1,8 +1,14 @@
 ---
-shortcodes:
-  - skillopt.lua
 # HTML 端主文档（pdf 端见 main.qmd——两插件分工：index.qmd 走 html-helper、
 # main.qmd 走 pdf-helper，sections/ 共享；渲染：quarto render index.qmd）
+# 术语表（{{< term X >}} 跨格式调用——html-helper/html-md-shortcode 出
+# html、pdf-helper/pdf-md-shortcode 出 latex（引用 include-in-header 宏——
+# PDF 端宏定义单一来源在 main.qmd header））
+terms:
+  skillopt:
+    pdf: '\ourmethod{}'
+    text: SkillOpt          # 纯文本（pandoc MetaString——无损）
+    html-class: smallcaps   # HTML 端自动拼 <span class="">{text}</span>
 filters:
   - html-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；

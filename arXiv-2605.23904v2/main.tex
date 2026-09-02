@@ -306,8 +306,8 @@ Agent skills today are hand-crafted, generated one-shot, or evolved through loos
 
 }
 
-\caption{\label{fig-skillopt-teaser}Overview of \textsc{SkillOpt}. The
-target model executes tasks with a current skill, an additional frontier
+\caption{\label{fig-skillopt-teaser}Overview of \ourmethod{}. The target
+model executes tasks with a current skill, an additional frontier
 optimizer model converts trajectories into bounded add/delete/replace
 skill edits, and a held-out gate accepts only edits that improve
 validation performance. Accepted edits are exported as a reusable skill
@@ -346,18 +346,17 @@ external state, an additional frontier model as the optimizer, and
 training-style controls over evidence, step size, validation, and update
 direction.
 
-We introduce \textsc{SkillOpt}, a text-space optimizer for agent skills.
+We introduce \ourmethod{}, a text-space optimizer for agent skills.
 Given a target domain, an initial skill, and the model being adapted,
-\textsc{SkillOpt} repeatedly samples trajectory batches, analyzes
-successes and failures, and asks a frontier optimizer model to propose
-structured add/delete/replace edits. It then aggregates and ranks
-candidate edits under a textual learning-rate budget, applies a bounded
-update to the skill document, and evaluates the candidate skill on a
-held-out selection split before accepting it. Rejected edits are
-retained as negative feedback, while the epoch-wise slow/meta update
-preserves longer-horizon regularities. Figure
-Figure~\ref{fig-skillopt-teaser} gives a schematic view of this loop.
-The deployed output is a compact
+\ourmethod{} repeatedly samples trajectory batches, analyzes successes
+and failures, and asks a frontier optimizer model to propose structured
+add/delete/replace edits. It then aggregates and ranks candidate edits
+under a textual learning-rate budget, applies a bounded update to the
+skill document, and evaluates the candidate skill on a held-out
+selection split before accepting it. Rejected edits are retained as
+negative feedback, while the epoch-wise slow/meta update preserves
+longer-horizon regularities. Figure Figure~\ref{fig-skillopt-teaser}
+gives a schematic view of this loop. The deployed output is a compact
 \passthrough{\lstinline!best\\\_skill.md!} file of roughly
 \(300\)--\(2{,}000\) tokens, with the adapted model and execution
 harness remaining fixed.
@@ -377,23 +376,22 @@ failed, and what should be preserved.
 
 We conduct, to our knowledge, the first systematic study of skill
 optimization as a domain-adaptation training method for frontier agents.
-We evaluate \textsc{SkillOpt} on six benchmarks covering QA,
-spreadsheets, documents, math, and embodied decision making, across
-seven target models from frontier-scale GPT to small-scale Qwen, and
-under three execution modes (direct chat, Codex harness, Claude Code
-harness). Out of 52 evaluated (model, benchmark, harness) cells,
-\textsc{SkillOpt} is the best or tied-best measured method on all 52.
-With GPT--5.5 in direct chat, it lifts SearchQA from 77.7 to 87.3,
-SpreadsheetBench from 41.8 to 80.7, OfficeQA from 33.1 to 72.1, DocVQA
-from 78.8 to 91.2, LiveMathematicianBench from 37.6 to 66.9, and
-ALFWorld from 83.6 to 95.5 (a \(+23.5\) point average gain over no
-skill), and it also beats the strongest \emph{per-cell} baseline drawn
-from human-written, one-shot LLM, Trace2Skill, TextGrad, GEPA, and
-EvoSkill skills by \(+5.4\) points on average. The same optimization
-interface is effective inside Codex-style and Claude Code-style
-execution loops, lifting GPT--5.5 by \(+24.8\) and \(+19.1\) points over
-no skill respectively, and outperforming EvoSkill by \(+14.0\) and
-\(+3.2\) points.
+We evaluate \ourmethod{} on six benchmarks covering QA, spreadsheets,
+documents, math, and embodied decision making, across seven target
+models from frontier-scale GPT to small-scale Qwen, and under three
+execution modes (direct chat, Codex harness, Claude Code harness). Out
+of 52 evaluated (model, benchmark, harness) cells, \ourmethod{} is the
+best or tied-best measured method on all 52. With GPT--5.5 in direct
+chat, it lifts SearchQA from 77.7 to 87.3, SpreadsheetBench from 41.8 to
+80.7, OfficeQA from 33.1 to 72.1, DocVQA from 78.8 to 91.2,
+LiveMathematicianBench from 37.6 to 66.9, and ALFWorld from 83.6 to 95.5
+(a \(+23.5\) point average gain over no skill), and it also beats the
+strongest \emph{per-cell} baseline drawn from human-written, one-shot
+LLM, Trace2Skill, TextGrad, GEPA, and EvoSkill skills by \(+5.4\) points
+on average. The same optimization interface is effective inside
+Codex-style and Claude Code-style execution loops, lifting GPT--5.5 by
+\(+24.8\) and \(+19.1\) points over no skill respectively, and
+outperforming EvoSkill by \(+14.0\) and \(+3.2\) points.
 
 The learned artifacts also transfer beyond the exact training setting. A
 SpreadsheetBench skill trained on GPT--5.4 improves every smaller GPT
@@ -419,15 +417,14 @@ Our contributions are as follows:
 \tightlist
 \item
   We formulate agent-skill learning as optimization over an external
-  natural-language state and introduce \textsc{SkillOpt}, a
-  harness-agnostic optimizer with rollout batches, reflection
-  minibatches, add/delete/replace edits, textual learning rates,
-  schedules, held-out acceptance, rejected-edit buffers, and epoch-wise
-  slow/meta update.
+  natural-language state and introduce \ourmethod{}, a harness-agnostic
+  optimizer with rollout batches, reflection minibatches,
+  add/delete/replace edits, textual learning rates, schedules, held-out
+  acceptance, rejected-edit buffers, and epoch-wise slow/meta update.
 \item
   We provide a broad empirical study across six benchmarks, seven target
-  models, and three execution harnesses, showing that \textsc{SkillOpt}
-  is best or tied-best on 52 of 52 cells and outperforms no-skill,
+  models, and three execution harnesses, showing that \ourmethod{} is
+  best or tied-best on 52 of 52 cells and outperforms no-skill,
   human-skill, one-shot LLM-skill, prompt-optimization (TextGrad, GEPA),
   and skill-evolution (Trace2Skill, EvoSkill) baselines under every
   model.
@@ -451,7 +448,7 @@ test-time agentic system evolution without gradients or fine-tuning
 \citep{song2026abstral, he2025evotest}. By treating language artifacts
 as optimizable objects, these methods can directly exploit execution
 feedback, but they mainly target prompts, system designs, or full
-configurations rather than reusable domain adaptation. \textsc{SkillOpt}
+configurations rather than reusable domain adaptation. \ourmethod{}
 instead optimizes a persistent skill document that can be trained,
 validated, exported, and reused with the adapted model, applying
 language-level controllability to a stable procedural skill state.
@@ -471,7 +468,7 @@ creation-evaluation-revision loops, co-evolving generators and
 verifiers, collective updates, or reinforcement learning
 \citep{alzubi2026evoskill, luo2026skillforge, zhang2026coevoskills, ma2026skillclaw, xia2026skillrl, wang2025reinforcement, autorefine, procmem, evolver}.
 While these works emphasize skill discovery, repository growth, sharing,
-evolutionary search, or policy optimization, \textsc{SkillOpt} studies a
+evolutionary search, or policy optimization, \ourmethod{} studies a
 narrower problem: how to train one compact domain skill with
 deep-learning-style controls such as trajectory batches, reflection
 minibatches, textual learning rates, validation gates, rejected-edit
@@ -490,8 +487,8 @@ weights.
 
 }
 
-\caption{\label{fig-skillopt-pipeline}Pipeline of \textsc{SkillOpt}. A
-frozen target model executes a rollout batch with the current skill; an
+\caption{\label{fig-skillopt-pipeline}Pipeline of \ourmethod{}. A frozen
+target model executes a rollout batch with the current skill; an
 optimizer model performs minibatch reflection over successes and
 failures, proposes bounded add/delete/replace edits, merges and ranks
 them under a scheduled edit budget, and accepts the candidate skill only
@@ -517,10 +514,10 @@ execution produces a trajectory \(\tau\) and a scalar score \(r\):
 \]
 
 Given train, selection, and test splits
-\(D_{\mathrm{tr}},D_{\mathrm{sel}},D_{\mathrm{test}}\),
-\textsc{SkillOpt} uses \(D_{\mathrm{tr}}\) to generate a set of
-candidate skills \(\mathcal{C}(D_{\mathrm{tr}})\), selects the best
-skill on \(D_{\mathrm{sel}}\), and reports the final performance on
+\(D_{\mathrm{tr}},D_{\mathrm{sel}},D_{\mathrm{test}}\), \ourmethod{}
+uses \(D_{\mathrm{tr}}\) to generate a set of candidate skills
+\(\mathcal{C}(D_{\mathrm{tr}})\), selects the best skill on
+\(D_{\mathrm{sel}}\), and reports the final performance on
 \(D_{\mathrm{test}}\):
 
 \[
@@ -584,16 +581,16 @@ selects the final bounded update.
 
 \subsection{Bounded Text Updates}\label{sec-method-controls}
 
-The learning-rate analogue in \textsc{SkillOpt} is the edit budget
-\(L_t\): the maximum number of skill edits applied at step \(t\). After
+The learning-rate analogue in \ourmethod{} is the edit budget \(L_t\):
+the maximum number of skill edits applied at step \(t\). After
 aggregation, the optimizer model ranks the merged edit pool by expected
 utility and clips it to the top \(L_t\) edits. This is the key
 difference from ad hoc prompt rewriting. Unbounded rewrites can erase
 useful rules, introduce incompatible instructions, or overfit to a local
 failure; bounded updates preserve continuity while still allowing the
-skill to acquire new procedures. \textsc{SkillOpt} supports constant,
-linear, cosine, and autonomous schedules. The default cosine schedule
-starts with larger edits and decays toward smaller consolidation steps.
+skill to acquire new procedures. \ourmethod{} supports constant, linear,
+cosine, and autonomous schedules. The default cosine schedule starts
+with larger edits and decays toward smaller consolidation steps.
 
 The selected edits produce a candidate skill. In patch mode, edits are
 localized operations such as append, insert, replace, and delete; in
@@ -709,14 +706,14 @@ inference-time cost.
 \subsection{Epoch-Wise Slow/Meta Update}\label{sec-method-slow-meta}
 
 Fast updates learn from the current batch; the epoch-wise slow/meta
-update learns from adjacent epochs. At the end of an epoch,
-\textsc{SkillOpt} samples the same training items under the previous
-epoch's skill and the current skill, then groups them into improvements,
-regressions, persistent failures, and stable successes. The optimizer
-model writes a concise longitudinal guidance block into a protected
-slow-update field, and this candidate is still passed through the
-validation gate. Thus slow update captures durable domain lessons while
-preserving the same safety check as step-level edits.
+update learns from adjacent epochs. At the end of an epoch, \ourmethod{}
+samples the same training items under the previous epoch's skill and the
+current skill, then groups them into improvements, regressions,
+persistent failures, and stable successes. The optimizer model writes a
+concise longitudinal guidance block into a protected slow-update field,
+and this candidate is still passed through the validation gate. Thus
+slow update captures durable domain lessons while preserving the same
+safety check as step-level edits.
 
 The meta skill is optimizer-side only. It summarizes which edit patterns
 helped, which were rejected, and which failures persisted across epochs.
@@ -728,7 +725,7 @@ record of the editing process.
 
 \subsection{Harness-Agnostic Deployment}\label{sec-method-harness}
 
-\textsc{SkillOpt} is harness-agnostic through a lightweight adapter
+\ourmethod{} is harness-agnostic through a lightweight adapter
 interface, matching the broader trend toward agents embedded in tool-use
 and software-execution environments
 \citep{yao2022react, schick2023toolformer, yang2024sweagent}. An adapter
@@ -929,9 +926,9 @@ Claude Code                 & Codex       &                                    &
 
 \section{Experiments}\label{sec-experiments}
 
-We evaluate \textsc{SkillOpt} as a text-space optimizer for frozen
-agents: the target model executes each task with the current skill,
-while an offline optimizer edits that skill from rollout evidence. The
+We evaluate \ourmethod{} as a text-space optimizer for frozen agents:
+the target model executes each task with the current skill, while an
+offline optimizer edits that skill from rollout evidence. The
 experiments answer four questions. (i) Do optimized skills improve over
 no-skill, human-skill, one-shot LLM-skill, prompt-optimization
 (TextGrad, GEPA), and skill-evolution (Trace2Skill, EvoSkill) baselines?
@@ -968,17 +965,17 @@ validation-set fit.
 \paragraph{Default optimizer
 hyperparameters.}\label{default-optimizer-hyperparameters.}
 
-Unless noted, \textsc{SkillOpt} uses four epochs, rollout batch size
-\(40\) per step, reflection minibatch size \(8\) (with \(16\) analyst
-workers running reflections in parallel and a merge batch size of
-\(8\)), textual learning rate \(L_t=4\) with cosine decay (floor
-\(L_t=2\), configurable schedules: constant, linear, cosine,
-autonomous), held-out validation gating (strictly greater than the
-current selection score---ties are rejected), slow update with \(20\)
-sampled tasks per epoch comparing previous-epoch and current-epoch
-skill, an optimizer-side meta skill that summarizes accepted/rejected
-patterns into teacher-only guidance, the \passthrough{\lstinline!patch!}
-edit mode (the alternative is
+Unless noted, \ourmethod{} uses four epochs, rollout batch size \(40\)
+per step, reflection minibatch size \(8\) (with \(16\) analyst workers
+running reflections in parallel and a merge batch size of \(8\)),
+textual learning rate \(L_t=4\) with cosine decay (floor \(L_t=2\),
+configurable schedules: constant, linear, cosine, autonomous), held-out
+validation gating (strictly greater than the current selection
+score---ties are rejected), slow update with \(20\) sampled tasks per
+epoch comparing previous-epoch and current-epoch skill, an
+optimizer-side meta skill that summarizes accepted/rejected patterns
+into teacher-only guidance, the \passthrough{\lstinline!patch!} edit
+mode (the alternative is
 \passthrough{\lstinline!rewrite\\\_from\\\_suggestions!}), and an
 optional rejected-edit buffer of recent failed proposals. Teacher
 reflection is allowed up to three refinement rounds per minibatch. Both
@@ -997,10 +994,9 @@ Section~\ref{sec-app-experimental-setting}.
 Direct chat invokes the target model through a single chat completion
 call with the skill prepended to the system prompt. The Codex harness
 drives the target through the \passthrough{\lstinline!codex!} CLI in a
-workspace-write sandbox \citep{openai2025codex}; \textsc{SkillOpt}
-renders the current skill to a per-task
-\passthrough{\lstinline!SKILL.md!} alongside task files and reads back a
-compact execution trace
+workspace-write sandbox \citep{openai2025codex}; \ourmethod{} renders
+the current skill to a per-task \passthrough{\lstinline!SKILL.md!}
+alongside task files and reads back a compact execution trace
 (\passthrough{\lstinline!codex\\\_trace\\\_summary.txt!}) that is
 included in the teacher reflection context, so the optimizer learns from
 \emph{what the agent actually did}, not just its final answer. The
@@ -1036,18 +1032,18 @@ Table \ref{tab-main-results-by-harness} is the main result matrix.
 Counting every (target model, benchmark, harness) cell as one comparison
 and the strongest of the no-skill, human-skill, LLM-skill, Trace2Skill,
 TextGrad, GEPA, and EvoSkill baselines as the per-cell competition,
-\textsc{SkillOpt} wins or matches the best measured result on
+\ourmethod{} wins or matches the best measured result on
 \textbf{$52$ of $52$ evaluated cells}. This dominance is uniform across
-model scales: \textsc{SkillOpt} is best on every benchmark for GPT--5.5,
+model scales: \ourmethod{} is best on every benchmark for GPT--5.5,
 GPT--5.4, GPT--5.4-mini, GPT--5.4-nano, GPT--5.2, Qwen3.5--4B, and
 Qwen3.6--35B-A3B in direct chat, and for GPT--5.5 under both Codex and
 Claude Code harnesses.
 
 The size of the gains is also unusually large for a no-weight-update
 method. On GPT--5.5 direct chat, the six-benchmark average rises from
-\(58.8\) (no skill) to \(82.3\) (\textsc{SkillOpt}), a \(+23.5\) point
+\(58.8\) (no skill) to \(82.3\) (\ourmethod{}), a \(+23.5\) point
 absolute improvement, while the best per-cell baseline averages only
-\(76.9\), leaving \textsc{SkillOpt} \(+5.4\) points clear of an oracle
+\(76.9\), leaving \ourmethod{} \(+5.4\) points clear of an oracle
 baseline that picks the best of six competing methods per cell.
 Per-benchmark deltas over no skill range from \(+9.6\) on SearchQA,
 where the no-skill model is already near ceiling, to \(+38.9\) on
@@ -1060,18 +1056,18 @@ LiveMathematicianBench \(37.6{\to}66.9\) on GPT--5.5; SpreadsheetBench
 \(34.3{\to}69.4\) (\(\times 2.0\)) on GPT--5.4-nano.
 
 The improvement is not specific to frontier-scale targets. Averaged over
-the six benchmarks, \textsc{SkillOpt} lifts GPT--5.4 by \(+12.7\)
-points, GPT--5.4-mini by \(+15.4\), GPT--5.4-nano by \(+26.7\), GPT--5.2
-by \(+16.6\), Qwen3.5--4B by \(+19.2\), and Qwen3.6--35B-A3B by
-\(+9.1\), for an average improvement of approximately \(+17.6\) points
-per model. Small and weak target models benefit the most in relative
-terms (e.g.~GPT--5.4-nano nearly doubles on DocVQA and triples on
-ALFWorld), which is consistent with the view that a compact skill
-artifact can supply procedural knowledge that small models do not yet
-hold in weights.
+the six benchmarks, \ourmethod{} lifts GPT--5.4 by \(+12.7\) points,
+GPT--5.4-mini by \(+15.4\), GPT--5.4-nano by \(+26.7\), GPT--5.2 by
+\(+16.6\), Qwen3.5--4B by \(+19.2\), and Qwen3.6--35B-A3B by \(+9.1\),
+for an average improvement of approximately \(+17.6\) points per model.
+Small and weak target models benefit the most in relative terms
+(e.g.~GPT--5.4-nano nearly doubles on DocVQA and triples on ALFWorld),
+which is consistent with the view that a compact skill artifact can
+supply procedural knowledge that small models do not yet hold in
+weights.
 
 The same optimization interface is also effective under tool-backed
-execution. On the Codex harness, \textsc{SkillOpt} is best on all five
+execution. On the Codex harness, \ourmethod{} is best on all five
 evaluated benchmarks for GPT--5.5, with average gain \(+24.8\) points
 over no skill and \(+14.0\) over the next-best baseline (EvoSkill). On
 the Claude Code harness, it is best on all five benchmarks for GPT--5.5,
@@ -1106,13 +1102,13 @@ simply prompt length: human skills are already \(145\)--\(516\) tokens
 long and often exceed the one-shot LLM skill, yet they are beaten in
 every direct-chat model row while the learned artifacts remain compact
 (Table \ref{tab-skill-cost-case}). It is also not only optimizer
-capacity: \textsc{SkillOpt} leads every baseline even for GPT--5.4-nano,
-and the optimizer-strength analysis in Table
+capacity: \ourmethod{} leads every baseline even for GPT--5.4-nano, and
+the optimizer-strength analysis in Table
 \ref{tab-teacher-model-ablation} shows that a target-matched optimizer
 recovers much of the gain. Finally, the harness results show that the
 method is not just exploiting one skill format: EvoSkill already
 improves the Codex SpreadsheetBench cell from \(27.5\) to \(67.5\), but
-\textsc{SkillOpt} adds another \(+17.5\) points (\(67.5{\to}85.0\)). The
+\ourmethod{} adds another \(+17.5\) points (\(67.5{\to}85.0\)). The
 gains are largest on procedural benchmarks, where reusable rules about
 tool use and output formatting matter most, but they also appear on
 factual and multimodal benchmarks.
@@ -1127,8 +1123,8 @@ points across the seven direct-chat target models; (iii) average
 GPT--5.5 improvement of \(+23.5\) (direct chat), \(+24.8\) (Codex),
 \(+19.1\) (Claude Code) over no skill; (iv) GPT--5.5 oracle-baseline gap
 of \(+5.4\) points (direct chat) computed as the difference between
-\textsc{SkillOpt}'s six-benchmark average (\(82.3\)) and an oracle that
-picks the best of six competing methods \emph{per cell} (\(76.9\)). The
+\ourmethod{}'s six-benchmark average (\(82.3\)) and an oracle that picks
+the best of six competing methods \emph{per cell} (\(76.9\)). The
 remainder of this section unpacks why these gains appear (Section
 Section~\ref{sec-optimizer-ablation}), how stable and transferable they
 are (Section Section~\ref{sec-analysis-transfer}), and what the learned
@@ -1140,7 +1136,7 @@ Table \ref{tab-ablation-sweeps}, Figure
 Figure~\ref{fig-epoch-accuracy-curves}, and Table
 \ref{tab-component-ablation} test the design choices in the optimizer
 using GPT--5.5 as both the target and the optimizer. The overall message
-is that \textsc{SkillOpt} benefits from sufficient evidence, a bounded
+is that \ourmethod{} benefits from sufficient evidence, a bounded
 textual learning rate, rejected-edit feedback, and epoch-wise slow/meta
 update. SearchQA has limited headroom and is therefore stable across
 many settings (most cells fluctuate inside a \(\pm1.5\) point band),
@@ -1276,13 +1272,12 @@ GPT--5.4 transfer to GPT--5.4-mini (\(+9.4\)) and GPT--5.4-nano
 (\(+3.0\)), and LiveMath skills transfer to GPT--5.4-mini (\(+4.5\)) and
 GPT--5.4-nano (\(+5.6\)). All four cross-model rows are positive, and on
 one of them the transferred skill \emph{surpasses} the in-domain
-\textsc{SkillOpt} reference (LiveMath GPT--5.4-nano: \(28.8\)
-transferred vs.~\(27.2\) in-domain), suggesting that some learned
-procedures are target-model agnostic. The remaining cross-model rows
-still recover a useful fraction of the in-domain
-gain---e.g.~SpreadsheetBench GPT--5.4-mini retains \(82\%\) of the
-in-domain gain (\(+9.4\) of \(+11.4\))---and no row falls below the
-target's no-skill baseline.
+\ourmethod{} reference (LiveMath GPT--5.4-nano: \(28.8\) transferred
+vs.~\(27.2\) in-domain), suggesting that some learned procedures are
+target-model agnostic. The remaining cross-model rows still recover a
+useful fraction of the in-domain gain---e.g.~SpreadsheetBench
+GPT--5.4-mini retains \(82\%\) of the in-domain gain (\(+9.4\) of
+\(+11.4\))---and no row falls below the target's no-skill baseline.
 
 \paragraph{Cross-harness transfer.}\label{cross-harness-transfer.}
 
@@ -1290,10 +1285,10 @@ The harness-shift rows in Table \ref{tab-transfer-cross-harness}(b) are
 the clearest deployment signal. A SpreadsheetBench skill trained inside
 the Codex loop transfers to Claude Code with absolute gain \(+59.7\)
 over the Claude Code no-skill baseline (\(22.1{\to}81.8\), slightly
-exceeding the in-domain Claude Code \textsc{SkillOpt} reference of
-\(80.4\)), and the symmetric Claude-Code\{\(\to\)\}Codex transfer adds
-\(+43.6\) on top of the Codex baseline (\(27.5{\to}71.1\)). On LiveMath,
-the Codex\{\(\to\)\}Claude Code transfer is smaller (\(+1.6\) over a
+exceeding the in-domain Claude Code \ourmethod{} reference of \(80.4\)),
+and the symmetric Claude-Code\{\(\to\)\}Codex transfer adds \(+43.6\) on
+top of the Codex baseline (\(27.5{\to}71.1\)). On LiveMath, the
+Codex\{\(\to\)\}Claude Code transfer is smaller (\(+1.6\) over a
 \(40.8\) baseline) but still positive, while the
 Claude-Code\{\(\to\)\}Codex transfer adds \(+12.8\) (\(35.2{\to}48.0\)).
 Because the two harnesses expose different tool/file APIs and command
@@ -1324,7 +1319,7 @@ formatting.
 \paragraph{Effect of optimizer
 strength.}\label{effect-of-optimizer-strength.}
 
-Because the optimizer in \textsc{SkillOpt} runs only during the offline
+Because the optimizer in \ourmethod{} runs only during the offline
 training loop and is never invoked at deployment, optimizer choice is a
 training-time lever: a stronger optimizer can improve the deployed skill
 without raising the inference cost of using that skill. The deployed
@@ -1346,7 +1341,7 @@ what makes this monotone: without the gate, a stronger optimizer could
 just as easily push larger but harmful rewrites. \emph{Second}, the
 target-matched optimizer is far from collapsed---it recovers
 \(56\)--\(74\%\) of the strong-optimizer gain across the four cells,
-confirming that \textsc{SkillOpt} is not a distillation pipeline from a
+confirming that \ourmethod{} is not a distillation pipeline from a
 stronger teacher into a weaker student: the optimization loop itself
 contributes substantial value on top of whatever the optimizer can
 already do. The practical implication is that a high-capacity frontier
@@ -1378,8 +1373,8 @@ instead.
 \subsection{Learned Skills: Compactness, Cost, and
 Examples}\label{sec-learned-skills}
 
-A central premise of \textsc{SkillOpt} is that the trainable object
-should remain a small, inspectable text document. Tables
+A central premise of \ourmethod{} is that the trainable object should
+remain a small, inspectable text document. Tables
 \ref{tab-main-results-by-harness}--\ref{tab-teacher-model-ablation}
 demonstrate that the optimizer is effective; this subsection asks what
 its output actually looks like and what it costs. We characterize the
@@ -1522,10 +1517,9 @@ We inspect two representative runs to understand what the optimized
 skill actually learns. The ALFWorld case uses GPT--5.4-nano as the
 student and GPT--5.5 as the teacher, while the SpreadsheetBench case
 uses GPT--5.5 as both the frozen student and optimizer model. In both
-cases, \textsc{SkillOpt} does not replace the initial skill with an
-unrelated prompt. Instead, accepted edits add compact procedural
-constraints around recurring failure modes observed in rollout
-trajectories.
+cases, \ourmethod{} does not replace the initial skill with an unrelated
+prompt. Instead, accepted edits add compact procedural constraints
+around recurring failure modes observed in rollout trajectories.
 
 \paragraph{ALFWorld.}\label{alfworld.}
 
@@ -1570,30 +1564,30 @@ SpreadsheetBench held-out test performance from 40.4 to 78.9.
 
 \section{Conclusion}\label{conclusion}
 
-We presented \textsc{SkillOpt}, a text-space optimizer that treats an
+We presented \ourmethod{}, a text-space optimizer that treats an
 external skill document as the trainable state for frozen LLM agents. By
 separating the target model that executes tasks from the optimizer that
 edits skills, and by using bounded edit budgets, minibatch reflection,
 held-out validation gates, rejected-edit buffers, and epoch-wise
-slow/meta update, \textsc{SkillOpt} turns skill improvement into a
-controlled learning process rather than ad hoc prompt revision. Across
-six benchmarks, seven target models, and three execution modes,
-\textsc{SkillOpt} is best or tied-best on \(52\) of \(52\) evaluated
-cells, lifts GPT--5.5 by \(+23.5\) points on average over no skill in
-direct chat and by \(+24.8 / +19.1\) points under Codex and Claude Code
-harnesses, and beats the strongest per-cell baseline from human, LLM,
-Trace2Skill, TextGrad, GEPA, and EvoSkill skills by \(+5.4\) points on
-average. Per-benchmark case studies show that these gains arise from
-compact (\(<2{,}000\) token), interpretable skill artifacts assembled
-from only \(1\)--\(4\) accepted edits, and that the deployed skills
-transfer across model scales, harnesses, and nearby benchmarks. These
-results suggest that compact natural-language skills can serve as a
-practical domain-adaptation layer for frontier agents, enabling reusable
+slow/meta update, \ourmethod{} turns skill improvement into a controlled
+learning process rather than ad hoc prompt revision. Across six
+benchmarks, seven target models, and three execution modes, \ourmethod{}
+is best or tied-best on \(52\) of \(52\) evaluated cells, lifts GPT--5.5
+by \(+23.5\) points on average over no skill in direct chat and by
+\(+24.8 / +19.1\) points under Codex and Claude Code harnesses, and
+beats the strongest per-cell baseline from human, LLM, Trace2Skill,
+TextGrad, GEPA, and EvoSkill skills by \(+5.4\) points on average.
+Per-benchmark case studies show that these gains arise from compact
+(\(<2{,}000\) token), interpretable skill artifacts assembled from only
+\(1\)--\(4\) accepted edits, and that the deployed skills transfer
+across model scales, harnesses, and nearby benchmarks. These results
+suggest that compact natural-language skills can serve as a practical
+domain-adaptation layer for frontier agents, enabling reusable
 improvement without modifying model weights.
 
 \paragraph{Outlook.}\label{outlook.}
 
-\textsc{SkillOpt} optimizes a single skill artifact for a single target
+\ourmethod{} optimizes a single skill artifact for a single target
 domain; natural extensions include skill libraries that share
 infrastructure across domains, reuse of optimizer-side meta skills
 across benchmarks, reward-free or preference-driven validation gates for
@@ -1612,7 +1606,7 @@ hand-engineered.
 \section{Additional Method Details and Optimizer
 Prompts}\label{sec-app-method-prompts}
 
-This appendix gives the executable details behind \textsc{SkillOpt}. The
+This appendix gives the executable details behind \ourmethod{}. The
 optimization loop keeps the task-execution model fixed and trains only a
 text skill document. A separate optimizer model reads rollout evidence,
 proposes patch-style edits, merges and ranks the edits, and submits each
@@ -1622,19 +1616,19 @@ the optimizer prompts below.
 
 \section{Limitations}\label{limitations}
 
-\textsc{SkillOpt} studies skill optimization as a lightweight
-alternative to model-weight adaptation, but it still has several
-practical limitations. First, the optimization loop relies on scored
-trajectories and a held-out selection split, so it is most directly
-applicable when the target task has automatic verifiers, exact-match
-metrics, executable checks, or otherwise reliable feedback signals. For
-open-ended domains where success is subjective, multi-dimensional, or
-costly to judge, the validation gate may require stronger human or
-model-based evaluation. Second, although the deployed artifact is only a
-compact \passthrough{\lstinline!best\\\_skill.md!}, training the skill
-requires additional rollout computation and calls to an optimizer model;
-this cost is amortized when the same skill is reused, but may be less
-attractive for one-off tasks. Third, \textsc{SkillOpt} intentionally
+\ourmethod{} studies skill optimization as a lightweight alternative to
+model-weight adaptation, but it still has several practical limitations.
+First, the optimization loop relies on scored trajectories and a
+held-out selection split, so it is most directly applicable when the
+target task has automatic verifiers, exact-match metrics, executable
+checks, or otherwise reliable feedback signals. For open-ended domains
+where success is subjective, multi-dimensional, or costly to judge, the
+validation gate may require stronger human or model-based evaluation.
+Second, although the deployed artifact is only a compact
+\passthrough{\lstinline!best\\\_skill.md!}, training the skill requires
+additional rollout computation and calls to an optimizer model; this
+cost is amortized when the same skill is reused, but may be less
+attractive for one-off tasks. Third, \ourmethod{} intentionally
 optimizes a single portable skill rather than growing a large skill
 library or changing model weights. This design improves deployment
 simplicity, but a single skill may be insufficient for highly
@@ -1667,22 +1661,22 @@ The no-skill baseline evaluates the frozen student without an optimized
 skill document. Human-skill and LLM-skill baselines use manually written
 and one-shot generated skills under the same evaluation protocol.
 Trace2Skill mines skill artifacts from training trajectories and
-evaluates the frozen student without \textsc{SkillOpt}'s iterative
-validation gate. TextGrad and GEPA are reflective prompt-optimization
-baselines for direct-chat settings. EvoSkill is included for the
-harness-backed comparison where a matched completed run is available.
-Entries not measured under the final aligned protocol are marked as
-\na rather than mixed with incompatible runs.
+evaluates the frozen student without \ourmethod{}'s iterative validation
+gate. TextGrad and GEPA are reflective prompt-optimization baselines for
+direct-chat settings. EvoSkill is included for the harness-backed
+comparison where a matched completed run is available. Entries not
+measured under the final aligned protocol are marked as \na rather than
+mixed with incompatible runs.
 
 \paragraph{Optimization protocol.}\label{optimization-protocol.}
 
-Unless otherwise stated, \textsc{SkillOpt} runs for four epochs with
-rollout batch size 40, reflection minibatch size 8, textual learning
-rate 4, cosine learning-rate decay with minimum rate 2, held-out
-validation gating, slow update enabled with 20 sampled examples, and
-optimizer-side meta skill enabled. The optimizer analyzes successes and
-failures separately, proposes patch-style skill edits, merges duplicate
-or contradictory proposals, ranks edits under the current learning-rate
+Unless otherwise stated, \ourmethod{} runs for four epochs with rollout
+batch size 40, reflection minibatch size 8, textual learning rate 4,
+cosine learning-rate decay with minimum rate 2, held-out validation
+gating, slow update enabled with 20 sampled examples, and optimizer-side
+meta skill enabled. The optimizer analyzes successes and failures
+separately, proposes patch-style skill edits, merges duplicate or
+contradictory proposals, ranks edits under the current learning-rate
 cap, and applies the selected edits to form a candidate skill. The
 candidate is evaluated on the selection split and is accepted only if it
 improves the current selection score; the best accepted skill is

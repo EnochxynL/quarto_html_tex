@@ -1,6 +1,6 @@
 # Method {#sec-method}
 
-![Pipeline of {{< skillopt >}}. A frozen target model executes a rollout batch with the current skill; an optimizer model performs minibatch reflection over successes and failures, proposes bounded add/delete/replace edits, merges and ranks them under a scheduled edit budget, and accepts the candidate skill only through a held-out validation gate. Across epochs, the slow/meta update retains longer-horizon lessons without changing the target model.](sections/figures/pipeline.pdf){#fig-skillopt-pipeline}
+![Pipeline of {{< term skillopt >}}. A frozen target model executes a rollout batch with the current skill; an optimizer model performs minibatch reflection over successes and failures, proposes bounded add/delete/replace edits, merges and ranks them under a scheduled edit budget, and accepts the candidate skill only through a held-out validation gate. Across epochs, the slow/meta update retains longer-horizon lessons without changing the target model.](sections/figures/pipeline.pdf){#fig-skillopt-pipeline}
 
 ## Problem Setup {#sec-method-skill}
 
@@ -10,7 +10,7 @@ $$
 (\tau(s), r(s)) = h(M, x, s), \qquad r(s) \in [0,1].
 $$
 
-Given train, selection, and test splits $D_{\mathrm{tr}},D_{\mathrm{sel}},D_{\mathrm{test}}$, {{< skillopt >}} uses $D_{\mathrm{tr}}$ to generate a set of candidate skills $\mathcal{C}(D_{\mathrm{tr}})$, selects the best skill on $D_{\mathrm{sel}}$, and reports the final performance on $D_{\mathrm{test}}$:
+Given train, selection, and test splits $D_{\mathrm{tr}},D_{\mathrm{sel}},D_{\mathrm{test}}$, {{< term skillopt >}} uses $D_{\mathrm{tr}}$ to generate a set of candidate skills $\mathcal{C}(D_{\mathrm{tr}})$, selects the best skill on $D_{\mathrm{sel}}$, and reports the final performance on $D_{\mathrm{test}}$:
 
 $$
 s^\star_{\mathrm{sel}}
@@ -43,7 +43,7 @@ Local proposals are merged hierarchically by first consolidating failure- and su
 
 ## Bounded Text Updates {#sec-method-controls}
 
-The learning-rate analogue in {{< skillopt >}} is the edit budget $L_t$: the maximum number of skill edits applied at step $t$. After aggregation, the optimizer model ranks the merged edit pool by expected utility and clips it to the top $L_t$ edits. This is the key difference from ad hoc prompt rewriting. Unbounded rewrites can erase useful rules, introduce incompatible instructions, or overfit to a local failure; bounded updates preserve continuity while still allowing the skill to acquire new procedures. {{< skillopt >}} supports constant, linear, cosine, and autonomous schedules. The default cosine schedule starts with larger edits and decays toward smaller consolidation steps.
+The learning-rate analogue in {{< term skillopt >}} is the edit budget $L_t$: the maximum number of skill edits applied at step $t$. After aggregation, the optimizer model ranks the merged edit pool by expected utility and clips it to the top $L_t$ edits. This is the key difference from ad hoc prompt rewriting. Unbounded rewrites can erase useful rules, introduce incompatible instructions, or overfit to a local failure; bounded updates preserve continuity while still allowing the skill to acquire new procedures. {{< term skillopt >}} supports constant, linear, cosine, and autonomous schedules. The default cosine schedule starts with larger edits and decays toward smaller consolidation steps.
 
 The selected edits produce a candidate skill. In patch mode, edits are localized operations such as append, insert, replace, and delete; in rewrite mode, selected suggestions condition a full skill rewrite. Step-level edits cannot overwrite the protected slow-update field, so fast local changes and slower epoch-wise consolidation remain separated.
 
@@ -142,13 +142,13 @@ Rejected updates are still useful. The optimizer records an epoch-local buffer c
 
 ## Epoch-Wise Slow/Meta Update {#sec-method-slow-meta}
 
-Fast updates learn from the current batch; the epoch-wise slow/meta update learns from adjacent epochs. At the end of an epoch, {{< skillopt >}} samples the same training items under the previous epoch's skill and the current skill, then groups them into improvements, regressions, persistent failures, and stable successes. The optimizer model writes a concise longitudinal guidance block into a protected slow-update field, and this candidate is still passed through the validation gate. Thus slow update captures durable domain lessons while preserving the same safety check as step-level edits.
+Fast updates learn from the current batch; the epoch-wise slow/meta update learns from adjacent epochs. At the end of an epoch, {{< term skillopt >}} samples the same training items under the previous epoch's skill and the current skill, then groups them into improvements, regressions, persistent failures, and stable successes. The optimizer model writes a concise longitudinal guidance block into a protected slow-update field, and this candidate is still passed through the validation gate. Thus slow update captures durable domain lessons while preserving the same safety check as step-level edits.
 
 The meta skill is optimizer-side only. It summarizes which edit patterns helped, which were rejected, and which failures persisted across epochs. This meta guidance is prepended to future optimizer prompts for reflection, merging, and ranking, but it is not shipped with the target model. The advantage is separation of concerns: the deployed skill remains compact and portable, while training benefits from a richer record of the editing process.
 
 ## Harness-Agnostic Deployment {#sec-method-harness}
 
-{{< skillopt >}} is harness-agnostic through a lightweight adapter interface, matching the broader trend toward agents embedded in tool-use and software-execution environments [@yao2022react; @schick2023toolformer; @yang2024sweagent]. An adapter constructs train/evaluation batches, injects the current skill into the agent context, runs the native harness, and returns scored trajectories. The same optimizer therefore works for direct QA, spreadsheet execution, document reasoning, multimodal QA, embodied environments, and Codex-style or Claude Code-style execution loops. This is the main practical advantage of treating skills as the adaptation layer: a stronger optimizer model can train a reusable skill artifact offline, and the resulting `best\_skill.md` can then be deployed or tested across target models, harnesses, and nearby benchmarks without changing model weights.
+{{< term skillopt >}} is harness-agnostic through a lightweight adapter interface, matching the broader trend toward agents embedded in tool-use and software-execution environments [@yao2022react; @schick2023toolformer; @yang2024sweagent]. An adapter constructs train/evaluation batches, injects the current skill into the agent context, runs the native harness, and returns scored trajectories. The same optimizer therefore works for direct QA, spreadsheet execution, document reasoning, multimodal QA, embodied environments, and Codex-style or Claude Code-style execution loops. This is the main practical advantage of treating skills as the adaptation layer: a stronger optimizer model can train a reusable skill artifact offline, and the resulting `best\_skill.md` can then be deployed or tested across target models, harnesses, and nearby benchmarks without changing model weights.
 
 ```{=latex}
 \begin{table*}[t]

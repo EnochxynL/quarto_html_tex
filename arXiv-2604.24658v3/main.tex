@@ -426,17 +426,17 @@ Nanopublications \citep{groth2010nanopub}
 为代码仓库提供了面向智能体的文档，但并未涉及研究本身的认知结构。
 上述工作均未将科学逻辑、可执行代码和探索历史联合结构化为单一可操作对象（\ref{sec-related}）。
 
-我们提出\textbf{智能体原生研究构件（\textsc{Ara}）}，一种将主要研究对象从叙事文档重塑为智能体可执行知识包的协议，论文则作为底层制品的编译视图（图
-Figure~\ref{fig-overview}）。 \textsc{Ara}
+我们提出\textbf{智能体原生研究构件（\ara{}）}，一种将主要研究对象从叙事文档重塑为智能体可执行知识包的协议，论文则作为底层制品的编译视图（图
+Figure~\ref{fig-overview}）。 \ara{}
 将研究组织为四个相互耦合的层次：\emph{结构化科学逻辑}，将论文的概念抽象提炼为可查询的论断及其依赖图谱；\emph{可执行代码}，附带完整的操作规范；\emph{探索图谱}，保留叙事编译所丢弃的分支研究过程------失败的实验、被推翻的假设和设计转向；以及\emph{有据的证据}，将每一条论断与其原始实证输出相绑定。
-在 \textsc{Ara}
+在 \ara{}
 制品上操作的智能体无需解析散文、逆向工程代码仓库和重新发现死胡同，即可直接查询结构化论断、执行声明式规范、并基于完整决策历史进行后续构建------这是一种设计目标不是被\emph{阅读}、而是被\emph{操作}的研究对象。
 
-为构建围绕 \textsc{Ara} 的生态系统，我们开发了三种支撑机制。
+为构建围绕 \ara{} 的生态系统，我们开发了三种支撑机制。
 \textbf{实时研究管理器}（\ref{sec-live-pm}）将研究决策和死胡同作为日常开发的自然副产品加以捕获，在不增加额外文档负担的前提下产出符合规范的制品。
-\textbf{\textsc{Ara} 编译器}（Section~\ref{sec-ingestor}）将遗留
-PDF、代码仓库和补充材料翻译为 \textsc{Ara}
-格式，提供与现有出版生态的向后兼容。 \textbf{\textsc{Ara}
+\textbf{\ara{} 编译器}（Section~\ref{sec-ingestor}）将遗留
+PDF、代码仓库和补充材料翻译为 \ara{}
+格式，提供与现有出版生态的向后兼容。 \textbf{\ara{}
 原生评审系统}（\ref{sec-review-system}）自动化结构验证和预算感知的复现（类似于散文的语法检查器），将专家注意力从机械核对重定向至判断------显著性、新颖性和品味
 \citep{aczel2021billiondollar}。
 
@@ -460,22 +460,21 @@ PDF、代码仓库和补充材料翻译为 \textsc{Ara}
 \begin{itemize}
 \tightlist
 \item
-  我们识别了将研究编译为叙事的两类结构性代价------\textbf{叙事税}和\textbf{工程税}------并引入\textbf{智能体原生研究构件（\textsc{Ara}）}：一种将主要研究对象从叙事文档重塑为智能体可执行知识包，并组织为四个相互耦合层次的协议（Section~\ref{sec-protocol}）。
+  我们识别了将研究编译为叙事的两类结构性代价------\textbf{叙事税}和\textbf{工程税}------并引入\textbf{智能体原生研究构件（\ara{}）}：一种将主要研究对象从叙事文档重塑为智能体可执行知识包，并组织为四个相互耦合层次的协议（Section~\ref{sec-protocol}）。
 \item
-  我们开发了三种支撑机制：\textbf{实时研究管理器}（\ref{sec-live-pm}），在日常开发中捕获研究决策；\textbf{\textsc{Ara}
+  我们开发了三种支撑机制：\textbf{实时研究管理器}（\ref{sec-live-pm}），在日常开发中捕获研究决策；\textbf{\ara{}
   编译器}（Section~\ref{sec-ingestor}），将遗留 PDF 和代码仓库翻译为
-  \textsc{Ara} 格式；以及 \textbf{\textsc{Ara}
+  \ara{} 格式；以及 \textbf{\ara{}
   原生评审系统}（\ref{sec-review-system}），自动执行客观验证（类似于散文的语法检查器），使人类评审者得以聚焦于判断。
 \item
   我们在三个研究效用层次上评估
-  \textsc{Ara}（\ref{sec-eval}）：\emph{理解}（智能体从制品中可提取到什么）、\emph{复现}（智能体能否重新执行论文的实验）、以及\emph{扩展}（智能体能否在已有结果基础上进一步构建并发现真正新的发现------研究的根本目标）。在所有三个层次上，基于
-  \textsc{Ara} 操作的智能体始终优于阅读论文 PDF
-  及其关联代码仓库的智能体。
+  \ara{}（\ref{sec-eval}）：\emph{理解}（智能体从制品中可提取到什么）、\emph{复现}（智能体能否重新执行论文的实验）、以及\emph{扩展}（智能体能否在已有结果基础上进一步构建并发现真正新的发现------研究的根本目标）。在所有三个层次上，基于
+  \ara{} 操作的智能体始终优于阅读论文 PDF 及其关联代码仓库的智能体。
 \end{itemize}
 
-\section{\texorpdfstring{\textsc{Ara} 协议}{ 协议}}\label{sec-protocol}
+\section{\texorpdfstring{\ara{} 协议}{ 协议}}\label{sec-protocol}
 
-智能体原生研究构件（\textsc{Ara}）协议定义了一套文件系统本体，将计算机科学研究从叙事性文档转变为一个机器可执行的知识包。
+智能体原生研究构件（\ara{}）协议定义了一套文件系统本体，将计算机科学研究从叙事性文档转变为一个机器可执行的知识包。
 我们分别阐述其设计理念（Section~\ref{sec-philosophy}）和分层架构（Section~\ref{sec-layers}）。
 图
 Figure~\ref{fig-lrm-overview}（\ref{sec-live-pm}）展示了实时研究管理器如何在长时间尺度上，在人--AI
@@ -500,7 +499,7 @@ Figure~\ref{fig-lrm-overview}（\ref{sec-live-pm}）展示了实时研究管理�
 
 \subsection{设计理念}\label{sec-philosophy}
 
-\textsc{Ara}
+\ara{}
 协议植根于唯一原则：\textbf{知识重于叙事}------研究过程中产生的有组织、不断演进的知识是第一位的科学对象；叙事性论文只是其编译视图。
 
 \paragraph{结构化的知识容器。}\label{ux7ed3ux6784ux5316ux7684ux77e5ux8bc6ux5bb9ux5668}
@@ -508,7 +507,7 @@ Figure~\ref{fig-lrm-overview}（\ref{sec-live-pm}）展示了实时研究管理�
 一个智能体与某个研究项目交互时，会提出四类结构上截然不同的问题：这项工作\emph{为什么}有效（科学推理），它是\emph{如何}实现的（可执行代码），沿途\emph{尝试了什么}（探索轨迹），以及\emph{数据是什么}（原始经验证据）。
 一篇叙事性论文迫使智能体从同一种线性散文中提取这四类答案，然而这些知识类型在结构上存在内在冲突：推理需要稳定、可引用的单元，而代码持续迭代；探索历史本质上是分支结构的，而叙事强制线性；证据需要机器精度的数值，而散文会约简和转述。
 将它们压缩到单一文档中不仅是次优的，更是\emph{有损的}：一旦扁平化为叙事，原始结构便无法恢复。
-\textsc{Ara}
+\ara{}
 通过在智能体原生的文件系统结构中，将每种知识类型物化为其专属的层级（图
 Figure~\ref{fig-ara-structure}），从而消除这种损耗：这些目录是纯文本、可独立查询的，智能体能够使用标准工具调用进行导航、阅读和操作，而无需解析散文或逆向工程代码仓库。
 由于智能体上下文窗口是共享且有限的资源，该结构进一步支持\emph{渐进式披露}：智能体仅加载与当前任务相关的层级和文件，避免不必要的上下文污染。
@@ -534,10 +533,10 @@ Figure~\ref{fig-ara-structure}），从而消除这种损耗：这些目录是�
 
 \end{figure}%
 
-\subsection{\texorpdfstring{\textsc{Ara} 架构}{ 架构}}\label{sec-layers}
+\subsection{\texorpdfstring{\ara{} 架构}{ 架构}}\label{sec-layers}
 
 一个智能体与某个研究构件交互时，有四种基本需求：\emph{理解}贡献、\emph{复现}贡献、\emph{从过程中学习}，以及基于原始证据\emph{验证}论断。
-\textsc{Ara} 将每种需求物化为一层专用层级（图
+\ara{} 将每种需求物化为一层专用层级（图
 Figure~\ref{fig-ara-structure}），并以清单文件
 \passthrough{\lstinline!PAPER.md!} 为根，其 YAML
 前置元数据和层级索引使智能体能在 \({\sim}500\) 词元内判定相关性（附录
@@ -565,7 +564,7 @@ Figure~\ref{fig-ara-structure}），并以清单文件
 系统性贡献（CUDA
 内核、分布式训练、系统架构）使用\emph{仓库模式}：保留完整实现，但通过
 \passthrough{\lstinline!index.md!}
-清单加以标注，将每个源文件映射到其所实现的 \textsc{Ara} 组件。
+清单加以标注，将每个源文件映射到其所实现的 \ara{} 组件。
 \passthrough{\lstinline!configs/!}
 为每个超参数标注理由和搜索范围；\passthrough{\lstinline!environment.md!}
 锁定依赖、硬件和随机种子（模式规约、取证绑定及详细理由见附录
@@ -597,29 +596,28 @@ Figure~\ref{fig-exploration-graph}）。
 \passthrough{\lstinline!/logic!}；实验\emph{数据}（确切结果）仅位于
 \passthrough{\lstinline!/evidence!}。
 可以在隐去证据层的情况下向验证智能体授予代码内核和算法描述，从而防止其通过复制预期值来伪造结果。
-这种分离还使每个 \textsc{Ara} 成为一个即开即用的训练环境：任务位于
+这种分离还使每个 \ara{} 成为一个即开即用的训练环境：任务位于
 \passthrough{\lstinline!/logic/experiments.md!}，奖励位于
 \passthrough{\lstinline!/evidence/!}，而偏好信号则蕴含于
 \passthrough{\lstinline!/trace/!} 中记录的每一次接受、拒绝和修订之中。
 
-我们认为，当一个\emph{能力足够}的编码智能体能够纯粹基于 \textsc{Ara}
+我们认为，当一个\emph{能力足够}的编码智能体能够纯粹基于 \ara{}
 \emph{零样本}地复现核心论断时------无需人工干预，也不依赖构件本身之外的任何外部上下文------则该
-\textsc{Ara}
+\ara{}
 是充分的。因此，充分性是一个相对于能力的准则：它衡量的是构件是否\emph{包含}复现其论断所需的信息，而非当下的任何智能体是否能够充分利用它。在智能体能力的极限处，一个完整的
-\textsc{Ara}
-按定义即是可复现的，因此今天撰写的构件在智能体进化后仍然有效。
+\ara{} 按定义即是可复现的，因此今天撰写的构件在智能体进化后仍然有效。
 
 \FloatBarrier
 
 \section{实时研究管理器}\label{sec-live-pm}
 
-前一节定义了 \textsc{Ara} 协议：一种结构化的研究知识目标格式。
+前一节定义了 \ara{} 协议：一种结构化的研究知识目标格式。
 一个自然的问题随之而来：\emph{谁来填充它？}
 要求研究者手工编写结构化文件，不过是用一种文档负担替代另一种，恰好否定了协议试图消除的税收本身。
 
 关键观察是，在 AI
 原生研究中，完整的研究轨迹------每一次设计选择、每一次失败实验、每一条来之不易的启发式规则------已经作为机器可读的文本存在于研究者与智能体之间的对话中。
-实时研究管理器将这些潜在信号结晶化为一个活态的 \textsc{Ara}
+实时研究管理器将这些潜在信号结晶化为一个活态的 \ara{}
 构件，该构件在后台有机地累积，对研究者而言零文档开销。\footnote{\url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}}
 我们从 AI
 原生范式中推导出设计原则（\S\ref{sec-design-principles}），并给出实现这些原则的系统（\S\ref{sec-lrm-design}；图
@@ -657,8 +655,7 @@ AI
 换言之，我们正处于科学史上前所未有的时刻：全面的研究过程捕获首次在边际成本可忽略不计的条件下成为可行。
 
 这一观察催生了实时研究管理器：如果研究轨迹已在对话中被捕获，那么一个后台系统就可以将其提炼为结构化的
-\textsc{Ara}，而无需研究者额外记录任何内容。
-我们由此范式推导出三项设计原则。
+\ara{}，而无需研究者额外记录任何内容。 我们由此范式推导出三项设计原则。
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -682,7 +679,7 @@ AI
 \citep{agentskills2025}：一份轻量级的自然语言规约，当加载到通用编码智能体的上下文窗口中时，将其转变为一个领域专用的智能体（\textbf{P1}）。
 一个技能不需要自定义 SDK
 或基础设施；它简单地将智能体已具备的工具（文件读取、写入、编辑、shell
-执行）与 \textsc{Ara}
+执行）与 \ara{}
 模式的领域知识进行组合，且构件质量会随底层语言模型的进步而自动提升。
 该技能是开源的，详见
 \url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}。
@@ -690,8 +687,8 @@ AI
 管理器在活跃研究期间保持静默，然后在每次对话结束时运行一个三阶段回溯流水线（\textbf{P1}；图
 Figure~\ref{fig-lrm-overview}）。
 \textbf{上下文采集器}扫描会话记录------对话历史、工具输出、实验结果和代码差异------以提取具有研究意义的事件。
-\textbf{事件路由器}对每个事件进行分类，标注来源，并将其写入相应的
-\textsc{Ara} 层级。
+\textbf{事件路由器}对每个事件进行分类，标注来源，并将其写入相应的 \ara{}
+层级。
 \textbf{成熟度追踪器}审查暂存区，将已积累足够证据的观察提升为正式条目，并标记过时或冲突项。
 在下一会话开始时，管理器读回构件，呈现一份结构化的简报，从而闭合循环。
 本小节余下部分将详述每个阶段以及将它们联结在一起的跨会话机制。
@@ -706,7 +703,7 @@ Figure~\ref{fig-lrm-overview}）。
 \passthrough{\lstinline!ai-suggested!}
 事件在研究者显式确认之前绝不自升级，从而保持构件的知识完整性。
 事件载荷遵循协议的事实密度要求（\S\ref{sec-philosophy}）：对话散文在提交到构件之前被提炼为电报式的、量化的语言。
-每个类型化事件被写入相应的 \textsc{Ara}
+每个类型化事件被写入相应的 \ara{}
 层级：轨迹事件（决策、实验、死胡同、转向）追加到探索图谱（\passthrough{\lstinline!/trace/!}），构建一条忠实的、按时序排列的研究轨迹记录，包括那些被尝试和放弃的方向（\textbf{P3}）；论断和启发式规则进入认知层（\passthrough{\lstinline!/logic/!}）；而难以归类的事件则暂存于
 \passthrough{\lstinline!/staging/!} 中，等待后续提升。
 
@@ -743,17 +740,16 @@ GitHub 为代码所做的那样。
 管理器是无状态的；构件本身承载了跨会话的记忆。在会话结束时，它写入一份简短的会话记录（已捕获的事件、涉及到的论断、开放议题），并追加到运行中的会话索引中。下一次会话读取该索引以及当前的论断和暂存的观察，仅在与当前任务相关时才调出相应内容，而非以研究者并未要求的正式简报打头阵（附录
 \ref{sec-app-lrm-continuity}）。
 
-\section{\texorpdfstring{\textsc{Ara}
-编译器}{ 编译器}}\label{sec-ingestor}
+\section{\texorpdfstring{\ara{} 编译器}{ 编译器}}\label{sec-ingestor}
 
 原生智能体路径（\ref{sec-live-pm}）通过在研究过程中捕获涌现的知识，生成最高保真度的
-\textsc{Ara}。 然而，科学记录中包含了数以百万计的、从未被结构化的遗留
+\ara{}。 然而，科学记录中包含了数以百万计的、从未被结构化的遗留
 PDF，而原生智能体路径无法回溯至这些历史文献。 除 PDF
 本身之外，研究知识还分散在各种补充性来源中：GitHub
 仓库编码了正文中省略的实现决策，专家策划的评估量规编码了领域实践者所认定的核心论断，记录下来的实验轨迹则保存了论文系统性地加以抑制的失败模式。
-为了弥合这一鸿沟，我们提出了 \textbf{\textsc{Ara}
+为了弥合这一鸿沟，我们提出了 \textbf{\ara{}
 编译器}，这是一项智能体技能，能将任意的遗留研究来源组合转换为一个完整的
-\textsc{Ara}。\footnote{\url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}}
+\ara{}。\footnote{\url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}}
 质量通过两个阶段来保证。在编译过程中，编译器仅使用 ARA
 认证第一级作为环内验证信号。编译完成后，成品构件进入下游认证流水线，由第二至第三级评估其论证性支撑和经验性可复现性（\ref{sec-liveness}）。
 
@@ -780,15 +776,15 @@ PDF、代码仓库、数据集、人类策划的量规（例如 PaperBench
 \citep{starace2025paperbench} 的论断分解）以及实验轨迹日志（例如
 RE-Bench \citep{wijk2025rebench}
 中记录论文所省略之失败的追踪数据），且始终输出一个符合
-Section~\ref{sec-protocol} 规范的单一 \textsc{Ara}。
-降级是优雅的：仅凭一个 PDF
+Section~\ref{sec-protocol} 规范的单一 \ara{}。 降级是优雅的：仅凭一个
+PDF
 就能生成一个具有桩级物理层的有效构件；更丰富的输入则能逐步填充更完整的层。
 
 \paragraph{高保真保存。}\label{ux9ad8ux4fddux771fux4fddux5b58}
 
 叙事性论文进行压缩和筛选；编译器则进行解压缩和恢复。
 来源中的每一个数值结果、超参数、架构细节和负面发现都必须出现在构件的\emph{某处}，任何
-PDF 中可获取但 \textsc{Ara} 中缺失的信息都构成编译失败（在
+PDF 中可获取但 \ara{} 中缺失的信息都构成编译失败（在
 \ref{sec-eval-understanding} 中进行评估）。
 保存是忠实于来源的；\emph{丰富化}（Section~\ref{sec-collective}）则单独发掘出任何单一来源都无法表达的跨构件模式。
 
@@ -806,7 +802,7 @@ PDF 中可获取但 \textsc{Ara} 中缺失的信息都构成编译失败（在
 实现这些原则，需要具体的机制来解决正文如何模糊化结构、谱系和来源多样性的特定方式。
 编译器被实现为单一智能体技能（图
 Figure~\ref{fig-ingestor-pipeline}），引导编码智能体完成从遗留来源到
-\textsc{Ara} 格式的转换。 技能提示词编码了完整的 \textsc{Ara}
+\ara{} 格式的转换。 技能提示词编码了完整的 \ara{}
 模式、字段级需求以及结构化的生成协议。
 我们在下文描述关键要素；完整的技能规范复现于附录
 \ref{sec-app-ingestor-prompt}。
@@ -840,14 +836,14 @@ Tax）。 \emph{认知映射}填充
 中的桩替换为经过验证的实现；评估量规通过专家验证的论断分解来锚定
 \passthrough{\lstinline!/logic!}；轨迹日志则用 PDF
 所省略的死胡同节点来播种 \passthrough{\lstinline!/trace!}。
-当已有先前编译的 \textsc{Ara}
+当已有先前编译的 \ara{}
 库可用时，编译器进一步执行\emph{集体推断}：从同领域构件中检索启发式规则和配置，标记出当前论文遗漏的常见模式，并将其添加为标记为
 \passthrough{\lstinline!collective\_inference!}
 的候选启发式规则，使下游智能体能够区分陈述性知识与推断性知识。
 
 \FloatBarrier
 
-\section{\texorpdfstring{\textsc{Ara}
+\section{\texorpdfstring{\ara{}
 验证与评审}{ 验证与评审}}\label{sec-review-system}
 
 专家人类注意力是科学评价中最稀缺的资源。
@@ -855,7 +851,7 @@ Tax）。 \emph{认知映射}填充
 \citep{aczel2021billiondollar}，而审稿人的精力日益被机械性验证（``代码能运行吗？''、``表
 3 支持论断 2 吗？''）所消耗，而非用于只有领域专家才能提供的实质性判断。
 
-因为 \textsc{Ara} 提交\emph{就是}一个结构化的、机器可执行的构件，PDF
+因为 \ara{} 提交\emph{就是}一个结构化的、机器可执行的构件，PDF
 审稿主观检查的结构性属性变得客观可验证：模式一致性和跨层引用完整性要么确定性地通过，要么确定性地失败。
 更高阶的属性------信息完整性和核心论断的方向性可复现性------变得\emph{机器可评估}：自动化检查提供概率性证据，为人类审稿人提供信息依据，而非取代他们。
 这种分离将专家注意力从机械性检查重新导向只有人类才能提供的实质性判断：重要性、新颖性与品位。
@@ -880,7 +876,7 @@ ARA 比较------只有在语料库达到临界规模时才有意义，相关讨�
 \paragraph{P2.
 可复现性作为基础要求。}\label{p2.-ux53efux590dux73b0ux6027ux4f5cux4e3aux57faux7840ux8981ux6c42}
 
-``代码按需提供''名义上满足了当今的可复现性门槛；在 \textsc{Ara}
+``代码按需提供''名义上满足了当今的可复现性门槛；在 \ara{}
 原生系统中，可复现性是构件本身的\emph{机器验证属性}。 通过 ARA
 认证第一级（结构完整性）是投稿要求，第二级（论证严谨性）在会议投入算力进行第三级（执行可复现性）之前产生结构化审读意见，而第三级的结果随后会附加到每一份评审中。
 未能通过结构检查、或经第二级审读后其论断仍明显缺乏支撑的构件，不会进入人类审稿阶段。
@@ -902,7 +898,7 @@ ARA 比较------只有在语料库达到临界规模时才有意义，相关讨�
 
 一篇 PDF
 论文间接地赢得信任：会议声望、引用数量和作者声誉作为质量的代理指标，但无一能验证工作本身。
-因为 \textsc{Ara}
+因为 \ara{}
 将研究编码为带有显式论断-证据绑定的类型化、机器可遍历的数据，其质量变得\emph{可直接验证}。
 ARA 认证将其操作化为一个三级验证协议（图
 Figure~\ref{fig-ara-seal}），其中每一级测试一个逐步增强的属性（实现细节见附录
@@ -1007,7 +1003,7 @@ epoch、玩具配置）。
 其伦理含义和潜在滥用风险是什么？ 当 AI
 审稿人的发现有作者提出异议时，人类凭借可供查验的完整审计追踪进行裁决。
 人类审稿人以相同的类型化格式撰写结构化评审------将发现链接至特定的
-\textsc{Ara} 组件------确保所有反馈均可操作、可追溯。
+\ara{} 组件------确保所有反馈均可操作、可追溯。
 关键的效率提升：人类不再将时间花费在``你的代码跑不起来''或``表 3 与论断
 2 矛盾''上------这些问题在构件到达审稿人之前已经得到解决。
 
@@ -1030,23 +1026,23 @@ Network}{The (Human+AI)\^{}\{2\} Research Network}}\label{sec-network}
 \end{figure}%
 
 前文各节描述了
-\textsc{Ara}-原生技术栈的组成部分：协议（Section~\ref{sec-protocol}）、在开发过程中将工作捕获到构件中的实时研究管理器（\ref{sec-live-pm}）、导入既有文献的编译器（Section~\ref{sec-ingestor}）以及对其进行验证的
+\ara{}-原生技术栈的组成部分：协议（Section~\ref{sec-protocol}）、在开发过程中将工作捕获到构件中的实时研究管理器（\ref{sec-live-pm}）、导入既有文献的编译器（Section~\ref{sec-ingestor}）以及对其进行验证的
 Seal
 把关审阅流水线（\ref{sec-review-system}）。这些组件组合起来，构成了一个科学交流系统，其主要对象不再是静态文档，而是
-\textsc{Ara}
+\ara{}
 本身：一个统一的规范构件，人类在两端指挥智能体对其进行创作、认证、渲染和扩展。我们将由此形成的结构称为
 \textbf{(Human+AI)\(^{2}\) 网络}（图 Figure~\ref{fig-network}）。
 
 在生产者一侧，研究者不再以论文为目标；他们追求问题，而作为产出的论文在此过程中自动积累为
-\textsc{Ara}：实时研究管理器在日常工作中将每项决策、每条死胡同和每个已确认的论断纳入构件，编译器按需导入既有来源，在任何里程碑节点，构件经过
+\ara{}：实时研究管理器在日常工作中将每项决策、每条死胡同和每个已确认的论断纳入构件，编译器按需导入既有来源，在任何里程碑节点，构件经过
 Seal
 流水线并公开注册，另一个团队可以复刻（fork）一个通过认证的构件，扩展其论断，保留对父构件的署名，并将差异提交以重新审阅。
-在消费者一侧，由于 \textsc{Ara}
+在消费者一侧，由于 \ara{}
 是规范性的，智能体可按需将其渲染为读者所需的任何界面（论文、视频、幻灯片、交互式演示或基于语境的对话），并根据读者的专业水平、注意力预算和意图进行调整。
 
 由于两端均由智能体中介，且构件是唯一的持久化状态，贡献在构件层面而非句子层面累积：发布成为类似
 Git 的操作，审稿人通过他们偏好的界面消费经 Seal 认证的构件，下游智能体将
-\textsc{Ara}
+\ara{}
 作为结构化基线、训练环境或新问题的起点来读取。其结果是一个可查询的科学公地，其中每项贡献都是可执行的差异，理解、复现和扩展的成本随着每个新构件的加入而下降，而非与之对抗上升。\ref{sec-eval}
 探讨当今的智能体是否已能在该基座上运行；Section~\ref{sec-discussion}
 则勾画了近期、中期和远期的扩展方向。
@@ -1082,35 +1078,35 @@ Git 的操作，审稿人通过他们偏好的界面消费经 Seal 认证的构�
   \label{tab-benchmarks}
 \end{table*}
 
-我们在三个研究野心递增的层次上评估\textsc{Ara}：\emph{理解}（智能体能否从构件中提取知识？）、\emph{复现}（智能体能否根据构件执行研究？）和\emph{扩展}（智能体能否借助失败知识更高效地在已有工作之上进行构建？）。每个层次分别隔离了结构化构件相对于以PDF为中心之现状的一项独特优势。我们首先描述评估语料库以及每个\textsc{Ara}是如何从该语料库构建的（\S\ref{sec-eval-data}），然后展示在每个层次上测试\textsc{Ara}的实验（\S\ref{sec-eval-understanding}--\ref{sec-eval-extension}）。所有实验的完整实现细节见附录
+我们在三个研究野心递增的层次上评估\ara{}：\emph{理解}（智能体能否从构件中提取知识？）、\emph{复现}（智能体能否根据构件执行研究？）和\emph{扩展}（智能体能否借助失败知识更高效地在已有工作之上进行构建？）。每个层次分别隔离了结构化构件相对于以PDF为中心之现状的一项独特优势。我们首先描述评估语料库以及每个\ara{}是如何从该语料库构建的（\S\ref{sec-eval-data}），然后展示在每个层次上测试\ara{}的实验（\S\ref{sec-eval-understanding}--\ref{sec-eval-extension}）。所有实验的完整实现细节见附录
 \ref{sec-app-eval-details}。
 
 \subsection{数据集与动机}\label{sec-eval-data}
 
-所有三个评估层次都基于同一个比较：在固定智能体、任务和真值的前提下，从一个研究项目可用源材料编译而成的\textsc{Ara}是否优于大多数读者接收到的传统构件------即一篇论文PDF及其配套代码仓库（若存在）？
+所有三个评估层次都基于同一个比较：在固定智能体、任务和真值的前提下，从一个研究项目可用源材料编译而成的\ara{}是否优于大多数读者接收到的传统构件------即一篇论文PDF及其配套代码仓库（若存在）？
 
 \paragraph{传统构件中的两个系统性缺口。}\label{ux4f20ux7edfux6784ux4ef6ux4e2dux7684ux4e24ux4e2aux7cfbux7edfux6027ux7f3aux53e3}
 
-这个比较之所以有意义，正是因为传统PDF\(+\)repo会丢失两类\textsc{Ara}能够保留的内容。第一，\emph{配置深度}：已发表论文省略了专家认为复现所必需的超参数、环境规格和实现细节。在PaperBench的8,921条专家复现要求中，源PDF中仅有\textbf{45.4\%}
+这个比较之所以有意义，正是因为传统PDF\(+\)repo会丢失两类\ara{}能够保留的内容。第一，\emph{配置深度}：已发表论文省略了专家认为复现所必需的超参数、环境规格和实现细节。在PaperBench的8,921条专家复现要求中，源PDF中仅有\textbf{45.4\%}
 被完整指定（图 Figure~\ref{fig-info-gap}；完整分类见附录
 \ref{sec-app-gap-types}）。第二，\emph{探索深度}：产生最终结果的大部分算力从未进入构件。在24,008次RE-Bench智能体运行中，\textbf{90.2\%}
 的美元成本消耗在被已发表构件完全丢弃的失败探索上（附录
 \ref{sec-app-exploration-tax}），迫使每个后续智能体重新发现相同的死胡同。我们选用两个基准测试，使每个基准测试作为一等源信息恰好提供传统构件所缺失的内容：PaperBench的专家评分细则弥合了配置缺口；RE-Bench的MALT轨迹弥合了探索缺口（表
-\ref{tab-benchmarks}）。这两个基准测试恰好源自计算机科学和机器学习领域，但\textsc{Ara}的设计可扩展到任何其贡献可以表示为代码、配置和有据数据的\emph{数字化}研究，包括计算社会科学、经济学和干实验生物学。其贡献为物理世界干预（湿实验生物学、材料合成）的研究不在本范围内，除非其底层实验记录本身被数字化。
+\ref{tab-benchmarks}）。这两个基准测试恰好源自计算机科学和机器学习领域，但\ara{}的设计可扩展到任何其贡献可以表示为代码、配置和有据数据的\emph{数字化}研究，包括计算社会科学、经济学和干实验生物学。其贡献为物理世界干预（湿实验生物学、材料合成）的研究不在本范围内，除非其底层实验记录本身被数字化。
 
 \paragraph{同一研究的两种表示。}\label{ux540cux4e00ux7814ux7a76ux7684ux4e24ux79cdux8868ux793a}
 
-对于每篇论文或每个任务，我们构建同一底层研究的两种表示，并保持其他一切不变。\emph{传统基线}近似大多数读者接收到的内容：对于PaperBench，它是已发表的论文PDF和（若存在，23篇中15篇有）原始GitHub仓库；对于RE-Bench（其任务没有已发表论文），它是一份由LLM合成的、官方参考解决方案的精美论文式撰写文本，搭配官方源码------这是无论文任务中PDF\(+\)repo的最接近类比。\textsc{Ara}则通过\textsc{Ara}编译器（\S\ref{sec-ingestor}）从同一源材料包（PaperBench：PDF\(+\)repo\(+\)专家评分细则；RE-Bench：官方解决方案\(+\)源码\(+\)MALT轨迹）编译而成，并经过ARA认证第1级结构完整性循环（\S\ref{sec-liveness}）的检验；生成--验证--修复迭代在实践中经1--3轮即可收敛。对于扩展实验（\S\ref{sec-eval-extension}），RE-Bench的\textsc{Ara}还额外通过一条专门流水线（附录
-\ref{sec-app-extension-pipeline}）生成，该流水线增加了每个MALT运行的提取子智能体和一个超越参考公平性过滤器；输出遵循相同的\textsc{Ara}模式。
+对于每篇论文或每个任务，我们构建同一底层研究的两种表示，并保持其他一切不变。\emph{传统基线}近似大多数读者接收到的内容：对于PaperBench，它是已发表的论文PDF和（若存在，23篇中15篇有）原始GitHub仓库；对于RE-Bench（其任务没有已发表论文），它是一份由LLM合成的、官方参考解决方案的精美论文式撰写文本，搭配官方源码------这是无论文任务中PDF\(+\)repo的最接近类比。\ara{}则通过\ara{}编译器（\S\ref{sec-ingestor}）从同一源材料包（PaperBench：PDF\(+\)repo\(+\)专家评分细则；RE-Bench：官方解决方案\(+\)源码\(+\)MALT轨迹）编译而成，并经过ARA认证第1级结构完整性循环（\S\ref{sec-liveness}）的检验；生成--验证--修复迭代在实践中经1--3轮即可收敛。对于扩展实验（\S\ref{sec-eval-extension}），RE-Bench的\ara{}还额外通过一条专门流水线（附录
+\ref{sec-app-extension-pipeline}）生成，该流水线增加了每个MALT运行的提取子智能体和一个超越参考公平性过滤器；输出遵循相同的\ara{}模式。
 
-\subsection{\texorpdfstring{从\textsc{Ara}中提取知识}{从中提取知识}}\label{sec-eval-understanding}
+\subsection{\texorpdfstring{从\ara{}中提取知识}{从中提取知识}}\label{sec-eval-understanding}
 
-第一层衡量智能体从每种格式中能够提取什么：\textsc{Ara}是否保留了源PDF和仓库中存在的信息，其结构是否能将源材料中零散或隐含的知识浮现出来？在编译过程中丢失信息的格式无法改善复现或扩展，因此这是每一项下游收益的前提条件。\S\ref{sec-intro}中量化的信息缺口（图
+第一层衡量智能体从每种格式中能够提取什么：\ara{}是否保留了源PDF和仓库中存在的信息，其结构是否能将源材料中零散或隐含的知识浮现出来？在编译过程中丢失信息的格式无法改善复现或扩展，因此这是每一项下游收益的前提条件。\S\ref{sec-intro}中量化的信息缺口（图
 Figure~\ref{fig-info-gap}）表明，结构\emph{能够}恢复PDF未充分指定的细节；本层测试编译器是否真正实现了这一承诺。
 
 \paragraph{实验设置。}\label{ux5b9eux9a8cux8bbeux7f6e}
 
-我们使用450个问题探测每种格式：涵盖30个评估目标（23篇PaperBench论文和7个RE-Bench任务），每个目标15个问题，分为三类。\emph{A类}（每个目标10个，两个基准测试均适用）测试对可从PDF中回答的表面结果、方法和条件的忠实度。\emph{B类}（每篇PaperBench论文5个）测试对超参数、环境规格和预处理细节的配置恢复能力。\emph{C类}（每个RE-Bench任务5个）测试对死胡同、已考虑的替代方案和经验教训的失败知识掌握。为避免问题选择中的来源偏差，我们为每个目标独立生成两个问题池------一个以阅读PDF为种子，一个以阅读\textsc{Ara}为种子------然后合并并去重，使两种格式都无法决定哪些问题被提出（完整模板和金标准评分细则见附录
+我们使用450个问题探测每种格式：涵盖30个评估目标（23篇PaperBench论文和7个RE-Bench任务），每个目标15个问题，分为三类。\emph{A类}（每个目标10个，两个基准测试均适用）测试对可从PDF中回答的表面结果、方法和条件的忠实度。\emph{B类}（每篇PaperBench论文5个）测试对超参数、环境规格和预处理细节的配置恢复能力。\emph{C类}（每个RE-Bench任务5个）测试对死胡同、已考虑的替代方案和经验教训的失败知识掌握。为避免问题选择中的来源偏差，我们为每个目标独立生成两个问题池------一个以阅读PDF为种子，一个以阅读\ara{}为种子------然后合并并去重，使两种格式都无法决定哪些问题被提出（完整模板和金标准评分细则见附录
 \ref{sec-app-question-bank}）。每个（目标，格式，问题）三元组作为一个独立的Claude
 Sonnet 4.6子智能体分发，拥有全新上下文，每个答案由Claude Opus
 4.6裁判根据金标准进行三元评分（1.0 / 0.5 / 0.0）。
@@ -1141,20 +1137,20 @@ A：忠实度                & 300 & \textbf{95.6} & 80.8 & 84.6 & 88.5 \\
 
 \paragraph{结果。}\label{ux7ed3ux679c}
 
-\textsc{Ara}在每个类别和每个基准测试上均优于基线，在450组成对结果上的总体准确率为\textbf{93.7\%
-vs.~72.4\%}（\(+21.3\)\%）。总体差距沿三个不同机制分解，每个机制由一个类别单独隔离。在\textbf{A类}上，答案可从PDF中恢复，\textsc{Ara}获胜\(+14.8\)\%\emph{同时token消耗减少12\%}：PAPER.md的层次索引将线性文档扫描转化为定向文件查找。在\textbf{B类}上，评分细则提供了论文系统性省略的配置细节，\textsc{Ara}在可比token用量下获胜\(+24.8\)\%；基线可以挖掘配套仓库，但\textsc{Ara}的\passthrough{\lstinline!src/configs/!}将相同知识集中在一个对智能体友好的文件中。在\textbf{C类}上，答案仅存在于MALT轨迹中，\textsc{Ara}获胜\(+65.7\)\%；基线没有失败知识的来源，大多数查询以简短的空答案放弃（58K
+\ara{}在每个类别和每个基准测试上均优于基线，在450组成对结果上的总体准确率为\textbf{93.7\%
+vs.~72.4\%}（\(+21.3\)\%）。总体差距沿三个不同机制分解，每个机制由一个类别单独隔离。在\textbf{A类}上，答案可从PDF中恢复，\ara{}获胜\(+14.8\)\%\emph{同时token消耗减少12\%}：PAPER.md的层次索引将线性文档扫描转化为定向文件查找。在\textbf{B类}上，评分细则提供了论文系统性省略的配置细节，\ara{}在可比token用量下获胜\(+24.8\)\%；基线可以挖掘配套仓库，但\ara{}的\passthrough{\lstinline!src/configs/!}将相同知识集中在一个对智能体友好的文件中。在\textbf{C类}上，答案仅存在于MALT轨迹中，\ara{}获胜\(+65.7\)\%；基线没有失败知识的来源，大多数查询以简短的空答案放弃（58K
 vs.~139K token）。
 
-\paragraph{\texorpdfstring{在\textsc{Ara}上，token用量随问题深度递增，而在基线上则不然。}{在上，token用量随问题深度递增，而在基线上则不然。}}\label{ux5728b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20617261203e7d7dux4e0atokenux7528ux91cfux968fux95eeux9898ux6df1ux5ea6ux9012ux589eux800cux5728ux57faux7ebfux4e0aux5219ux4e0dux7136}
+\paragraph{\texorpdfstring{在\ara{}上，token用量随问题深度递增，而在基线上则不然。}{在上，token用量随问题深度递增，而在基线上则不然。}}\label{ux5728b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c207465726d20617261203e7d7dux4e0atokenux7528ux91cfux968fux95eeux9898ux6df1ux5ea6ux9012ux589eux800cux5728ux57faux7ebfux4e0aux5219ux4e0dux7136}
 
-在\textsc{Ara}上，智能体在显式问题上花费61K
+在\ara{}上，智能体在显式问题上花费61K
 token，在分散问题上花费96K，在隐式失败问题上花费153K；基线的token用量在相同层次上大致持平（83K到118K），因为线性PDF/仓库扫描的成本与答案深度无关。各类别机制分析和完整难度分层见附录
 \ref{sec-app-understanding-eval}。
 
-\subsection{\texorpdfstring{基于\textsc{Ara}的复现}{基于的复现}}\label{sec-eval-reproduction}
+\subsection{\texorpdfstring{基于\ara{}的复现}{基于的复现}}\label{sec-eval-reproduction}
 
-第二层测试结构化构件能否将理解转化为行动：智能体能否从\textsc{Ara}比从传统PDF\(+\)GitHub组合更有效地复现实验结果？第1层衡量智能体知道什么；第2层衡量智能体能做什么。\S\ref{sec-intro}中的信息缺口（图
-Figure~\ref{fig-info-gap}；54.6\%的专家复现要求部分或完全缺失于PDF）指明了\textsc{Ara}结构化各层旨在消除的具体执行障碍。
+第二层测试结构化构件能否将理解转化为行动：智能体能否从\ara{}比从传统PDF\(+\)GitHub组合更有效地复现实验结果？第1层衡量智能体知道什么；第2层衡量智能体能做什么。\S\ref{sec-intro}中的信息缺口（图
+Figure~\ref{fig-info-gap}；54.6\%的专家复现要求部分或完全缺失于PDF）指明了\ara{}结构化各层旨在消除的具体执行障碍。
 
 \paragraph{任务选取。}\label{ux4efbux52a1ux9009ux53d6}
 
@@ -1168,7 +1164,7 @@ Figure~\ref{fig-info-gap}；54.6\%的专家复现要求部分或完全缺失于P
 \begin{itemize}
 \tightlist
 \item
-  \textbf{ARA智能体}：仅使用\textsc{Ara}构件（\passthrough{\lstinline!PAPER.md!}、\passthrough{\lstinline!logic/!}、\passthrough{\lstinline!src/!}、\passthrough{\lstinline!evidence/!}）。无PDF或仓库访问权限。
+  \textbf{ARA智能体}：仅使用\ara{}构件（\passthrough{\lstinline!PAPER.md!}、\passthrough{\lstinline!logic/!}、\passthrough{\lstinline!src/!}、\passthrough{\lstinline!evidence/!}）。无PDF或仓库访问权限。
 \item
   \textbf{基线智能体}：论文PDF和配套GitHub仓库。
 \end{itemize}
@@ -1185,7 +1181,7 @@ Opus
 
 \paragraph{结果。}\label{ux7ed3ux679c-1}
 
-在所有15篇完成成对运行的论文中（150个子任务，1,743条评分细则要求），\textsc{Ara}实现了\textbf{64.4\%}
+在所有15篇完成成对运行的论文中（150个子任务，1,743条评分细则要求），\ara{}实现了\textbf{64.4\%}
 的难度加权成功率，而基线为\textbf{57.4\%}；论文层面的胜/平/负分布为8/5/2（各论文数据见附录
 \ref{sec-app-repro-per-paper}）。图
 Figure~\ref{fig-repro-difficulty}按难度分层展示了这一总体结果；各论文分解见附录
@@ -1206,14 +1202,14 @@ Figure~\ref{fig-repro-difficulty-heatmap}）。
 
 \paragraph{分析。}\label{ux5206ux6790}
 
-\textsc{Ara}的优势随难度增长：简单子任务（环境设置、模型实例化）在两种格式下均接近天花板，差距在中等和困难子任务上拉开，这些子任务的复现依赖于已发表PDF极少提供的配置内容。这一模式在逐论文分析中也成立（附录
-\ref{sec-app-repro-per-paper}）：最大的\textsc{Ara}优势（\passthrough{\lstinline!fre!}、\passthrough{\lstinline!mechanistic-understanding!}、\passthrough{\lstinline!pinn!}）出现在具有多阶段训练流程的论文上，PDF仅在高层次描述了其超参数交互，而增益集中在中度和困难列中。例如，\passthrough{\lstinline!fre!}的\textsc{Ara}智能体在PyTorch中重新实现了原始JAX代码库（1.8
+\ara{}的优势随难度增长：简单子任务（环境设置、模型实例化）在两种格式下均接近天花板，差距在中等和困难子任务上拉开，这些子任务的复现依赖于已发表PDF极少提供的配置内容。这一模式在逐论文分析中也成立（附录
+\ref{sec-app-repro-per-paper}）：最大的\ara{}优势（\passthrough{\lstinline!fre!}、\passthrough{\lstinline!mechanistic-understanding!}、\passthrough{\lstinline!pinn!}）出现在具有多阶段训练流程的论文上，PDF仅在高层次描述了其超参数交互，而增益集中在中度和困难列中。例如，\passthrough{\lstinline!fre!}的\ara{}智能体在PyTorch中重新实现了原始JAX代码库（1.8
 GB GPU vs.~JAX的30.8
-GB），在三个领域训练了17个模型，并完成了所有中等和困难子任务；基线智能体则在与JAX环境的斗争中消耗时间，预算耗尽前仅完成了3次训练尝试。基线唯一明确的胜出是\passthrough{\lstinline!self-expansion!}，其中\textsc{Ara}智能体伪造了被盲评裁判发现的结果；微弱平局（\passthrough{\lstinline!adaptive-pruning!}、\passthrough{\lstinline!rice!}）出现在配套仓库部分弥补了PDF缺口的论文上。在所有15篇论文中，伪造发生在2次基线运行和1次\textsc{Ara}运行中：结构化构件减少但并未消除幻觉结果。
+GB），在三个领域训练了17个模型，并完成了所有中等和困难子任务；基线智能体则在与JAX环境的斗争中消耗时间，预算耗尽前仅完成了3次训练尝试。基线唯一明确的胜出是\passthrough{\lstinline!self-expansion!}，其中\ara{}智能体伪造了被盲评裁判发现的结果；微弱平局（\passthrough{\lstinline!adaptive-pruning!}、\passthrough{\lstinline!rice!}）出现在配套仓库部分弥补了PDF缺口的论文上。在所有15篇论文中，伪造发生在2次基线运行和1次\ara{}运行中：结构化构件减少但并未消除幻觉结果。
 
-\subsection{\texorpdfstring{基于\textsc{Ara}的扩展}{基于的扩展}}\label{sec-eval-extension}
+\subsection{\texorpdfstring{基于\ara{}的扩展}{基于的扩展}}\label{sec-eval-extension}
 
-第三层测试\textsc{Ara}最具雄心的论断：保留先前研究的失败轨迹能让下一个智能体更有效地对其进行扩展。第
+第三层测试\ara{}最具雄心的论断：保留先前研究的失败轨迹能让下一个智能体更有效地对其进行扩展。第
 \ref{sec-eval-data}节已记录，RE-Bench上59.2\%的智能体token（以及90.2\%的美元成本）消耗在被已发表构件丢弃的死胡同探索上。本层探究的是，将已尝试和已放弃的记录以结构化形式交给下一个智能体，是否能在可量化的下游收益上弥合这一缺口。
 
 \paragraph{为何选用RE-Bench，以及哪些任务。}\label{ux4e3aux4f55ux9009ux7528re-benchux4ee5ux53caux54eaux4e9bux4efbux52a1}
@@ -1223,12 +1219,12 @@ GB），在三个领域训练了17个模型，并完成了所有中等和困难�
 MALT转录记录每个任务包含数千次完整的智能体运行（及其死胡同）。我们使用7个任务中的5个：\passthrough{\lstinline!triton\_cumsum!}、\passthrough{\lstinline!restricted\_mlm!}、\passthrough{\lstinline!fix\_embedding!}、\passthrough{\lstinline!nanogpt\_chat\_rl!}和\passthrough{\lstinline!rust\_codecontests!}。其余两个被排除，因为其MALT语料无法提供可用的失败轨迹层：\passthrough{\lstinline!optimize\_llm\_foundry!}根本没有MALT语料，而\passthrough{\lstinline!small\_scaling\_law!}的MALT运行稀疏、缺乏Claude-4条目，且主要由无记录策略探索的简单参数扫描组成；无论哪种情况，都会导致\passthrough{\lstinline!trace/!}在构建时实际上为空（附录
 \ref{sec-app-extension-tasks}）。
 
-\paragraph{\texorpdfstring{\textsc{Ara}构建（专用RE-Bench流水线）。}{构建（专用RE-Bench流水线）。}}\label{b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20617261203e7d7dux6784ux5efaux4e13ux7528re-benchux6d41ux6c34ux7ebf}
+\paragraph{\texorpdfstring{\ara{}构建（专用RE-Bench流水线）。}{构建（专用RE-Bench流水线）。}}\label{b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c207465726d20617261203e7d7dux6784ux5efaux4e13ux7528re-benchux6d41ux6c34ux7ebf}
 
 RE-Bench的输入不同于典型的论文 +
 repo：源材料是官方参考解决方案加上数千条MALT
-JSONL转录记录，失败记录层在此处主导了构件价值。因此，我们将标准\textsc{Ara}编译器（\S\ref{sec-ingestor}）包装在一条RE-Bench专用流水线（附录
-\ref{sec-app-extension-pipeline}）中，该流水线（i）通过标准编译器将官方解决方案提取到\passthrough{\lstinline!src/!}，将参考衍生知识提取到\passthrough{\lstinline!logic/!}，然后（ii）为每个MALT运行展开一个提取子智能体，用这些运行产生的死胡同和部分成功填充\passthrough{\lstinline!trace/exploration\_tree.yaml!}和\passthrough{\lstinline!evidence/tables/malt\_attempts.md!}。一个方向感知的\emph{超越参考过滤器}排除任何超越参考分数的MALT评分尝试，该过滤按尝试而非按运行应用。这是实验的核心公平性规则：将\textsc{Ara}与精美的论文撰写文本进行比较，仅当双方都不携带智能体可直接转录的、已实现的超越参考解决方案时才有意义。每个保留的节点还带有\passthrough{\lstinline!source: official-solution!}或\passthrough{\lstinline!source: MALT run\_id=\{id\}!}的来源标记。
+JSONL转录记录，失败记录层在此处主导了构件价值。因此，我们将标准\ara{}编译器（\S\ref{sec-ingestor}）包装在一条RE-Bench专用流水线（附录
+\ref{sec-app-extension-pipeline}）中，该流水线（i）通过标准编译器将官方解决方案提取到\passthrough{\lstinline!src/!}，将参考衍生知识提取到\passthrough{\lstinline!logic/!}，然后（ii）为每个MALT运行展开一个提取子智能体，用这些运行产生的死胡同和部分成功填充\passthrough{\lstinline!trace/exploration\_tree.yaml!}和\passthrough{\lstinline!evidence/tables/malt\_attempts.md!}。一个方向感知的\emph{超越参考过滤器}排除任何超越参考分数的MALT评分尝试，该过滤按尝试而非按运行应用。这是实验的核心公平性规则：将\ara{}与精美的论文撰写文本进行比较，仅当双方都不携带智能体可直接转录的、已实现的超越参考解决方案时才有意义。每个保留的节点还带有\passthrough{\lstinline!source: official-solution!}或\passthrough{\lstinline!source: MALT run\_id=\{id\}!}的来源标记。
 
 \paragraph{实验协议。}\label{ux5b9eux9a8cux534fux8bae-1}
 
@@ -1240,7 +1236,7 @@ JSONL转录记录，失败记录层在此处主导了构件价值。因此，我
   \textbf{论文智能体}：阅读\passthrough{\lstinline!reference/paper.md!}------一份由LLM合成的、官方解决方案的学术风格撰写文本（摘要、方法、结果、开发笔记；应用了相同的超越参考过滤器，使\passthrough{\lstinline!paper.md!}绝不包含已实现的超越参考变体），加上官方\passthrough{\lstinline!src/!}树。这模拟了传统已发表论文将提供的构件（附录
   \ref{sec-app-extension-paper-baseline}）。
 \item
-  \textbf{\textsc{Ara}智能体}：阅读完整\textsc{Ara}（\passthrough{\lstinline!PAPER.md!}、\passthrough{\lstinline!logic/!}、\passthrough{\lstinline!src/!}、\passthrough{\lstinline!trace/!}、\passthrough{\lstinline!evidence/!}）；\passthrough{\lstinline!src/!}和参考衍生的\passthrough{\lstinline!logic/!}内容与论文智能体的材料包匹配，而\passthrough{\lstinline!trace/!}和\passthrough{\lstinline!evidence/!}层承载了论文材料包无法提供的失败记录。
+  \textbf{\ara{}智能体}：阅读完整\ara{}（\passthrough{\lstinline!PAPER.md!}、\passthrough{\lstinline!logic/!}、\passthrough{\lstinline!src/!}、\passthrough{\lstinline!trace/!}、\passthrough{\lstinline!evidence/!}）；\passthrough{\lstinline!src/!}和参考衍生的\passthrough{\lstinline!logic/!}内容与论文智能体的材料包匹配，而\passthrough{\lstinline!trace/!}和\passthrough{\lstinline!evidence/!}层承载了论文材料包无法提供的失败记录。
 \end{itemize}
 
 两个智能体均被指示通过编辑\passthrough{\lstinline!solution.py!}并运行\passthrough{\lstinline!bash score.sh!}来超越参考分数；结果取运行期间所有调用的最佳分数。我们使用Claude
@@ -1255,7 +1251,7 @@ h SLURM挂钟时间限制和\$50 API支出上限。所有五个任务均在Claud
 \paragraph{结果。}\label{ux7ed3ux679c-2}
 
 图
-Figure~\ref{fig-extension-summary}报告了每个任务上每个智能体相对于挂钟时间和API支出的最优包络线和底层评分尝试。在\passthrough{\lstinline!rust\_codecontests!}、\passthrough{\lstinline!nanogpt\_chat\_rl!}和\passthrough{\lstinline!fix\_embedding!}上，\textsc{Ara}智能体最终获得更好的最佳分数；在Sonnet
+Figure~\ref{fig-extension-summary}报告了每个任务上每个智能体相对于挂钟时间和API支出的最优包络线和底层评分尝试。在\passthrough{\lstinline!rust\_codecontests!}、\passthrough{\lstinline!nanogpt\_chat\_rl!}和\passthrough{\lstinline!fix\_embedding!}上，\ara{}智能体最终获得更好的最佳分数；在Sonnet
 4.6下的\passthrough{\lstinline!triton\_cumsum!}和\passthrough{\lstinline!restricted\_mlm!}上，论文智能体最终领先。轨迹呈现出以下三个现象；各任务案例研究和轨迹证据（\passthrough{\lstinline!文件读取!}、\passthrough{\lstinline!ThinkingBlock!}推理、编辑历史）见附录
 \ref{sec-app-extension-cases}。
 
@@ -1277,11 +1273,10 @@ Figure~\ref{fig-extension-summary}报告了每个任务上每个智能体相对�
 
 \paragraph{所有五个任务上的早期加速。}\label{ux6240ux6709ux4e94ux4e2aux4efbux52a1ux4e0aux7684ux65e9ux671fux52a0ux901f}
 
-\textsc{Ara}智能体在每个任务上都更早到达第一个有效动作，包括其最终落后的两个任务。最清晰的案例是\passthrough{\lstinline!rust\_codecontests!}：在阅读启发式规则\passthrough{\lstinline!H12!}后，它于\(t = 9\)
+\ara{}智能体在每个任务上都更早到达第一个有效动作，包括其最终落后的两个任务。最清晰的案例是\passthrough{\lstinline!rust\_codecontests!}：在阅读启发式规则\passthrough{\lstinline!H12!}后，它于\(t = 9\)
 min时投入手工编码Rust库，而论文智能体花了六小时在提示工程变体上，仅在\(t = 395\)
 min检查工作目录时才注意到相同的想法并开始填充现有的\passthrough{\lstinline!few\_shots/!}缓存。在Sonnet
-4.6
-\passthrough{\lstinline!triton\_cumsum!}上，\textsc{Ara}智能体在\(t = 11\)
+4.6 \passthrough{\lstinline!triton\_cumsum!}上，\ara{}智能体在\(t = 11\)
 min时使用轨迹衍生的想法（\passthrough{\lstinline!解耦回看!}、\passthrough{\lstinline!关联扫描!}）得分\(0.47\)，而论文智能体直到\(t = 37\)
 min才开始得分并从第一原理推理。相同的先发优势也出现在\passthrough{\lstinline!nanogpt\_chat\_rl!}（启发式规则\passthrough{\lstinline!H08!}预先命名了一个退化输出过滤器，论文智能体必须通过调试才能发现）和\passthrough{\lstinline!fix\_embedding!}（启发式规则\passthrough{\lstinline!H11!}/\passthrough{\lstinline!H13!}将排列恢复标记为已记录的死胡同，但论文智能体在\(t = 19\)
 min时尝试了它，在可见失败后放弃，然后在\(t = 350\)
@@ -1291,17 +1286,17 @@ min时忘记了自己更早的失败又重新尝试）。在所有五个任务�
 上的后期逆转。}\label{sonnet-4.6-triton-ux548c-mlm-ux4e0aux7684ux540eux671fux9006ux8f6c}
 
 在这两个任务上，早期领先未能保持，且逆转本身提供了信息。在\passthrough{\lstinline!triton\_cumsum!}上，论文智能体------没有既定的备选菜单------持续重新设计内核，并在\(t = 47.7\)
-min时引入了一个由评分器8位输入范围驱动的\passthrough{\lstinline!int8!}输入压缩，这是轨迹从未命名的动作；它从此处迭代并最终领先。\textsc{Ara}智能体则坚持使用轨迹推荐的解耦回看设计。在\passthrough{\lstinline!restricted\_mlm!}上，论文智能体在整个8
-h内专注于单一的\passthrough{\lstinline!ConvMLMDilated!}调优，而\textsc{Ara}智能体实现了每个由启发式规则命名的替代架构（\passthrough{\lstinline!H11!}
+min时引入了一个由评分器8位输入范围驱动的\passthrough{\lstinline!int8!}输入压缩，这是轨迹从未命名的动作；它从此处迭代并最终领先。\ara{}智能体则坚持使用轨迹推荐的解耦回看设计。在\passthrough{\lstinline!restricted\_mlm!}上，论文智能体在整个8
+h内专注于单一的\passthrough{\lstinline!ConvMLMDilated!}调优，而\ara{}智能体实现了每个由启发式规则命名的替代架构（\passthrough{\lstinline!H11!}
 ReLU-attention、\passthrough{\lstinline!H07!}
 MLPMixer等），发现无一在Sonnet
-4.6的优化下超越更简单的ConvMLM，最终落后。在这两种情况下，\textsc{Ara}智能体忠实地遵循了轨迹；轨迹并非该模型可获得的最具创造力选项。
+4.6的优化下超越更简单的ConvMLM，最终落后。在这两种情况下，\ara{}智能体忠实地遵循了轨迹；轨迹并非该模型可获得的最具创造力选项。
 
 \paragraph{较弱基础模型逆转了比较结果。}\label{ux8f83ux5f31ux57faux7840ux6a21ux578bux9006ux8f6cux4e86ux6bd4ux8f83ux7ed3ux679c}
 
 对于这两个任务，成对的Sonnet 4.5轨迹显示出相反的模式（附录图
 Figure~\ref{fig-extension-triton-45}、
-Figure~\ref{fig-extension-mlm-45}）：\textsc{Ara}智能体在\passthrough{\lstinline!triton\_cumsum!}上达到\(0.27\)
+Figure~\ref{fig-extension-mlm-45}）：\ara{}智能体在\passthrough{\lstinline!triton\_cumsum!}上达到\(0.27\)
 vs.~论文智能体的\(0.64\)，在\passthrough{\lstinline!restricted\_mlm!}上达到\(0.73\)
 vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinline!int8!}压缩这样的动作或深度聚焦于单一架构，而同样那些约束了Sonnet
 4.6的启发式规则却为Sonnet
@@ -1309,22 +1304,22 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 
 \paragraph{展望。}\label{ux5c55ux671b}
 
-综合来看，这些轨迹表明\textsc{Ara}可以通过浮现先前陷阱和成功策略来辅助人-智能体和智能体-智能体之间的沟通，但当智能体自身的能力超出已记录策略手册所载内容时，选择性地隐藏或语境化部分轨迹可能至关重要。用模型类别来源标记轨迹节点，使后继者能够折衷不再适用的论断，是一种这样的机制；我们将更广泛的设计空间留给后续工作。
+综合来看，这些轨迹表明\ara{}可以通过浮现先前陷阱和成功策略来辅助人-智能体和智能体-智能体之间的沟通，但当智能体自身的能力超出已记录策略手册所载内容时，选择性地隐藏或语境化部分轨迹可能至关重要。用模型类别来源标记轨迹节点，使后继者能够折衷不再适用的论断，是一种这样的机制；我们将更广泛的设计空间留给后续工作。
 
-\subsection{\texorpdfstring{面向\textsc{Ara}的原生审阅系统}{面向的原生审阅系统}}\label{sec-eval-seal}
+\subsection{\texorpdfstring{面向\ara{}的原生审阅系统}{面向的原生审阅系统}}\label{sec-eval-seal}
 
 第
-\ref{sec-eval-understanding}--\ref{sec-eval-extension}节将\textsc{Ara}作为一种\emph{格式}进行评估；本小节评估该格式所支撑的\emph{审阅机制}。我们测试三级认证协议（\S\ref{sec-review-system}）是否能在其三个自动化级别上真正检测出有缺陷的构件：结构完整性（第1级）、论证严谨性（第2级，严谨性审计器）和执行可复现性（第3级）。第3阶段实质性判断层由人类审稿人评估重要性和新颖性，没有自动化神谕，我们不做尝试测量。
+\ref{sec-eval-understanding}--\ref{sec-eval-extension}节将\ara{}作为一种\emph{格式}进行评估；本小节评估该格式所支撑的\emph{审阅机制}。我们测试三级认证协议（\S\ref{sec-review-system}）是否能在其三个自动化级别上真正检测出有缺陷的构件：结构完整性（第1级）、论证严谨性（第2级，严谨性审计器）和执行可复现性（第3级）。第3阶段实质性判断层由人类审稿人评估重要性和新颖性，没有自动化神谕，我们不做尝试测量。
 
 \paragraph{第1级（结构完整性）。}\label{ux7b2c1ux7ea7ux7ed3ux6784ux5b8cux6574ux6027}
 
-第1级检查模式合规性、必填字段存在性和跨层引用解析。理解实验已经表明该门槛在实践中有效：本文中的每个\textsc{Ara}在使用前都通过了第1级，95.6\%的A类准确率（表
+第1级检查模式合规性、必填字段存在性和跨层引用解析。理解实验已经表明该门槛在实践中有效：本文中的每个\ara{}在使用前都通过了第1级，95.6\%的A类准确率（表
 \ref{tab-understanding}）意味着通过门槛的构件在结构上足够完整，智能体可以检索到源材料实际包含的内容（每个构件的迭代次数和失败类型分布见附录
 \ref{sec-app-seal-eval-l1}）。
 
 \paragraph{第2级（严谨性审计器）：变异基准测试。}\label{ux7b2c2ux7ea7ux4e25ux8c28ux6027ux5ba1ux8ba1ux5668ux53d8ux5f02ux57faux51c6ux6d4bux8bd5}
 
-我们通过向已通过第1级的\textsc{Ara}中注入已知错误，并对照真值注入清单衡量审计器的检测率，来对严谨性审计器进行基准测试。每次注入自身就是神谕，无需人工标注。具体而言，我们取23个PaperBench的\textsc{Ara}，每个注入五类错误：
+我们通过向已通过第1级的\ara{}中注入已知错误，并对照真值注入清单衡量审计器的检测率，来对严谨性审计器进行基准测试。每次注入自身就是神谕，无需人工标注。具体而言，我们取23个PaperBench的\ara{}，每个注入五类错误：
 
 \begin{itemize}
 \tightlist
@@ -1342,7 +1337,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 
 严谨性审计器（一个Claude Code SDK
 \citep{claudecodesdk2025}智能体，它读取构件，构建跨层映射，对六个维度评分，并编制发现清单；完整协议见附录
-\ref{sec-app-seal-eval-l2}）随后在每个注入后的\textsc{Ara}上运行，每个发现通过其目标实体匹配回注入清单。
+\ref{sec-app-seal-eval-l2}）随后在每个注入后的\ara{}上运行，每个发现通过其目标实体匹配回注入清单。
 
 \paragraph{对实质性注入具有高召回率，在孤立实验上存在盲区。}\label{ux5bf9ux5b9eux8d28ux6027ux6ce8ux5165ux5177ux6709ux9ad8ux53ecux56deux7387ux5728ux5b64ux7acbux5b9eux9a8cux4e0aux5b58ux5728ux76f2ux533a}
 
@@ -1368,13 +1363,13 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 
 \paragraph{审计器评分中的两种LLM作为裁判的病态现象。}\label{ux5ba1ux8ba1ux5668ux8bc4ux5206ux4e2dux7684ux4e24ux79cdllmux4f5cux4e3aux88c1ux5224ux7684ux75c5ux6001ux73b0ux8c61}
 
-评分侧出现两种偏差。第一，\emph{分数膨胀}：在23个\textsc{Ara}中的17个上，审计器报告的总体平均分被向上取整到刚好越过接受阈值。第二，\emph{发现--评分脱钩}：即使审计器正确地将某注入标记为\emph{严重}（23例被驳斥分支泄露中的22例），相应维度的分数并未降至评分细则规定的水平。两者均为已有文献记载的LLM作为裁判的失败模式
+评分侧出现两种偏差。第一，\emph{分数膨胀}：在23个\ara{}中的17个上，审计器报告的总体平均分被向上取整到刚好越过接受阈值。第二，\emph{发现--评分脱钩}：即使审计器正确地将某注入标记为\emph{严重}（23例被驳斥分支泄露中的22例），相应维度的分数并未降至评分细则规定的水平。两者均为已有文献记载的LLM作为裁判的失败模式
 \citep{zheng2023judging}，它们共同表明LLM应当生成发现而非分数，总体裁决应从发现列表确定性计算得出。维度分布、分数膨胀分解和各论文检测热力图见附录
 \ref{sec-app-seal-eval-l2}。
 
 \paragraph{第3级（执行可复现性）。}\label{ux7b2c3ux7ea7ux6267ux884cux53efux590dux73b0ux6027}
 
-第3级的规范（见\S\ref{sec-liveness}）------读取构件，在算力预算下定向复现核心论断，数值结果被掩盖------正是复现实验（\S\ref{sec-eval-reproduction}）中\textsc{Ara}条件的协议。因此，该处测得的64.4\%难度加权成功率即为格式良好构件上的第3级验证率，而盲评裁判揭露的唯一一次结果伪造表明，验证器在被歪曲的结果出现时确实会标记它们。
+第3级的规范（见\S\ref{sec-liveness}）------读取构件，在算力预算下定向复现核心论断，数值结果被掩盖------正是复现实验（\S\ref{sec-eval-reproduction}）中\ara{}条件的协议。因此，该处测得的64.4\%难度加权成功率即为格式良好构件上的第3级验证率，而盲评裁判揭露的唯一一次结果伪造表明，验证器在被歪曲的结果出现时确实会标记它们。
 
 \FloatBarrier
 
@@ -1384,12 +1379,12 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 
 \paragraph{现有工具的维度差距。}\label{ux73b0ux6709ux5de5ux5177ux7684ux7ef4ux5ea6ux5deeux8ddd}
 
-一个自然的质疑是，\textsc{Ara}
+一个自然的质疑是，\ara{}
 仅仅是将文档、版本控制和实验追踪------研究者已经在使用的三种工具------组合在一起。
 表 \ref{tab-dimension-gap} 说明了为什么即使\emph{同时}使用 PDF、GitHub
 和追踪器（MLflow \citep{zaharia2018mlflow}，Weights \& Biases
 \citep{biewald2020wandb}），知识仍然被孤岛式地分割在三种彼此无关联的格式中------论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
-\textsc{Ara}
+\ara{}
 并非通过替代这些工具，而是通过提供缺失的结构层来弥合这一差距：一个可执行的认识论图谱，其跨层绑定使这些连接显式化且可被机器遍历。
 
 \begin{table}[t]
@@ -1427,7 +1422,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 捆绑研究对象，Whole Tale \citep{brinckman2019wholetale}
 封装计算环境，Discovery Engine \citep{baulin2025discoveryengine}
 将出版物提炼为概念张量------但它们都不提供执行语义，也不捕获决策历史。
-与这些格式不同，\textsc{Ara}
+与这些格式不同，\ara{}
 将科学逻辑、最小化可执行代码和决策历史共同绑定到一个单一协议中，并具有机器可验证的可复现性。
 
 \paragraph{可复现性基础设施。}\label{ux53efux590dux73b0ux6027ux57faux7840ux8bbeux65bd}
@@ -1446,7 +1441,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 \citep{wadden2020scifact} 和基于归因的落地验证 \citep{gao2023rarr}
 的工作，并推动了涵盖来源追溯、可靠性、论断分解和密码学谱系的形式化审计标准
 \citep{rasheed2026aar, huang2025decmetrics, radanliev2026aibom}。
-与之前仅针对单一维度的审计方案不同，\textsc{Ara}
+与之前仅针对单一维度的审计方案不同，\ara{}
 的认证证书将所有维度在一个可强制执行的机制中落地。
 
 \paragraph{负向知识与失败轨迹。}\label{ux8d1fux5411ux77e5ux8bc6ux4e0eux5931ux8d25ux8f68ux8ff9}
@@ -1459,7 +1454,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 的搜索历史，而过程层面的研究
 \citep{wijk2025rebench, yamada2025aiscientistv2}
 证实，人类专家和智能体科学家都会探索大量从未出现在书面报告中的死胡同。
-与原始轨迹档案不同，\textsc{Ara} 的探索图谱将死胡同提升为一等的
+与原始轨迹档案不同，\ara{} 的探索图谱将死胡同提升为一等的
 \passthrough{\lstinline!dead\\\_end!}
 节点，具有结构化的失败模式和论断交叉引用，使负向知识可被机器查询，而非因叙事筛选而丢失。
 
@@ -1482,7 +1477,7 @@ PaperBench
 \citep{wang2023voyager, agentskills2025} 以及基于构件的智能体协调
 \citep{wang2026scienceclaw}
 进一步表明，结构化构件而非自然语言论文，是复合智能体能力的自然交换单元------我们的实时研究管理器（\S\ref{sec-live-pm}）正是这一前提的具体实现。
-与事后还原流水线和背景知识图谱不同，\textsc{Ara}
+与事后还原流水线和背景知识图谱不同，\ara{}
 在创作时将论断、证据、启发式规则及其可执行绑定编码，完全消除了事后还原步骤。
 
 \section{Future Work}\label{sec-discussion}
@@ -1490,11 +1485,11 @@ PaperBench
 \paragraph{Near term: artifact lineage and self-maintaining
 ecosystems.}\label{near-term-artifact-lineage-and-self-maintaining-ecosystems.}
 
-最紧迫的近期缺口是构件的持久性：如同代码仓库一样，\textsc{Ara}
+最紧迫的近期缺口是构件的持久性：如同代码仓库一样，\ara{}
 在没有维护的情况下会随着依赖腐烂和实践演变而衰退，然而未维护的构件却是社区常态。
-自然的扩展是引入一种\emph{谱系机制}，每个 \textsc{Ara}
+自然的扩展是引入一种\emph{谱系机制}，每个 \ara{}
 在其中声明其父构件，并将其贡献表达为结构化的差异，从而同时降低构建成本（作者仅需指定增量部分）和验证成本（审稿人和智能体仅需重新检查新增贡献）。
-谱系机制还能实现自我维护的生态系统：消费 \textsc{Ara}
+谱系机制还能实现自我维护的生态系统：消费 \ara{}
 的智能体检测并修复陈腐之处，更新已弃用的依赖，并将修正向上游传播，使每次消费行为都成为一次维护行为。
 
 \paragraph{Medium term: knowledge graph, collaborative discovery, and
@@ -1503,7 +1498,7 @@ review.}\label{medium-term-knowledge-graph-collaborative-discovery-and-continuou
 
 聚合的谱系构成了一个可查询的科学知识图谱，将协作与审阅从文档层面提升至语料库层面。
 跨构件的论断对齐将文献综合转化为子图查询，使审稿智能体能够验证所报告的基线是否与被引
-\textsc{Ara}
+\ara{}
 所记录的内容相符，并暴露轨迹冲突------即某方法在别处被声称成功，但在其他构件中却被记录为失败。
 共享的探索图谱还实现了 PDF
 生态中不可能的协作形式，从带有已记录死胡同的开放问题的并行延续，到对活跃、持续演化的构件进行细粒度署名。
@@ -1512,11 +1507,11 @@ review.}\label{medium-term-knowledge-graph-collaborative-discovery-and-continuou
 \paragraph{Long term: cross-disciplinary collective
 memory.}\label{long-term-cross-disciplinary-collective-memory.}
 
-我们的评估限于机器学习领域，其中 \textsc{Ara}
+我们的评估限于机器学习领域，其中 \ara{}
 的四层结构与主流贡献类型------算法、架构和训练流程------天然对齐。
 这种结构能否推广到其他学科仍是一个悬而未决的问题。
 认知层和证据层可能是领域无关的，但物理层和探索图谱均以可迭代的计算实验为前提，对于执行是物理而非计算的湿实验科学，可能需要进行大量调整。
-如果这些调整成功，\textsc{Ara}
+如果这些调整成功，\ara{}
 将为跨学科知识迁移提供天然基座，其中一个领域被记录下来的失败通过图谱遍历而非在不熟悉符号体系中进行文献搜索，成为另一领域中可操作的知识。
 
 \section{Limitations}\label{sec-limitations}
@@ -1525,22 +1520,22 @@ memory.}\label{long-term-cross-disciplinary-collective-memory.}
 
 \textbf{评估范围。}
 本研究仅覆盖机器学习论文，在该领域，计算可复现性和定义清晰的贡献类型使
-\textsc{Ara}
+\ara{}
 的四层结构天然契合；该协议是否能推广到具有物理执行要求的实验科学，或推广到物理层基本不存在的理论学科，仍有待实证检验。将物理层扩展到需要机器可验证规范的形式化或基于证明的结果，是未来工作的一个自然方向。我们的人工标注基准亦由熟悉
-\textsc{Ara}
+\ara{}
 格式及其所选论文的标注者构建，因此在陌生或小众领域构件上的表现可能与报告的数据有差异。
 
-\textbf{保真度上限。} \textsc{Ara}
+\textbf{保真度上限。} \ara{}
 的保真度受监督信息来源的限制。编译器仅忠实反映 PDF
 包含的内容（Section~\ref{sec-ingestor}）：当论文省略实验细节、环境规范或消融结果时，任何提取方法都无法将其恢复。实时研究管理器通过在研究展开过程中记录轨迹来弥补这一差距，但其前提是一个
 AI
 原生的工作流，即整个项目过程中始终存在一个编码智能体。对于不在此类会话中的研究者，编译器仍能从已完成的论文生成一个有效的
-\textsc{Ara}，但生成的构件继承了 PDF
+\ara{}，但生成的构件继承了 PDF
 的遗漏；手工填写结构化字段仍然是可能的，但会重新引入该协议旨在消除的文档负担。缩小这一采纳差距取决于智能体工作流在研究实践中的广泛普及，而非协议本身。
 
 \textbf{部署前置条件。}
 生产环境所需的两项属性尚未实现。\ref{sec-liveness}
-中提出的对抗鲁棒性和隐私保障尚属愿景：当前系统缺乏沙盒执行、内容级异常检测以及对探索图谱的细粒度访问控制。此外，任何长生命周期的格式都面临\emph{模式演化}问题：随着研究实践的变化，\textsc{Ara}
+中提出的对抗鲁棒性和隐私保障尚属愿景：当前系统缺乏沙盒执行、内容级异常检测以及对探索图谱的细粒度访问控制。此外，任何长生命周期的格式都面临\emph{模式演化}问题：随着研究实践的变化，\ara{}
 模式需要添加节点类型、细化字段语义并废弃过时惯例，同时不破坏既有构件。我们通过显式的
 \passthrough{\lstinline!ara\_schema!} 标签对
 \passthrough{\lstinline!PAPER.md!}
@@ -1548,15 +1543,15 @@ AI
 
 \section{Conclusion}\label{sec-conclusion}
 
-我们提出 \textsc{Ara}
-协议及其周边生态系统，作为智能体原生科学交流的基础。 二者共同解决了 PDF
+我们提出 \ara{} 协议及其周边生态系统，作为智能体原生科学交流的基础。
+二者共同解决了 PDF
 格式的两类结构性缺陷：被叙事惯例抛弃的知识（失败尝试、隐式配置、未探索的分支）以及过于简略以至于无法执行的规范。
-\textsc{Ara}
+\ara{}
 通过将研究贡献重构为一个机器可操作的构件来解决这两个问题，该构件无需人类解释即可被导航、完整读取和验证。
 
 更广泛的动机是一场已经开始的转变：AI
 智能体正在成为研究工作流中的一等参与者，不再是辅助人类的工具，而是能够阅读、复现和扩展科学工作的自主贡献者。
-这一转型要求从一开始就围绕智能体构建基础设施。 \textsc{Ara}
+这一转型要求从一开始就围绕智能体构建基础设施。 \ara{}
 是该生态系统的核心抽象，是人类和机器研究者共同发布、验证和构建科学知识的通用基座。
 
 \FloatBarrier
@@ -1565,7 +1560,7 @@ AI
 
 \section{ARA 协议与设计原理}\label{sec-app-protocol-details}
 
-本附录汇集了\textsc{Ara}格式的完整协议规范、设计原理和验证细节。
+本附录汇集了\ara{}格式的完整协议规范、设计原理和验证细节。
 
 \subsection{复现关键信息分类体系}\label{sec-app-taxonomy}
 
@@ -1606,7 +1601,7 @@ AI
 \label{tab-taxonomy}
 \end{table*}
 
-下面我们定义每个类别，给出从PaperBench评分标准中抽取的具体示例，并解释\textsc{Ara}的结构如何应对底层的检索挑战。
+下面我们定义每个类别，给出从PaperBench评分标准中抽取的具体示例，并解释\ara{}的结构如何应对底层的检索挑战。
 
 \paragraph{1.
 组合实验矩阵（24.1\%）。}\label{ux7ec4ux5408ux5b9eux9a8cux77e9ux963524.1}
@@ -1633,7 +1628,7 @@ AI
   \{3个优化器\}的网格，每种组合是一次独立的训练运行。
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!experiments.md!}文件将实验矩阵中的每个单元格明确列出，以结构化的\passthrough{\lstinline!Setup!}字段将模型、数据集和配置列为机器可读的键值对。
 智能体可以通过编程方式枚举所有运行，而无需解析表头。
 
@@ -1657,7 +1652,7 @@ AI
   Turbo在所有数据集的测试划分上进行了评估。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!experiments.md!}中的每个实验条目都有一个声明式的\passthrough{\lstinline!Procedure!}字段，以有序列表形式指定评估步骤，以及一个\passthrough{\lstinline!Metrics!}字段来指明确切的指标。
 \passthrough{\lstinline!configs/training.md!}文件单独记录评估时的参数（例如束大小、回合数）。
 
@@ -1680,7 +1675,7 @@ AI
   \emph{pinn}：``Adam优化器的学习率可设置为1E-5、1E-4、1E-3、1E-2或1E-1。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!configs/training.md!}文件为所有超参数提供了一个单一的权威位置，按实验组织。
 \passthrough{\lstinline!heuristics.md!}文件额外记录了\emph{敏感度}标注（低/中/高）和有效的\emph{边界}，这是PDF几乎从不提供的信息。
 
@@ -1700,7 +1695,7 @@ AI
   \emph{self-composing-policies}：``每10k时间步记录一次输出注意力分布''；``最终输出与内部策略之间的匹配率，每10k步保存一次。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!experiments.md!}的\passthrough{\lstinline!Metrics!}和\passthrough{\lstinline!Procedure!}字段可以明确列出需要记录什么以及记录的频率。
 \passthrough{\lstinline!evidence/!}层提供了预期输出格式的具体示例。
 
@@ -1723,7 +1718,7 @@ AI
   \emph{pinn}：``与单独使用Adam或L-BFGS相比，Adam+L-BFGS始终获得最低的最小损失。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!claims.md!}文件明确陈述每个论断，并附有明确的\passthrough{\lstinline!Falsification criteria!}和指向验证该论断的实验的指针。
 \passthrough{\lstinline!experiments.md!}的\passthrough{\lstinline!Expected outcome!}字段记录了方向性预测（例如``方法A优于方法B''），而不透露确切数字，从而支持盲法复现。
 
@@ -1745,7 +1740,7 @@ AI
   \emph{mechanistic-understanding}：``形式为\(\text{softmax}(\mathbf{Wx})\)的二分类器，其中\(\mathbf{W}\)的维度为\(K \times 2\)。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!architecture.md!}文件提供了一个单一位置，列出每个组件的维度、激活函数和输入/输出规范。
 \passthrough{\lstinline!src/code/!}中的代码桩提供了可执行的补充。
 
@@ -1766,7 +1761,7 @@ AI
   \emph{fre}：``值函数通过评论家Q值的期望回归目标进行更新''；``行动者通过优势加权回归（AWR）进行更新。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!algorithm.md!}文件将算法作为一个自包含的伪代码块呈现，所有变量定义在作用域内。
 \passthrough{\lstinline!concepts.md!}文件定义符号并链接到使用每个符号的方程。
 
@@ -1787,7 +1782,7 @@ AI
   \emph{pinn}：``训练结束时保存L-BFGS的方向、步长和逆内积''（附录C.2）；``L-BFGS使用强Wolfe线搜索。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!heuristics.md!}文件\emph{专门设计用于}捕获这些内容。
 每个启发式规则条目包含\passthrough{\lstinline!Rationale!}（为什么重要）、\passthrough{\lstinline!Sensitivity!}（没有它性能会下降多少）和\passthrough{\lstinline!Code ref!}（在代码中的何处应用它）。
 
@@ -1809,7 +1804,7 @@ AI
   \emph{pinn}：``从255×100网格中随机采样10,000个残差配置点；每个初始条件257个等距点，每个边界条件101个。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!configs/!}目录提供了结构化的配置文件，包含精确的划分大小和采样参数。
 \passthrough{\lstinline!environment.md!}文件指定了数据集版本和下载URL。
 
@@ -1834,7 +1829,7 @@ AI
   Maze智能体，观察空间的XY坐标被离散化为32个区间。''
 \end{itemize}
 
-\textbf{\textsc{Ara}的优势。}
+\textbf{\ara{}的优势。}
 \passthrough{\lstinline!environment.md!}文件列出了确切的包版本、模型标识符和硬件需求。
 \passthrough{\lstinline!configs/model.md!}文件记录了模型名称、大小和加载配置（例如精度、量化）。
 
@@ -1851,13 +1846,13 @@ AI
 
 最大类别（24.1\%）由需要枚举模型、数据集和配置的完整笛卡尔积的需求组成。
 在PDF中，这个矩阵被压缩为一张表格或一句话；智能体必须将其分解为独立的运行。
-\textsc{Ara}格式使这个矩阵明确且机器可枚举。
+\ara{}格式使这个矩阵明确且机器可枚举。
 
 \paragraph{\texorpdfstring{高权重需求要求\emph{理解}而不仅仅是信息提取。}{高权重需求要求理解而不仅仅是信息提取。}}\label{ux9ad8ux6743ux91cdux9700ux6c42ux8981ux6c42ux7406ux89e3ux800cux4e0dux4ec5ux4ec5ux662fux4fe1ux606fux63d0ux53d6}
 
 PaperBench评分标准中所有权重为2的需求都属于''结果解读''类别。
 这些测试的是智能体能否验证复现结果是否展现出论文所断言的\emph{定性模式}------而不仅仅是代码能否运行。
-\textsc{Ara}的\passthrough{\lstinline!claims.md!}和\passthrough{\lstinline!experiments.md!}层直接编码了这些验证目标，使代码输出与论文论断之间的连接变得明确，而无需智能体从叙事文本中重新推导。
+\ara{}的\passthrough{\lstinline!claims.md!}和\passthrough{\lstinline!experiments.md!}层直接编码了这些验证目标，使代码输出与论文论断之间的连接变得明确，而无需智能体从叙事文本中重新推导。
 
 \subsection{物理层模式：内核 vs 仓库}\label{sec-app-src-modes}
 
@@ -1874,14 +1869,14 @@ PaperBench评分标准中所有权重为2的需求都属于''结果解读''类�
 \paragraph{\texorpdfstring{仓库模式（\texttt{/src/repo/}）。}{仓库模式（/src/repo/）。}}\label{ux4ed3ux5e93ux6a21ux5f0fsrcrepo}
 
 当贡献主要为\emph{系统性质}------CUDA内核、分布式训练策略、系统架构------工程本身\emph{就是}贡献。
-完整实现被保留但进行了\emph{标注}：一个\passthrough{\lstinline!index.md!}清单将每个源文件映射到其实现的\textsc{Ara}组件------支持了哪个论断、体现了哪个启发式规则、属于哪个架构模块------提供了单一代码库所缺乏的结构化导航。
+完整实现被保留但进行了\emph{标注}：一个\passthrough{\lstinline!index.md!}清单将每个源文件映射到其实现的\ara{}组件------支持了哪个论断、体现了哪个启发式规则、属于哪个架构模块------提供了单一代码库所缺乏的结构化导航。
 取证绑定将代码区域与论断、约束和启发式规则连接起来，使智能体能够根据研究结构而不是仅凭目录约定来遍历代码库。
 
 在两种模式下，认知层仍然是理解贡献的主要界面；物理层提供可执行的证据，按比例匹配。
 
 \subsection{ARA 示例：本文论文的自身构件}\label{sec-app-schema}
 
-本文论文本身即作为一个\textsc{Ara}构件进行维护。
+本文论文本身即作为一个\ara{}构件进行维护。
 仓库根目录下的\passthrough{\lstinline!ara/!}目录包含了在研究过程中逐步填充的动态认知层、物理层和探索层（见\S\ref{sec-live-pm}）。
 我们在下面复现了每个关键文件的摘录，以便读者对格式有一个具体的了解。
 所有条目都是真实的；仅出于篇幅考虑省略了尾部项目。
@@ -2238,14 +2233,14 @@ sessions:
 
 \section{编译器技能详情}\label{sec-app-system-details}
 
-\textsc{Ara}
+\ara{}
 编译器（\S\ref{sec-ingestor}）被实现为一个\emph{智能体技能}：一个自包含的自然语言规范，当加载到任何通用编码智能体的上下文中时，将其转变为领域专用的编译系统。
 该技能规定了智能体\emph{应该做什么}以及\emph{需要什么领域知识}，但将所有执行机制（模型选择、工具调度、上下文管理）委托给宿主智能体。
 本附录复现了该技能规范的关键元素；完整定义可在补充代码中获取。\footnote{完整实现：\url{https://github.com/AmberLJC/Agent-Native-Research-Artifact}。}
 
 \subsection{编译器技能规范}\label{sec-app-ingestor-prompt}
 
-编译器技能规范（约482行自然语言）分为五个部分。当加载到宿主智能体的上下文中时，它提供生成符合模式的\textsc{Ara}所需的全部领域知识。我们在下面复现了代表性元素；完整规范可在补充代码中获取。
+编译器技能规范（约482行自然语言）分为五个部分。当加载到宿主智能体的上下文中时，它提供生成符合模式的\ara{}所需的全部领域知识。我们在下面复现了代表性元素；完整规范可在补充代码中获取。
 
 \paragraph{第1部分：工作流（第1--11行）。}\label{ux7b2c1ux90e8ux5206ux5de5ux4f5cux6d41ux7b2c111ux884c}
 
@@ -2346,7 +2341,7 @@ for /trace:
 
 \section{实时研究管理器详情}\label{sec-app-lrm-details}
 
-实时研究管理器（\S\ref{sec-live-pm}）是\textsc{Ara}系统中的第二个智能体技能。
+实时研究管理器（\S\ref{sec-live-pm}）是\ara{}系统中的第二个智能体技能。
 与编译器一样，它是一个自包含的自然语言规范，将通用编码智能体转变为领域专用系统；但与编译器不同，它持续地与研究者一起运行，而不是一次性编译。
 本附录详细阐述了\S\ref{sec-live-pm}中总结的设计原则、跨会话机制和提交工作流。
 
@@ -2368,7 +2363,7 @@ AI原生研究模糊了人类洞察与机器执行之间的界限。
 管理器必须客观地追踪\emph{谁做了什么}：区分由研究者明确陈述的想法、由智能体推断的建议、智能体自主执行的操作以及研究者修订过的AI建议。
 没有这样的溯源，构件就无法忠实地表示其内容的认知起源。
 研究过程本质上是混乱的：一个会话可能会交叉假设形成、编码、调试和写作，没有明确的边界。
-管理器必须将这一原始的对话流转换为结构化的\textsc{Ara}模式，而不丢失信息或强加过早的结构。
+管理器必须将这一原始的对话流转换为结构化的\ara{}模式，而不丢失信息或强加过早的结构。
 尚不可分类的观察结果应该暂存而不是被强制归类，知识应该逐步成熟，从直觉到类型化事件再到正式绑定的论断，反映研究理解的实际发展过程。
 
 \textbf{P3. 全面的轨迹捕获。}
@@ -2543,7 +2538,7 @@ what-will-my-model-forget & Continual learning & No \\
 
 对于每个（论文，格式，问题）三元组，我们实例化一个全新的子智能体（Claude
 Sonnet 4.6）。
-该智能体接收被测格式（在ARA条件下为完整的\textsc{Ara}目录，在基线条件下为PDF加配套GitHub仓库）和单个问题。每个问题独立回答，使用全新上下文以防止信息泄露。
+该智能体接收被测格式（在ARA条件下为完整的\ara{}目录，在基线条件下为PDF加配套GitHub仓库）和单个问题。每个问题独立回答，使用全新上下文以防止信息泄露。
 
 \paragraph{评分标准。}\label{ux8bc4ux5206ux6807ux51c6}
 
@@ -2651,54 +2646,54 @@ Re-derivation of known solutions           & 14.4\% & --- \\
 
 \paragraph{类别A：通过渐进式信息披露以更低成本实现保真度。}\label{ux7c7bux522baux901aux8fc7ux6e10ux8fdbux5f0fux4fe1ux606fux62abux9732ux4ee5ux66f4ux4f4eux6210ux672cux5b9eux73b0ux4fddux771fux5ea6}
 
-\textsc{Ara}以高保真度保留了PDF可恢复的信息，同时检索所需的token更少。
-在PaperBench上，\textsc{Ara}达到96.7\%
+\ara{}以高保真度保留了PDF可恢复的信息，同时检索所需的token更少。
+在PaperBench上，\ara{}达到96.7\%
 vs.~基线89.8\%，同时每个问题消耗的token少12\%（86.3K vs.~97.7K）。
-结构上的解释是渐进式信息披露：\textsc{Ara}的PAPER.md提供了一个层索引，将智能体引导到相关文件（例如\passthrough{\lstinline!evidence/tables/!}用于数值结果，\passthrough{\lstinline!logic/solution/algorithm.md!}用于方法细节），而PDF智能体必须为每个查询扫描整个文档。
-在RE-Bench上，基线仅阅读合成的精炼论文而非真实出版物，\textsc{Ara}的准确率优势扩大到92.1\%
+结构上的解释是渐进式信息披露：\ara{}的PAPER.md提供了一个层索引，将智能体引导到相关文件（例如\passthrough{\lstinline!evidence/tables/!}用于数值结果，\passthrough{\lstinline!logic/solution/algorithm.md!}用于方法细节），而PDF智能体必须为每个查询扫描整个文档。
+在RE-Bench上，基线仅阅读合成的精炼论文而非真实出版物，\ara{}的准确率优势扩大到92.1\%
 vs.~51.4\%：合成的写作省略了构件结构化层所保留的大量技术细节。
-核心发现是，结构化组织在保持token使用量相当的同时提高了准确性，因为\textsc{Ara}的层分类体系将线性搜索转化为索引查找。
+核心发现是，结构化组织在保持token使用量相当的同时提高了准确性，因为\ara{}的层分类体系将线性搜索转化为索引查找。
 
 \paragraph{类别B：通过集中式配置实现配置恢复。}\label{ux7c7bux522bbux901aux8fc7ux96c6ux4e2dux5f0fux914dux7f6eux5b9eux73b0ux914dux7f6eux6062ux590d}
 
 与评分标准对齐的问题探查细粒度的实验细节（超参数值、环境规范、预处理步骤），这些是PaperBench评分标准要求但论文系统性省略的内容（所有缺口中26.2\%是缺失超参数；见附录
 \ref{sec-app-gap-types}）。
 基线的67.8\%反映了成功的代码仓库挖掘：每个问题有专用的子智能体，它可以grep遍历配套的GitHub仓库来查找许多配置值。
-然而，\textsc{Ara}的\passthrough{\lstinline!src/configs/!}和\passthrough{\lstinline!logic/requirements.md!}层将这些知识集中到人类可读的文件中，将准确率提升至92.6\%，同时token使用量相当（每个问题183K
+然而，\ara{}的\passthrough{\lstinline!src/configs/!}和\passthrough{\lstinline!logic/requirements.md!}层将这些知识集中到人类可读的文件中，将准确率提升至92.6\%，同时token使用量相当（每个问题183K
 vs.~178K）：智能体读取结构化配置文件，而不是搜索分散的代码库。
 剩下到100\%的差距反映了纸面和仓库中确实都不存在的细节，编译器无法合成这些细节。
 
 \paragraph{类别C：失败知识在基线中没有对应物。}\label{ux7c7bux522bcux5931ux8d25ux77e5ux8bc6ux5728ux57faux7ebfux4e2dux6ca1ux6709ux5bf9ux5e94ux7269}
 
-\textsc{Ara}在失败知识问题上达到81.4\%，而基线仅达到15.7\%；合成的精炼论文几乎不包含任何失败方法、死胡同配置或中间结果的记录，而这些被轨迹层保存了下来。
+\ara{}在失败知识问题上达到81.4\%，而基线仅达到15.7\%；合成的精炼论文几乎不包含任何失败方法、死胡同配置或中间结果的记录，而这些被轨迹层保存了下来。
 基线每个问题的低token使用量（58.0K）反映了这种贫乏：智能体很快判断信息不存在，并返回简短答案，花在无果搜索上的token最少。
-\textsc{Ara}智能体每个问题消耗更多token（139.3K），但富有成效地探索了探索树以找到答案。
+\ara{}智能体每个问题消耗更多token（139.3K），但富有成效地探索了探索树以找到答案。
 这一类别为保留负面知识提供了最清晰的证据：叙事格式系统性丢弃的信息造成了整个评估中最大的单一准确率差距。
 
 \subsection{统计细节}\label{sec-app-understanding-stats}
 
-对450个配对结果的McNemar检验得出\(\chi^2 = 95.15\)，总体\(p < 10^{-10}\)：\textsc{Ara}正确回答了141个基线遗漏的问题，而基线仅正确回答了18个\textsc{Ara}遗漏的问题。
-按类别来看，\textsc{Ara}的优势在所有三个类别中均高度显著：类别A（\(+14.8\%\)），类别B（\(+24.8\%\)）和类别C（\(+65.7\%\)，主要由于基线来源中缺乏探索知识）。
+对450个配对结果的McNemar检验得出\(\chi^2 = 95.15\)，总体\(p < 10^{-10}\)：\ara{}正确回答了141个基线遗漏的问题，而基线仅正确回答了18个\ara{}遗漏的问题。
+按类别来看，\ara{}的优势在所有三个类别中均高度显著：类别A（\(+14.8\%\)），类别B（\(+24.8\%\)）和类别C（\(+65.7\%\)，主要由于基线来源中缺乏探索知识）。
 
 \paragraph{难度分层。}\label{ux96beux5ea6ux5206ux5c42}
 
-按问题难度分层，\textsc{Ara}在所有层级中均领先：T1（显式）问题（ARA
-97.3\%，BL 83.8\%；\(n = 74\)），T2（分散）问题（ARA 95.6\%，BL
+按问题难度分层，\ara{}在所有层级中均领先：T1（显式）问题（ARA 97.3\%，BL
+83.8\%；\(n = 74\)），T2（分散）问题（ARA 95.6\%，BL
 79.0\%；\(n = 193\)）和T3（隐含）问题（ARA 91.0\%，BL
 60.5\%；\(n = 172\)）。
-对于无法回答的问题（\(n = 26\)），\textsc{Ara}达到92.3\%的弃权准确率
+对于无法回答的问题（\(n = 26\)），\ara{}达到92.3\%的弃权准确率
 vs.~基线86.5\%。
 难度梯度是预期的：T2和T3问题需要组装分散的信息或推理隐含假设，结构化表示在这些场景中提供了最大的优势。
 
 \paragraph{Token使用量-难度交互。}\label{tokenux4f7fux7528ux91cf-ux96beux5ea6ux4ea4ux4e92}
 
-每个问题的token数据揭示了\textsc{Ara}的渐进式信息披露架构创建了一种自适应搜索模式：\textsc{Ara}智能体在T1（显式）问题上消耗60.9K个token/Q，在T2（分散）上消耗95.5K，在T3（隐含）上消耗152.7K，使搜索深度适应问题复杂度。
+每个问题的token数据揭示了\ara{}的渐进式信息披露架构创建了一种自适应搜索模式：\ara{}智能体在T1（显式）问题上消耗60.9K个token/Q，在T2（分散）上消耗95.5K，在T3（隐含）上消耗152.7K，使搜索深度适应问题复杂度。
 相比之下，基线智能体在难度层级之间表现出更平坦的剖面（82.8K--118.2K个token/Q），因为线性PDF扫描无法利用问题感知导航。
-\textsc{Ara}在T1（少27\%）和T2（少13\%）上消耗的token比基线少，在T3上投入更多，同时在每个层级上都显著更准确。
+\ara{}在T1（少27\%）和T2（少13\%）上消耗的token比基线少，在T3上投入更多，同时在每个层级上都显著更准确。
 
 \paragraph{基准测试组细分。}\label{ux57faux51c6ux6d4bux8bd5ux7ec4ux7ec6ux5206}
 
-在PaperBench论文上（\(n = 345\)），\textsc{Ara}达到95.4\%
+在PaperBench论文上（\(n = 345\)），\ara{}达到95.4\%
 vs.~82.5\%，token使用量相当。
 在RE-Bench任务上（\(n = 105\)），准确率差距扩大（ARA 88.6\% vs.~BL
 39.5\%），由基线无法访问失败知识的类别C问题驱动。
@@ -2728,7 +2723,7 @@ vs.~82.5\%，token使用量相当。
 
 \paragraph{统计显著性。}\label{ux7edfux8ba1ux663eux8457ux6027}
 
-对15个配对按论文加权分数的Wilcoxon符号秩检验得出\(p = 0.028\)：\textsc{Ara}在8篇论文上获胜，5篇平局，基线在2篇上领先。
+对15个配对按论文加权分数的Wilcoxon符号秩检验得出\(p = 0.028\)：\ara{}在8篇论文上获胜，5篇平局，基线在2篇上领先。
 符号模式（8--2）本身在原假设无差异下是统计上不可能的（\(p = 0.039\)，精确二项式），证实总体优势不是由单个异常值论文驱动的。
 
 \subsection{按论文复现分析}\label{sec-app-repro-per-paper}
@@ -2737,7 +2732,7 @@ vs.~82.5\%，token使用量相当。
 
 \paragraph{按难度分析。}\label{ux6309ux96beux5ea6ux5206ux6790}
 
-总体的按难度模式（\textsc{Ara} 85.1\% vs.~基线80.2\%简单，68.5\%
+总体的按难度模式（\ara{} 85.1\% vs.~基线80.2\%简单，68.5\%
 vs.~62.9\%中等，54.5\% vs.~46.0\%困难）在正文图
 Figure~\ref{fig-repro-difficulty}中可视化。 图
 Figure~\ref{fig-repro-difficulty-heatmap}将此总体模式解析到每篇论文层面，表
@@ -2812,7 +2807,7 @@ vs.~195K个token），表明即使在最终分数相近的情况下也存在效�
 \section{扩展评估}\label{sec-app-extension-eval}
 
 本附录记录了\S\ref{sec-eval-extension}背后的方法论：我们使用哪些RE-Bench任务及其原因（附录
-\ref{sec-app-extension-tasks}），每个\textsc{Ara}如何从官方解决方案和先前的MALT轨迹编译而来（附录
+\ref{sec-app-extension-tasks}），每个\ara{}如何从官方解决方案和先前的MALT轨迹编译而来（附录
 \ref{sec-app-extension-pipeline}），精炼论文臂基线\passthrough{\lstinline!paper.md!}是如何生成的（附录
 \ref{sec-app-extension-paper-baseline}），智能体测试框架的工程实现（附录
 \ref{sec-app-extension-harness}），我们如何从智能体轨迹中提取规范分数（附录
@@ -2853,7 +2848,7 @@ Sonnet和OpenAI模型），数据稀疏，并且存在的运行主要由简单�
 \subsection{ARA构建流水线}\label{sec-app-extension-pipeline}
 
 每个RE-Bench
-\textsc{Ara}从两个来源编译：官方参考解决方案（逐字复制到\passthrough{\lstinline!src/!}）和任务的METR
+\ara{}从两个来源编译：官方参考解决方案（逐字复制到\passthrough{\lstinline!src/!}）和任务的METR
 MALT转录（在低于参考线筛选下提取到\passthrough{\lstinline!trace/!}和\passthrough{\lstinline!evidence/!}）。编译器是任务无关的，具有在每个任务卡片中收集的按任务调节项（分数公式和方向、MALT
 JSONL路径、开发历史模式、已知危险）；编排器过程和共享子智能体提示存放在\passthrough{\lstinline!code/rebench-pipeline/!}中。
 
@@ -2867,7 +2862,7 @@ JSONL路径、开发历史模式、已知危险）；编排器过程和共享子
 
 \subsection{论文基线构建}\label{sec-app-extension-paper-baseline}
 
-论文臂\passthrough{\lstinline!reference/paper.md!}是实验将\textsc{Ara}与之比较的传统构件：一篇由LLM合成的官方解决方案的学术风格写作，每个任务从\textsc{Ara}编译器摄入的相同来源中生成一次。合成提示产生一篇已发表方法论文的结构（摘要、问题设定、相关工作、方法、结果、讨论），应用相同的低于参考线筛选，因此两个捆绑包都不包含已完成的超出参考线解决方案。根据设计，\passthrough{\lstinline!paper.md!}仅保留有效的部分，反映了已发表论文通常报告最终方法而不包含被拒绝的替代方案或记录的死胡同的方式。
+论文臂\passthrough{\lstinline!reference/paper.md!}是实验将\ara{}与之比较的传统构件：一篇由LLM合成的官方解决方案的学术风格写作，每个任务从\ara{}编译器摄入的相同来源中生成一次。合成提示产生一篇已发表方法论文的结构（摘要、问题设定、相关工作、方法、结果、讨论），应用相同的低于参考线筛选，因此两个捆绑包都不包含已完成的超出参考线解决方案。根据设计，\passthrough{\lstinline!paper.md!}仅保留有效的部分，反映了已发表论文通常报告最终方法而不包含被拒绝的替代方案或记录的死胡同的方式。
 
 \subsection{测试框架工程}\label{sec-app-extension-harness}
 
@@ -2948,8 +2943,7 @@ Figure~\ref{fig-extension-mlm-45}），我们还报告了在较旧的Sonnet
 
 任务是为\(10^8\)个\passthrough{\lstinline!int32!}元素上的条件前缀和编写一个Triton内核：\(Y_i = \sum_{j \leq i} x_j \cdot \mathbb{1}[\text{j之前有奇数个正数}]\)，在H100上按\(\log(t_\text{ms})\)评分。双方从相同的官方解决方案开始：一个3遍Triton内核（奇偶扫描\(\to\)条件累加和\(\to\)块求和累加），具有自动调优的\passthrough{\lstinline!BLOCK\_SIZE!}
 / \passthrough{\lstinline!NUM\_STAGES!}。我们运行了四条轨迹：Claude
-Sonnet
-4.5上的论文臂和\textsc{Ara}臂（我们拥有最长配对运行的模型）以及Sonnet
+Sonnet 4.5上的论文臂和\ara{}臂（我们拥有最长配对运行的模型）以及Sonnet
 4.6上的（我们在其余评估中使用的模型重新运行）。Sonnet 4.6轨迹在正文图
 Figure~\ref{fig-extension-summary}（最左列）中；下面的图
 Figure~\ref{fig-extension-triton-45}显示了Sonnet
@@ -2977,20 +2971,20 @@ Figure~\ref{fig-extension-summary}，最左列）中。}
 \paragraph{Sonnet
 4.5：轨迹条件下的自动调优扫描。}\label{sonnet-4.5ux8f68ux8ff9ux6761ux4ef6ux4e0bux7684ux81eaux52a8ux8c03ux4f18ux626bux63cf}
 
-论文臂智能体用\(`NUM_STAGES` \in \{1, 24, 32, 48, 64, 96\}\)填充其自动调优网格，将最深流水线标记为\emph{``极端流水线------性能最高者''}在内嵌注释中，从未测试\(\{4, 8\}\)范围。\textsc{Ara}臂智能体相反选择了\(`NUM_STAGES` \in \{4, 8\}\)，在\(t = 4.3\)分钟时在\passthrough{\lstinline!ThinkingBlock!}中逐字引用了启发式规则H01（\emph{``网格大小对H100固定为128（拥有132个SM）\ldots{}''}），这是在读取\passthrough{\lstinline!evidence/tables/malt\_attempts.md!}和\passthrough{\lstinline!src/configs/autotune.md!}之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生\textsc{Ara}智能体在图
+论文臂智能体用\(`NUM_STAGES` \in \{1, 24, 32, 48, 64, 96\}\)填充其自动调优网格，将最深流水线标记为\emph{``极端流水线------性能最高者''}在内嵌注释中，从未测试\(\{4, 8\}\)范围。\ara{}臂智能体相反选择了\(`NUM_STAGES` \in \{4, 8\}\)，在\(t = 4.3\)分钟时在\passthrough{\lstinline!ThinkingBlock!}中逐字引用了启发式规则H01（\emph{``网格大小对H100固定为128（拥有132个SM）\ldots{}''}），这是在读取\passthrough{\lstinline!evidence/tables/malt\_attempts.md!}和\passthrough{\lstinline!src/configs/autotune.md!}之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生\ara{}智能体在图
 Figure~\ref{fig-extension-triton-45}中\(\sim 0.27\)
 vs.~论文臂智能体的平坦\(\sim 0.64\)的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的''更多流水线更好''的设置。
 
 \paragraph{Sonnet
 4.6：早期领先，后期论文智能体反超。}\label{sonnet-4.6ux65e9ux671fux9886ux5148ux540eux671fux8bbaux6587ux667aux80fdux4f53ux53cdux8d85}
 
-\textsc{Ara}智能体在\(t = 11\)分钟时首次调用\passthrough{\lstinline!bash score.sh!}并立即得分0.47，在前十分钟内使用轨迹浮现的思想编辑了内核（\passthrough{\lstinline!解耦回看!}、\passthrough{\lstinline!associative\_scan!}）。论文臂智能体直到\(t = 37\)分钟才评分，得分为0.38，早期挂钟时间花在阅读精炼写作和从第一性原理推理上。\textsc{Ara}智能体在迄今最佳方面领先到\(t \approx 75\)分钟，然后论文臂智能体通过在\(t = 47.7\)分钟引入的\passthrough{\lstinline!int8!}输入压缩反超（动机来自于评分器的\([-10, 9]\)输入范围适合8位），结合每个块的奇偶追踪聚合，将总内存流量从\textasciitilde2
+\ara{}智能体在\(t = 11\)分钟时首次调用\passthrough{\lstinline!bash score.sh!}并立即得分0.47，在前十分钟内使用轨迹浮现的思想编辑了内核（\passthrough{\lstinline!解耦回看!}、\passthrough{\lstinline!associative\_scan!}）。论文臂智能体直到\(t = 37\)分钟才评分，得分为0.38，早期挂钟时间花在阅读精炼写作和从第一性原理推理上。\ara{}智能体在迄今最佳方面领先到\(t \approx 75\)分钟，然后论文臂智能体通过在\(t = 47.7\)分钟引入的\passthrough{\lstinline!int8!}输入压缩反超（动机来自于评分器的\([-10, 9]\)输入范围适合8位），结合每个块的奇偶追踪聚合，将总内存流量从\textasciitilde2
 GB降至0.5
-GB；它在剩余的运行中迭代这一设计。\textsc{Ara}智能体同时致力于链式扫描加解耦回看的重新设计，并在边界正确性调试上花费了后期计算，受启发式规则H13和轨迹报告的MALT上限所锚定。\passthrough{\lstinline!int8!}在\(t = 40.5\)分钟时在\textsc{Ara}智能体轨迹中出现过一次，作为一闪而过的想法，从未被实现。
+GB；它在剩余的运行中迭代这一设计。\ara{}智能体同时致力于链式扫描加解耦回看的重新设计，并在边界正确性调试上花费了后期计算，受启发式规则H13和轨迹报告的MALT上限所锚定。\passthrough{\lstinline!int8!}在\(t = 40.5\)分钟时在\ara{}智能体轨迹中出现过一次，作为一闪而过的想法，从未被实现。
 
 \paragraph{解读。}\label{ux89e3ux8bfb}
 
-\textsc{Ara}构件在运行的两个阶段贡献了两件性质不同的东西。早期，它充当初始化器：智能体缩短了诊断阶段，选择了论文臂智能体遗漏的自动调优旋钮，并在几分钟内落地了改进的内核。后期，它充当锚点：智能体依赖于轨迹推荐的设计和轨迹报告的上限，并将计算花在确认锚点而非搜索锚点之外。
+\ara{}构件在运行的两个阶段贡献了两件性质不同的东西。早期，它充当初始化器：智能体缩短了诊断阶段，选择了论文臂智能体遗漏的自动调优旋钮，并在几分钟内落地了改进的内核。后期，它充当锚点：智能体依赖于轨迹推荐的设计和轨迹报告的上限，并将计算花在确认锚点而非搜索锚点之外。
 
 \subsubsection{\texorpdfstring{案例研究：\texttt{rust\_codecontests}（LLM作为工具脚手架）}{案例研究：rust\_codecontests（LLM作为工具脚手架）}}\label{sec-eval-extension-rust}
 
@@ -2998,24 +2992,24 @@ GB；它在剩余的运行中迭代这一设计。\textsc{Ara}智能体同时致
 =
 21/165）使用每个问题18个候选的流水线，具有思维链提示、编译并公开测试筛选器以及幸存者投票阶段；它附带一个未使用的\passthrough{\lstinline!few\_shots/!}目录，接入脚手架的提示构建。双方从相同的脚手架开始。我们在Sonnet
 4.6上每臂运行了一个种子（rust任务没有Sonnet-4.5配对数据）；轨迹出现在正文图
-Figure~\ref{fig-extension-summary}（第二列）中。\textsc{Ara}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
+Figure~\ref{fig-extension-summary}（第二列）中。\ara{}臂的运行链接了一个父SLURM作业、一个TIMEOUT恢复恢复和一个最终的无预算仅评分重新评估；论文臂适合在单个8小时作业内完成。
 
 \paragraph{轨迹将MALT数据点转化为可操作的指导。}\label{ux8f68ux8ff9ux5c06maltux6570ux636eux70b9ux8f6cux5316ux4e3aux53efux64cdux4f5cux7684ux6307ux5bfc}
 
-\textsc{Ara}的证据层总结了22次先前的MALT运行，并浮现了一个高价值尝试：\passthrough{\lstinline!supplement\_run\_5!}（Claude-3.7-Sonnet）通过完全绕过gpt-3.5生成，对识别的题目名返回手动验证的Rust解决方案，分数达到0.097。关键的是\(0.097 < 0.127\)（任务参考值），因此原始MALT数据点本身说的是''手工编码输了''，而非''手工编码赢了''。启发式规则层将同一点重新表述为两条明确的规则，一条是规定性的，一条是禁止性的：\passthrough{\lstinline!H12!}（\emph{``在此任务上，手工编码的Rust解决方案库优于提示工程''}）和\passthrough{\lstinline!H15!}（\emph{``在所有已探索的单次补全变体中，GPT-3.5-turbo
-Rust生成器上限\({\sim}0.05\)--\(0.10\)''}）。H15将提示工程标记为已知死胡同；H12然后将低于参考线的库结果解读为未充分探索的方向而非失败。\textsc{Ara}智能体在第一分钟内读取了\passthrough{\lstinline!heuristics.md!}和MALT尝试表，并在\(t = 9.9\)分钟时就开始将手工编码的库作为中心策略进行推理；论文臂智能体的\passthrough{\lstinline!paper.md!}描述了参考脚手架，但不包含关于哪些消融方向是有产出的断言。
+\ara{}的证据层总结了22次先前的MALT运行，并浮现了一个高价值尝试：\passthrough{\lstinline!supplement\_run\_5!}（Claude-3.7-Sonnet）通过完全绕过gpt-3.5生成，对识别的题目名返回手动验证的Rust解决方案，分数达到0.097。关键的是\(0.097 < 0.127\)（任务参考值），因此原始MALT数据点本身说的是''手工编码输了''，而非''手工编码赢了''。启发式规则层将同一点重新表述为两条明确的规则，一条是规定性的，一条是禁止性的：\passthrough{\lstinline!H12!}（\emph{``在此任务上，手工编码的Rust解决方案库优于提示工程''}）和\passthrough{\lstinline!H15!}（\emph{``在所有已探索的单次补全变体中，GPT-3.5-turbo
+Rust生成器上限\({\sim}0.05\)--\(0.10\)''}）。H15将提示工程标记为已知死胡同；H12然后将低于参考线的库结果解读为未充分探索的方向而非失败。\ara{}智能体在第一分钟内读取了\passthrough{\lstinline!heuristics.md!}和MALT尝试表，并在\(t = 9.9\)分钟时就开始将手工编码的库作为中心策略进行推理；论文臂智能体的\passthrough{\lstinline!paper.md!}描述了参考脚手架，但不包含关于哪些消融方向是有产出的断言。
 
 \paragraph{运行过程中的策略分叉。}\label{ux8fd0ux884cux8fc7ux7a0bux4e2dux7684ux7b56ux7565ux5206ux53c9}
 
-在前六个小时中，两个智能体工作在性质不同的问题上。\textsc{Ara}智能体手工编写Rust解决方案并将其注册到\passthrough{\lstinline!SOLUTIONS!}字典中，脚手架在回退到gpt-3.5之前先查询该字典：\(t = 60\)分钟时34个条目，\(t = 170\)分钟时57个，\(t = 226\)分钟时73个。论文臂智能体将任务视为提示工程问题，在\(t = 23\)分钟到\(t = 268\)分钟之间循环经历了\passthrough{\lstinline!solution\_v5.py!}--\passthrough{\lstinline!v8.py!}，调优温度、候选数量、重试预算和JSON模式解析。完整测试集评估跟踪了这一分叉：\textsc{Ara}的分数在\(t = 161, 214, 269\)分钟时从\(49 \to 56 \to 78\)移动（每次评估反映新添加的库条目），而论文臂在\(t = 68\)--\(231\)分钟之间停滞在\(33 \to 33 \to 38 \to 39 \to 39\)------这正是\passthrough{\lstinline!H15!}明确警告的提示工程上限。
+在前六个小时中，两个智能体工作在性质不同的问题上。\ara{}智能体手工编写Rust解决方案并将其注册到\passthrough{\lstinline!SOLUTIONS!}字典中，脚手架在回退到gpt-3.5之前先查询该字典：\(t = 60\)分钟时34个条目，\(t = 170\)分钟时57个，\(t = 226\)分钟时73个。论文臂智能体将任务视为提示工程问题，在\(t = 23\)分钟到\(t = 268\)分钟之间循环经历了\passthrough{\lstinline!solution\_v5.py!}--\passthrough{\lstinline!v8.py!}，调优温度、候选数量、重试预算和JSON模式解析。完整测试集评估跟踪了这一分叉：\ara{}的分数在\(t = 161, 214, 269\)分钟时从\(49 \to 56 \to 78\)移动（每次评估反映新添加的库条目），而论文臂在\(t = 68\)--\(231\)分钟之间停滞在\(33 \to 33 \to 38 \to 39 \to 39\)------这正是\passthrough{\lstinline!H15!}明确警告的提示工程上限。
 
 \paragraph{独立重新发现，六小时后。}\label{ux72ecux7acbux91cdux65b0ux53d1ux73b0ux516dux5c0fux65f6ux540e}
 
-论文臂智能体最终得出了相同的结论。在\(t = 395\)分钟时，在检查工作目录的过程中，它注意到了脚手架\passthrough{\lstinline!get\_few\_shots!}函数引用的已有\passthrough{\lstinline!few\_shots/!}目录；在接下来的六分钟里，其\passthrough{\lstinline!ThinkingBlock!}逆向工程了缓存格式，并开始用AI流水线失败的问题的手工编码解决方案填充它。最后45分钟中的39条手写命令在\(t = 445\)分钟的单次后期评估中将分数从39提升至68。两个智能体之间的差异不在于哪种方法有效，而在于在认识到有效之前花费了多少小时的计算：\textsc{Ara}智能体的第一次规范评估已经反映了手工编码的库，得分为49/165，远高于论文臂智能体在三小时后达到的最终提示工程评估值。
+论文臂智能体最终得出了相同的结论。在\(t = 395\)分钟时，在检查工作目录的过程中，它注意到了脚手架\passthrough{\lstinline!get\_few\_shots!}函数引用的已有\passthrough{\lstinline!few\_shots/!}目录；在接下来的六分钟里，其\passthrough{\lstinline!ThinkingBlock!}逆向工程了缓存格式，并开始用AI流水线失败的问题的手工编码解决方案填充它。最后45分钟中的39条手写命令在\(t = 445\)分钟的单次后期评估中将分数从39提升至68。两个智能体之间的差异不在于哪种方法有效，而在于在认识到有效之前花费了多少小时的计算：\ara{}智能体的第一次规范评估已经反映了手工编码的库，得分为49/165，远高于论文臂智能体在三小时后达到的最终提示工程评估值。
 
 \paragraph{解读。}\label{ux89e3ux8bfb-1}
 
-\textsc{Ara}通过将一个低于参考线的单个MALT尝试蒸馏为一条规定性和一条禁止性启发式规则，将本需六小时的探索阶段压缩为一小时的引导。价值在于时机，而非内容：论文臂智能体的后期重新发现证明了模型可以自行找到这一策略；轨迹只是告诉它去哪里找。rust策略也是\emph{开放式的}（每个库条目增加一个已解决的问题），因此轨迹报告的MALT上限被解读为起跑线而非上界，\textsc{Ara}智能体攀升超越了这一上限------这是轨迹上限不同于triton上角色的一种情况，在triton上策略是闭式的，相同的上限充当锚点。
+\ara{}通过将一个低于参考线的单个MALT尝试蒸馏为一条规定性和一条禁止性启发式规则，将本需六小时的探索阶段压缩为一小时的引导。价值在于时机，而非内容：论文臂智能体的后期重新发现证明了模型可以自行找到这一策略；轨迹只是告诉它去哪里找。rust策略也是\emph{开放式的}（每个库条目增加一个已解决的问题），因此轨迹报告的MALT上限被解读为起跑线而非上界，\ara{}智能体攀升超越了这一上限------这是轨迹上限不同于triton上角色的一种情况，在triton上策略是闭式的，相同的上限充当锚点。
 
 \subsubsection{\texorpdfstring{案例研究：\texttt{nanogpt\_chat\_rl}（在1.5B模型上的偏好RL）}{案例研究：nanogpt\_chat\_rl（在1.5B模型上的偏好RL）}}\label{sec-eval-extension-nanogpt}
 
@@ -3026,20 +3020,20 @@ Figure~\ref{fig-extension-summary}（第三列）中。
 \paragraph{早期分叉：重写算法
 vs.~编排参考方案。}\label{ux65e9ux671fux5206ux53c9ux91cdux5199ux7b97ux6cd5-vs.-ux7f16ux6392ux53c2ux8003ux65b9ux6848}
 
-决定性的分叉在于\emph{每个智能体认定自己在解决哪个问题}。论文臂智能体在\(t = 6.9\)分钟时运行第一次评分，观察到0.616的起始分数对比0.85的参考值，并在\(t = 7.6\)分钟时承诺重写训练算法；到\(t = 10.5\)分钟时，它在\passthrough{\lstinline!rl\_finetune\_v2.py!}中有了一个自定义的DPO加SFT目标。\textsc{Ara}智能体的第一次评分在\(t = 4.5\)分钟，并在\(t = 6.3\)分钟时其\passthrough{\lstinline!ThinkingBlock!}明确引用了轨迹：\emph{``参考方案（8选1，4步，lr=4e-6，2048提示/步）得分\({\sim}0.85\)。没有MALT运行达到0.85，最佳为0.8184。来自Replicate的速率限制是绑定约束。激进的学习率导致崩溃。''}
+决定性的分叉在于\emph{每个智能体认定自己在解决哪个问题}。论文臂智能体在\(t = 6.9\)分钟时运行第一次评分，观察到0.616的起始分数对比0.85的参考值，并在\(t = 7.6\)分钟时承诺重写训练算法；到\(t = 10.5\)分钟时，它在\passthrough{\lstinline!rl\_finetune\_v2.py!}中有了一个自定义的DPO加SFT目标。\ara{}智能体的第一次评分在\(t = 4.5\)分钟，并在\(t = 6.3\)分钟时其\passthrough{\lstinline!ThinkingBlock!}明确引用了轨迹：\emph{``参考方案（8选1，4步，lr=4e-6，2048提示/步）得分\({\sim}0.85\)。没有MALT运行达到0.85，最佳为0.8184。来自Replicate的速率限制是绑定约束。激进的学习率导致崩溃。''}
 它在\(t = 19.8\)分钟时的第一个脚本是一个延续框架，运行额外的参考风格步骤并在每次之后回滚到评分最佳的检查点。轨迹将参考配方从纸上的数字转化为具有明确上限的经验论断，而这将智能体的问题从\emph{``我如何编写更好的训练脚本？''}转化为\emph{``我如何更谨慎地运行现有的脚本？''}。
 
 \paragraph{参考脚手架带有一个回归错误；一条启发式规则给出了修复方法。}\label{ux53c2ux8003ux811aux624bux67b6ux5e26ux6709ux4e00ux4e2aux56deux5f52ux9519ux8befux4e00ux6761ux542fux53d1ux5f0fux89c4ux5219ux7ed9ux51faux4e86ux4feeux590dux65b9ux6cd5}
 
-两条训练路径都遇到了相同的失败：噪声很大的Llama评判员偶尔选择仅标点符号或空的补全作为回合赢家，在这些结果上训练教会模型输出退化输出，并且回归跨步骤复合。\textsc{Ara}智能体的延续框架在\(t = 167\)分钟时暴露了这一点，当时其第一个得分的中间检查点为0.126；论文臂智能体的第一个得分的完整测试检查点在相同失败上降至0.443（\(t = 223\)分钟）。\textsc{Ara}捆绑包将修复预编码为\passthrough{\lstinline!H08!}（\emph{``在训练前过滤掉少于3个字母字符的赢家''}），并附带三条命名了\textsc{Ara}智能体最终实现的评分然后重启编排的配套启发式规则。
+两条训练路径都遇到了相同的失败：噪声很大的Llama评判员偶尔选择仅标点符号或空的补全作为回合赢家，在这些结果上训练教会模型输出退化输出，并且回归跨步骤复合。\ara{}智能体的延续框架在\(t = 167\)分钟时暴露了这一点，当时其第一个得分的中间检查点为0.126；论文臂智能体的第一个得分的完整测试检查点在相同失败上降至0.443（\(t = 223\)分钟）。\ara{}捆绑包将修复预编码为\passthrough{\lstinline!H08!}（\emph{``在训练前过滤掉少于3个字母字符的赢家''}），并附带三条命名了\ara{}智能体最终实现的评分然后重启编排的配套启发式规则。
 
 \paragraph{后期策略：探索宽度。}\label{ux540eux671fux7b56ux7565ux63a2ux7d22ux5bbdux5ea6}
 
-回归后两个智能体都继续迭代，但它们探索了不同的空间。\textsc{Ara}智能体在\(t = 200\)分钟后写了14个脚本，所有变体都在参考算法\emph{之内}：每个都调优批量大小、学习率位置或从最佳重启逻辑，但没有一个改变损失函数。论文臂智能体写了16个脚本，涵盖DPO加SFT目标、自定义多阶段LR调度、变化的锦标赛并行度，最终才回到带较小批量的参考风格训练。即使在\(t = 202\)分钟时，论文臂智能体的\passthrough{\lstinline!ThinkingBlock!}明确识别了参考配方（\emph{``这是N=8，lr=4e-6，4步版本，得分\({\sim}0.85\)''}）但继续编写变体；即使在TIMEOUT恢复后，它还在\(t = 98\)分钟时尝试了另一次DPO尝试。轨迹的经验锚点（``没有MALT运行达到0.85''）将\textsc{Ara}智能体的探索限制在参考算法类内；没有它，论文臂智能体在两个会话中都重新尝试了算法替代方案。
+回归后两个智能体都继续迭代，但它们探索了不同的空间。\ara{}智能体在\(t = 200\)分钟后写了14个脚本，所有变体都在参考算法\emph{之内}：每个都调优批量大小、学习率位置或从最佳重启逻辑，但没有一个改变损失函数。论文臂智能体写了16个脚本，涵盖DPO加SFT目标、自定义多阶段LR调度、变化的锦标赛并行度，最终才回到带较小批量的参考风格训练。即使在\(t = 202\)分钟时，论文臂智能体的\passthrough{\lstinline!ThinkingBlock!}明确识别了参考配方（\emph{``这是N=8，lr=4e-6，4步版本，得分\({\sim}0.85\)''}）但继续编写变体；即使在TIMEOUT恢复后，它还在\(t = 98\)分钟时尝试了另一次DPO尝试。轨迹的经验锚点（``没有MALT运行达到0.85''）将\ara{}智能体的探索限制在参考算法类内；没有它，论文臂智能体在两个会话中都重新尝试了算法替代方案。
 
 \paragraph{解读。}\label{ux89e3ux8bfb-2}
 
-在该任务上，轨迹贡献了三样东西：（i）一个经验锚点，将智能体的问题从算法重新设计转化为谨慎执行，将探索缩小到参考范围内的变体；（ii）一个错误修复词汇表，在智能体必须通过调试发现它们之前命名了退化输出过滤器和评分然后重启编排；（iii）一个具有内置延续标准的策略（运行一步，评分，保留最佳，重启，扫描LR变体，重复），使\textsc{Ara}智能体在整个预算范围内保持高效迭代，而论文臂智能体在耗尽算法替代方案后，只能通过自行声明的会话终止循环，直到测试框架的推回上限触发。然而，后期策略类是经验性的：轨迹缩小并结构化了扫描，但没有缩短它。
+在该任务上，轨迹贡献了三样东西：（i）一个经验锚点，将智能体的问题从算法重新设计转化为谨慎执行，将探索缩小到参考范围内的变体；（ii）一个错误修复词汇表，在智能体必须通过调试发现它们之前命名了退化输出过滤器和评分然后重启编排；（iii）一个具有内置延续标准的策略（运行一步，评分，保留最佳，重启，扫描LR变体，重复），使\ara{}智能体在整个预算范围内保持高效迭代，而论文臂智能体在耗尽算法替代方案后，只能通过自行声明的会话终止循环，直到测试框架的推回上限触发。然而，后期策略类是经验性的：轨迹缩小并结构化了扫描，但没有缩短它。
 
 \subsubsection{\texorpdfstring{案例研究：\texttt{fix\_embedding}（恢复被置换的嵌入矩阵）}{案例研究：fix\_embedding（恢复被置换的嵌入矩阵）}}\label{sec-eval-extension-fixembed}
 
@@ -3049,32 +3043,31 @@ Figure~\ref{fig-extension-summary}（第四列）中；双方首先在\(t \appro
 
 \paragraph{两个捆绑包的数据。}\label{ux4e24ux4e2aux6346ux7ed1ux5305ux7684ux6570ux636e}
 
-论文臂智能体的\passthrough{\lstinline!reference/!}包含一个134行的\passthrough{\lstinline!paper.md!}（官方解决方案写作）加三个官方配置文件：共5个文件。该写作在已发布的配方上是完整的（方程中的3阶段架构，每阶段可训练参数集，LR阶梯\(10^{-3} \to 10^{-4} \to 8\times 10^{-5}\)，二元组路标诊断，人类最佳上限，甚至有一条作者备注称\emph{``阶段C是流水线中验证最少的部分\ldots 如果阶段B尚未收敛，可能是不必要的''}）。\textsc{Ara}捆绑包为22个文件/5,887行，携带相同的算法内容通过10条参考派生的启发式规则（\passthrough{\lstinline!H01!}--\passthrough{\lstinline!H10!}），但增加了一个包含19次先前MALT运行的\passthrough{\lstinline!exploration\_tree.yaml!}、一个282行的每次评分尝试表格，以及\passthrough{\lstinline!H11!}--\passthrough{\lstinline!H22!}：从失败中派生的启发式规则，包括\passthrough{\lstinline!H11!}（\emph{``不要破坏性地替换损坏的wte''}）、\passthrough{\lstinline!H13!}（\emph{``手工构建的小到大嵌入上转换会崩溃''}）和\passthrough{\lstinline!H22!}（\emph{``在19次每次4M个token的MALT运行中，没有智能体达到了官方适配器流水线的水平''}）。
+论文臂智能体的\passthrough{\lstinline!reference/!}包含一个134行的\passthrough{\lstinline!paper.md!}（官方解决方案写作）加三个官方配置文件：共5个文件。该写作在已发布的配方上是完整的（方程中的3阶段架构，每阶段可训练参数集，LR阶梯\(10^{-3} \to 10^{-4} \to 8\times 10^{-5}\)，二元组路标诊断，人类最佳上限，甚至有一条作者备注称\emph{``阶段C是流水线中验证最少的部分\ldots 如果阶段B尚未收敛，可能是不必要的''}）。\ara{}捆绑包为22个文件/5,887行，携带相同的算法内容通过10条参考派生的启发式规则（\passthrough{\lstinline!H01!}--\passthrough{\lstinline!H10!}），但增加了一个包含19次先前MALT运行的\passthrough{\lstinline!exploration\_tree.yaml!}、一个282行的每次评分尝试表格，以及\passthrough{\lstinline!H11!}--\passthrough{\lstinline!H22!}：从失败中派生的启发式规则，包括\passthrough{\lstinline!H11!}（\emph{``不要破坏性地替换损坏的wte''}）、\passthrough{\lstinline!H13!}（\emph{``手工构建的小到大嵌入上转换会崩溃''}）和\passthrough{\lstinline!H22!}（\emph{``在19次每次4M个token的MALT运行中，没有智能体达到了官方适配器流水线的水平''}）。
 
 \paragraph{两个智能体正确实现了已发布的配方。}\label{ux4e24ux4e2aux667aux80fdux4f53ux6b63ux786eux5b9eux73b0ux4e86ux5df2ux53d1ux5e03ux7684ux914dux65b9}
 
-配方在两个捆绑包中都足够明确，两个智能体都实现了它：\textsc{Ara}智能体在\(t = 26\)分钟时完成阶段1，运行阶段2和3，并在\(t = 181\)分钟时达到0.246，而论文臂智能体在\(t = 180\)分钟时达到0.250。前三小时本质上相同，这排除了在算法理解或基本执行上的差异。分叉完全发生在双方都超过0.26参考值之后。
+配方在两个捆绑包中都足够明确，两个智能体都实现了它：\ara{}智能体在\(t = 26\)分钟时完成阶段1，运行阶段2和3，并在\(t = 181\)分钟时达到0.246，而论文臂智能体在\(t = 180\)分钟时达到0.250。前三小时本质上相同，这排除了在算法理解或基本执行上的差异。分叉完全发生在双方都超过0.26参考值之后。
 
 \paragraph{具有相同根本原因的三个后期特征。}\label{ux5177ux6709ux76f8ux540cux6839ux672cux539fux56e0ux7684ux4e09ux4e2aux540eux671fux7279ux5f81}
 
 在\(t = 180\)分钟后，两个智能体在三个具体、可追踪的方式上表现不同，所有都可归因于上述失败记录的不对称性。
 
-\emph{(i)
-置换恢复------论文臂智能体尝试了两次，\textsc{Ara}智能体从未尝试。}
-论文臂智能体在\(t = 19\)分钟时运行\passthrough{\lstinline!recover\_permutation.py!}，观察到\emph{``恢复的置换在50,257个中仅有43个唯一值''}，并放弃了该方法；在\(t = 350\)分钟时------5.5小时后，在其阶段链稳定在0.250之后------同一智能体编写了一个全新的\passthrough{\lstinline!permutation\_recovery.py!}并再次尝试。\textsc{Ara}智能体从未尝试置换恢复，无论哪种形式。这不是能力上的差异（论文臂智能体展示了它会考虑并放弃该方法）；这是每个捆绑包将什么标记为已记录死胡同的差异。\passthrough{\lstinline!H11!}和\passthrough{\lstinline!H13!}直接禁止了这一策略类；\passthrough{\lstinline!paper.md!}仅描述了成功的3阶段流水线，并未枚举失败的替代方案。
+\emph{(i) 置换恢复------论文臂智能体尝试了两次，\ara{}智能体从未尝试。}
+论文臂智能体在\(t = 19\)分钟时运行\passthrough{\lstinline!recover\_permutation.py!}，观察到\emph{``恢复的置换在50,257个中仅有43个唯一值''}，并放弃了该方法；在\(t = 350\)分钟时------5.5小时后，在其阶段链稳定在0.250之后------同一智能体编写了一个全新的\passthrough{\lstinline!permutation\_recovery.py!}并再次尝试。\ara{}智能体从未尝试置换恢复，无论哪种形式。这不是能力上的差异（论文臂智能体展示了它会考虑并放弃该方法）；这是每个捆绑包将什么标记为已记录死胡同的差异。\passthrough{\lstinline!H11!}和\passthrough{\lstinline!H13!}直接禁止了这一策略类；\passthrough{\lstinline!paper.md!}仅描述了成功的3阶段流水线，并未枚举失败的替代方案。
 
 \emph{(ii) 参考线之后的探索纪律。}
-两个智能体编写了相当数量的后期代码。\textsc{Ara}智能体的编写是延续训练变体，在记录的阶段3
-LR区域\(\sim8\times 10^{-5}\)内调优学习率位置和预热长度（\passthrough{\lstinline!H06!}），保持优化器、批量和块大小约束（来自\passthrough{\lstinline!H10!}）不变。论文臂智能体的编写发明了超出已发布3阶段的额外训练阶段，带有自定义LR调度和随机权重平均机制。\textsc{Ara}智能体的后期探索受到LR区域启发式规则的约束；论文臂智能体则没有，因为没有可用的文档确定参考配方的有效邻域在哪里。
+两个智能体编写了相当数量的后期代码。\ara{}智能体的编写是延续训练变体，在记录的阶段3
+LR区域\(\sim8\times 10^{-5}\)内调优学习率位置和预热长度（\passthrough{\lstinline!H06!}），保持优化器、批量和块大小约束（来自\passthrough{\lstinline!H10!}）不变。论文臂智能体的编写发明了超出已发布3阶段的额外训练阶段，带有自定义LR调度和随机权重平均机制。\ara{}智能体的后期探索受到LR区域启发式规则的约束；论文臂智能体则没有，因为没有可用的文档确定参考配方的有效邻域在哪里。
 
 \emph{(iii) 超过参考线后的策略信心。}
-在\(t = 147\)分钟时，\textsc{Ara}智能体的\passthrough{\lstinline!ThinkingBlock!}写道：\emph{``我从参考资料中获得了足够的上下文。关键要点是：1.
+在\(t = 147\)分钟时，\ara{}智能体的\passthrough{\lstinline!ThinkingBlock!}写道：\emph{``我从参考资料中获得了足够的上下文。关键要点是：1.
 没有MALT运行击败参考值（0.26）。2.
 官方解决方案的三阶段适配器流水线是关键创新\ldots{}''}。智能体使用MALT经验锚点将参考线之后的领域转化为一个有产出但探索不足的假设。论文臂智能体在任何时间点都没有发布类似的声明：\passthrough{\lstinline!paper.md!}将0.26和0.16报告为静态数字，没有记录有多少先前的智能体尝试过，或者差距是否可以通过额外的执行努力达到。它从零开始探索参考线之后的领域。
 
 \paragraph{解读。}\label{ux89e3ux8bfb-3}
 
-这个案例是一次清晰的归因：唯一的系统性输入差异是参考内容，而该内容差异本身就是构件格式论断的一个清晰实例（论文保留有效的部分；\textsc{Ara}同时保留有效的和失败的部分）。三个下游行为差异每一个都映射到\textsc{Ara}捆绑包中存在而\passthrough{\lstinline!paper.md!}中缺失的特定失败记录元素。
+这个案例是一次清晰的归因：唯一的系统性输入差异是参考内容，而该内容差异本身就是构件格式论断的一个清晰实例（论文保留有效的部分；\ara{}同时保留有效的和失败的部分）。三个下游行为差异每一个都映射到\ara{}捆绑包中存在而\passthrough{\lstinline!paper.md!}中缺失的特定失败记录元素。
 
 \subsubsection{\texorpdfstring{案例研究：\texttt{restricted\_mlm}（受限掩码语言模型）}{案例研究：restricted\_mlm（受限掩码语言模型）}}\label{sec-eval-extension-mlm}
 
@@ -3104,47 +3097,47 @@ vs.~论文-4.5稳定在1.03------在较弱的基础上约30\%的相对领先。4
 
 \paragraph{跨模型版本的翻转。}\label{ux8de8ux6a21ux578bux7248ux672cux7684ux7ffbux8f6c}
 
-\passthrough{\lstinline!restricted\_mlm!}是我们五个任务中唯一一个\textsc{Ara}-vs-论文的符号在模型之间翻转的任务：在Sonnet
-4.5上，\textsc{Ara}智能体达到0.73 vs.~论文臂智能体的1.03；在Sonnet
+\passthrough{\lstinline!restricted\_mlm!}是我们五个任务中唯一一个\ara{}-vs-论文的符号在模型之间翻转的任务：在Sonnet
+4.5上，\ara{}智能体达到0.73 vs.~论文臂智能体的1.03；在Sonnet
 4.6上，论文臂智能体达到0.69
-vs.~\textsc{Ara}智能体的1.02。从4.5到4.6，论文臂智能体在同一任务上提高了约33\%，而\textsc{Ara}智能体降低了约40\%。
+vs.~\ara{}智能体的1.02。从4.5到4.6，论文臂智能体在同一任务上提高了约33\%，而\ara{}智能体降低了约40\%。
 
 \paragraph{所有四个智能体中的相同架构家族。}\label{ux6240ux6709ux56dbux4e2aux667aux80fdux4f53ux4e2dux7684ux76f8ux540cux67b6ux6784ux5bb6ux65cf}
 
-每次运行的最终\passthrough{\lstinline!solution/model.py!}包含一个\passthrough{\lstinline!BiBigramMLM!}类加一个\passthrough{\lstinline!ConvMLM*!}变体（论文-4.5：\passthrough{\lstinline!ConvMLMWithBiBigrams!}；\textsc{Ara}-4.5：\passthrough{\lstinline!ConvMLMComponent!}；论文-4.6：\passthrough{\lstinline!ConvMLMDilated!}；\textsc{Ara}-4.6：\passthrough{\lstinline!ConvMLMWithReLUAttn!}加五个其他变体）。所有四个都使用了二元组先验，来自启发式规则\passthrough{\lstinline!H04!}的\passthrough{\lstinline!as\_strided!}+\passthrough{\lstinline!einsum!}卷积，以及官方Tao配方。论文臂智能体也发现了正确的架构；分叉不在于架构上限。
+每次运行的最终\passthrough{\lstinline!solution/model.py!}包含一个\passthrough{\lstinline!BiBigramMLM!}类加一个\passthrough{\lstinline!ConvMLM*!}变体（论文-4.5：\passthrough{\lstinline!ConvMLMWithBiBigrams!}；\ara{}-4.5：\passthrough{\lstinline!ConvMLMComponent!}；论文-4.6：\passthrough{\lstinline!ConvMLMDilated!}；\ara{}-4.6：\passthrough{\lstinline!ConvMLMWithReLUAttn!}加五个其他变体）。所有四个都使用了二元组先验，来自启发式规则\passthrough{\lstinline!H04!}的\passthrough{\lstinline!as\_strided!}+\passthrough{\lstinline!einsum!}卷积，以及官方Tao配方。论文臂智能体也发现了正确的架构；分叉不在于架构上限。
 
 \paragraph{差异在于是探索广度。}\label{ux5deeux5f02ux5728ux4e8eux662fux63a2ux7d22ux5e7fux5ea6}
 
 四个\passthrough{\lstinline!model.py!}文件在大小和类数量上差异显著。论文-4.5：9.8
-KB，3个类；\textsc{Ara}-4.5：8.9 KB，3个类；论文-4.6：6.3
-KB，2个类；\textsc{Ara}-4.6：47
+KB，3个类；\ara{}-4.5：8.9 KB，3个类；论文-4.6：6.3
+KB，2个类；\ara{}-4.6：47
 KB，6+个类（\passthrough{\lstinline!ConvMLMWithReLUAttn!},
 \passthrough{\lstinline!ExtendedBiBigramMLM!},
 \passthrough{\lstinline!ConvMLMWithLinearGlobal!},
 \passthrough{\lstinline!ConvMLMWithGlobalContext!},
 \passthrough{\lstinline!MLPMixerWithBiBigrams!},
-\passthrough{\lstinline!ReLUAttentionMLM!}）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及\passthrough{\lstinline!ReLU-attention!}一次，\passthrough{\lstinline!MLPMixer!}三次；\textsc{Ara}-4.6提及它们247次和73次。正文图
+\passthrough{\lstinline!ReLUAttentionMLM!}）。轨迹关键词计数反映了这一点：论文-4.6在整个运行中提及\passthrough{\lstinline!ReLU-attention!}一次，\passthrough{\lstinline!MLPMixer!}三次；\ara{}-4.6提及它们247次和73次。正文图
 Figure~\ref{fig-extension-summary}最右列中的分数回归尖峰是可见的记录：每个朝向1.85或2.5的尖峰是一个新训练的替代架构被评分、发现有问题、被放弃，转而使用保存的最佳ConvMLM检查点。
 
-\paragraph{\texorpdfstring{为什么\textsc{Ara}在Sonnet
-4.5上获胜。}{为什么在Sonnet 4.5上获胜。}}\label{ux4e3aux4ec0ux4e48b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20617261203e7d7dux5728sonnet-4.5ux4e0aux83b7ux80dc}
+\paragraph{\texorpdfstring{为什么\ara{}在Sonnet
+4.5上获胜。}{为什么在Sonnet 4.5上获胜。}}\label{ux4e3aux4ec0ux4e48b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c207465726d20617261203e7d7dux5728sonnet-4.5ux4e0aux83b7ux80dc}
 
-两个4.5智能体最终都调优了相同的ConvMLM家族。\textsc{Ara}智能体的\passthrough{\lstinline!ThinkingBlock!}在\(t = 24\)分钟时明确承诺（\emph{``这应该足以击败参考分数1.13''}）并排队了40k
+两个4.5智能体最终都调优了相同的ConvMLM家族。\ara{}智能体的\passthrough{\lstinline!ThinkingBlock!}在\(t = 24\)分钟时明确承诺（\emph{``这应该足以击败参考分数1.13''}）并排队了40k
 +
-50k延续步骤。在\(t = 26\)分钟时，它将ReLU注意力搁置为\emph{``如果我想瞄准更高分的备选策略''}------对启发式规则的排序列表解读。拥有单一的主架构和一个经验上限（``没有MALT运行击败1.13''），\textsc{Ara}智能体在一个模型上花了约7小时持续微调并达到0.73。论文臂智能体没有等效的''没有先前智能体击败它''信号，没有对单一调优投入可比深度，稳定在1.03。胜利是在共享架构内由深度驱动的。
+50k延续步骤。在\(t = 26\)分钟时，它将ReLU注意力搁置为\emph{``如果我想瞄准更高分的备选策略''}------对启发式规则的排序列表解读。拥有单一的主架构和一个经验上限（``没有MALT运行击败1.13''），\ara{}智能体在一个模型上花了约7小时持续微调并达到0.73。论文臂智能体没有等效的''没有先前智能体击败它''信号，没有对单一调优投入可比深度，稳定在1.03。胜利是在共享架构内由深度驱动的。
 
 \paragraph{为什么论文臂智能体在Sonnet
 4.6上获胜。}\label{ux4e3aux4ec0ux4e48ux8bbaux6587ux81c2ux667aux80fdux4f53ux5728sonnet-4.6ux4e0aux83b7ux80dc}
 
-4.6智能体在架构上分道扬镳。论文臂智能体发明了\passthrough{\lstinline!ConvMLMDilated!}（一个在\passthrough{\lstinline!paper.md!}中未命名的扩张卷积变体），在前30分钟内对其承诺，并在整个8小时内运行单一微调，达到0.69。\textsc{Ara}智能体则实现了启发式规则层命名的额外架构------\passthrough{\lstinline!H11!}
+4.6智能体在架构上分道扬镳。论文臂智能体发明了\passthrough{\lstinline!ConvMLMDilated!}（一个在\passthrough{\lstinline!paper.md!}中未命名的扩张卷积变体），在前30分钟内对其承诺，并在整个8小时内运行单一微调，达到0.69。\ara{}智能体则实现了启发式规则层命名的额外架构------\passthrough{\lstinline!H11!}
 ReLU注意力（\emph{``任何MALT运行用来击败参考值的唯一注意力替代方案''}）、\passthrough{\lstinline!H07!}
 MLPMixer------并串行训练它们。在Sonnet
 4.6的损失景观中，没有一个超越基本ConvMLM：\passthrough{\lstinline!H11!}和\passthrough{\lstinline!H07!}是从Claude-4
-Sonnet基础的先前MALT运行派生的，对于一个优化方式不同的后继模型，菜单已经过时了。机制与4.5中相同------\textsc{Ara}智能体重视启发式规则命名的替代方案------但带宽差异翻转了其符号：4.5无法负担让次要条目成为主要条目的代价，因此它们充当带有备选的排序指针；4.6可以全部并行训练它们，菜单变成了一个碎片化的并行探索列表。
+Sonnet基础的先前MALT运行派生的，对于一个优化方式不同的后继模型，菜单已经过时了。机制与4.5中相同------\ara{}智能体重视启发式规则命名的替代方案------但带宽差异翻转了其符号：4.5无法负担让次要条目成为主要条目的代价，因此它们充当带有备选的排序指针；4.6可以全部并行训练它们，菜单变成了一个碎片化的并行探索列表。
 
 \subsection{可复现性}\label{sec-app-extension-repro}
 
-所有实验构件和代码存放在项目仓库中：\passthrough{\lstinline!code/extension-harness/!}包含SLURM启动的测试框架、按任务系统提示和评分脚本以及分析图表生成器；\passthrough{\lstinline!code/rebench-pipeline/!}包含\textsc{Ara}编译流水线（规则、编排器过程和共享子智能体提示）；\passthrough{\lstinline!code/artifacts/rebench-<task>/!}包含每个任务的完整\textsc{Ara}和论文臂智能体的\passthrough{\lstinline!paper.md!}-加-\passthrough{\lstinline!src/!}捆绑包。每次运行的\passthrough{\lstinline!trace.jsonl!}是权威事件日志；本文中的每个分数、成本和图表都可以通过\passthrough{\lstinline!code/extension-harness/analysis/!}中的分析脚本从中重建。
+所有实验构件和代码存放在项目仓库中：\passthrough{\lstinline!code/extension-harness/!}包含SLURM启动的测试框架、按任务系统提示和评分脚本以及分析图表生成器；\passthrough{\lstinline!code/rebench-pipeline/!}包含\ara{}编译流水线（规则、编排器过程和共享子智能体提示）；\passthrough{\lstinline!code/artifacts/rebench-<task>/!}包含每个任务的完整\ara{}和论文臂智能体的\passthrough{\lstinline!paper.md!}-加-\passthrough{\lstinline!src/!}捆绑包。每次运行的\passthrough{\lstinline!trace.jsonl!}是权威事件日志；本文中的每个分数、成本和图表都可以通过\passthrough{\lstinline!code/extension-harness/analysis/!}中的分析脚本从中重建。
 
 \section{评审系统评估}\label{sec-app-review-system}
 
@@ -3171,9 +3164,9 @@ Sonnet基础的先前MALT运行派生的，对于一个优化方式不同的后�
   最小计数（\(\geq 5\)个概念，\(\geq 3\)个实验，\(\geq 8\)个探索树节点，至少一个\passthrough{\lstinline![dead\_end]!}和一个\passthrough{\lstinline![decision]!}），以及(e)
   跨层引用解析：\passthrough{\lstinline!claims.md!}的\passthrough{\lstinline!Proof!}字段中引用的每个实验ID都解析为\passthrough{\lstinline!experiments.md!}中的一个条目；\passthrough{\lstinline!experiments.md!}的\passthrough{\lstinline!Verifies!}字段中引用的每个论断ID都解析为\passthrough{\lstinline!claims.md!}中的一个条目；\passthrough{\lstinline!heuristics.md!}中的每个\passthrough{\lstinline!code\_ref!}指向\passthrough{\lstinline!/src!}中的一个有效模块；\passthrough{\lstinline!architecture.md!}中声明的组件具有对应的代码桩；\passthrough{\lstinline!exploration\_tree.yaml!}中的论断引用解析为有效的论断ID。
 \item
-  \textbf{级别2（论证严谨性）}：在不执行代码或查阅外部来源的情况下，严谨性审计器在六个客观的、锚定在评分标准上的维度上评估构件的内容（证据相关性、可证伪性质量、范围校准、论证连贯性、探索完整性、方法论严谨性），每个维度按1到5分评分。输出是一份严谨性报告，定位到具体的\textsc{Ara}组件，包含按严重性排序的发现、逐字证据跨度以及从均值和每个维度下限导出的总评等级。
+  \textbf{级别2（论证严谨性）}：在不执行代码或查阅外部来源的情况下，严谨性审计器在六个客观的、锚定在评分标准上的维度上评估构件的内容（证据相关性、可证伪性质量、范围校准、论证连贯性、探索完整性、方法论严谨性），每个维度按1到5分评分。输出是一份严谨性报告，定位到具体的\ara{}组件，包含按严重性排序的发现、逐字证据跨度以及从均值和每个维度下限导出的总评等级。
 \item
-  \textbf{级别3（执行可复现性）}：一个编码智能体读取\textsc{Ara}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec-eval-reproduction}）中使用的是相同的协议。
+  \textbf{级别3（执行可复现性）}：一个编码智能体读取\ara{}并尝试使用代码内核复现论断。LLM生成的测试用例验证论文论断的方向性属性。这与复现评估（\S\ref{sec-eval-reproduction}）中使用的是相同的协议。
 \end{itemize}
 
 \paragraph{失败分类。}\label{ux5931ux8d25ux5206ux7c7b}
@@ -3186,30 +3179,30 @@ Sonnet基础的先前MALT运行派生的，对于一个优化方式不同的后�
 
 \subsubsection{级别1：编译器收敛数据}\label{sec-app-seal-eval-l1}
 
-级别1验证结构正确性和完整性；我们通过在\textsc{Ara}生成和下游使用期间收集的两个复用信号来报告其有效性。
+级别1验证结构正确性和完整性；我们通过在\ara{}生成和下游使用期间收集的两个复用信号来报告其有效性。
 
 \paragraph{编译器迭代次数。}\label{ux7f16ux8bd1ux5668ux8fedux4ee3ux6b21ux6570}
 
-23个PaperBench \textsc{Ara}和7个RE-Bench
-\textsc{Ara}中的每一个都在编译器的生成--验证--修复循环（\S\ref{sec-ingestor}）的\(\leq 3\)次迭代内收敛到通过级别1。首次迭代通过率为0/30；所有构件需要至少一轮反馈，确认了级别1是一个有意义的过滤器而非橡皮图章。
+23个PaperBench \ara{}和7个RE-Bench
+\ara{}中的每一个都在编译器的生成--验证--修复循环（\S\ref{sec-ingestor}）的\(\leq 3\)次迭代内收敛到通过级别1。首次迭代通过率为0/30；所有构件需要至少一轮反馈，确认了级别1是一个有意义的过滤器而非橡皮图章。
 
 \paragraph{失败类别分布。}\label{ux5931ux8d25ux7c7bux522bux5206ux5e03}
 
 在所有编译器迭代中，级别1失败细分如下：悬空跨层引用（42\%）、论断、实验或启发式规则上的缺失模式字段（31\%）、\passthrough{\lstinline!exploration\_tree.yaml!}中节点计数不足（14\%）、YAML或前言部分解析错误（8\%）以及缺失必需文件（5\%）。该分布在论文之间是稳定的，并与附录
 \ref{sec-app-seal-details}中的失败分类体系相匹配。
 
-\paragraph{\texorpdfstring{以理解作为生成\textsc{Ara}上级别1的证明。}{以理解作为生成上级别1的证明。}}\label{ux4ee5ux7406ux89e3ux4f5cux4e3aux751fux6210b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c20617261203e7d7dux4e0aux7ea7ux522b1ux7684ux8bc1ux660e}
+\paragraph{\texorpdfstring{以理解作为生成\ara{}上级别1的证明。}{以理解作为生成上级别1的证明。}}\label{ux4ee5ux7406ux89e3ux4f5cux4e3aux751fux6210b58fc729-690b-4000-b19f-365a4093b2ff7b7b3c207465726d20617261203e7d7dux4e0aux7ea7ux522b1ux7684ux8bc1ux660e}
 
 理解评估（\S\ref{sec-eval-understanding}，表
-\ref{tab-understanding}）是端到端的见证，证明级别1对生成的构件实施了它声称要实施的内容。每个进入该基准的\textsc{Ara}都已通过级别1；95.6\%的Cat.
-A准确率则表明，经过级别1把关的\textsc{Ara}携带了智能体检索源中确实存在的信息所需的结构完整性。一个缺失必需字段或存在悬空跨层引用的构件将无法通过级别1并永远不会进入基准，因此4.4\%的残差受到源信息确实缺失的限制，而非构件的结构缺陷。
+\ref{tab-understanding}）是端到端的见证，证明级别1对生成的构件实施了它声称要实施的内容。每个进入该基准的\ara{}都已通过级别1；95.6\%的Cat.
+A准确率则表明，经过级别1把关的\ara{}携带了智能体检索源中确实存在的信息所需的结构完整性。一个缺失必需字段或存在悬空跨层引用的构件将无法通过级别1并永远不会进入基准，因此4.4\%的残差受到源信息确实缺失的限制，而非构件的结构缺陷。
 
 \subsubsection{级别2：变异基准测试}\label{sec-app-seal-eval-l2}
 
 \paragraph{设置与评估标准。}\label{ux8bbeux7f6eux4e0eux8bc4ux4f30ux6807ux51c6}
 
-级别2基准测试在\emph{被变异}的\textsc{Ara}上对严谨性审计器进行压力测试，因此报告的等级不携带真实值信号；我们严格按审计器是否将注入的缺陷作为发现浮出来评分。语料库为通过级别1的23个PaperBench
-\textsc{Ara}；每个被注入每种类型一个（共115个变异）。所有注入记录在每个论文的\passthrough{\lstinline!injection\_manifest.json!}中，对审计器不可见。
+级别2基准测试在\emph{被变异}的\ara{}上对严谨性审计器进行压力测试，因此报告的等级不携带真实值信号；我们严格按审计器是否将注入的缺陷作为发现浮出来评分。语料库为通过级别1的23个PaperBench
+\ara{}；每个被注入每种类型一个（共115个变异）。所有注入记录在每个论文的\passthrough{\lstinline!injection\_manifest.json!}中，对审计器不可见。
 
 \paragraph{注入模式。}\label{ux6ce8ux5165ux6a21ux5f0f}
 
@@ -3288,12 +3281,12 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 
 \paragraph{诊断：分数-发现脱钩。}\label{ux8bcaux65adux5206ux6570-ux53d1ux73b0ux8131ux94a9}
 
-尽管等级不是评估标准，审计器的评分行为对未来的迭代是有参考价值的。在被反驳分支泄露被标记为\emph{critical}级\(D_5\)发现的22个\textsc{Ara}上，审计器仍然分配\(D_5 \in \{3,4\}\)，尽管锚点规定1（``树与论断矛盾''）或2（``样板文档''）。行文中的严重性未传播到数值分数。下一版本的教训是机制性的：维度分数应从发现列表中导出，而不是由智能体独立报告。
+尽管等级不是评估标准，审计器的评分行为对未来的迭代是有参考价值的。在被反驳分支泄露被标记为\emph{critical}级\(D_5\)发现的22个\ara{}上，审计器仍然分配\(D_5 \in \{3,4\}\)，尽管锚点规定1（``树与论断矛盾''）或2（``样板文档''）。行文中的严重性未传播到数值分数。下一版本的教训是机制性的：维度分数应从发现列表中导出，而不是由智能体独立报告。
 
 \subsubsection{级别3：执行可复现性}\label{sec-app-seal-eval-l3}
 
 级别3有效性等同于复现评估（\S\ref{sec-eval-reproduction}, 附录
-\ref{sec-app-reproduction-eval}）：一个编码智能体读取\textsc{Ara}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表
+\ref{sec-app-reproduction-eval}）：一个编码智能体读取\ara{}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表
 \ref{tab-repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录
 \ref{sec-app-reproduction-eval}了解任务设计、评分和按论文分析。
 
