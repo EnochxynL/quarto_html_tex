@@ -55,6 +55,10 @@
 --     lualatex；块小文档秒级
 --   - lwarp 的 <div data-nosnippet>（\newcommand 定义输出区，供
 --     MathJax 读取）保留在剥壳结果内——删了会丢宏定义
+--   - lwarp-algorithmicx 包装缺陷（2026-09-02 实证）：嵌套 \State
+--     （For/While 内）的行号 span 输出在行尾而非行首（顶层行正常）——
+--     lwarp 对 algorithmicx 嵌套 item 的生成问题，引擎层缺陷非 filter
+--     职责；filter 不修（不背算法结构知识）——CSS/项目层可选缓解
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
@@ -170,32 +174,38 @@ local function strip_ifthenelse(s)
   return table.concat(out)
 end
 
--- MathJax 宏注入：从宏包源提取"进数学的文本命令"定义 → MathJax 翻译。
+-- MathJax 宏注入：从"文档层声明的宏包"（latex-packages）源提取
+-- "进数学的文本命令"定义 → MathJax 翻译。
 -- 背景：\Call 是 algpseudocode 的文本命令（\textsc{f}(a)——包内定义），
 -- 被写进数学时 lwarp 数学文本 detokenize 原样给 MathJax——不认识红字。
--- 方案（用户拍板 2026-09-02）：MathJax tex.macros 配置注入——定义源=
--- 宏包源文件（kpsewhich 定位 + 平衡提取），零硬编码；翻译规则（语义
--- 等价）：\textproc{X}→\text{X（smallcaps MathJax 不可得→正体近似）、
--- \ifthenelse 剥离。
+-- 方案（用户拍板 2026-09-02）：MathJax tex.macros 配置注入——包清单来自
+-- latex-packages（文档层声明——不硬编码包来源），定义体从包源平衡提取
+-- （零手写）；翻译规则（语义等价）：\textproc{X}→\text{X（smallcaps
+-- MathJax 不可得→正体近似）、\ifthenelse 剥离。
 -- 注入机制（实证 2026-09-02）：MathJax 4 不处理文档文本中的
--- \newcommand（v3 功能移除——mjinj 测试字面 \Call）；tex.macros 配置
--- 必须在 MathJax 加载前设置——filter 只动 body，故输出 body 开头同步
--- <script>window.MathJax=...>（同步 script 先于 head 的 defer tex-chtml.js
--- 执行——实测 mjmc 渲染 Evaluate(x) 正常）。
--- 返回 script 文本（找不到包/提取失败返回空——\Call 红字降级）
-local function extract_mathjax_macros()
-  local p = io.popen("kpsewhich algpseudocode.sty 2>nul")
-  if not p then return "" end
+-- \newcommand（v3 功能移除）；tex.macros 必须加载前配置——filter 只动
+-- body，故输出 body 开头同步 <script>window.MathJax=...>（同步 script
+-- 先于 head 的 defer tex-chtml.js 执行）。
+-- 提取规则表：包 → {锚点前缀, MathJax 宏名}——algpseudocode 的数学文本
+-- 命令（\Call——当前唯一实证会进数学的；\Function/\Procedure 环境级）。
+-- 返回 script 文本（无规则包/找不到/提取失败返回空——红字降级）
+local MATH_MACRO_SOURCES = {
+  algpseudocode = { { "\\algnewcommand\\Call[", "Call" } },
+}
+
+-- 从单个包源提取命令定义 → MathJax macros 条目
+local function extract_pkg_macros(pkg, specs)
+  local p = io.popen("kpsewhich " .. pkg .. ".sty 2>nul")
+  if not p then return {} end
   local path = p:read("*l")
   p:close()
-  if not path or path == "" then return "" end
+  if not path or path == "" then return {} end
   local f = io.open(path, "r")
-  if not f then return "" end
+  if not f then return {} end
   local src = f:read("*a")
   f:close()
   local macros = {}
-  -- {锚点前缀, MathJax 宏名}
-  for _, spec in ipairs({ { "\\algnewcommand\\Call[", "Call" } }) do
+  for _, spec in ipairs(specs) do
     local i = src:find(spec[1], 1, true)
     if i then
       local head = src:sub(i + #spec[1]) -- 参数数开头：2]{body}
@@ -222,6 +232,19 @@ local function extract_mathjax_macros()
           macros[#macros + 1] = '"' .. spec[2] .. '": ["' .. js_body .. '", ' .. nargs .. "]"
         end
       end
+    end
+  end
+  return macros
+end
+
+-- 入口：packages = 文档层 latex-packages 声明——只提取有规则的包
+local function extract_mathjax_macros(packages)
+  local macros = {}
+  for _, pkg in ipairs(packages or {}) do
+    local specs = MATH_MACRO_SOURCES[pkg]
+    if specs then
+      local found = extract_pkg_macros(pkg, specs)
+      for _, m in ipairs(found) do macros[#macros + 1] = m end
     end
   end
   if #macros == 0 then return "" end
@@ -525,9 +548,10 @@ end
 return {
   {
     Pandoc = function(doc)
-      -- MathJax 宏注入（主页面级——body 开头纯文本 \newcommand，MathJax
-      -- 渲染块内数学前认识包命令如 \Call——定义源=宏包源文件，零硬编码）
-      local mj_macros = extract_mathjax_macros()
+      -- MathJax 宏注入（主页面级——body 开头同步 script 设 window.MathJax
+      -- tex.macros，MathJax 渲染块内数学前认识包命令如 \Call——包清单来自
+      -- latex-packages 文档层声明，定义源=宏包源文件，零硬编码）
+      local mj_macros = extract_mathjax_macros(read_packages(doc.meta))
       if mj_macros ~= "" then
         table.insert(doc.blocks, 1, pandoc.RawBlock("html", mj_macros))
       end

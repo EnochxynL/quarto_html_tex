@@ -26,7 +26,7 @@ One-factor ablations vary a single scalar or component while holding the remaini
 
 ## Optimization Procedure {#sec-app-algorithm}
 
-Algorithm 1 expands the procedure used in the experiments. The central state variables are the current skill $s_{\mathrm{cur}}$, the best validation-gated skill $s_{\mathrm{best}}$, a selection-score cache $\mathcal{C}$, a step buffer $\mathcal{B}$ containing rejected edits and observed failure patterns, and an optimizer-side meta skill $m_{\mathrm{meta}}$ used only to guide future edit generation.
+Algorithm \ref{alg-skillopt-appendix} expands the procedure used in the experiments. The central state variables are the current skill $s_{\mathrm{cur}}$, the best validation-gated skill $s_{\mathrm{best}}$, a selection-score cache $\mathcal{C}$, a step buffer $\mathcal{B}$ containing rejected edits and observed failure patterns, and an optimizer-side meta skill $m_{\mathrm{meta}}$ used only to guide future edit generation.
 
 ```{=latex}
 \begin{algorithm}[t]
