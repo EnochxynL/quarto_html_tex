@@ -129,6 +129,7 @@ format:
         \newcommand{\ablationbenchmarkheader}{\textbf{Setting} & \textbf{SearchQA} & \textbf{Spreadsheet} & \textbf{LiveMath} \\}
 ---
 
+::: {.content-visible when-format="pdf"}
 ```{=latex}
 \thispagestyle{empty}
 \noindent
@@ -198,6 +199,8 @@ Agent skills today are hand-crafted, generated one-shot, or evolved through loos
 \textsuperscript{*} Equal contribution. \quad \textsuperscript{$\ddagger$} Corresponding authors.\par}
 \end{msfttitlebox}
 ```
+:::
+
 
 ::: {.content-visible when-format="html"}
 
