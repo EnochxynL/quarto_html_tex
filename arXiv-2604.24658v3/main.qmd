@@ -1,14 +1,12 @@
 ---
 # PDF 端主文档（html 端见 index.qmd——两插件分工：main.qmd 走 pdf-helper、
 # index.qmd 走 html-helper，sections/ 共享；渲染：quarto render main.qmd）
-# 术语表（{{< term X >}} 跨格式调用——html-helper/html-md-shortcode 出
-# html（text+html-class 自动拼 span）、pdf-helper/pdf-md-shortcode 出
-# latex（pdf 字段引用 include-in-header 宏——PDF 端宏单一来源））
+# 术语表（{{< term X >}} 跨格式调用——term 插件自动注册；pdf 字段引用
+# include-in-header 宏（PDF 端宏单一来源）、html 字段手写片段——样式自由）
 terms:
   ara:
     pdf: '\ara{}'
-    text: Ara
-    html-class: ara
+    html: '<span class="ara">Ara</span>'
 filters:
   - pdf-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；

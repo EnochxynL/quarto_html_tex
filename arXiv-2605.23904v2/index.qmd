@@ -7,8 +7,7 @@
 terms:
   skillopt:
     pdf: '\ourmethod{}'
-    text: SkillOpt          # 纯文本（pandoc MetaString——无损）
-    html-class: smallcaps   # HTML 端自动拼 <span class="">{text}</span>
+    html: '<span class="smallcaps">SkillOpt</span>'
 filters:
   - html-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；

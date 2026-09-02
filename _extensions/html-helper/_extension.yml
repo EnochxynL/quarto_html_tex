@@ -12,5 +12,3 @@ contributes:
     - ref/html-ref-tbl.lua
     - ref/html-ref-sec.lua
     - ref/html-ref-fig.lua
-  shortcodes:
-    - md/html-md-shortcode.lua

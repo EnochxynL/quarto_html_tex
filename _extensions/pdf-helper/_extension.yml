@@ -7,5 +7,3 @@ contributes:
     - md/pdf-md-tables.lua
     - html/pdf-html-tables.lua
     - ref/pdf-ref-tbl.lua
-  shortcodes:
-    - md/pdf-md-shortcode.lua

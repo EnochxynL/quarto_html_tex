@@ -7,8 +7,6 @@
 terms:
   skillopt:
     pdf: '\ourmethod{}'
-    text: SkillOpt
-    html-class: smallcaps
     html: '<span class="smallcaps">SkillOpt</span>'
 filters:
   - pdf-helper
