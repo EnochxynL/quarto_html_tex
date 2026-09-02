@@ -34,12 +34,11 @@
 --        已知 label → 编号；未知 → [X] 占位（保留名可诊断）
 
 -- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
---   1) \Call{f}{a} → \mathrm{f}(a)：\Call 是 algpseudocode 的文本层命令
---      （\textsc{#1}(#2)，algpseudocode.sty:81）——被写进数学时 lwarp
---      detokenize 给 MathJax 会红字（MathJax 不认识 \textsc/\ifthenelse）；
---      展开为标准数学命令，语义等价（\textsc 小型大写 ≈ \mathrm 正体）
---   2) \ref：数学段外原样保留（lwarp 原生 + \newlabel 假条目注入）、
---      数学段内一律 @@REF:{X}@@（detokenize 不执行 \ref）——返回 (body, ref_out)
+--   \ref：数学段外原样保留（lwarp 原生 + \newlabel 假条目注入）、
+--   数学段内一律 @@REF:{X}@@（detokenize 不执行 \ref）——返回 (body, ref_out)
+-- 文本命令进数学（\Call 等）：不预处理展开——extract_mathjax_macros
+-- 从宏包源提取定义 → MathJax 翻译（\newcommand）注入主页面 body 开头，
+-- MathJax 侧认识命令后原样渲染（视觉实证通过 2026-09-02）
 --
 -- 边界（与其它模块解耦）：
 --   - 表格块跳过——html-latex-tables.lua 处理
@@ -129,7 +128,7 @@ local function read_config(meta)
   return pandoc.utils.stringify(v)
 end
 
--- 平衡花括号提取（深度计数，支持嵌套参数——\Call 的 args 里可能嵌
+-- 平衡花括号提取（深度计数，支持嵌套——\Call 的 args 里可能嵌
 -- D_\text{sel} 等含花括号的数学；[^}]* 单层匹配会截断，实证括号错乱）
 local function balanced_brace(s)
   local depth = 0
@@ -145,23 +144,89 @@ local function balanced_brace(s)
   return nil, nil
 end
 
--- 数学内的 \Call{f}{a} → \mathrm{f}(a)（旧 html-latex-algorithm.lua 方法移植：
--- MathJax 不认识 \Call 会红字——\mathrm + 括号是标准数学命令；参数内可能
--- 再嵌套 \Call，循环处理；plain find 避 pattern 转义坑；balanced_brace
--- 深度计数支持嵌套。lwarp 下 \mathrm 无 tex4ht bug，无需再转 \text）
-local function expand_call(x)
-  local out = x
-  local pos = out:find("\\Call{", 1, true)
-  while pos do
-    local fn, rest = balanced_brace(out:sub(pos + 5))
-    if not fn then break end
-    local args = balanced_brace(rest)
-    if not args then break end
-    local seg_len = 6 + #fn + #args + 3 -- \Call{ + fn + }{ + args + }
-    out = out:sub(1, pos - 1) .. "\\mathrm{" .. fn .. "}(" .. args .. ")" .. out:sub(pos + seg_len)
-    pos = out:find("\\Call{", pos + 1, true)
+-- \ifthenelse{C}{A}{B} → B（MathJax 宏定义无条件；balanced 取第三组——
+-- \Call 族形态：\ifthenelse{\equal{#2}{}}{}{(#2)} 的空参无括号是边缘，
+-- 取 else 分支恒输出括号）
+local function strip_ifthenelse(s)
+  local out, pos = {}, 1
+  while true do
+    local idx = s:find("\\ifthenelse", pos, true)
+    if not idx then
+      out[#out + 1] = s:sub(pos)
+      break
+    end
+    out[#out + 1] = s:sub(pos, idx - 1)
+    local rest = s:sub(idx + #"\\ifthenelse")
+    local g1, r1 = balanced_brace(rest)
+    local g2, r2 = balanced_brace(r1)
+    local g3, r3 = balanced_brace(r2)
+    if not g3 then
+      out[#out + 1] = s:sub(idx) -- 解析失败：保原样（MathJax 侧红字，不崩）
+      break
+    end
+    out[#out + 1] = g3
+    pos = #s - #r3 + 1
   end
-  return out
+  return table.concat(out)
+end
+
+-- MathJax 宏注入：从宏包源提取"进数学的文本命令"定义 → MathJax 翻译。
+-- 背景：\Call 是 algpseudocode 的文本命令（\textsc{f}(a)——包内定义），
+-- 被写进数学时 lwarp 数学文本 detokenize 原样给 MathJax——不认识红字。
+-- 方案（用户拍板 2026-09-02）：MathJax tex.macros 配置注入——定义源=
+-- 宏包源文件（kpsewhich 定位 + 平衡提取），零硬编码；翻译规则（语义
+-- 等价）：\textproc{X}→\text{X（smallcaps MathJax 不可得→正体近似）、
+-- \ifthenelse 剥离。
+-- 注入机制（实证 2026-09-02）：MathJax 4 不处理文档文本中的
+-- \newcommand（v3 功能移除——mjinj 测试字面 \Call）；tex.macros 配置
+-- 必须在 MathJax 加载前设置——filter 只动 body，故输出 body 开头同步
+-- <script>window.MathJax=...>（同步 script 先于 head 的 defer tex-chtml.js
+-- 执行——实测 mjmc 渲染 Evaluate(x) 正常）。
+-- 返回 script 文本（找不到包/提取失败返回空——\Call 红字降级）
+local function extract_mathjax_macros()
+  local p = io.popen("kpsewhich algpseudocode.sty 2>nul")
+  if not p then return "" end
+  local path = p:read("*l")
+  p:close()
+  if not path or path == "" then return "" end
+  local f = io.open(path, "r")
+  if not f then return "" end
+  local src = f:read("*a")
+  f:close()
+  local macros = {}
+  -- {锚点前缀, MathJax 宏名}
+  for _, spec in ipairs({ { "\\algnewcommand\\Call[", "Call" } }) do
+    local i = src:find(spec[1], 1, true)
+    if i then
+      local head = src:sub(i + #spec[1]) -- 参数数开头：2]{body}
+      local nargs = head:match("^(%d+)")
+      local open = src:find("{", i + #spec[1], 1, true)
+      if nargs and open then
+        local depth, k = 0, open
+        while k <= #src do
+          local c = src:sub(k, k)
+          if c == "{" then
+            depth = depth + 1
+          elseif c == "}" then
+            depth = depth - 1
+            if depth == 0 then break end
+          end
+          k = k + 1
+        end
+        if depth == 0 and k > open then
+          local body = src:sub(open + 1, k - 1)
+          body = body:gsub("\\textproc{", "\\text{", 1)
+          body = strip_ifthenelse(body)
+          -- MathJax macros 值 = JS 字符串（\\ → \）；#1/#2 参数引用
+          local js_body = body:gsub("\\", "\\\\")
+          macros[#macros + 1] = '"' .. spec[2] .. '": ["' .. js_body .. '", ' .. nargs .. "]"
+        end
+      end
+    end
+  end
+  if #macros == 0 then return "" end
+  return "<script>window.MathJax = {tex: {macros: {" .. table.concat(macros, ", ")
+    .. "}}};</script>"
 end
 
 -- 数学段外 \ref 处理：\ref 一律保留原样（lwarp 原生处理）——块内
@@ -189,13 +254,11 @@ local function refs_inside(seg)
 end
 
 -- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
---   1) \Call → \mathrm{f}(a)（MathJax 不认自定义宏，红字）
---   2) \ref：数学段外原样保留（lwarp 原生 + \newlabel 注入）、数学段内
---      一律 @@REF:{X}@@（MathJax 不执行 \ref）——返回 (body, ref_out)
--- tex4ht 时代的 \mathrm→\text、下标加括号不再需要（lwarp 数学原样
--- 给 MathJax，无 MiKTeX tex4ht 2022 \new:mfont bug 路径）
+--   \ref：数学段外原样保留（lwarp 原生 + \newlabel 注入）、数学段内
+--   一律 @@REF:{X}@@（MathJax 不执行 \ref）——返回 (body, ref_out)
+-- 文本命令进数学（\Call 等）不再预处理展开——MathJax 宏注入
+-- （extract_mathjax_macros，主页面级）让 MathJax 侧认识命令
 local function math_preprocess(body, labelset)
-  body = expand_call(body)
   local ref_out = {}
   -- $...$ 数学段切分（算法块实证用行内数学；\\(...\\) 形态后续扩展）
   local out = {}
@@ -462,6 +525,12 @@ end
 return {
   {
     Pandoc = function(doc)
+      -- MathJax 宏注入（主页面级——body 开头纯文本 \newcommand，MathJax
+      -- 渲染块内数学前认识包命令如 \Call——定义源=宏包源文件，零硬编码）
+      local mj_macros = extract_mathjax_macros()
+      if mj_macros ~= "" then
+        table.insert(doc.blocks, 1, pandoc.RawBlock("html", mj_macros))
+      end
       local macros = read_config(doc.meta)
       local packages = read_packages(doc.meta)
       local counter_blocks, refs = read_counters(doc.meta)
