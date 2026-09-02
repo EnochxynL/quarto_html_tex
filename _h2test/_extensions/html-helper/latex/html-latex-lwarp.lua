@@ -445,12 +445,23 @@ local function math_preprocess(body, labelset)
 end
 
 -- 组装独立 .tex：lwarp 必须最先加载（\LWR@ProvidesPackagePass 包装
--- 机制需要先于目标包）；latex-packages（文档层声明）随后；计数器注入
+-- 机制需要先于目标包）；中文字体无条件注入（用户拍板 2026-09-02——
+-- 不必检测 CJK：fontspec 无副作用，块内中文需要字体、英文块加载无害，
+-- 检测是多余的智能）；latex-packages（文档层声明）随后；计数器注入
 -- = 全文编号对齐（值来自 html-latex-counters.lua——本文件不持有任何
 -- 环境/计数器知识）；\@ifundefined 保护：计数器实际不存在（float 惯例
 -- 误判，如裸 algorithmic）则跳过注入——块从 1 编号，不崩
 local function build_tex(body, counter_name, counter_start, macros, ref_out, packages)
   local t = { "\\documentclass{article}", "\\usepackage[mathjax]{lwarp}" }
+  -- 中文块字体支持（实证 2026-09-02）：块编译默认无 CJK 字体——中文字形
+  -- 缺失 → pdftotext 提取层乱码。fontspec + 倒序平铺探测（\IfFontExistsTF
+  -- 各独立、无嵌套——后设者赢 = 优先级 Noto > SimSun > YaHei 天然正确；
+  -- Linux/TeX Live 与 Windows 双覆盖）；不用 ctex（ctexhook 与 lwarp
+  -- hook 机制冲突——全篇 lwarp 方案实证）
+  t[#t + 1] = "\\usepackage{fontspec}"
+  t[#t + 1] = "\\IfFontExistsTF{Microsoft YaHei}{\\setmainfont{Microsoft YaHei}}{}"
+  t[#t + 1] = "\\IfFontExistsTF{SimSun}{\\setmainfont{SimSun}}{}"
+  t[#t + 1] = "\\IfFontExistsTF{Noto Serif CJK SC}{\\setmainfont{Noto Serif CJK SC}}{}"
   for _, p in ipairs(packages or {}) do
     t[#t + 1] = "\\usepackage{" .. p .. "}"
   end
