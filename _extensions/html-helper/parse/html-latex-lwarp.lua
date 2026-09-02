@@ -9,18 +9,19 @@
 --
 -- 职责：
 --   1) FORMAT 守卫：PDF 端 return {}——{=latex} 原样走 LaTeX 原生编译
---   2) RawBlock(tex) 非表格块（\begin{algorithm 等）：
---      a. 数序：第 N 个算法块 → 注入 \setcounter{algorithm}{N-1}
---      b. 生成独立 block.tex：\usepackage[mathjax]{lwarp}（先于一切）
+--   2) RawBlock(tex) 非表格块（任意 latex 环境——计数器注入与引用
+--      编号由 html-latex-counters.lua 提供，本文件不持有环境/算法知识）：
+--      a. 生成独立 block.tex：\usepackage[mathjax]{lwarp}（先于一切）
 --         + latex-packages（文档层声明，html-helper: latex-packages）
---         + latex-macros + 计数器
---      c. 双编译：lualatex block.tex（打印版，lwarp 自动生成
+--         + latex-macros + \setcounter（counters.lua 的起始值，\@ifundefined
+--         保护——计数器不存在则跳过）
+--      b. 双编译：lualatex block.tex（打印版，lwarp 自动生成
 --         block_html.tex）→ lualatex block_html.tex（HTML 版，
---         生成 block_html.html）——工作目录 .quarto/lwarp/
---      d. 剥壳取 <main class="bodycontainer"> 内容 + lwarp.css
+--         生成 block_html.html）→ pdftotext 提取——工作目录 .quarto/lwarp/
+--      c. 剥壳取 <main class="bodycontainer"> 内容 + lwarp.css
 --         作用域化内联 → <div class="lwarp-block">
 --      失败回退：可见警告块（div.lwarp-failed + 原 LaTeX 源码）
---   3) 正文 \ref{alg-X}（RawInline tex / Math / Link）→ <a href="#alg-X">N</a>
+--   3) 正文 \ref{label}（RawInline tex / Math / Link）→ <a href="#label">N</a>
 --   4) 块内 \ref{X}（跨文档引用协议）：
 --      数学外：\ref 原样保留——块内 label 由真实 aux 解析（lwarp 原生
 --        链接）；块外 label 由 preamble 注入 \newlabel 假条目喂值
@@ -29,7 +30,7 @@
 --      数学内：一律 @@REF:{X}@@ 纯文本占位（lwarp mathjax 模式
 --        detokenize 不执行 \ref；数学内不能放 HTML 链接）——第二遍
 --        填纯文本编号
---      第二遍解析（alg_nums 齐后，前向引用可解析）：
+--      第二遍解析（refs 齐备——counters.lua 全文编号，前向引用可解析）：
 --        已知 label → 编号；未知 → [X] 占位（保留名可诊断）
 
 -- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
@@ -68,8 +69,14 @@ local function is_table_block(text)
       or text:find("\\begin{table", 1, true) ~= nil
 end
 
-local function is_algorithm_block(text)
-  return text:find("\\begin{algorithm", 1, true) ~= nil
+-- 编译候选判定：非表格 + 含 \begin{ENV} 环境结构——{=latex} 块分两类：
+--   内容块（算法/定理/图——\begin{ENV} 自包含结构）→ 编译
+--   PDF 控制片段（\FloatBarrier/\bibliography/\thispagestyle 等无 \begin
+--   的命令序列——给 LaTeX 排版用，HTML 端无意义）→ 跳过（结构判据，
+--   非猜内容）
+local function is_compile_candidate(text)
+  if is_table_block(text) then return false end
+  return text:find("\\begin{", 1, true) ~= nil
 end
 
 -- 提取全部 label（复合块可含多 label——lwarp 原生为每个 \label 输出
@@ -213,10 +220,10 @@ end
 
 -- 组装独立 .tex：lwarp 必须最先加载（\LWR@ProvidesPackagePass 包装
 -- 机制需要先于目标包）；latex-packages（文档层声明）随后；计数器注入
--- = 全文编号对齐；块外 label 预注入 \newlabel 假条目（preamble 专用）
--- ——LaTeX 层（\ref 显示文本=@@REF 占位）+ @lwarp 层（fileref → href）
--- + @lwarp@image 层
-local function build_tex(body, counter_before, macros, ref_out, packages)
+-- = 全文编号对齐（值来自 html-latex-counters.lua——本文件不持有任何
+-- 环境/计数器知识）；\@ifundefined 保护：计数器实际不存在（float 惯例
+-- 误判，如裸 algorithmic）则跳过注入——块从 1 编号，不崩
+local function build_tex(body, counter_name, counter_start, macros, ref_out, packages)
   local t = { "\\documentclass{article}", "\\usepackage[mathjax]{lwarp}" }
   for _, p in ipairs(packages or {}) do
     t[#t + 1] = "\\usepackage{" .. p .. "}"
@@ -224,8 +231,10 @@ local function build_tex(body, counter_before, macros, ref_out, packages)
   if macros and macros ~= "" then
     t[#t + 1] = macros
   end
-  if counter_before and counter_before > 0 then
-    t[#t + 1] = "\\setcounter{algorithm}{" .. counter_before .. "}"
+  if counter_name and counter_name ~= "" and counter_start and counter_start > 0 then
+    -- makeatletter：\@ifundefined 含 @；\c@NAME 是计数器的内部宏
+    t[#t + 1] = "\\makeatletter\\@ifundefined{c@" .. counter_name .. "}{}{\\setcounter{"
+      .. counter_name .. "}{" .. counter_start .. "}}\\makeatother"
   end
   -- 块外引用 label 的假条目（唯一性保证：ref_out 是 set）
   -- @lwarp 条目的 fileref（第三参数）固定用 block（BaseJobname）——
@@ -312,7 +321,8 @@ end
 -- 编译块 → 子页面 HTML；失败返回 nil（调用方走可见警告块）
 -- labels：本块全部 label（块内 \ref 解析用——lwarp 原生锚点已输出）
 -- packages：文档层声明的宏包（latex-packages）
-local function compile_block(body, counter_before, macros, labels, packages)
+-- counter_name/counter_start：计数器注入（html-latex-counters.lua 提供）
+local function compile_block(body, counter_name, counter_start, macros, labels, packages)
   if not ensure_dir(CACHE) then
     io.stderr:write("[html-latex-lwarp] mkdir " .. CACHE .. " failed\n")
     return nil
@@ -328,7 +338,7 @@ local function compile_block(body, counter_before, macros, labels, packages)
     for _, lab in ipairs(labels) do labelset[lab] = true end
   end
   local body_pp, ref_out = math_preprocess(body, labelset)
-  f:write(build_tex(body_pp, counter_before, macros, ref_out, packages))
+  f:write(build_tex(body_pp, counter_name, counter_start, macros, ref_out, packages))
   f:close()
 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
@@ -399,24 +409,25 @@ local function compile_block(body, counter_before, macros, labels, packages)
   return '<div class="' .. BLOCK_PREFIX .. '"><style>' .. css .. "</style>" .. inner .. "</div>"
 end
 
--- 正文引用：\ref{alg-X} → <a href="#alg-X">N</a>（照搬旧 filter 协议）
-local function walk_inlines(inlines, alg_nums)
+-- 正文引用：\ref{alg-X} → <a href="#alg-X">N</a>（照搬旧 filter 协议；
+-- N 来自 html-latex-counters.lua 的 label→编号表）
+local function walk_inlines(inlines, refs)
   local out = pandoc.List({})
   for _, inl in ipairs(inlines) do
     local handled = false
     if (inl.t == "RawInline" and inl.format == "tex") or inl.t == "Math" then
       local ref = inl.text:match("\\ref{([^}]+)}")
-      if ref and alg_nums[ref] then
+      if ref and refs[ref] then
         out:insert(pandoc.RawInline("html",
-          '<a href="#' .. ref:gsub(":", "-") .. '">' .. alg_nums[ref] .. "</a>"))
+          '<a href="#' .. ref:gsub(":", "-") .. '">' .. refs[ref] .. "</a>"))
         handled = true
       end
     elseif inl.t == "Link" and inl.attr and inl.attr.attributes
       and inl.attr.attributes["reference-type"] == "ref" then
       local target = inl.attr.attributes["reference"]
-      if target and alg_nums[target] then
+      if target and refs[target] then
         out:insert(pandoc.RawInline("html",
-          '<a href="#' .. target:gsub(":", "-") .. '">' .. alg_nums[target] .. "</a>"))
+          '<a href="#' .. target:gsub(":", "-") .. '">' .. refs[target] .. "</a>"))
         handled = true
       end
     end
@@ -425,48 +436,71 @@ local function walk_inlines(inlines, alg_nums)
   return out
 end
 
+-- 从 doc.meta 读 html-latex-counters.lua 的输出：
+-- blocks（每 tex 非表格块的 {counter, start}）+ refs（label→编号）
+local function read_counters(meta)
+  local c = meta["html-helper-lwarp-counters"]
+  local blocks, refs = {}, {}
+  if c == nil then return blocks, refs end
+  local bl = c["blocks"]
+  if bl and pandoc.utils.type(bl) == "List" then
+    for _, item in ipairs(bl) do
+      local counter = item["counter"] and pandoc.utils.stringify(item["counter"]) or ""
+      local start = item["start"] and pandoc.utils.stringify(item["start"]) or "0"
+      blocks[#blocks + 1] = { counter = counter, start = tonumber(start) or 0 }
+    end
+  end
+  local rf = c["refs"]
+  if rf ~= nil then
+    for k, v in pairs(rf) do
+      refs[k] = pandoc.utils.stringify(v)
+    end
+  end
+  return blocks, refs
+end
+
 return {
   {
     Pandoc = function(doc)
       local macros = read_config(doc.meta)
       local packages = read_packages(doc.meta)
-      local alg_nums = {}
-      local n = 0
+      local counter_blocks, refs = read_counters(doc.meta)
+      local k = 0 -- 编译候选序（与 counters.lua 的 blocks 列表对齐）
       for i = 1, #doc.blocks do
         local blk = doc.blocks[i]
         if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
           local text = blk.text
-          if is_table_block(text) then
-            -- 表格块：html-latex-tables.lua 的领地，跳过
-          elseif is_algorithm_block(text) then
-            n = n + 1
+          if is_compile_candidate(text) then
+            k = k + 1
+            local cinfo = counter_blocks[k] or { counter = "", start = 0 }
             local labels = extract_labels(text)
-            if labels[1] then alg_nums[labels[1]] = n end
-            local ok, html = pcall(compile_block, text, n - 1, macros, labels, packages)
+            local ok, html = pcall(compile_block, text,
+              cinfo.counter, cinfo.start, macros, labels, packages)
             if ok and html then
               -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
               doc.blocks[i] = pandoc.RawBlock("html", html)
             else
               -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
-              -- 失败原因归项目层（包声明与 lwarp 能力冲突等——如老式
-              -- algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
+              -- 失败原因归项目层（latex-packages 声明与 lwarp 能力冲突等
+              -- ——如老式 algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
               doc.blocks[i] = pandoc.RawBlock("html",
                 '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 latex-packages 声明或块内容）">'
                 .. '<pre>' .. text:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</pre></div>")
             end
           else
-            -- 未知 latex 块：原样保留（回退原则）
+            -- PDF 控制片段（无 \begin 结构）：跳过——quarto HTML writer
+            -- 丢弃 latex RawBlock——PDF 专用命令在 HTML 端无意义的语义
           end
         end
       end
       -- 正文引用链接化（顶层块；嵌套结构后续扩展）
       for _, blk in ipairs(doc.blocks) do
         if blk.t == "Para" or blk.t == "Plain" then
-          blk.content = walk_inlines(blk.content, alg_nums)
+          blk.content = walk_inlines(blk.content, refs)
         end
       end
-      -- 第二遍：块内 \ref 占位解析（此时 alg_nums 已含全部块，前向
-      -- 引用可解析）。两种形态：
+      -- 第二遍：块内 \ref 占位解析（refs 来自 counters.lua——全文 label
+      -- 编号齐备，前向引用可解析）。两种形态：
       --   数学内 @@REF:{X}@@（带花括号——lwarp 数学文本保留 { }，
       --     MathJax 不执行 \ref 所以一律占位）→ 纯文本编号
       --   数学外 @@REF:X@@（无花括号——\newlabel 假条目的显示文本，
@@ -476,14 +510,14 @@ return {
       for _, blk in ipairs(doc.blocks) do
         if blk.t == "RawBlock" and blk.format == "html" then
           blk.text = blk.text:gsub("@@REF:{([^@]+)}@@", function(ref)
-            if alg_nums[ref] then
-              return tostring(alg_nums[ref])
+            if refs[ref] then
+              return refs[ref]
             end
             return "[" .. ref .. "]"
           end)
           blk.text = blk.text:gsub("@@REF:([^@]+)@@", function(ref)
-            if alg_nums[ref] then
-              return tostring(alg_nums[ref])
+            if refs[ref] then
+              return refs[ref]
             end
             return "[" .. ref .. "]"
           end)
