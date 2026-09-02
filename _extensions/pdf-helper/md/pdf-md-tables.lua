@@ -1,6 +1,8 @@
 -- pdf-md-tables.lua — PDF 方案：管道表 → table* / table / longtable + booktabs tabular
 --
--- 从 tables-to-tablestar.lua 拆出的 PDF 半边（HTML 半边见 html-md-tables.lua）。
+-- 领地划分（2026-09-02）：md/（管道表）· html/（{=html} 直写表）· ref/
+-- （tbl- 引用提示器）——表格三通道：Markdown 管道表 / {=html} 直写表 /
+-- {=latex} 原样传递（LaTeX 编译器处理）。
 -- {=html} 直写表的转换已拆出到 pdf-html-tables.lua（单栏 table，独立配置）。
 --
 -- 方案（为什么管道表要转成 LaTeX 浮动体）：
