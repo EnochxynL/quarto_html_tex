@@ -1,4 +1,4 @@
--- html-sec-crossref.lua — HTML 章节引用体系（Header 层级自数 + §N 链接）
+-- html-ref-sec.lua — HTML 章节引用体系（Header 层级自数 + §N 链接）
 -- 
 -- 处理 \ref{sec-X} / \S\ref{sec-X} 形式的章节引用。
 -- 内容层 @sec-X（quarto 原生语法）走 quarto crossref，不经过本 filter。
