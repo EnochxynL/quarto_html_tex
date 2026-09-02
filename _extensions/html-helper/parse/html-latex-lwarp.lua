@@ -12,7 +12,8 @@
 --   2) RawBlock(tex) 非表格块（\begin{algorithm 等）：
 --      a. 数序：第 N 个算法块 → 注入 \setcounter{algorithm}{N-1}
 --      b. 生成独立 block.tex：\usepackage[mathjax]{lwarp}（先于一切）
---         + 宏包检测注入 + latex-macros + 计数器
+--         + latex-packages（文档层声明，html-helper: latex-packages）
+--         + latex-macros + 计数器
 --      c. 双编译：lualatex block.tex（打印版，lwarp 自动生成
 --         block_html.tex）→ lualatex block_html.tex（HTML 版，
 --         生成 block_html.html）——工作目录 .quarto/lwarp/
@@ -41,8 +42,10 @@
 --
 -- 边界（与其它模块解耦）：
 --   - 表格块跳过——html-latex-tables.lua 处理
---   - 未知 latex 块：原样保留（回退原则）
---   - 宏包检测从块内容读取——零硬编码，不猜
+--   - 宏包不从块内容猜（detect_packages 已删）——块编译所需宏包由
+--     文档层声明（html-helper: latex-packages，与 latex-macros 平行）；
+--     项目用 lwarp 不支持的包（老式 algorithmic 等）→ 编译失败走
+--     可见警告块——适配发生在项目层（换包/换写法），filter 不强行适配
 --
 -- 已知限制：
 --   - 每次渲染重新编译（无缓存）；lualatex 无 tex4ht 死锁历史
@@ -80,33 +83,22 @@ local function extract_labels(text)
   return labels
 end
 
--- 宏包检测（从块内容读取实际使用的宏包，不猜）
--- 算法包互斥注入：驼峰系（\Call/\Require/\State）→ algpseudocode（algorithmicx）；
--- 大写系（\REQUIRE/\STATE）→ algorithmic（algorithms）——两者都定义
--- algorithmic 环境，同注必冲突（实证：Command \algorithmic already defined）
--- lwarp 下加载原包即自动挂钩对应 lwarp-*.sty 包装（\LWR@ProvidesPackagePass）
-local function detect_packages(text, macros)
-  local src = text .. "\n" .. (macros or "")
-  local pkgs = {}
-  if is_algorithm_block(src) then
-    pkgs[#pkgs + 1] = "algorithm"
+-- 宏包声明：从 doc.meta 读取 latex-packages（html-helper: latex-packages:
+-- [pkg1, pkg2]——块独立编译所需宏包由文档层声明，不从块内容猜；
+-- 与 latex-macros 平行）。pandoc 3 MetaList → 字符串数组
+local function read_packages(meta)
+  local pt = meta["html-helper"] or {}
+  local v = pt["latex-packages"]
+  if v == nil then return {} end
+  local typ = pandoc.utils.type(v)
+  if typ == "List" or typ == "MetaList" then
+    local out = {}
+    for _, item in ipairs(v) do
+      out[#out + 1] = pandoc.utils.stringify(item)
+    end
+    return out
   end
-  if src:find("\\Call", 1, true) or src:find("\\Require", 1, true)
-    or src:find("\\State", 1, true) then
-    pkgs[#pkgs + 1] = "algpseudocode"
-  elseif src:find("\\REQUIRE", 1, true) or src:find("\\STATE", 1, true) then
-    pkgs[#pkgs + 1] = "algorithmic"
-  end
-  if src:find("\\color", 1, true) or src:find("\\textcolor", 1, true) then
-    pkgs[#pkgs + 1] = "xcolor"
-  end
-  if src:find("%$") or src:find("\\text", 1, true) or src:find("\\mathrm", 1, true) then
-    pkgs[#pkgs + 1] = "amsmath"
-  end
-  if src:find("\\xspace", 1, true) then
-    pkgs[#pkgs + 1] = "xspace"
-  end
-  return pkgs
+  return { pandoc.utils.stringify(v) }
 end
 
 -- 从 doc.meta 读取 latex-macros（嵌套优先、平铺回退，模式同 html-latex-tables；
@@ -220,12 +212,13 @@ local function math_preprocess(body, labelset)
 end
 
 -- 组装独立 .tex：lwarp 必须最先加载（\LWR@ProvidesPackagePass 包装
--- 机制需要先于目标包）；计数器注入 = 全文编号对齐；块外 label 预注入
--- \newlabel 假条目（preamble 专用）——LaTeX 层（\ref 显示文本=@@REF
--- 占位）+ @lwarp 层（fileref → href=label 真名）+ @lwarp@image 层
-local function build_tex(body, counter_before, macros, ref_out)
+-- 机制需要先于目标包）；latex-packages（文档层声明）随后；计数器注入
+-- = 全文编号对齐；块外 label 预注入 \newlabel 假条目（preamble 专用）
+-- ——LaTeX 层（\ref 显示文本=@@REF 占位）+ @lwarp 层（fileref → href）
+-- + @lwarp@image 层
+local function build_tex(body, counter_before, macros, ref_out, packages)
   local t = { "\\documentclass{article}", "\\usepackage[mathjax]{lwarp}" }
-  for _, p in ipairs(detect_packages(body, macros)) do
+  for _, p in ipairs(packages or {}) do
     t[#t + 1] = "\\usepackage{" .. p .. "}"
   end
   if macros and macros ~= "" then
@@ -318,7 +311,8 @@ end
 
 -- 编译块 → 子页面 HTML；失败返回 nil（调用方走可见警告块）
 -- labels：本块全部 label（块内 \ref 解析用——lwarp 原生锚点已输出）
-local function compile_block(body, counter_before, macros, labels)
+-- packages：文档层声明的宏包（latex-packages）
+local function compile_block(body, counter_before, macros, labels, packages)
   if not ensure_dir(CACHE) then
     io.stderr:write("[html-latex-lwarp] mkdir " .. CACHE .. " failed\n")
     return nil
@@ -334,7 +328,7 @@ local function compile_block(body, counter_before, macros, labels)
     for _, lab in ipairs(labels) do labelset[lab] = true end
   end
   local body_pp, ref_out = math_preprocess(body, labelset)
-  f:write(build_tex(body_pp, counter_before, macros, ref_out))
+  f:write(build_tex(body_pp, counter_before, macros, ref_out, packages))
   f:close()
 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
@@ -435,6 +429,7 @@ return {
   {
     Pandoc = function(doc)
       local macros = read_config(doc.meta)
+      local packages = read_packages(doc.meta)
       local alg_nums = {}
       local n = 0
       for i = 1, #doc.blocks do
@@ -447,23 +442,16 @@ return {
             n = n + 1
             local labels = extract_labels(text)
             if labels[1] then alg_nums[labels[1]] = n end
-            local ok, html = pcall(compile_block, text, n - 1, macros, labels)
+            local ok, html = pcall(compile_block, text, n - 1, macros, labels, packages)
             if ok and html then
               -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
               doc.blocks[i] = pandoc.RawBlock("html", html)
             else
-              -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）
-              -- lwarp 明确不支持老式 algorithmic 包（checkloadnever 拦截，
-              -- 'Package algorithmic is not yet supported'）——检测到老式
-              -- 大写命令时说明原因，避免用户对着原源码猜
-              local why = ""
-              if text:find("\\REQUIRE", 1, true) or text:find("\\STATE", 1, true)
-                or text:find("\\FOR{", 1, true) or text:find("\\WHILE", 1, true)
-                or text:find("\\RETURN", 1, true) then
-                why = "（lwarp 不支持老式 algorithmic 包——请改用 algpseudocode 风格：\\State/\\For/\\While/\\Return）"
-              end
+              -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
+              -- 失败原因归项目层（包声明与 lwarp 能力冲突等——如老式
+              -- algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
               doc.blocks[i] = pandoc.RawBlock("html",
-                '<div class="lwarp-failed" title="lwarp 编译失败' .. why .. '，原 LaTeX 块如下">'
+                '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 latex-packages 声明或块内容）">'
                 .. '<pre>' .. text:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</pre></div>")
             end
           else

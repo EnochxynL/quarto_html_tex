@@ -99,6 +99,12 @@ format:
       # PDF 端 LaTeX 自动加 "Table N:"——两端一致。
       caption-prefix: "Table "
       caption-sep: ": "
+      # 算法块独立编译所需宏包（lwarp 通道；与 PDF 端 include-in-header
+      # 平行声明——块编译脱离文档层，包不从内容猜，此处显式声明）
+      latex-packages:
+        - algorithm
+        - algpseudocode
+        - amsmath
       # 算法块自定义宏（html-algorithm.lua 纯字符串翻译，不吃 latex-macros）：
       # \ourmethod{} → SkillOpt（HTML 端算法 caption 显示）
       algo-macros:

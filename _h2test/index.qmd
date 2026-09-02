@@ -13,6 +13,9 @@ format:
         \usepackage{graphicx}
   html:
     html-helper:
+      latex-packages:
+        - algorithm
+        - algpseudocode
       algo-macros:
         "\\ourmethod{}": "SkillOpt"
 ---
