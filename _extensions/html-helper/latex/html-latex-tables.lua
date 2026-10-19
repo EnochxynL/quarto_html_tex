@@ -97,6 +97,33 @@ local function strip_line_comments(s)
 end
 
 -- 单个 latex 表格块 → RawBlock("html")
+-- Pandoc supports textcolor, but drops the argument of color declarations.
+-- Resolve TeX-only names to CSS colors after parsing, including user definitions.
+local function table_colors(macros)
+  local colors = { OliveGreen = "rgb(55,153,8)", YellowOrange = "rgb(255,148,0)" }
+  for name, model, value in macros:gmatch("\\definecolor%s*{([^}]+)}%s*{([^}]+)}%s*{([^}]+)}") do
+    local values = {}
+    for n in value:gmatch("[%d%.]+") do values[#values + 1] = tonumber(n) end
+    local r, g, b
+    if model == "HTML" and value:match("^%x%x%x%x%x%x$") then
+      colors[name] = "#" .. value
+    elseif (model == "rgb" or model == "RGB") and #values == 3 then
+      local scale = model == "rgb" and 255 or 1
+      r, g, b = values[1] * scale, values[2] * scale, values[3] * scale
+    elseif model == "gray" and #values == 1 then
+      r, g, b = values[1] * 255, values[1] * 255, values[1] * 255
+    elseif model == "cmyk" and #values == 4 then
+      r = 255 * (1 - values[1]) * (1 - values[4])
+      g = 255 * (1 - values[2]) * (1 - values[4])
+      b = 255 * (1 - values[3]) * (1 - values[4])
+    end
+    if r then
+      colors[name] = string.format("rgb(%d,%d,%d)", math.floor(r + 0.5), math.floor(g + 0.5), math.floor(b + 0.5))
+    end
+  end
+  return colors
+end
+
 local function convert_table(el, bibstr, macros)
   -- caption 从原文提取（后续剥离 table 外壳会移除 \caption 文本）
   local cap_match = el.text:match("\\caption%b{}")
@@ -136,7 +163,20 @@ local function convert_table(el, bibstr, macros)
   -- 自定义宏注入（latex_macros extension 展开；\ara/\cmark/\xmark 等由
   -- format.html.html-helper.latex-macros 配置声明，不硬编码；无配置时 prefix 为空）
   local prefix = (macros ~= "") and (macros .. "\n") or ""
+  cleaned = cleaned:gsub("\\color%s*(%b{})%s*(%b{})", "\\textcolor%1%2")
+  cleaned = cleaned:gsub("\\Checkmark%f[%A]", "✓")
+  cleaned = cleaned:gsub("\\XSolidBrush%f[%A]", "✗")
   local doc = pandoc.read(prefix .. cleaned, "latex")
+  local colors = table_colors(macros)
+  doc = doc:walk({ Span = function(span)
+    local style = span.attributes["style"]
+    if style then
+      span.attributes["style"] = style:gsub("(color:%s*)([%w]+)", function(property, name)
+        return property .. (colors[name] or name)
+      end)
+    end
+    return span
+  end })
 
   -- minipage 宽度从 LaTeX 源读取（不猜测、不硬编码）：Pandoc 的 latex reader
   -- 把 minipage 解析成 Div(class="minipage") 但不保留宽度参数——宽度在
