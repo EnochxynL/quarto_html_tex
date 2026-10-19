@@ -164,6 +164,7 @@ def convert(name, title, authors, icml=False):
     if icml:
         result = re.sub(r'\\color(\{[^}]+\})(?=\{)', r'\\textcolor\1', result)
     else:
+        result = result.replace('\\bm{\\hat}{n}', '\\bm{\\hat{n}}')
         result = result.replace('& & & \\multicolumn{1}{c}{\\textbf{COM',
                                 '\\mrowcell & \\mrowcell & \\mrowcell & \\multicolumn{1}{c}{\\textbf{COM')
     (directory / 'sections').mkdir(exist_ok=True)

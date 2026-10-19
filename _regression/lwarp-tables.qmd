@@ -4,13 +4,23 @@ filters: [html-helper]
 format:
   html:
     html-helper:
-      latex-packages: [graphicx, xcolor, colortbl, booktabs, bbding]
+      latex-packages: [graphicx, xcolor, colortbl, booktabs, bbding, pifont, bm]
       latex-macros: |
         \definecolor{CustomRed}{HTML}{B91C1C}
         \newcommand{\coloredvalue}[1]{\textcolor{CustomRed}{#1}}
 ---
 
 Forward reference: Table \ref{tab-regression-grouped}.
+
+Native inline math: $\bm{x}$ and $\bm{\hat{n}}$.
+
+::: {.nested-math}
+
+$$
+\bm{x} \cdot \bm{\hat{n}} = 0
+$$
+
+:::
 
 ```{=latex}
 \begin{table*}
@@ -24,6 +34,7 @@ Task & A & B & C \\
 \midrule
 Example & \textcolor{CustomRed}{Colored text} & \Checkmark & \XSolidBrush \\
 Nested & \begin{tabular}{l}First line\\Second line\end{tabular} & \coloredvalue{Macro value} & 3 \\
+Images & \ding{51} & \ding{55} & \ding{51} \\
 \bottomrule
 \end{tabular}}
 \end{table*}

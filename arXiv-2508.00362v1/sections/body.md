@@ -115,7 +115,7 @@ $$
 \left\{\begin{array}{l} 
     \begin{split}
          &\bm{v}_{c_i} = 0  & \text{if} \ c_i \in \mathscr{C}\\
-         &\bm{v}_{c_i} \cdot \bm{\hat}{n} = v^*(t) &  \text{if} \ c_i \in \overline{\mathscr{C}}\\ 
+         &\bm{v}_{c_i} \cdot \bm{\hat{n}} = v^*(t) &  \text{if} \ c_i \in \overline{\mathscr{C}}\\
          &\bm{f}_{c_i} = 0, \bm{\tau}_{c_i} = 0 & \text{if} \ c_i \in \overline{\mathscr{C}} \\
     \end{split}
     \end{array}\right.

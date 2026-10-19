@@ -295,11 +295,21 @@ local function extract_mathjax_macros(doc)
   local macros_tex = read_config(doc.meta)
   collect_user_defs(macros_tex, defs)
   -- 全文 RawBlock
-  for _, blk in ipairs(doc.blocks) do
-    if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
-      collect_math_cmds(blk.text, cmds)
-      collect_user_defs(blk.text, defs)
-    end
+  doc:walk({
+    Math = function(math)
+      for cmd in math.text:gmatch("\\([a-zA-Z]+)") do cmds[cmd] = true end
+    end,
+    RawBlock = function(blk)
+      if blk.format == "tex" or blk.format == "latex" then
+        collect_math_cmds(blk.text, cmds)
+        collect_user_defs(blk.text, defs)
+      end
+    end,
+  })
+  -- bm implements TeX font machinery rather than a portable macro definition.
+  -- Use MathJax's boldsymbol for the declared package, preserving user overrides.
+  if packages.bm and not defs.bm then
+    defs.bm = { nargs = 1, body = "\\boldsymbol{#1}" }
   end
   -- 需要定义的命令 = 数学里出现且用户定义没有的
   local need = {}
@@ -506,6 +516,64 @@ end
 -- labels：本块全部 label（块内 \ref 解析用——lwarp 原生锚点已输出）
 -- packages：文档层声明的宏包（latex-packages）
 -- counter_name/counter_start：计数器注入（html-latex-counters.lua 提供）
+-- lateximage resources are separate pages in block_html.pdf. Follow lwarp's
+-- manifest and conversion sequence synchronously before embedding the HTML.
+local function read_lateximages(cache)
+  local f = io.open(cache .. "/block-images.txt", "r")
+  if not f then return {}, true end
+  local images, ready, finished = {}, true, false
+  for line in f:lines() do
+    if line == "|end|end|end|" then finished = true end
+    local page, name = line:match("^|(%d+)|[^|]+|([%w_-]+)|")
+    if page then
+      page = tonumber(page)
+      if page == 0 then ready = false end
+      images[name] = page
+    end
+  end
+  f:close()
+  if next(images) and not finished then ready = false end
+  return images, ready
+end
+
+local function generate_lateximages(cache, images)
+  if not next(images) then return end
+  assert(ensure_dir(cache .. "/block-images"), "cannot create lateximage directory")
+  os.remove(cache .. "/image-tools.log")
+  local prefix = ""
+  local git = (os.getenv("ProgramFiles") or "C:/Program Files") .. "/Git/usr/bin"
+  local perl = package.config:sub(1, 1) == "\\" and io.open(git .. "/perl.exe", "rb")
+  if perl then
+    perl:close()
+    prefix = 'set "PATH=' .. git .. ';%PATH%" && '
+  end
+  local function run(command)
+    assert(os.execute("cd " .. cache .. " && " .. prefix .. command .. " >>image-tools.log 2>&1"),
+      "lateximage conversion failed; see " .. cache .. "/image-tools.log")
+  end
+  local function convert()
+    for name, page in pairs(images) do
+      assert(page > 0, "unresolved lateximage page for " .. name)
+      os.remove(cache .. "/block-images/" .. name .. ".svg")
+      run("pdfseparate -f " .. page .. " -l " .. page .. " block_html.pdf lateximage-page-%d.pdf")
+      run('pdfcrop --hires --margins "0 1 0 0" lateximage-page-' .. page .. '.pdf lateximage-cropped.pdf')
+      run("pdftocairo -svg -noshrink lateximage-cropped.pdf block-images/" .. name .. ".svg")
+    end
+  end
+  convert()
+end
+
+local function embed_lateximages(html, cache)
+  return html:gsub('src="(block%-images[/\\][^"]+%.svg)"', function(src)
+    local f = io.open(cache .. "/" .. src:gsub("\\", "/"), "rb")
+    assert(f, "missing lateximage: " .. src)
+    local svg = f:read("*a")
+    f:close()
+    assert(svg:find("<svg", 1, true), "invalid lateximage: " .. src)
+    return 'src="data:image/svg+xml;base64,' .. quarto.base64.encode(svg) .. '"'
+  end)
+end
+
 local function compile_block(body, counter_name, counter_start, macros, labels, packages, index)
   -- Isolate auxiliary files and retain diagnostics for each source block.
   local CACHE = CACHE .. "/block-" .. tostring(index)
@@ -548,6 +616,18 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     io.stderr:write("[html-latex-lwarp] lualatex (html) failed\n")
     return nil
   end
+  local images, ready = read_lateximages(CACHE)
+  -- The first HTML pass records page zero until image locations reach the aux
+  -- file. Only blocks containing images need these additional passes.
+  for pass = 1, 2 do
+    if ready then break end
+    if not os.execute("cd " .. CACHE .. " && lualatex -interaction=nonstopmode block_html.tex >nul 2>&1") then
+      assert(false, "lateximage page pass failed: " .. CACHE .. "/block_html.log")
+    end
+    images, ready = read_lateximages(CACHE)
+  end
+  assert(ready, "lateximage pages did not stabilize: " .. CACHE .. "/block-images.txt")
+  generate_lateximages(CACHE, images)
   -- lwarp 把 HTML 源码嵌入 block_html.pdf 的不可见文本层——需
   -- pdftotext -layout 提取成 .html（lwarpmk.lua:388 同款命令；
   -- lwarp v0.922 架构：打印层 + HTML 文本层共用一份 PDF）
@@ -571,6 +651,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     or html:match("<main[^>]*>(.*)</main>")
     or html:match("<body>(.*)</body>")
     or html
+  inner = embed_lateximages(inner, CACHE)
   -- 删 <link>（改内联 css）
   inner = inner:gsub("<link[^>]*>", "")
   -- lwarp 跨文件链接改页内锚点：href="block.html#label" → href="#label"
@@ -703,6 +784,7 @@ return {
                 -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
                 blocks[i] = pandoc.RawBlock("html", html)
               else
+                if not ok then io.stderr:write("[html-latex-lwarp] " .. tostring(html) .. "\n") end
                 -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
                 -- 失败原因归项目层（latex-packages 声明与 lwarp 能力冲突等
                 -- ——如老式 algorithmic 包 lwarp 明确拒绝）——filter 不强行适配

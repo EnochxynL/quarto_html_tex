@@ -25,12 +25,18 @@ Markdown 原生表格继续由 Quarto 处理。
 2. latex/html-latex-counters.lua：为独立编译块准备全文计数上下文。
 3. latex/html-latex-lwarp.lua：生成 TeX，运行 LuaLaTeX 打印版和 HTML 版，
    用 pdftotext 提取 HTML，并嵌入主页面。每块 CSS 和内部锚点单独隔离。
+   遇到 lateximage（例如 pifont 符号）时，额外编译以确定图片页码，按 lwarp
+   的转换顺序生成 SVG，并以 data URI 嵌入，不依赖临时目录中的图片路径。
 4. ref/html-ref-*.lua 及项目级 figref.py、tblref.py、eqref.py：
    衔接现有引用。lwarp 表格的标题和编号由 lwarp 输出，旧表格引用模块不再重写。
 
 正文和标题里的 LaTeX 文献引用由父文档的 citeproc 数据解析，再交给 TeX；
 表格结构仍完全由 lwarp 处理。当前引用桥支持无可选参数的 \cite、
 \citep、\citet 等命令。文献链接指向主页面的参考文献。
+
+MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公式，包含嵌套内容。
+显式声明 bm 宏包时，为网页端提供 bm → boldsymbol 的兼容映射；用户宏定义优先。
+这用于常见粗体数学符号，不保证完整复现 bm 宏包的全部 TeX 字体行为。
 
 ## 表格约定与边界
 
@@ -52,6 +58,9 @@ Markdown 原生表格继续由 Quarto 处理。
   不支持的宏包、语法或缺失依赖会显示 lwarp-failed 警告及原始代码。
 - 每次渲染重新编译，尚无结果缓存。每块源文件和编译日志保存在
   .quarto/lwarp/block-N/，可直接检查失败位置。
+- 图片生成需要 pdfseparate、pdfcrop、pdftocairo；pdfcrop 还需要 Perl 和
+  Ghostscript。转换错误会显示失败块，详细日志在各块的 image-tools.log。
+  Windows 下插件会尝试向转换子进程提供 Git 自带的 Perl，不修改系统环境。
 
 ## 验证
 

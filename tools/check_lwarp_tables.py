@@ -1,6 +1,7 @@
 """Render raw LaTeX tables through the real lwarp pipeline and check semantics."""
 from pathlib import Path
 import atexit
+import base64
 import html as html_lib
 import os
 import re
@@ -23,7 +24,9 @@ with (logs / 'lwarp-tables.log').open('w', encoding='utf-8') as log:
     subprocess.run([str(quarto), 'render', stem.name + '.qmd', '--to', 'html'],
                    cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
 html = stem.with_suffix('.html').read_text(encoding='utf-8')
+assert '[html-latex-lwarp]' not in (logs / 'lwarp-tables.log').read_text(encoding='utf-8')
 assert 'class="lwarp-failed"' not in html
+assert '"bm": ["\\\\boldsymbol{#1}", 1]' in html, 'native Math nodes did not register bm'
 assert re.search(r'colspan="2"[^>]*>\s*Grouped methods', html)
 for text in ['Colored text', 'First line', 'Second line', 'Macro value', 'Panel A', 'Panel B', 'Final panel']:
     assert text in html, text
@@ -41,4 +44,12 @@ for number, name in enumerate(['grouped', 'panels', 'third'], 1):
 assert '[TAB-CAP:' not in html
 assert '@@REF:' not in html
 assert 'caption-top table' not in html  # no Bootstrap classes on nested tables
-print('PASS: spanning columns, nested cells, colors, compound blocks, captions, references')
+images = re.findall(r'src="data:image/svg\+xml;base64,([^"]+)"', html)
+assert len(images) >= 2, 'pifont image resources were not embedded'
+for data in images:
+    svg = base64.b64decode(data).decode('utf-8')
+    assert '<svg' in svg and '<path' in svg, 'empty generated symbol'
+    dimensions = re.search(r'<svg[^>]*width="([\d.]+)"[^>]*height="([\d.]+)"', svg)
+    assert dimensions and all(0 < float(n) < 100 for n in dimensions.groups()), 'uncropped symbol page'
+assert not re.search(r'src="block-images[/\\]', html), 'temporary image URL leaked'
+print('PASS: spanning columns, nested cells, colors, captions, references, embedded SVG symbols')
