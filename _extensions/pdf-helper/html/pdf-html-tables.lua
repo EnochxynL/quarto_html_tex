@@ -173,7 +173,8 @@ local function process_blocks(blocks, cfg)
   for _, b in ipairs(blocks) do
     if b.t == "Div" then
       -- quarto 把 {=html} 表格包在 Div(quarto-scaffold) 里：整体替换，避免 quarto writer 输出浮动体时重组
-      local found = extract_table_and_caption(b.content)
+      local found = b.classes:includes("quarto-scaffold")
+        and extract_table_and_caption(b.content) or nil
       if found and found.table then
         local tbl = found.table
         local has_cap = tbl.caption and tbl.caption.long and #tbl.caption.long > 0
@@ -203,8 +204,30 @@ local function process_blocks(blocks, cfg)
   return out
 end
 
-function Pandoc(doc)
-  local cfg = read_config(doc.meta)
-  doc.blocks = pandoc.List(process_blocks(doc.blocks, cfg))
-  return doc
-end
+local config
+return {
+  {
+    Pandoc = function(doc)
+      config = read_config(doc.meta)
+      return doc
+    end,
+  },
+  {
+    FloatRefTarget = function(float)
+      local tbl = float.content
+      if float.type ~= "Table" or not tbl or tbl.t ~= "Table" then return end
+      if tbl.attributes["quarto-postprocess"] ~= "true" then return end
+      tbl.identifier = float.identifier
+      if float.caption_long then
+        tbl.caption = pandoc.Caption(quarto.utils.as_blocks(float.caption_long))
+      end
+      return pandoc.RawBlock("latex", table_to_latex(tbl, config))
+    end,
+  },
+  {
+    Pandoc = function(doc)
+      doc.blocks = pandoc.List(process_blocks(doc.blocks, config))
+      return doc
+    end,
+  },
+}

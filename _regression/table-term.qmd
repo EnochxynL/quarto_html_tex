@@ -1,0 +1,61 @@
+---
+title: Table labels and inline terms
+filters:
+  - html-helper
+  - pdf-helper
+terms:
+  ara:
+    pdf: '\ara{}'
+    html: '<span class="ara">Ara</span>'
+format:
+  html: default
+  pdf:
+    pdf-engine: pdflatex
+    classoption: twocolumn
+    keep-tex: true
+    latex-clean: false
+    include-in-header:
+      text: |
+        \usepackage{booktabs}
+        \newcommand{\ara}{\textsc{Ara}}
+    html-helper:
+      md-table-env: table*
+      html-table-env: table
+      table-caption-pos: bottom
+---
+
+Before **bold ({{< term ara >}})** after.
+
+{{< term ara >}} starts this paragraph.
+
+Table \ref{tbl-regression-native} and Table \ref{tbl-regression-html}.
+
+| Term | Value |
+|---|---|
+| {{< term ara >}} | 1 |
+
+: Native table with {{< term ara >}}. {#tbl-regression-native}
+
+::: {.keep-content}
+Text before the nested table must survive.
+
+| Nested | Value |
+|---|---|
+| {{< term ara >}} | 3 |
+
+: Nested Markdown table. {#tbl-regression-nested}
+
+Text after the nested table must survive.
+:::
+
+```{=html}
+<table id="tbl-regression-html">
+<caption>HTML table caption</caption>
+<tr><th>Name</th><th>Value</th></tr>
+<tr><td>HTML</td><td>2</td></tr>
+</table>
+```
+
+```{=html}
+<table><tr><td>Uncaptioned HTML table</td></tr></table>
+```

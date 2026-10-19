@@ -23,12 +23,14 @@
 -- 降级：术语未定义 → 字面 [term X]（可见——不静默）。
 
 local function raw_value(v, fmt)
+  if v == nil then return "" end
   local tp = pandoc.utils.type(v)
   if tp == "MetaString" or tp == "String" then
     return pandoc.utils.stringify(v)
   end
   local content = v.content or v
-  local s = pandoc.write(pandoc.Pandoc({ pandoc.Para(content) }), fmt)
+  -- A shortcode used inline must not introduce an HTML paragraph wrapper.
+  local s = pandoc.write(pandoc.Pandoc({ pandoc.Plain(content) }), fmt)
   return s:gsub("%s+$", "")
 end
 

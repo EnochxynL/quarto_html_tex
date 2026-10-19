@@ -23,10 +23,9 @@ and local style files are preserved. The humanoid paper's supplied bibliography
 is preserved as `bibliography.tex` for PDF and as CSL records in `references.json`
 for HTML; no missing bibliographic metadata is invented.
 
-Current review note: the Ara PDF compiles but has five unresolved Markdown-table
-references (`tbl-event-types`, `tbl-seal-l2`, `tbl-corpus`, `tbl-info-gap`,
-`tbl-gap-types`). Its HTML references resolve. The other three PDFs have no
-unresolved reference warnings in their final LaTeX logs.
+The Ara Markdown-table labels are preserved by the PDF filters, and its inline
+terms remain inline in HTML. Run `python tools/check_table_term_regression.py`
+to check table ownership, labels, captions, and shortcode output in both formats.
 
 `tools/convert_papers.py` regenerates the two new entries and bodies from their
 original sources. It overwrites its generated QMD, Markdown, template, and CSS

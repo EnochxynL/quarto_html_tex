@@ -3,82 +3,60 @@
     "paper": "arXiv-2203.04955v2",
     "format": "html",
     "exit_code": 0,
-    "seconds": 43.5,
+    "seconds": 39.2,
     "latex_failures": 0,
-    "unresolved_placeholders": [],
-    "output": "index.html",
-    "bytes": 313089
+    "unresolved_placeholders": []
   },
   {
     "paper": "arXiv-2203.04955v2",
     "format": "pdf",
     "exit_code": 0,
-    "seconds": 18.7,
-    "unresolved_references": [],
-    "output": "paper.pdf",
-    "bytes": 12539504
+    "seconds": 15.3,
+    "unresolved_references": []
   },
   {
     "paper": "arXiv-2508.00362v1",
     "format": "html",
     "exit_code": 0,
-    "seconds": 3.0,
+    "seconds": 3.1,
     "latex_failures": 0,
-    "unresolved_placeholders": [],
-    "output": "index.html",
-    "bytes": 85354
+    "unresolved_placeholders": []
   },
   {
     "paper": "arXiv-2508.00362v1",
     "format": "pdf",
     "exit_code": 0,
-    "seconds": 4.8,
-    "unresolved_references": [],
-    "output": "paper.pdf",
-    "bytes": 2857305
+    "seconds": 4.5,
+    "unresolved_references": []
   },
   {
     "paper": "arXiv-2604.24658v3",
     "format": "html",
     "exit_code": 0,
-    "seconds": 6.0,
+    "seconds": 5.5,
     "latex_failures": 0,
-    "unresolved_placeholders": [],
-    "output": "index.html",
-    "bytes": 383445
+    "unresolved_placeholders": []
   },
   {
     "paper": "arXiv-2604.24658v3",
     "format": "pdf",
     "exit_code": 0,
-    "seconds": 37.0,
-    "unresolved_references": [
-      "tbl-corpus",
-      "tbl-event-types",
-      "tbl-gap-types",
-      "tbl-info-gap",
-      "tbl-seal-l2"
-    ],
-    "output": "main.pdf",
-    "bytes": 4792537
+    "seconds": 36.4,
+    "unresolved_references": []
   },
   {
     "paper": "arXiv-2605.23904v2",
     "format": "html",
     "exit_code": 0,
-    "seconds": 22.4,
+    "seconds": 20.3,
     "latex_failures": 0,
-    "unresolved_placeholders": [],
-    "output": "index.html",
-    "bytes": 267692
+    "unresolved_placeholders": []
   },
   {
     "paper": "arXiv-2605.23904v2",
     "format": "pdf",
     "exit_code": 0,
-    "seconds": 73.1,
-    "unresolved_references": [],
-    "output": "main.pdf",
-    "bytes": 1007954
+    "seconds": 10.8,
+    "unresolved_references": []
   }
 ]

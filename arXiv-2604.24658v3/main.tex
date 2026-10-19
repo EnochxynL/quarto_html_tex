@@ -707,7 +707,7 @@ Figure~\ref{fig-lrm-overview}）。
 层级：轨迹事件（决策、实验、死胡同、转向）追加到探索图谱（\passthrough{\lstinline!/trace/!}），构建一条忠实的、按时序排列的研究轨迹记录，包括那些被尝试和放弃的方向（\textbf{P3}）；论断和启发式规则进入认知层（\passthrough{\lstinline!/logic/!}）；而难以归类的事件则暂存于
 \passthrough{\lstinline!/staging/!} 中，等待后续提升。
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 \begin{tabular}{llll}
 \toprule
@@ -720,7 +720,8 @@ Figure~\ref{fig-lrm-overview}）。
 \bottomrule
 \end{tabular}
 \caption{研究事件类型及其结构化载荷。}
-\end{table}
+\label{tbl-event-types}
+\end{table*}
 
 \paragraph{渐进式结晶化。}\label{ux6e10ux8fdbux5f0fux7ed3ux6676ux5316}
 
@@ -1344,7 +1345,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 表
 \ref{tbl-seal-l2}报告了各类别的检测情况。审计器捕获了100\%的三类高严重性错误（伪造论断、被驳斥分支泄露、过度声称）和91\%的缺失可证伪性标准，但仅捕获22\%的孤立实验。这一不对称性是可解释的：孤立实验需要枚举每个实验并将其\passthrough{\lstinline!验证!}目标与论断列表交叉核对，而其他四类在审计器的逐论断循环中自然浮现。自然的修复方法是将孤立实验检测移至第1级，作为一个确定性的结构检查。
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 \begin{tabular}{lcrr}
 \toprule
@@ -1358,8 +1359,9 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 \textbf{总计} &  & \textbf{115} & \textbf{95 (82.6\%)} \\
 \bottomrule
 \end{tabular}
-\caption{严谨性审计器在变异基准测试上的有效性（23个 {} \(\times\) 5类注入）。审计器捕获所有高严重性结构异常，但在孤立实验上表现出系统性盲区。}
-\end{table}
+\caption{严谨性审计器在变异基准测试上的有效性（23个\ara{} \(\times\) 5类注入）。审计器捕获所有高严重性结构异常，但在孤立实验上表现出系统性盲区。}
+\label{tbl-seal-l2}
+\end{table*}
 
 \paragraph{审计器评分中的两种LLM作为裁判的病态现象。}\label{ux5ba1ux8ba1ux5668ux8bc4ux5206ux4e2dux7684ux4e24ux79cdllmux4f5cux4e3aux88c1ux5224ux7684ux75c5ux6001ux73b0ux8c61}
 
@@ -2442,7 +2444,7 @@ Spotlight/Oral，另有两篇NeurIPS 2024工作坊发展论文），并公开提
 Gym
 RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。这8篇论文仅参与理解评估。
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 \begin{tabular}{llc}
 \toprule
@@ -2474,8 +2476,9 @@ what-will-my-model-forget & Continual learning & No \\
 \textbf{总计：23} &  & 15 \\
 \bottomrule
 \end{tabular}
-\caption{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。 ``复现'' 列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
-\end{table}
+\caption{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。``复现''列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
+\label{tbl-corpus}
+\end{table*}
 
 \paragraph{语料库多样性。}\label{ux8bedux6599ux5e93ux591aux6837ux6027}
 
@@ -2565,7 +2568,7 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 表
 \ref{tbl-info-gap}将8,921个需求按PaperBench任务类别划分。中位数论文显示45.3\%充分和47.9\%部分，证实了这一缺口是系统性的而非由异常值驱动。
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 \begin{tabular}{lrccc}
 \toprule
@@ -2578,7 +2581,8 @@ Result Analysis & 624 & 60.6\% & 36.9\% & 2.6\% \\
 \bottomrule
 \end{tabular}
 \caption{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
-\end{table}
+\label{tbl-info-gap}
+\end{table*}
 
 \paragraph{缺口类型细分。}\label{ux7f3aux53e3ux7c7bux578bux7ec6ux5206}
 
@@ -2587,7 +2591,7 @@ Result Analysis & 624 & 60.6\% & 36.9\% & 2.6\% \\
 在细粒度层面，数据集获取仅达到5.4\%的充分覆盖率（25.5\%完全缺失）------语料库中没有一篇论文一致地提供了下载URL、预处理脚本或数据格式规范。
 评估、指标与基准测试为30.0\%：论文通常声明了使用\emph{哪些}指标，但未说明\emph{如何}计算它们（分箱策略、置信区间、统计检验）。
 
-\begin{table}[htbp]
+\begin{table*}[htbp]
 \centering
 \begin{tabular}{lrc}
 \toprule
@@ -2605,7 +2609,8 @@ Implicit assumption & 150 & 1.5\% \\
 \bottomrule
 \end{tabular}
 \caption{8,921个需求中信息缺口类型的分布。三个最大类别------缺失超参数、描述模糊和交叉引用------恰恰是结构化格式在设计上处理的缺口。}
-\end{table}
+\label{tbl-gap-types}
+\end{table*}
 
 \subsection{探索成本详细分解}\label{sec-app-exploration-tax}
 

@@ -23,9 +23,9 @@
 --   只有 Pandoc(doc) 回调的 doc.meta 才含完整 metadata。metadata 值是 MetaInlines，
 --   需 pandoc.utils.stringify 才能比较。quarto 把 format.pdf 下的 html-helper 提升为
 --   顶层 meta（平铺，无 pdf 嵌套层）——read_config 嵌套优先、平铺回退（README 踩坑 13）。
---   本 filter 只处理顶层 Table 节点（管道表）：{=html} 表的 Table 在
---   Div(__quarto_custom_scaffold) 内部，递归进去会抢先把内部 Table 转成
---   md-table-env 环境——Div 一律原样保留，交给 pdf-html-tables.lua。
+--   Named Markdown tables use FloatRefTarget at post-quarto; recover the
+--   ID/caption from the float after shortcodes expand. Bare top-level Tables
+--   remain a fallback. HTML imports are identified by quarto-postprocess.
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
   return {}
 end
@@ -155,8 +155,29 @@ local function process_blocks(blocks, cfg)
   return out
 end
 
-function Pandoc(doc)
-  local cfg = read_config(doc.meta)
-  doc.blocks = pandoc.List(process_blocks(doc.blocks, cfg))
-  return doc
-end
+-- Run after Quarto expands shortcodes and registers cross-reference targets.
+-- Named Markdown tables are FloatRefTarget nodes: their ID and caption belong
+-- to the float, not to its inner Table. Replace the entire float so Quarto
+-- cannot wrap our already complete LaTeX table a second time.
+local config
+return {
+  {
+    Pandoc = function(doc)
+      config = read_config(doc.meta)
+      doc.blocks = pandoc.List(process_blocks(doc.blocks, config))
+      return doc
+    end,
+  },
+  {
+    FloatRefTarget = function(float)
+      local tbl = float.content
+      if float.type ~= "Table" or not tbl or tbl.t ~= "Table" then return end
+      if tbl.attributes["quarto-postprocess"] == "true" then return end
+      tbl.identifier = float.identifier
+      if float.caption_long then
+        tbl.caption = pandoc.Caption(quarto.utils.as_blocks(float.caption_long))
+      end
+      return pandoc.RawBlock("latex", table_to_latex(tbl, config))
+    end,
+  },
+}

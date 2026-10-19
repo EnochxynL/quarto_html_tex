@@ -10,14 +10,14 @@ Quarto 扩展：**pdf(含 html/markdown 表格内容) → 任意期刊模板的 
 _extensions/pdf-helper/
   _extension.yml            filter 链声明
   md/                       Markdown 内容领地
-    pdf-md-tables.lua         管道表（顶层 Table）→ table*/table/longtable + booktabs tabular
+    pdf-md-tables.lua         管道表（Table / FloatRefTarget）→ table*/table/longtable + booktabs tabular
   html/                     {=html} 内容领地
     pdf-html-tables.lua       {=html} 直写表 → 单栏 table + booktabs tabular
   ref/                      引用领地
-    pdf-ref-tbl.lua           tbl- 引用提示器（INFO 日志，不改文档）
+    pdf-ref-tbl.lua           tbl- 引用校验器（缺失目标标签时警告，不改文档）
 ```
 
-**filter 链**：`md/pdf-md-tables.lua → html/pdf-html-tables.lua → ref/pdf-ref-tbl.lua`（表格先翻译、引用提示兜底）。
+**filter 链**：`md/pdf-md-tables.lua → html/pdf-html-tables.lua → ref/pdf-ref-tbl.lua`。三者均在 `post-quarto` 阶段运行：先展开 shortcode、注册交叉引用，再转换表格并校验目标标签。
 
 ## 解决的问题
 
@@ -47,9 +47,9 @@ format:
 
 | 文件 | 作用 |
 |------|------|
-| `md/pdf-md-tables.lua` | **管道表**（顶层 Table）→ `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`）。只处理顶层 Table，Div 原样保留（{=html} 表交给 html/pdf-html-tables.lua） |
+| `md/pdf-md-tables.lua` | **管道表** → `table*`/`table`/`longtable` booktabs tabular。具名表从 Quarto 的 `FloatRefTarget` 取回 ID 和 caption，整体替换浮动体；普通顶层 `Table` 作为兜底。跳过带 `quarto-postprocess` 标记的 HTML 导入表。配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`）。 |
 | `html/pdf-html-tables.lua` | **{=html} 直写表**：`Div(quarto-scaffold)` 包裹的原生 Table → 单栏 `table`（默认）booktabs tabular。独立配置 `html-table-env`/`html-table-pos`（默认 `table`/`htbp`），table-caption-pos 与 pdf-md-tables 共享 |
-| `ref/pdf-ref-tbl.lua` | **tbl- 引用提示器**（INFO 日志，不改文档）：正文 `\ref{tbl-X}` → 提示通道行为。实证 2026-08-30：管道表 `{#tbl-X}` 的 `\label{tbl-X}` 被 PDF writer 原样写回中间 tex——LaTeX 原生 \ref 编译命中，**不 ??**；{=latex} 表 label 被 float 接管挪进 caption（实体保留）但复杂表仍须 tab- 让路（HTML 端 float 接管静默消失） |
+| `ref/pdf-ref-tbl.lua` | **tbl- 引用校验器**：收集转换后的 LaTeX 标签、剩余表格 ID 和 `\ref{tbl-X}`，仅在目标缺失时警告。不改正文，也不因标签前缀就假定引用能成功。 |
 
 ## 行为
 
