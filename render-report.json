@@ -1,62 +1,62 @@
 [
   {
     "paper": "arXiv-2203.04955v2",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 15.3,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2508.00362v1",
     "format": "html",
     "exit_code": 0,
-    "seconds": 3.1,
+    "seconds": 178.6,
     "latex_failures": 0,
     "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2508.00362v1",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 4.5,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2604.24658v3",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 5.5,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2604.24658v3",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 36.4,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2605.23904v2",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 20.3,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2605.23904v2",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 10.8,
-    "unresolved_references": []
   },
   {
     "paper": "arXiv-2203.04955v2",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 17.6,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
     "format": "html",
     "exit_code": 0,
-    "seconds": 45.5,
+    "seconds": 36.7,
     "latex_failures": 0,
     "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 6.3,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 174.5,
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 48.5,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 130.3,
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 12.8,
+    "unresolved_references": []
   }
 ]

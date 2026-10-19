@@ -331,17 +331,17 @@ The authors would like to thank Yueh-Hua Wu, Ruihan Yang, Sander Tonkens, Tongzh
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Method} & Model objective & Value & Inference & Continuous & Compute \\\midrule
-SAC     & \color{BrickRed}{\XSolidBrush}      & \color{OliveGreen}{\Checkmark}      & \color{BrickRed}{Policy}        & \color{OliveGreen}{\Checkmark}     & \color{OliveGreen}{Low} \\
-\colorcell QT-Opt     & \colorcell \color{BrickRed}{\XSolidBrush}      & \colorcell \color{OliveGreen}{\Checkmark}      & \colorcell \color{OliveGreen}{CEM}        & \colorcell \color{OliveGreen}{\Checkmark}     & \colorcell \color{OliveGreen}{Low} \\
-MPC:sim     & \color{BrickRed}{Ground-truth model}      & \color{BrickRed}{\XSolidBrush}      & \color{OliveGreen}{CEM}        & \color{OliveGreen}{\Checkmark}     & \color{BrickRed}{High} \\
-\colorcell POLO     & \colorcell \color{BrickRed}{Ground-truth model}      & \colorcell \color{OliveGreen}{\Checkmark}      & \colorcell \color{OliveGreen}{CEM}        & \colorcell \color{OliveGreen}{\Checkmark}     & \colorcell \color{BrickRed}{High} \\
-LOOP     & \color{YellowOrange}{State prediction}      & \color{OliveGreen}{\Checkmark}      & \color{OliveGreen}{Policy w/ CEM}        & \color{OliveGreen}{\Checkmark}     & \color{YellowOrange}{Moderate} \\
-\colorcell PlaNet     & \colorcell \color{YellowOrange}{Image prediction}      & \colorcell \color{BrickRed}{\XSolidBrush}      & \colorcell \color{OliveGreen}{CEM}        & \colorcell \color{OliveGreen}{\Checkmark}     & \colorcell \color{BrickRed}{High} \\
-Dreamer     & \color{YellowOrange}{Image prediction}      & \color{OliveGreen}{\Checkmark}      & \color{BrickRed}{Policy}        & \color{OliveGreen}{\Checkmark}     & \color{YellowOrange}{Moderate} \\
-\colorcell MuZero     & \colorcell \color{OliveGreen}{Reward/value pred.}      & \colorcell \color{OliveGreen}{\Checkmark}      & \colorcell \color{YellowOrange}{MCTS w/ policy}        & \colorcell \color{BrickRed}{\XSolidBrush}     & \colorcell \color{YellowOrange}{Moderate} \\
-EfficientZero     & \color{OliveGreen}{Reward/value pred. + contrast.}      & \color{OliveGreen}{\Checkmark}      & \color{YellowOrange}{MCTS w/ policy}        & \color{BrickRed}{\XSolidBrush}     & \color{YellowOrange}{Moderate} \\
+SAC     & \textcolor{BrickRed}{\XSolidBrush}      & \textcolor{OliveGreen}{\Checkmark}      & \textcolor{BrickRed}{Policy}        & \textcolor{OliveGreen}{\Checkmark}     & \textcolor{OliveGreen}{Low} \\
+\colorcell QT-Opt     & \colorcell \textcolor{BrickRed}{\XSolidBrush}      & \colorcell \textcolor{OliveGreen}{\Checkmark}      & \colorcell \textcolor{OliveGreen}{CEM}        & \colorcell \textcolor{OliveGreen}{\Checkmark}     & \colorcell \textcolor{OliveGreen}{Low} \\
+MPC:sim     & \textcolor{BrickRed}{Ground-truth model}      & \textcolor{BrickRed}{\XSolidBrush}      & \textcolor{OliveGreen}{CEM}        & \textcolor{OliveGreen}{\Checkmark}     & \textcolor{BrickRed}{High} \\
+\colorcell POLO     & \colorcell \textcolor{BrickRed}{Ground-truth model}      & \colorcell \textcolor{OliveGreen}{\Checkmark}      & \colorcell \textcolor{OliveGreen}{CEM}        & \colorcell \textcolor{OliveGreen}{\Checkmark}     & \colorcell \textcolor{BrickRed}{High} \\
+LOOP     & \textcolor{YellowOrange}{State prediction}      & \textcolor{OliveGreen}{\Checkmark}      & \textcolor{OliveGreen}{Policy w/ CEM}        & \textcolor{OliveGreen}{\Checkmark}     & \textcolor{YellowOrange}{Moderate} \\
+\colorcell PlaNet     & \colorcell \textcolor{YellowOrange}{Image prediction}      & \colorcell \textcolor{BrickRed}{\XSolidBrush}      & \colorcell \textcolor{OliveGreen}{CEM}        & \colorcell \textcolor{OliveGreen}{\Checkmark}     & \colorcell \textcolor{BrickRed}{High} \\
+Dreamer     & \textcolor{YellowOrange}{Image prediction}      & \textcolor{OliveGreen}{\Checkmark}      & \textcolor{BrickRed}{Policy}        & \textcolor{OliveGreen}{\Checkmark}     & \textcolor{YellowOrange}{Moderate} \\
+\colorcell MuZero     & \colorcell \textcolor{OliveGreen}{Reward/value pred.}      & \colorcell \textcolor{OliveGreen}{\Checkmark}      & \colorcell \textcolor{YellowOrange}{MCTS w/ policy}        & \colorcell \textcolor{BrickRed}{\XSolidBrush}     & \colorcell \textcolor{YellowOrange}{Moderate} \\
+EfficientZero     & \textcolor{OliveGreen}{Reward/value pred. + contrast.}      & \textcolor{OliveGreen}{\Checkmark}      & \textcolor{YellowOrange}{MCTS w/ policy}        & \textcolor{BrickRed}{\XSolidBrush}     & \textcolor{YellowOrange}{Moderate} \\
 \midrule
-\hcolorcell \textbf{TD-MPC} (ours)     & \hcolorcell \color{OliveGreen}{Reward/value pred. + latent pred.}      & \hcolorcell \color{OliveGreen}{\Checkmark}      & \hcolorcell \color{OliveGreen}{CEM w/ policy}        & \hcolorcell \color{OliveGreen}{\Checkmark}      & \hcolorcell \color{OliveGreen}{Low} \\
+\hcolorcell \textbf{TD-MPC} (ours)     & \hcolorcell \textcolor{OliveGreen}{Reward/value pred. + latent pred.}      & \hcolorcell \textcolor{OliveGreen}{\Checkmark}      & \hcolorcell \textcolor{OliveGreen}{CEM w/ policy}        & \hcolorcell \textcolor{OliveGreen}{\Checkmark}      & \hcolorcell \textcolor{OliveGreen}{Low} \\
 \bottomrule
 \end{tabular}
 }

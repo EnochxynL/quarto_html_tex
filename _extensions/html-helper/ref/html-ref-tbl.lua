@@ -19,6 +19,8 @@
 -- parse 只翻译结构，本模块只做编号/引用，互不干涉。
 --
 -- 注意：pandoc.walk_block / pandoc.walk_inline 在本 pandoc 版本均不可靠，全部手写递归。
+-- Legacy raw HTML/native-table reference bridge. Lwarp blocks carry their own
+-- captions, anchors and numbers and are deliberately excluded from this pass.
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
@@ -56,7 +58,8 @@ function Pandoc(doc)
         -- 管道表（tbl-，quarto 原生 float）：占全局序号但不记 id
         -- （quarto reader 消费 tbl- id，filter 拿不到——编号由 tblref.py 后处理）
         tab_counter = tab_counter + 1
-      elseif b.t == "RawBlock" and b.format == "html" and b.text:match("%<table") then
+      elseif b.t == "RawBlock" and b.format == "html" and b.text:match("%<table")
+        and not b.text:match('class="lwarp%-block[%s"]') then
         tab_counter = tab_counter + 1
         for id in b.text:gmatch('id="([^"]+)"') do
           tab_nums[id] = tab_counter

@@ -21,6 +21,8 @@ format:
         - xcolor
         - booktabs
         - colortbl
+        - multirow
+        - threeparttable
 csl: source-numeric.csl
 ---
 

@@ -65,74 +65,74 @@ Rejected updates are still useful. The optimizer records an epoch-local buffer c
 \midrule
 \harnessrow{No harness / direct chat} \\
 \multirow{7}{*}{GPT--5.5} & No skill & 77.7 & 41.8 & 33.1 & 78.8 & 37.6 & 83.6 \\
- & Human skill & \dvalp{81.8}{4.1} & \dvalp{72.9}{31.1} & \dvalp{\underline{66.9}}{33.8} & \dvalp{90.1}{11.3} & \dvalp{38.4}{0.8} & \dvalp{91.8}{8.2} \\
- & LLM skill & \dvalp{80.9}{3.2} & \dvalp{43.2}{1.4} & \dvalp{51.7}{18.6} & \dvalp{89.6}{10.8} & \dvalp{40.0}{2.4} & \dvalp{\underline{93.3}}{9.7} \\
- & Trace2Skill & \dvalp{82.4}{4.7} & \dvalp{49.6}{7.8} & \dvalp{65.7}{32.6} & \dvalp{\underline{90.6}}{11.8} & \dvalp{\underline{52.0}}{14.4} & \dvalp{87.3}{3.7} \\
- & TextGrad & \dvalp{81.4}{3.7} & \dvaln{41.1}{0.7} & \dvalp{42.0}{8.9} & \dvalp{87.2}{8.4} & \dvalp{49.2}{11.6} & \dvaln{82.8}{0.8} \\
- & GEPA & \dvalp{\underline{84.8}}{7.1} & \dvalp{\underline{73.6}}{31.8} & \dvalp{63.9}{30.8} & \dvalp{89.1}{10.3} & \dvalp{43.2}{5.6} & \dvalp{85.8}{2.2} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{87.3}}{9.6}} & \methodcell{\dvalp{\textbf{80.7}}{38.9}} & \methodcell{\dvalp{\textbf{72.1}}{39.0}} & \methodcell{\dvalp{\textbf{91.2}}{12.4}} & \methodcell{\dvalp{\textbf{66.9}}{29.3}} & \methodcell{\dvalp{\textbf{95.5}}{11.9}} \\
+\mrowcell & Human skill & \dvalp{81.8}{4.1} & \dvalp{72.9}{31.1} & \dvalp{\underline{66.9}}{33.8} & \dvalp{90.1}{11.3} & \dvalp{38.4}{0.8} & \dvalp{91.8}{8.2} \\
+\mrowcell & LLM skill & \dvalp{80.9}{3.2} & \dvalp{43.2}{1.4} & \dvalp{51.7}{18.6} & \dvalp{89.6}{10.8} & \dvalp{40.0}{2.4} & \dvalp{\underline{93.3}}{9.7} \\
+\mrowcell & Trace2Skill & \dvalp{82.4}{4.7} & \dvalp{49.6}{7.8} & \dvalp{65.7}{32.6} & \dvalp{\underline{90.6}}{11.8} & \dvalp{\underline{52.0}}{14.4} & \dvalp{87.3}{3.7} \\
+\mrowcell & TextGrad & \dvalp{81.4}{3.7} & \dvaln{41.1}{0.7} & \dvalp{42.0}{8.9} & \dvalp{87.2}{8.4} & \dvalp{49.2}{11.6} & \dvaln{82.8}{0.8} \\
+\mrowcell & GEPA & \dvalp{\underline{84.8}}{7.1} & \dvalp{\underline{73.6}}{31.8} & \dvalp{63.9}{30.8} & \dvalp{89.1}{10.3} & \dvalp{43.2}{5.6} & \dvalp{85.8}{2.2} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{87.3}}{9.6}} & \methodcell{\dvalp{\textbf{80.7}}{38.9}} & \methodcell{\dvalp{\textbf{72.1}}{39.0}} & \methodcell{\dvalp{\textbf{91.2}}{12.4}} & \methodcell{\dvalp{\textbf{66.9}}{29.3}} & \methodcell{\dvalp{\textbf{95.5}}{11.9}} \\
 \cmidrule(lr){1-8}
 \multirow{7}{*}{GPT--5.4} & No skill & 76.9 & 41.4 & 50.0 & 77.6 & 36.8 & 75.4 \\
- & Human skill & \dvalp{80.1}{3.2} & \dvalp{59.3}{17.9} & \dvalp{59.3}{9.3} & \dvalp{88.5}{10.9} & \dvalp{\underline{41.6}}{4.8} & \dvaln{74.6}{0.8} \\
- & LLM skill & \dvalp{79.4}{2.5} & \dvalp{46.1}{4.7} & \dvaln{20.4}{29.6} & \dvalp{\underline{90.4}}{12.8} & \dvalp{36.8}{0.0} & \dvalp{\underline{83.6}}{8.2} \\
- & Trace2Skill & \dvalp{81.2}{4.3} & \dvalp{53.2}{11.8} & \dvalp{51.2}{1.2} & \dvalp{89.3}{11.7} & \dvalp{40.0}{3.2} & \dvaln{73.1}{2.3} \\
- & TextGrad & \dvalp{\underline{82.5}}{5.6} & \dvaln{38.6}{2.8} & \dvalp{54.7}{4.7} & \dvalp{85.3}{7.7} & \dvaln{36.6}{0.2} & \dvalp{78.4}{3.0} \\
- & GEPA & \dvalp{82.4}{5.5} & \dvalp{\underline{61.1}}{19.7} & \dvalp{\underline{60.4}}{10.4} & \dvalp{88.3}{10.7} & \dvalp{\underline{41.6}}{4.8} & \dvaln{74.6}{0.8} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{83.1}}{6.2}} & \methodcell{\dvalp{\textbf{62.5}}{21.1}} & \methodcell{\dvalp{\textbf{62.8}}{12.8}} & \methodcell{\dvalp{\textbf{91.2}}{13.6}} & \methodcell{\dvalp{\textbf{44.0}}{7.2}} & \methodcell{\dvalp{\textbf{91.0}}{15.6}} \\
+\mrowcell & Human skill & \dvalp{80.1}{3.2} & \dvalp{59.3}{17.9} & \dvalp{59.3}{9.3} & \dvalp{88.5}{10.9} & \dvalp{\underline{41.6}}{4.8} & \dvaln{74.6}{0.8} \\
+\mrowcell & LLM skill & \dvalp{79.4}{2.5} & \dvalp{46.1}{4.7} & \dvaln{20.4}{29.6} & \dvalp{\underline{90.4}}{12.8} & \dvalp{36.8}{0.0} & \dvalp{\underline{83.6}}{8.2} \\
+\mrowcell & Trace2Skill & \dvalp{81.2}{4.3} & \dvalp{53.2}{11.8} & \dvalp{51.2}{1.2} & \dvalp{89.3}{11.7} & \dvalp{40.0}{3.2} & \dvaln{73.1}{2.3} \\
+\mrowcell & TextGrad & \dvalp{\underline{82.5}}{5.6} & \dvaln{38.6}{2.8} & \dvalp{54.7}{4.7} & \dvalp{85.3}{7.7} & \dvaln{36.6}{0.2} & \dvalp{78.4}{3.0} \\
+\mrowcell & GEPA & \dvalp{82.4}{5.5} & \dvalp{\underline{61.1}}{19.7} & \dvalp{\underline{60.4}}{10.4} & \dvalp{88.3}{10.7} & \dvalp{\underline{41.6}}{4.8} & \dvaln{74.6}{0.8} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{83.1}}{6.2}} & \methodcell{\dvalp{\textbf{62.5}}{21.1}} & \methodcell{\dvalp{\textbf{62.8}}{12.8}} & \methodcell{\dvalp{\textbf{91.2}}{13.6}} & \methodcell{\dvalp{\textbf{44.0}}{7.2}} & \methodcell{\dvalp{\textbf{91.0}}{15.6}} \\
 \cmidrule(lr){1-8}
 \multirow{7}{*}{GPT--5.4-mini} & No skill & 75.9 & 36.1 & 22.1 & 71.4 & 14.7 & 73.1 \\
- & Human skill & \dvalp{77.2}{1.3} & \dvalp{\underline{42.9}}{6.8} & \dvalp{\underline{45.9}}{23.8} & \dvalp{85.0}{13.6} & \dvalp{\underline{28.8}}{14.1} & \dvaln{56.7}{16.4} \\
- & LLM skill & \dvalp{76.1}{0.2} & \dvalp{36.8}{0.7} & \dvalp{36.6}{14.5} & \dvalp{86.4}{15.0} & \dvalp{28.0}{13.3} & \dvaln{65.7}{7.4} \\
- & Trace2Skill & \dvalp{78.6}{2.7} & \dvalp{40.7}{4.6} & \dvaln{20.9}{1.2} & \dvalp{\underline{88.5}}{17.1} & \dvalp{\textbf{32.8}}{18.1} & \dvalp{\underline{82.8}}{9.7} \\
- & TextGrad & \dvalp{77.5}{1.6} & \dvalp{38.2}{2.1} & \dvalp{30.0}{7.9} & \dvalp{84.0}{12.6} & \dvalp{27.2}{12.5} & \dvaln{70.9}{2.2} \\
- & GEPA & \dvalp{\underline{79.4}}{3.5} & \dvalp{42.5}{6.4} & \dvalp{45.3}{23.2} & \dvalp{83.7}{12.3} & \dvalp{27.2}{12.5} & \dvalp{81.3}{8.2} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{80.2}}{4.3}} & \methodcell{\dvalp{\textbf{47.5}}{11.4}} & \methodcell{\dvalp{\textbf{48.8}}{26.7}} & \methodcell{\dvalp{\textbf{90.9}}{19.5}} & \methodcell{\dvalp{\textbf{32.8}}{18.1}} & \methodcell{\dvalp{\textbf{85.8}}{12.7}} \\
+\mrowcell & Human skill & \dvalp{77.2}{1.3} & \dvalp{\underline{42.9}}{6.8} & \dvalp{\underline{45.9}}{23.8} & \dvalp{85.0}{13.6} & \dvalp{\underline{28.8}}{14.1} & \dvaln{56.7}{16.4} \\
+\mrowcell & LLM skill & \dvalp{76.1}{0.2} & \dvalp{36.8}{0.7} & \dvalp{36.6}{14.5} & \dvalp{86.4}{15.0} & \dvalp{28.0}{13.3} & \dvaln{65.7}{7.4} \\
+\mrowcell & Trace2Skill & \dvalp{78.6}{2.7} & \dvalp{40.7}{4.6} & \dvaln{20.9}{1.2} & \dvalp{\underline{88.5}}{17.1} & \dvalp{\textbf{32.8}}{18.1} & \dvalp{\underline{82.8}}{9.7} \\
+\mrowcell & TextGrad & \dvalp{77.5}{1.6} & \dvalp{38.2}{2.1} & \dvalp{30.0}{7.9} & \dvalp{84.0}{12.6} & \dvalp{27.2}{12.5} & \dvaln{70.9}{2.2} \\
+\mrowcell & GEPA & \dvalp{\underline{79.4}}{3.5} & \dvalp{42.5}{6.4} & \dvalp{45.3}{23.2} & \dvalp{83.7}{12.3} & \dvalp{27.2}{12.5} & \dvalp{81.3}{8.2} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{80.2}}{4.3}} & \methodcell{\dvalp{\textbf{47.5}}{11.4}} & \methodcell{\dvalp{\textbf{48.8}}{26.7}} & \methodcell{\dvalp{\textbf{90.9}}{19.5}} & \methodcell{\dvalp{\textbf{32.8}}{18.1}} & \methodcell{\dvalp{\textbf{85.8}}{12.7}} \\
 \cmidrule(lr){1-8}
 \multirow{7}{*}{GPT--5.4-nano} & No skill & 55.8 & 23.5 & 16.3 & 30.8 & 23.2 & 34.3 \\
- & Human skill & \dvalp{66.1}{10.3} & \dvalp{\underline{41.8}}{18.3} & \dvalp{\underline{46.5}}{30.2} & \dvalp{73.5}{42.7} & \dvaln{16.8}{6.4} & \dvaln{29.9}{4.4} \\
- & LLM skill & \dvalp{62.4}{6.6} & \dvalp{33.6}{10.1} & \dvaln{12.8}{3.5} & \dvalp{71.7}{40.9} & \dvaln{20.0}{3.2} & \dvalp{65.7}{31.4} \\
- & Trace2Skill & \dvalp{69.9}{14.1} & \dvalp{35.4}{11.9} & \dvalp{16.3}{0.0} & \dvalp{\underline{77.3}}{46.5} & \dvalp{\underline{25.6}}{2.4} & \dvalp{58.2}{23.9} \\
- & TextGrad & \dvalp{\underline{73.4}}{17.6} & \dvalp{32.5}{9.0} & \dvalp{38.7}{22.4} & \dvalp{68.3}{37.5} & \dvaln{20.8}{2.4} & \dvalp{42.5}{8.2} \\
- & GEPA & \dvalp{73.2}{17.4} & \dvalp{37.2}{13.7} & \dvalp{45.0}{28.7} & \dvalp{71.2}{40.4} & \dvalp{24.8}{1.6} & \dvalp{\underline{68.7}}{34.4} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{74.8}}{19.0}} & \methodcell{\dvalp{\textbf{42.5}}{19.0}} & \methodcell{\dvalp{\textbf{50.0}}{33.7}} & \methodcell{\dvalp{\textbf{80.2}}{49.4}} & \methodcell{\dvalp{\textbf{27.2}}{4.0}} & \methodcell{\dvalp{\textbf{69.4}}{35.1}} \\
+\mrowcell & Human skill & \dvalp{66.1}{10.3} & \dvalp{\underline{41.8}}{18.3} & \dvalp{\underline{46.5}}{30.2} & \dvalp{73.5}{42.7} & \dvaln{16.8}{6.4} & \dvaln{29.9}{4.4} \\
+\mrowcell & LLM skill & \dvalp{62.4}{6.6} & \dvalp{33.6}{10.1} & \dvaln{12.8}{3.5} & \dvalp{71.7}{40.9} & \dvaln{20.0}{3.2} & \dvalp{65.7}{31.4} \\
+\mrowcell & Trace2Skill & \dvalp{69.9}{14.1} & \dvalp{35.4}{11.9} & \dvalp{16.3}{0.0} & \dvalp{\underline{77.3}}{46.5} & \dvalp{\underline{25.6}}{2.4} & \dvalp{58.2}{23.9} \\
+\mrowcell & TextGrad & \dvalp{\underline{73.4}}{17.6} & \dvalp{32.5}{9.0} & \dvalp{38.7}{22.4} & \dvalp{68.3}{37.5} & \dvaln{20.8}{2.4} & \dvalp{42.5}{8.2} \\
+\mrowcell & GEPA & \dvalp{73.2}{17.4} & \dvalp{37.2}{13.7} & \dvalp{45.0}{28.7} & \dvalp{71.2}{40.4} & \dvalp{24.8}{1.6} & \dvalp{\underline{68.7}}{34.4} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{74.8}}{19.0}} & \methodcell{\dvalp{\textbf{42.5}}{19.0}} & \methodcell{\dvalp{\textbf{50.0}}{33.7}} & \methodcell{\dvalp{\textbf{80.2}}{49.4}} & \methodcell{\dvalp{\textbf{27.2}}{4.0}} & \methodcell{\dvalp{\textbf{69.4}}{35.1}} \\
 \cmidrule(lr){1-8}
 \multirow{7}{*}{GPT--5.2} & No skill & 71.9 & 38.2 & 34.9 & 73.1 & 20.8 & 68.7 \\
- & Human skill & \dvalp{75.8}{3.9} & \dvalp{48.2}{10.0} & \dvalp{\underline{55.2}}{20.3} & \dvalp{89.0}{15.9} & \dvalp{23.2}{2.4} & \dvaln{56.7}{12.0} \\
- & LLM skill & \dvalp{73.7}{1.8} & \dvalp{38.6}{0.4} & \dvaln{14.0}{20.9} & \dvalp{87.7}{14.6} & \dvalp{25.6}{4.8} & \dvalp{68.7}{0.0} \\
- & Trace2Skill & \dvalp{79.2}{7.3} & \dvalp{43.9}{5.7} & \dvalp{43.0}{8.1} & \dvalp{87.7}{14.6} & \dvalp{\underline{28.8}}{8.0} & \dvalp{76.9}{8.2} \\
- & TextGrad & \dvalp{82.6}{10.7} & \dvaln{32.1}{6.1} & \dvalp{51.1}{16.2} & \dvalp{87.2}{14.1} & \dvalp{22.4}{1.6} & \dvalp{76.1}{7.4} \\
- & GEPA & \dvalp{\underline{82.7}}{10.8} & \dvalp{\underline{54.3}}{16.1} & \dvalp{53.4}{18.5} & \dvalp{\underline{89.5}}{16.4} & \dvalp{\underline{28.8}}{8.0} & \dvalp{\underline{82.8}}{14.1} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{83.1}}{11.2}} & \methodcell{\dvalp{\textbf{57.1}}{18.9}} & \methodcell{\dvalp{\textbf{56.4}}{21.5}} & \methodcell{\dvalp{\textbf{89.6}}{16.5}} & \methodcell{\dvalp{\textbf{36.0}}{15.2}} & \methodcell{\dvalp{\textbf{85.1}}{16.4}} \\
+\mrowcell & Human skill & \dvalp{75.8}{3.9} & \dvalp{48.2}{10.0} & \dvalp{\underline{55.2}}{20.3} & \dvalp{89.0}{15.9} & \dvalp{23.2}{2.4} & \dvaln{56.7}{12.0} \\
+\mrowcell & LLM skill & \dvalp{73.7}{1.8} & \dvalp{38.6}{0.4} & \dvaln{14.0}{20.9} & \dvalp{87.7}{14.6} & \dvalp{25.6}{4.8} & \dvalp{68.7}{0.0} \\
+\mrowcell & Trace2Skill & \dvalp{79.2}{7.3} & \dvalp{43.9}{5.7} & \dvalp{43.0}{8.1} & \dvalp{87.7}{14.6} & \dvalp{\underline{28.8}}{8.0} & \dvalp{76.9}{8.2} \\
+\mrowcell & TextGrad & \dvalp{82.6}{10.7} & \dvaln{32.1}{6.1} & \dvalp{51.1}{16.2} & \dvalp{87.2}{14.1} & \dvalp{22.4}{1.6} & \dvalp{76.1}{7.4} \\
+\mrowcell & GEPA & \dvalp{\underline{82.7}}{10.8} & \dvalp{\underline{54.3}}{16.1} & \dvalp{53.4}{18.5} & \dvalp{\underline{89.5}}{16.4} & \dvalp{\underline{28.8}}{8.0} & \dvalp{\underline{82.8}}{14.1} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{83.1}}{11.2}} & \methodcell{\dvalp{\textbf{57.1}}{18.9}} & \methodcell{\dvalp{\textbf{56.4}}{21.5}} & \methodcell{\dvalp{\textbf{89.6}}{16.5}} & \methodcell{\dvalp{\textbf{36.0}}{15.2}} & \methodcell{\dvalp{\textbf{85.1}}{16.4}} \\
 \cmidrule(lr){1-8}
 \multirow{7}{*}{Qwen3.5--4B} & No skill & 68.1 & 9.3 & 14.5 & 86.9 & 22.4 & 30.6 \\
- & Human skill & \dvaln{66.3}{1.8} & \dvalp{16.4}{7.1} & \dvalp{\underline{22.7}}{8.2} & \dvalp{87.8}{0.9} & \dvaln{18.4}{4.0} & \dvaln{28.4}{2.2} \\
- & LLM skill & \dvaln{65.0}{3.1} & \dvalp{10.4}{1.1} & \dvalp{20.9}{6.4} & \dvalp{\underline{88.0}}{1.1} & \dvalp{\underline{28.8}}{6.4} & \dvalp{55.2}{24.6} \\
- & Trace2Skill & \dvalp{68.5}{0.4} & \dvalp{\underline{19.3}}{10.0} & \dvalp{16.3}{1.8} & \dvalp{\underline{88.0}}{1.1} & \dvalp{27.2}{4.8} & \dvalp{\underline{64.9}}{34.3} \\
- & TextGrad & \dvaln{60.7}{7.4} & \dvalp{13.9}{4.6} & \dvalp{20.9}{6.4} & \dvaln{85.6}{1.3} & \dvaln{10.6}{11.8} & \dvalp{53.7}{23.1} \\
- & GEPA & \dvalp{\underline{68.6}}{0.5} & \dvalp{16.9}{7.6} & \dvalp{\underline{22.7}}{8.2} & \dvaln{85.1}{1.8} & \dvalp{\underline{28.8}}{6.4} & \dvalp{60.4}{29.8} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{71.2}}{3.1}} & \methodcell{\dvalp{\textbf{23.9}}{14.6}} & \methodcell{\dvalp{\textbf{29.7}}{15.2}} & \methodcell{\dvalp{\textbf{89.0}}{2.1}} & \methodcell{\dvalp{\textbf{52.0}}{29.6}} & \methodcell{\dvalp{\textbf{81.3}}{50.7}} \\
+\mrowcell & Human skill & \dvaln{66.3}{1.8} & \dvalp{16.4}{7.1} & \dvalp{\underline{22.7}}{8.2} & \dvalp{87.8}{0.9} & \dvaln{18.4}{4.0} & \dvaln{28.4}{2.2} \\
+\mrowcell & LLM skill & \dvaln{65.0}{3.1} & \dvalp{10.4}{1.1} & \dvalp{20.9}{6.4} & \dvalp{\underline{88.0}}{1.1} & \dvalp{\underline{28.8}}{6.4} & \dvalp{55.2}{24.6} \\
+\mrowcell & Trace2Skill & \dvalp{68.5}{0.4} & \dvalp{\underline{19.3}}{10.0} & \dvalp{16.3}{1.8} & \dvalp{\underline{88.0}}{1.1} & \dvalp{27.2}{4.8} & \dvalp{\underline{64.9}}{34.3} \\
+\mrowcell & TextGrad & \dvaln{60.7}{7.4} & \dvalp{13.9}{4.6} & \dvalp{20.9}{6.4} & \dvaln{85.6}{1.3} & \dvaln{10.6}{11.8} & \dvalp{53.7}{23.1} \\
+\mrowcell & GEPA & \dvalp{\underline{68.6}}{0.5} & \dvalp{16.9}{7.6} & \dvalp{\underline{22.7}}{8.2} & \dvaln{85.1}{1.8} & \dvalp{\underline{28.8}}{6.4} & \dvalp{60.4}{29.8} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{71.2}}{3.1}} & \methodcell{\dvalp{\textbf{23.9}}{14.6}} & \methodcell{\dvalp{\textbf{29.7}}{15.2}} & \methodcell{\dvalp{\textbf{89.0}}{2.1}} & \methodcell{\dvalp{\textbf{52.0}}{29.6}} & \methodcell{\dvalp{\textbf{81.3}}{50.7}} \\
 \cmidrule(lr){1-8}
 \multirow{7}{*}{Qwen3.6--35B-A3B} & No skill & 72.7 & 38.2 & 45.9 & 87.6 & \underline{31.2} & 59.7 \\
- & Human skill & \dvalp{74.1}{1.4} & \dvalp{44.3}{6.1} & \dvaln{41.9}{4.0} & \dvalp{88.4}{0.8} & \dvaln{29.6}{1.6} & \dvaln{44.8}{14.9} \\
- & LLM skill & \dvaln{72.6}{0.1} & \dvalp{42.9}{4.7} & \dvalp{\underline{46.5}}{0.6} & \dvalp{88.4}{0.8} & \dvaln{24.8}{6.4} & \dvalp{60.4}{0.7} \\
- & Trace2Skill & \dvalp{75.4}{2.7} & \dvaln{33.2}{5.0} & \dvaln{32.0}{13.9} & \dvalp{\underline{90.4}}{2.8} & \dvaln{29.6}{1.6} & \dvalp{70.9}{11.2} \\
- & TextGrad & \dvalp{\underline{76.4}}{3.7} & \dvaln{22.9}{15.3} & \dvaln{33.7}{12.2} & \dvaln{84.5}{3.1} & \dvaln{7.2}{24.0} & \dvalp{67.9}{8.2} \\
- & GEPA & \dvalp{75.8}{3.1} & \dvalp{\underline{45.4}}{7.2} & \dvaln{43.6}{2.3} & \dvalp{88.0}{0.4} & \dvalp{\underline{31.2}}{0.0} & \dvalp{\underline{73.9}}{14.2} \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{80.3}}{7.6}} & \methodcell{\dvalp{\textbf{47.5}}{9.3}} & \methodcell{\dvalp{\textbf{47.1}}{1.2}} & \methodcell{\dvalp{\textbf{91.4}}{3.8}} & \methodcell{\dvalp{\textbf{41.6}}{10.4}} & \methodcell{\dvalp{\textbf{82.1}}{22.4}} \\
+\mrowcell & Human skill & \dvalp{74.1}{1.4} & \dvalp{44.3}{6.1} & \dvaln{41.9}{4.0} & \dvalp{88.4}{0.8} & \dvaln{29.6}{1.6} & \dvaln{44.8}{14.9} \\
+\mrowcell & LLM skill & \dvaln{72.6}{0.1} & \dvalp{42.9}{4.7} & \dvalp{\underline{46.5}}{0.6} & \dvalp{88.4}{0.8} & \dvaln{24.8}{6.4} & \dvalp{60.4}{0.7} \\
+\mrowcell & Trace2Skill & \dvalp{75.4}{2.7} & \dvaln{33.2}{5.0} & \dvaln{32.0}{13.9} & \dvalp{\underline{90.4}}{2.8} & \dvaln{29.6}{1.6} & \dvalp{70.9}{11.2} \\
+\mrowcell & TextGrad & \dvalp{\underline{76.4}}{3.7} & \dvaln{22.9}{15.3} & \dvaln{33.7}{12.2} & \dvaln{84.5}{3.1} & \dvaln{7.2}{24.0} & \dvalp{67.9}{8.2} \\
+\mrowcell & GEPA & \dvalp{75.8}{3.1} & \dvalp{\underline{45.4}}{7.2} & \dvaln{43.6}{2.3} & \dvalp{88.0}{0.4} & \dvalp{\underline{31.2}}{0.0} & \dvalp{\underline{73.9}}{14.2} \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{80.3}}{7.6}} & \methodcell{\dvalp{\textbf{47.5}}{9.3}} & \methodcell{\dvalp{\textbf{47.1}}{1.2}} & \methodcell{\dvalp{\textbf{91.4}}{3.8}} & \methodcell{\dvalp{\textbf{41.6}}{10.4}} & \methodcell{\dvalp{\textbf{82.1}}{22.4}} \\
 \midrule
 \harnessrow{Codex harness} \\
 \multirow{5}{*}{GPT--5.5} & No skill & 81.8 & 27.5 & 38.3 & 87.2 & 35.2 & \na \\
- & Human skill & \dvalp{\underline{84.1}}{2.3} & \dvalp{50.7}{23.2} & \dvalp{40.0}{1.7} & \dvalp{88.8}{1.6} & \dvalp{48.8}{13.6} & \na \\
- & LLM skill & \dvalp{83.4}{1.6} & \dvaln{25.0}{2.5} & \dvaln{34.3}{4.0} & \dvalp{\underline{89.8}}{2.6} & \dvalp{45.6}{10.4} & \na \\
- & EvoSkill & \dvaln{61.4}{20.4} & \dvalp{\underline{67.5}}{40.0} & \dvalp{\underline{42.4}}{4.1} & \dvalp{89.3}{2.1} & \dvalp{\underline{63.2}}{28.0} & \na \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{87.3}}{5.5}} & \methodcell{\dvalp{\textbf{85.0}}{57.5}} & \methodcell{\dvalp{\textbf{51.1}}{12.8}} & \methodcell{\dvalp{\textbf{92.2}}{5.0}} & \methodcell{\dvalp{\textbf{78.4}}{43.2}} & \methodcell{\na} \\
+\mrowcell & Human skill & \dvalp{\underline{84.1}}{2.3} & \dvalp{50.7}{23.2} & \dvalp{40.0}{1.7} & \dvalp{88.8}{1.6} & \dvalp{48.8}{13.6} & \na \\
+\mrowcell & LLM skill & \dvalp{83.4}{1.6} & \dvaln{25.0}{2.5} & \dvaln{34.3}{4.0} & \dvalp{\underline{89.8}}{2.6} & \dvalp{45.6}{10.4} & \na \\
+\mrowcell & EvoSkill & \dvaln{61.4}{20.4} & \dvalp{\underline{67.5}}{40.0} & \dvalp{\underline{42.4}}{4.1} & \dvalp{89.3}{2.1} & \dvalp{\underline{63.2}}{28.0} & \na \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{87.3}}{5.5}} & \methodcell{\dvalp{\textbf{85.0}}{57.5}} & \methodcell{\dvalp{\textbf{51.1}}{12.8}} & \methodcell{\dvalp{\textbf{92.2}}{5.0}} & \methodcell{\dvalp{\textbf{78.4}}{43.2}} & \methodcell{\na} \\
 \midrule
 \harnessrow{Claude Code harness} \\
 \multirow{5}{*}{GPT--5.5} & No skill & 81.9 & 22.1 & 57.6 & 86.6 & 40.8 & \na \\
- & Human skill & \dvalp{83.7}{1.8} & \dvalp{37.1}{15.0} & \dvalp{66.3}{8.7} & \dvalp{88.0}{1.4} & \dvalp{44.0}{3.2} & \na \\
- & LLM skill & \dvalp{82.4}{0.5} & \dvalp{37.1}{15.0} & \dvaln{56.4}{1.2} & \dvalp{\underline{89.6}}{3.0} & \dvalp{44.8}{4.0} & \na \\
- & EvoSkill & \dvalp{\underline{84.0}}{2.1} & \dvalp{\underline{75.0}}{52.9} & \dvalp{\underline{70.3}}{12.7} & \dvalp{87.2}{0.6} & \dvalp{\underline{52.0}}{11.2} & \na \\
- & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{85.9}}{4.0}} & \methodcell{\dvalp{\textbf{80.4}}{58.3}} & \methodcell{\dvalp{\textbf{71.5}}{13.9}} & \methodcell{\dvalp{\textbf{90.1}}{3.5}} & \methodcell{\dvalp{\textbf{56.5}}{15.7}} & \methodcell{\na} \\
+\mrowcell & Human skill & \dvalp{83.7}{1.8} & \dvalp{37.1}{15.0} & \dvalp{66.3}{8.7} & \dvalp{88.0}{1.4} & \dvalp{44.0}{3.2} & \na \\
+\mrowcell & LLM skill & \dvalp{82.4}{0.5} & \dvalp{37.1}{15.0} & \dvaln{56.4}{1.2} & \dvalp{\underline{89.6}}{3.0} & \dvalp{44.8}{4.0} & \na \\
+\mrowcell & EvoSkill & \dvalp{\underline{84.0}}{2.1} & \dvalp{\underline{75.0}}{52.9} & \dvalp{\underline{70.3}}{12.7} & \dvalp{87.2}{0.6} & \dvalp{\underline{52.0}}{11.2} & \na \\
+\mrowcell & \methodcell{\textbf{\ourmethod{}}} & \methodcell{\dvalp{\textbf{85.9}}{4.0}} & \methodcell{\dvalp{\textbf{80.4}}{58.3}} & \methodcell{\dvalp{\textbf{71.5}}{13.9}} & \methodcell{\dvalp{\textbf{90.1}}{3.5}} & \methodcell{\dvalp{\textbf{56.5}}{15.7}} & \methodcell{\na} \\
 \bottomrule
 \end{tabular}
 \caption{Main results on held-out test splits. Scores are percentages; within each model--harness block, bold marks the best measured entry and underlining marks the second-best entry for each benchmark. Blue cells denote \ourmethod{}, and small green/red subscripts show the absolute change relative to the \emph{No skill} row of the same model in the same harness. We omit ALFWorld under Codex and Claude Code harnesses because ALFWorld requires persistent embodied-environment interaction. \ourmethod{} is the best-or-tied entry on every measured cell of the table, with positive gains over the no-skill baseline throughout.}
@@ -206,9 +206,9 @@ full epoch & \textbf{87.2} & 75.0 & 53.2 \\
 \bottomrule
 \end{tabular}
 \end{minipage}
-
+%
 \vspace{2pt}
-
+%
 \begin{minipage}[c]{0.33\textwidth}
 \centering
 \textbf{(d) Learning rate}\\[-1pt]
@@ -311,12 +311,12 @@ existing \ref{...} calls keep resolving to the right section.
 \textbf{Source model} & \textbf{Target model} & \textbf{Benchmark} & \textbf{Baseline} & \textbf{Direct} & \textbf{Transferred} \\
 \midrule
 \multirow{3}{*}{GPT--5.4} & GPT--5.4      & \multirow{3}{*}{SpreadsheetBench} & 41.4 & 62.5 & \na \\
-                          & GPT--5.4-mini &                                    & 36.1 & 47.5 & \dvalp{45.5}{9.4}  \\
-                          & GPT--5.4-nano &                                    & 23.5 & 42.5 & \dvalp{26.5}{3.0}  \\
+\mrowcell & GPT--5.4-mini & \mrowcell & 36.1 & 47.5 & \dvalp{45.5}{9.4}  \\
+\mrowcell & GPT--5.4-nano & \mrowcell & 23.5 & 42.5 & \dvalp{26.5}{3.0}  \\
 \cmidrule(lr){1-6}
 \multirow{3}{*}{GPT--5.4} & GPT--5.4      & \multirow{3}{*}{LiveMath}         & 36.8 & 44.0 & \na \\
-                          & GPT--5.4-mini &                                    & 14.7 & 32.8 & \dvalp{19.2}{4.5}  \\
-                          & GPT--5.4-nano &                                    & 23.2 & 27.2 & \dvalp{28.8}{5.6}  \\
+\mrowcell & GPT--5.4-mini & \mrowcell & 14.7 & 32.8 & \dvalp{19.2}{4.5}  \\
+\mrowcell & GPT--5.4-nano & \mrowcell & 23.2 & 27.2 & \dvalp{28.8}{5.6}  \\
 % --- (b) Cross-harness transfer ---
 \midrule
 \rowcolor{black!7}\multicolumn{6}{l}{\textbf{(b) Cross-harness transfer}} \\
@@ -324,9 +324,9 @@ existing \ref{...} calls keep resolving to the right section.
 \textbf{Source harness} & \textbf{Target harness} & \textbf{Benchmark} & \textbf{Baseline} & \textbf{Direct} & \textbf{Transferred} \\
 \midrule
 Codex                       & Claude Code & \multirow{2}{*}{LiveMath}         & 40.8 & 56.5 & \dvalp{42.4}{1.6}  \\
-Claude Code                 & Codex       &                                    & 35.2 & 78.4 & \dvalp{48.0}{12.8} \\
+Claude Code                 & Codex       & \mrowcell & 35.2 & 78.4 & \dvalp{48.0}{12.8} \\
 Codex                       & Claude Code & \multirow{2}{*}{SpreadsheetBench} & 22.1 & 80.4 & \dvalp{81.8}{59.7} \\
-Claude Code                 & Codex       &                                    & 27.5 & 85.0 & \dvalp{71.1}{43.6} \\
+Claude Code                 & Codex       & \mrowcell & 27.5 & 85.0 & \dvalp{71.1}{43.6} \\
 % --- (c) Cross-benchmark transfer (math); LiveMath-as-source removed. ---
 \midrule
 \rowcolor{black!7}\multicolumn{6}{l}{\textbf{(c) Cross-benchmark transfer}} \\
@@ -334,8 +334,8 @@ Claude Code                 & Codex       &                                    &
 \textbf{Source benchmark} & \textbf{Target benchmark} & \textbf{Model} & \textbf{Baseline} & \textbf{Direct} & \textbf{Transferred} \\
 \midrule
 \multirow{3}{*}{OlympiadBench} & \multirow{3}{*}{Omni-MATH} & GPT--5.4      & 56.6 & \na & \dvalp{60.3}{3.7} \\
-                                & & GPT--5.4-mini & 34.8 & \na & \dvalp{36.6}{1.8} \\
-                                & & GPT--5.4-nano & 38.8 & \na & \dvalp{40.1}{1.3} \\
+\mrowcell & \mrowcell & GPT--5.4-mini & 34.8 & \na & \dvalp{36.6}{1.8} \\
+\mrowcell & \mrowcell & GPT--5.4-nano & 38.8 & \na & \dvalp{40.1}{1.3} \\
 \bottomrule
 \end{tabular}%
 }

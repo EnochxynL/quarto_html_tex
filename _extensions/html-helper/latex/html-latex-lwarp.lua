@@ -1,64 +1,17 @@
--- html-latex-lwarp.lua — lwarp 子页面通道（复杂 latex 块 → 语义化子页面）
+-- Raw LaTeX environments -> scoped HTML through lwarp, including tables.
+-- TeX executes table structure, package commands, colors and nested layouts;
+-- Lua only prepares the document, joins parent citations/references, and embeds
+-- the generated HTML/CSS. No table-to-Pandoc conversion or syntax stripping.
 --
--- 设计哲学（用户拍板 2026-09-01，替代 tex4ht 通道）：lwarp 在 TeX 宏层
--- 重定义并直接输出 HTML5 语义结构（figure/ul/li），而非 tex4ht 的 DVI
--- 层排版模拟（ALCitem span 堆/pt 宽度断言/字体 class）。数学走原生
--- mathjax 选项（\(...\) 文本由主页面 MathJax 渲染）——\mathrm bug、
--- 位图 base64、字体 class 清洗等 tex4ht 补丁全部消失；块内自引用
--- （label 同块）由 aux 跨遍原生解析为 <a href> 链接。
+-- Requires explicitly declared html-helper.latex-packages / latex-macros.
+-- Each block retains its TeX and logs in .quarto/lwarp/block-N/.
+-- The parent counter pass supplies starting values; lwarp emits captions and
+-- source label anchors. Bibliographic commands use the parent's citeproc data.
+-- Table macros/boxed tables use lwarp's StartDefiningTabulars mechanism.
+-- Failed blocks remain visible as lwarp-failed; PDF input is untouched.
 --
--- 职责：
---   1) FORMAT 守卫：PDF 端 return {}——{=latex} 原样走 LaTeX 原生编译
---   2) RawBlock(tex) 非表格块（任意 latex 环境——计数器注入与引用
---      编号由 html-latex-counters.lua 提供，本文件不持有环境/算法知识）：
---      a. 生成独立 block.tex：\usepackage[mathjax]{lwarp}（先于一切）
---         + latex-packages（文档层声明，html-helper: latex-packages）
---         + latex-macros + \setcounter（counters.lua 的起始值，\@ifundefined
---         保护——计数器不存在则跳过）
---      b. 双编译：lualatex block.tex（打印版，lwarp 自动生成
---         block_html.tex）→ lualatex block_html.tex（HTML 版，
---         生成 block_html.html）→ pdftotext 提取——工作目录 .quarto/lwarp/
---      c. 剥壳取 <main class="bodycontainer"> 内容 + lwarp.css
---         作用域化内联 → <div class="lwarp-block">
---      失败回退：可见警告块（div.lwarp-failed + 原 LaTeX 源码）
---   3) 正文 \ref{label}（RawInline tex / Math / Link）→ <a href="#label">N</a>
---   4) 块内 \ref{X}（跨文档引用协议）：
---      数学外：\ref 原样保留——块内 label 由真实 aux 解析（lwarp 原生
---        链接）；块外 label 由 preamble 注入 \newlabel 假条目喂值
---        （显示文本=@@REF:X@@ 占位、href=#X），lwarp 原生输出
---        <a href="#X">@@REF:X@@</a>——Pandoc 回调第二遍填编号
---      数学内：一律 @@REF:{X}@@ 纯文本占位（lwarp mathjax 模式
---        detokenize 不执行 \ref；数学内不能放 HTML 链接）——第二遍
---        填纯文本编号
---      第二遍解析（refs 齐备——counters.lua 全文编号，前向引用可解析）：
---        已知 label → 编号；未知 → [X] 占位（保留名可诊断）
-
--- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
---   \ref：数学段外原样保留（lwarp 原生 + \newlabel 假条目注入）、
---   数学段内一律 @@REF:{X}@@（detokenize 不执行 \ref）——返回 (body, ref_out)
--- 文本命令进数学（\Call 等）：不预处理展开——extract_mathjax_macros
--- 从宏包源提取定义 → MathJax 翻译（\newcommand）注入主页面 body 开头，
--- MathJax 侧认识命令后原样渲染（视觉实证通过 2026-09-02）
---
--- 边界（与其它模块解耦）：
---   - 表格块跳过——html-latex-tables.lua 处理
---   - 宏包不从块内容猜（detect_packages 已删）——块编译所需宏包由
---     文档层声明（html-helper: latex-packages，与 latex-macros 平行）；
---     项目用 lwarp 不支持的包（老式 algorithmic 等）→ 编译失败走
---     可见警告块——适配发生在项目层（换包/换写法），filter 不强行适配
---
--- 已知限制：
---   - 每次渲染重新编译（无缓存）；lualatex 无 tex4ht 死锁历史
---   - lwarp.css 全量作用域化内联（1871 行，块多时冗余——后续按
---     实际使用的 class 筛选；lwarp 输出单 css：<link href="lwarp.css">）
---   - lwarp 双编译（打印版 + HTML 版）比 make4ht 单编译多一次
---     lualatex；块小文档秒级
---   - lwarp 的 <div data-nosnippet>（\newcommand 定义输出区，供
---     MathJax 读取）保留在剥壳结果内——删了会丢宏定义
---   - lwarp-algorithmicx 包装缺陷（2026-09-02 实证）：嵌套 \State
---     （For/While 内）的行号 span 输出在行尾而非行首（顶层行正常）——
---     lwarp 对 algorithmicx 嵌套 item 的生成问题，引擎层缺陷非 filter
---     职责；filter 不修（不背算法结构知识）——CSS/项目层可选缓解
+-- Limitations: no compilation cache; multirow continuations require mrowcell;
+-- declaration-style color may need textcolor in the source for HTML output.
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
@@ -66,19 +19,8 @@ end
 local CACHE = ".quarto/lwarp"
 local BLOCK_PREFIX = "lwarp-block"
 
--- 表格块：跳过（html-latex-tables.lua 的领地）
-local function is_table_block(text)
-  return text:find("\\begin{tabular", 1, true) ~= nil
-      or text:find("\\begin{table", 1, true) ~= nil
-end
-
--- 编译候选判定：非表格 + 含 \begin{ENV} 环境结构——{=latex} 块分两类：
---   内容块（算法/定理/图——\begin{ENV} 自包含结构）→ 编译
---   PDF 控制片段（\FloatBarrier/\bibliography/\thispagestyle 等无 \begin
---   的命令序列——给 LaTeX 排版用，HTML 端无意义）→ 跳过（结构判据，
---   非猜内容）
+-- Compile environment blocks, including tables; skip PDF control fragments.
 local function is_compile_candidate(text)
-  if is_table_block(text) then return false end
   return text:find("\\begin{", 1, true) ~= nil
 end
 
@@ -465,8 +407,11 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out, pac
   for _, p in ipairs(packages or {}) do
     t[#t + 1] = "\\usepackage{" .. p .. "}"
   end
+  t[#t + 1] = "\\providecommand{\\citeproc}[2]{\\hyperlink{#1}{#2}}"
   if macros and macros ~= "" then
+    t[#t + 1] = "\\StartDefiningTabulars"
     t[#t + 1] = macros
+    t[#t + 1] = "\\StopDefiningTabulars"
   end
   if counter_name and counter_name ~= "" and counter_start and counter_start > 0 then
     -- makeatletter：\@ifundefined 含 @；\c@NAME 是计数器的内部宏
@@ -484,7 +429,9 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out, pac
     t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp@image}{{0}{0}{}{}{}}"
   end
   t[#t + 1] = "\\begin{document}"
+  t[#t + 1] = "\\StartDefiningTabulars"
   t[#t + 1] = body
+  t[#t + 1] = "\\StopDefiningTabulars"
   t[#t + 1] = "\\end{document}"
   return table.concat(t, "\n")
 end
@@ -559,11 +506,18 @@ end
 -- labels：本块全部 label（块内 \ref 解析用——lwarp 原生锚点已输出）
 -- packages：文档层声明的宏包（latex-packages）
 -- counter_name/counter_start：计数器注入（html-latex-counters.lua 提供）
-local function compile_block(body, counter_name, counter_start, macros, labels, packages)
+local function compile_block(body, counter_name, counter_start, macros, labels, packages, index)
+  -- Isolate auxiliary files and retain diagnostics for each source block.
+  local CACHE = CACHE .. "/block-" .. tostring(index)
+  local scope = BLOCK_PREFIX .. "-" .. tostring(index)
   if not ensure_dir(CACHE) then
     io.stderr:write("[html-latex-lwarp] mkdir " .. CACHE .. " failed\n")
     return nil
   end
+  -- A failed previous build must not seed malformed or unrelated labels.
+  -- These two auxiliary files are generated again by the two compilation passes.
+  os.remove(CACHE .. "/block.aux")
+  os.remove(CACHE .. "/block_html.aux")
 
   local tex_path = CACHE .. "/block.tex"
   local f = io.open(tex_path, "w")
@@ -623,6 +577,16 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
   -- （lwarp 用 homehtmlfilename 拼 href；嵌入主页面后 *.html 前缀是死链）
   inner = inner:gsub('href="[^"]*%.html#', 'href="#')
   inner = inner:gsub("href='[^']*%.html#", "href='#")
+  -- Generated page IDs repeat in independently compiled documents. Keep source
+  -- labels public, and namespace only lwarp's private anchors.
+  local public = {}
+  for _, label in ipairs(labels or {}) do public[label:gsub(":", "-")] = true end
+  local private = {}
+  for id in inner:gmatch('id="([^"]+)"') do
+    if not public[id] then private[id] = scope .. "-" .. id end
+  end
+  inner = inner:gsub('id="([^"]+)"', function(id) return 'id="' .. (private[id] or id) .. '"' end)
+  inner = inner:gsub('href="#([^"]+)"', function(id) return 'href="#' .. (private[id] or id) .. '"' end)
 
   -- css：从原 html 的 <link> 收集文件名（零硬编码——lwarp 版本不同
   -- 可能输出多 css）→ 逐个读 → 作用域化 → 内联
@@ -635,7 +599,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
       if cf then
         local css = cf:read("*a")
         cf:close()
-        css_parts[#css_parts + 1] = scope_css(css, BLOCK_PREFIX)
+        css_parts[#css_parts + 1] = scope_css(css, scope)
       end
     end
   end
@@ -643,7 +607,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
 
   -- 容器：lwarp 原生 <a id="label"> 锚点已输出（探针实证），容器
   -- div 不再重复 id——块内 \ref 的 href="#label" 指向原生锚点
-  return '<div class="' .. BLOCK_PREFIX .. '"><style>' .. css .. "</style>" .. inner .. "</div>"
+  return '<div class="' .. BLOCK_PREFIX .. ' ' .. scope .. '"><style>' .. css .. "</style>" .. inner .. "</div>"
 end
 
 -- 正文引用：\ref{alg-X} → <a href="#alg-X">N</a>（照搬旧 filter 协议；
@@ -708,65 +672,72 @@ return {
       end
       local macros = read_config(doc.meta)
       local packages = read_packages(doc.meta)
+      -- Resolve bibliographic commands against the parent document. Only the
+      -- citation is parsed; table structure and macros are executed by TeX.
+      local function resolve_citations(text)
+        return text:gsub("\\cite[%a]*%*?%s*%b{}", function(command)
+          local citation = pandoc.read(command, "latex")
+          local meta = pandoc.Meta({})
+          for key, value in pairs(doc.meta) do meta[key] = value end
+          citation.meta = meta
+          citation.meta["link-citations"] = pandoc.MetaBool(true)
+          citation.meta["suppress-bibliography"] = pandoc.MetaBool(true)
+          citation = pandoc.utils.citeproc(citation)
+          return pandoc.write(citation, "latex"):gsub("%s+$", "")
+        end)
+      end
       local counter_blocks, refs = read_counters(doc.meta)
       local k = 0 -- 编译候选序（与 counters.lua 的 blocks 列表对齐）
-      for i = 1, #doc.blocks do
-        local blk = doc.blocks[i]
-        if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
-          local text = blk.text
-          if is_compile_candidate(text) then
-            k = k + 1
-            local cinfo = counter_blocks[k] or { counter = "", start = 0 }
-            local labels = extract_labels(text)
-            local ok, html = pcall(compile_block, text,
-              cinfo.counter, cinfo.start, macros, labels, packages)
-            if ok and html then
-              -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
-              doc.blocks[i] = pandoc.RawBlock("html", html)
+      local function process_blocks(blocks)
+        for i = 1, #blocks do
+          local blk = blocks[i]
+          if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
+            local text = blk.text
+            if is_compile_candidate(text) then
+              k = k + 1
+              local cinfo = counter_blocks[k] or { counter = "", start = 0 }
+              local labels = extract_labels(text)
+              local ok, html = pcall(compile_block, resolve_citations(text),
+                cinfo.counter, cinfo.start, macros, labels, packages, k)
+              if ok and html then
+                -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
+                blocks[i] = pandoc.RawBlock("html", html)
+              else
+                -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
+                -- 失败原因归项目层（latex-packages 声明与 lwarp 能力冲突等
+                -- ——如老式 algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
+                blocks[i] = pandoc.RawBlock("html",
+                  '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 latex-packages 声明或块内容）">'
+                  .. '<pre>' .. text:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</pre></div>")
+              end
             else
-              -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
-              -- 失败原因归项目层（latex-packages 声明与 lwarp 能力冲突等
-              -- ——如老式 algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
-              doc.blocks[i] = pandoc.RawBlock("html",
-                '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 latex-packages 声明或块内容）">'
-                .. '<pre>' .. text:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</pre></div>")
+              -- PDF 控制片段（无 \begin 结构）：跳过——quarto HTML writer
+              -- 丢弃 latex RawBlock——PDF 专用命令在 HTML 端无意义的语义
             end
-          else
-            -- PDF 控制片段（无 \begin 结构）：跳过——quarto HTML writer
-            -- 丢弃 latex RawBlock——PDF 专用命令在 HTML 端无意义的语义
+          elseif blk.t == "Div" or blk.t == "BlockQuote" or blk.t == "Figure" then
+            blk.content = process_blocks(blk.content)
+          elseif blk.t == "BulletList" or blk.t == "OrderedList" then
+            for j, item in ipairs(blk.content) do blk.content[j] = process_blocks(item) end
           end
         end
+        return blocks
       end
-      -- 正文引用链接化（顶层块；嵌套结构后续扩展）
-      for _, blk in ipairs(doc.blocks) do
-        if blk.t == "Para" or blk.t == "Plain" then
-          blk.content = walk_inlines(blk.content, refs)
-        end
-      end
-      -- 第二遍：块内 \ref 占位解析（refs 来自 counters.lua——全文 label
-      -- 编号齐备，前向引用可解析）。两种形态：
-      --   数学内 @@REF:{X}@@（带花括号——lwarp 数学文本保留 { }，
-      --     MathJax 不执行 \ref 所以一律占位）→ 纯文本编号
-      --   数学外 @@REF:X@@（无花括号——\newlabel 假条目的显示文本，
-      --     TeX 分组吞；链接 <a href="#X"> 由 lwarp 原生输出）→
-      --     编号（链接保留，块内/跨块锚点都在主页面可跳转）
-      -- 数学内不能放 HTML 链接（MathJax 不渲染 <a>），全部纯文本
-      for _, blk in ipairs(doc.blocks) do
-        if blk.t == "RawBlock" and blk.format == "html" then
-          blk.text = blk.text:gsub("@@REF:{([^@]+)}@@", function(ref)
-            if refs[ref] then
-              return refs[ref]
-            end
-            return "[" .. ref .. "]"
-          end)
-          blk.text = blk.text:gsub("@@REF:([^@]+)@@", function(ref)
-            if refs[ref] then
-              return refs[ref]
-            end
-            return "[" .. ref .. "]"
-          end)
-        end
-      end
+      doc.blocks = process_blocks(doc.blocks)
+      -- Resolve parent references recursively, including nested table blocks.
+      doc = doc:walk({
+        Inlines = function(inlines) return walk_inlines(inlines, refs) end,
+        RawBlock = function(block)
+          if block.format ~= "html" then return end
+          local function number(ref)
+            -- pdftotext may wrap a long placeholder at a hyphen.
+            ref = ref:gsub("%s+", "")
+            return refs[ref] or ("[" .. ref .. "]")
+          end
+          block.text = block.text:gsub("@@REF:{([^@]+)}@@", number)
+          block.text = block.text:gsub("@@REF:([^@]+)@@", number)
+          return block
+        end,
+      })
       return doc
     end,
   },

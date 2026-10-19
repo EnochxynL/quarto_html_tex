@@ -1,38 +1,17 @@
--- html-latex-counters.lua — 全文计数器注册与编号（latex 块 caption 排序）
+-- Supply document counter context to independently compiled lwarp blocks.
+-- Raw LaTeX tables and other environments share this pass. Table* uses the
+-- table counter; captions advance it, and native tables occupy a number.
+-- Nested Divs, block quotes, figures and list items are visited in source order.
 --
--- 职责（caption 排序与 ref 模块的 fig/tbl/sec 同构——独立成模块，
--- lwarp 管道不持有任何"算法"概念）：
---   1) 扫描全文 RawBlock(tex/latex) 非表格块 + latex-macros（文档层注册区）
---   2) 收集计数器注册：\newfloat{X} / \newtheorem{X} / \newtheorem{X}[共享] /
---      \newcounter{X}——注册源：块内（本块自洽）与 latex-macros（跨块共享
---      由文档层声明）；块内注册不强求跨块（用户拍板 2026-09-02）
---   3) 每块主计数器判定（第一个 \begin{ENV}）：
---      注册表共享（\newtheorem{X}[Y]）→ 计数器 Y（惯例猜不到，必须注册表）
---      否则 float 惯例 → 计数器 = 环境名（LaTeX float 注册惯例：
---      \newfloat{algorithm} → 计数器 algorithm）
---      无 \begin 环境 → 不计数（LaTeX 语义：环境本身不编号，编号是
---      \caption/\refstepcounter 对已注册计数器的步进——无注册不编号）
---   4) 按计数器名分组计数 → 每块起始值 start（第 N 个使用该计数器的块
---      → start = N-1——lwarp 侧注入 \setcounter{counter}{start}）
---   5) 块内 label → 全文编号 = start+1（块内 \caption/\refstepcounter
---      步进后捕获；正文 \ref 与块内 @@REF 解析都用它）
---
--- 输出写 doc.meta["html-helper-lwarp-counters"]（lwarp filter 读）：
---   blocks: MetaList——第 k 个编译候选块（含 \begin{ENV}，与 lwarp 的
---           is_compile_candidate 分派一致）的 {counter=计数器名, start=起始值}
---   refs:   MetaMap——label → 编号（start+1）
---
--- 已知限制：
---   - float 惯例对"环境名≠计数器名"的非注册环境会误判（如裸 algorithmic——
---     algorithmicx 内部行号计数器是 ALG@line）——lwarp 侧注入
---     \@ifundefined{c@ENV} 保护兜底：计数器实际不存在则跳过注入（不崩）
---   - 无 \begin{ENV} 的块（PDF 控制片段）不发 blocks 条目也不登记 refs
+-- This is a context bridge, not a complete TeX interpreter: arbitrary counter
+-- resets, optional/unnumbered captions and mixed counter families inside one
+-- block are not modeled. Blocks must declare shared custom counters in metadata.
+-- Output: html-helper-lwarp-counters.blocks (counter/start) and .refs (label/number).
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
 
--- 表格块：跳过（html-latex-tables.lua 的领地——它已先跑把表格 RawBlock
--- 转 HTML；此处防御性保留）
+-- Count captions in table blocks, rather than nested tabular panels.
 local function is_table_block(text)
   return text:find("\\begin{tabular", 1, true) ~= nil
       or text:find("\\begin{table", 1, true) ~= nil
@@ -97,14 +76,21 @@ return {
 
       -- 第一遍收集所有 tex 非表格块（块内注册也进 shared_of——本块自洽）
       local tex_blocks = {}
-      for _, blk in ipairs(doc.blocks) do
-        if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
-          if not is_table_block(blk.text) then
+      local function collect(blocks)
+        for _, blk in ipairs(blocks) do
+          if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
             tex_blocks[#tex_blocks + 1] = blk.text
             collect_registrations(blk.text, shared_of)
+          elseif blk.t == "Table" then
+            tex_blocks[#tex_blocks + 1] = false -- native table occupies a number
+          elseif blk.t == "Div" or blk.t == "BlockQuote" or blk.t == "Figure" then
+            collect(blk.content)
+          elseif blk.t == "BulletList" or blk.t == "OrderedList" then
+            for _, item in ipairs(blk.content) do collect(item) end
           end
         end
       end
+      collect(doc.blocks)
 
       -- 第二遍：每块主环境 → 计数器 → 分组计数
       -- 只对有 \begin{ENV} 的块发条目（无环境=PDF 控制片段——与 lwarp
@@ -113,21 +99,38 @@ return {
       local blocks = {}
       local refs = {}
       for _, text in ipairs(tex_blocks) do
-        local env = text:match("\\begin{([^}]+)}")
-        if env then
-          -- 共享注册优先（\newtheorem{X}[Y]——惯例猜不到）；否则环境名
-          --（float 惯例 / 同名注册）
-          local counter = shared_of[env] or env
-          local info = { counter = counter, start = counts[counter] or 0 }
-          counts[counter] = (counts[counter] or 0) + 1
-          -- 块内 label → 全文编号（start+1——注入后块内步进捕获）
-          for _, lab in ipairs(extract_labels(text)) do
-            refs[lab] = tostring(info.start + 1)
+        if text == false then
+          counts.table = (counts.table or 0) + 1
+        else
+          local env = text:match("\\begin{([^}]+)}")
+          if env then
+            -- 共享注册优先（\newtheorem{X}[Y]——惯例猜不到）；否则环境名
+            --（float 惯例 / 同名注册）
+            local counter = shared_of[env] or env:gsub("%*$", "")
+            local info = { counter = counter, start = counts[counter] or 0 }
+            counts[counter] = (counts[counter] or 0) + 1
+            -- 块内 label → 全文编号（start+1——注入后块内步进捕获）
+            for _, lab in ipairs(extract_labels(text)) do
+              refs[lab] = tostring(info.start + 1)
+            end
+            if is_table_block(text) then
+              -- A source block may contain several table captions, or several
+              -- tabular panels sharing one caption. Count captions, not panels.
+              local captions = 0
+              for command, arg in text:gmatch("\\([%a]+)%s*(%b{})") do
+                if command == "caption" then
+                  captions = captions + 1
+                elseif command == "label" then
+                  refs[arg:sub(2, -2)] = tostring(info.start + math.max(1, captions))
+                end
+              end
+              counts[counter] = info.start + captions
+            end
+            blocks[#blocks + 1] = pandoc.MetaMap({
+              counter = pandoc.MetaString(info.counter),
+              start = pandoc.MetaInlines({ pandoc.Str(tostring(info.start)) }),
+            })
           end
-          blocks[#blocks + 1] = pandoc.MetaMap({
-            counter = pandoc.MetaString(info.counter),
-            start = pandoc.MetaInlines({ pandoc.Str(tostring(info.start)) }),
-          })
         end
       end
 

@@ -6,7 +6,6 @@ contributes:
   filters:
     - html-css.lua
     - html-pdf-embed.lua
-    - latex/html-latex-tables.lua
     - latex/html-latex-counters.lua
     - latex/html-latex-lwarp.lua
     - ref/html-ref-tbl.lua

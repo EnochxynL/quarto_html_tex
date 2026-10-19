@@ -12,6 +12,9 @@ format:
     cite-method: natbib
     citeproc: false
     syntax-highlighting: none
+    include-in-header:
+      - text: |
+          \providecommand{\mrowcell}{}
 ---
 
 {{< include sections/body.md >}}

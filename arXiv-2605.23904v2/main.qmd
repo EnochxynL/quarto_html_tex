@@ -55,6 +55,7 @@ format:
           \usepackage{nicefrac}
           \usepackage{enumitem}
           \usepackage{multirow}
+          \providecommand{\mrowcell}{}
           \usepackage{xspace}
           \usepackage{pifont}
           \usepackage{wrapfig}

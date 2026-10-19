@@ -215,7 +215,7 @@ To thoroughly evaluate the performance of our approach, we compare the trajector
             \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}\textbf{Success} \\ \textbf{Rate}\end{tabular}} & 
             \multicolumn{3}{c}{\textbf{Average RMSE}} \\ 
             \cline{4-6}
-            & & & \multicolumn{1}{c}{\textbf{COM{[}m{]}}} & 
+            \mrowcell & \mrowcell & \mrowcell & \multicolumn{1}{c}{\textbf{COM{[}m{]}}} &
             \multicolumn{1}{c}{\textbf{Leg{[}rad{]}}} & 
             \multicolumn{1}{c}{\textbf{Arm{[}rad{]}}} \\ 
             \hline

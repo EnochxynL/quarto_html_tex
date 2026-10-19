@@ -100,10 +100,10 @@ Two observations follow. *First*, the stronger optimizer produces larger absolut
 \textbf{Benchmark} & \textbf{Target} & \textbf{Baseline} & \textbf{Strong optimizer (GPT--5.5)} & \textbf{Target-matched optimizer} \\
 \midrule
 \multirow{2}{*}{SpreadsheetBench} & GPT--5.4-mini & 36.1 & \dvalp{\textbf{47.5}}{11.4} & \dvalp{43.2}{7.1}  \\
-                                  & GPT--5.4-nano & 23.5 & \dvalp{\textbf{42.5}}{19.0} & \dvalp{35.4}{11.9} \\
+\mrowcell & GPT--5.4-nano & 23.5 & \dvalp{\textbf{42.5}}{19.0} & \dvalp{35.4}{11.9} \\
 \cmidrule(lr){1-5}
 \multirow{2}{*}{SearchQA}         & GPT--5.4-mini & 75.9 & \dvalp{\textbf{80.2}}{4.3}  & \dvalp{78.3}{2.4}  \\
-                                  & GPT--5.4-nano & 55.8 & \dvalp{\textbf{74.8}}{19.0} & \dvalp{69.9}{14.1} \\
+\mrowcell & GPT--5.4-nano & 55.8 & \dvalp{\textbf{74.8}}{19.0} & \dvalp{69.9}{14.1} \\
 \bottomrule
 \end{tabular}
 \caption{Effect of optimizer strength. Each (benchmark, target) pair is optimized either by a strong frontier optimizer (GPT--5.5, bolded) or by a target-matched optimizer that shares the target model; everything else in the \ourmethod{} loop is held fixed. Gains over the target's no-skill baseline are shown as small green subscripts; the same baseline is used for both optimizer settings within a row. The optimizer runs only during offline training, so the stronger-optimizer column adds zero cost at deployment.}

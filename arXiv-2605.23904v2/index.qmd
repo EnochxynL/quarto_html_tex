@@ -33,18 +33,22 @@ format:
         - algorithm
         - algpseudocode
         - amsmath
-      # HTML 端表格子文档解析用的自定义宏（pandoc latex_macros 展开，通用配置）。
-      # dvalp/dvaln 是简化版（去掉 \hphantom——HTML 无需列居中幻影）；
-      # 颜色用 CSS 合法 named color（LaTeX 的 deltapos HTML 色值不是 CSS 语法）。
-      # harnessrow/methodcell 去掉 \rowcolor/\cellcolor/\multicolumn（pandoc 不认，
-      # 预处理会把 \multicolumn 展开为内容文本）。
+        - amssymb
+        - graphicx
+        - xcolor
+        - colortbl
+        - booktabs
+        - multirow
+      # lwarp executes the table macros, colors and layout commands.
       latex-macros: |
         \newcommand{\ourmethod}{\textsc{SkillOpt}}
         \newcommand{\na}{--}
-        \newcommand{\dvalp}[2]{#1\textsubscript{\textcolor{darkgreen}{+#2}}}
-        \newcommand{\dvaln}[2]{#1\textsubscript{\textcolor{darkred}{$-$#2}}}
-        \newcommand{\harnessrow}[1]{\textbf{#1}}
-        \newcommand{\methodcell}[1]{#1}
+        \definecolor{deltapos}{HTML}{0E8A4A}
+        \definecolor{deltaneg}{HTML}{B91C1C}
+        \newcommand{\dvalp}[2]{\hphantom{\textsubscript{+#2}}#1\textsubscript{\textcolor{deltapos}{+#2}}}
+        \newcommand{\dvaln}[2]{\hphantom{\textsubscript{$-$#2}}#1\textsubscript{\textcolor{deltaneg}{$-$#2}}}
+        \newcommand{\harnessrow}[1]{\rowcolor{black!7}\multicolumn{8}{l}{\textbf{#1}}}
+        \newcommand{\methodcell}[1]{\cellcolor{blue!8}#1}
         \newcommand{\ablationbenchmarkheader}{\textbf{Setting} & \textbf{SearchQA} & \textbf{Spreadsheet} & \textbf{LiveMath} \\}
 ---
 

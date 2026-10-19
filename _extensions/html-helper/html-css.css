@@ -102,30 +102,8 @@
   margin: 0.15em 0;
 }
 
-/* 组合表（html-latex-tables.lua 输出 div.minipage 结构，对应 PDF 端
-   \resizebox + minipage 多子表）：并排显示、flex 消除 inline-block 空白间隙、
-   table-layout: fixed 模拟 resizebox 等比缩放（内容换行挤入）。宽度不在此
-   硬编码：lua 从 LaTeX 源读取（\begin{minipage}{0.33\textwidth} →
-   style="width: 33%"）注入每个内层 div。 */
-:where(div.minipage > div.minipage) {
-  display: inline-block;
-  vertical-align: top;
-  padding: 0 6px;
-  box-sizing: border-box;
-}
-:where(div.minipage.minipage-row) {
-  display: flex;
-  flex-wrap: wrap;
-}
-:where(div.minipage > div.minipage table) {
-  table-layout: fixed;
-  width: 100%;
-}
-:where(div.minipage table th,
-       div.minipage table td) {
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-:where(div.minipage table) {
-  font-size: 0.85em;
+/* Keep wide TeX tables readable without applying Bootstrap table styling to
+   nested tabulars. Layout and borders come from lwarp's scoped stylesheet. */
+:where(.lwarp-block) {
+  overflow-x: auto;
 }

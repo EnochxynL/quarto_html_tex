@@ -159,6 +159,13 @@ def convert(name, title, authors, icml=False):
                     lambda m: '@' + m[1] if m[1].startswith('eq-') else '\\ref{' + m[1] + '}', result)
     result = result.replace('\\@', '@')
     result = re.sub(r'(?<![\w@-])@(eq-[\w-]+)', r'[-@\1]', result)
+    # Equivalent source forms supported by lwarp; do not parse table structure
+    # in the HTML filter. Multirow continuation markers are inert in PDF.
+    if icml:
+        result = re.sub(r'\\color(\{[^}]+\})(?=\{)', r'\\textcolor\1', result)
+    else:
+        result = result.replace('& & & \\multicolumn{1}{c}{\\textbf{COM',
+                                '\\mrowcell & \\mrowcell & \\mrowcell & \\multicolumn{1}{c}{\\textbf{COM')
     (directory / 'sections').mkdir(exist_ok=True)
     (directory / 'sections/body.md').write_text(result + '\n', encoding='utf-8')
     (directory / 'sections/abstract.md').write_text(abstract_md + '\n', encoding='utf-8')
@@ -179,7 +186,10 @@ def convert(name, title, authors, icml=False):
     (directory / 'quarto-template.tex').write_text(template, encoding='utf-8')
     packages = ['amsmath', 'amssymb', 'bm', 'mathrsfs', 'graphicx', 'xcolor', 'booktabs', 'colortbl']
     if icml: packages += ['algorithm', 'algpseudocode', 'bbding']
+    else: packages += ['multirow', 'threeparttable']
     macros = '\\definecolor{CadetBlue}{rgb}{0.37,0.62,0.63}\n\\definecolor{BrickRed}{rgb}{0.8,0.25,0.33}\n\\definecolor{MidnightBlue}{rgb}{0.1,0.1,0.44}\n\\definecolor{YellowGreen}{rgb}{0.6,0.8,0.2}\n\\newcommand{\\colorcell}{\\cellcolor{CadetBlue!8}}\n\\newcommand{\\hcolorcell}{\\cellcolor{YellowGreen!10}}' if icml else ''
+    if icml:
+        macros += '\n\\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}\n\\definecolor{YellowOrange}{cmyk}{0,0.42,1,0}'
     html = '---\ntitle: ' + json.dumps(title) + '\nauthor: ' + json.dumps(authors) + '\nfilters: [html-helper]\nbibliography: ' + bibliography + '\nformat:\n  html:\n    theme: cosmo\n    toc: true\n    number-sections: true\n    css: styles.css\n    html-helper:\n      caption-prefix: "Table "\n      caption-sep: ": "\n      latex-packages:\n' + ''.join('        - ' + p + '\n' for p in packages)
     if macros: html += '      latex-macros: |\n' + ''.join('        ' + line + '\n' for line in macros.splitlines())
     if not icml:
@@ -187,6 +197,9 @@ def convert(name, title, authors, icml=False):
     html += '---\n\n::: {.callout-note appearance="simple" icon="false"}\n## Abstract\n\n{{< include sections/abstract.md >}}\n\n:::\n\n{{< include sections/body.md >}}\n'
     (directory / 'index.qmd').write_text(html, encoding='utf-8')
     pdf = '---\nfilters: [pdf-helper]\nbibliography: ' + bibliography + '\nformat:\n  pdf:\n    output-file: quarto.pdf\n    pdf-engine: pdflatex\n    template: quarto-template.tex\n    keep-tex: true\n    latex-clean: false\n    number-sections: true\n    cite-method: natbib\n    citeproc: false\n    syntax-highlighting: none\n---\n\n{{< include sections/body.md >}}\n'
+    if not icml:
+        pdf = pdf.replace('    syntax-highlighting: none\n',
+                          '    syntax-highlighting: none\n    include-in-header:\n      - text: |\n          \\providecommand{\\mrowcell}{}\n')
     (directory / 'paper.qmd').write_text(pdf.replace('output-file: quarto.pdf', 'output-file: paper.pdf'), encoding='utf-8')
     (directory / 'styles.css').write_text('main { max-width: 960px; }\nfigure embed { width: 100%; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
     print(name, len(result), 'characters', len(protected), 'preserved blocks')
