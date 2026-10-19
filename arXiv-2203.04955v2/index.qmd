@@ -1,0 +1,43 @@
+---
+title: "Temporal Difference Learning for Model Predictive Control"
+author: "Nicklas Hansen, Xiaolong Wang, Hao Su"
+filters: [html-helper]
+bibliography: main.bib
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: true
+    css: styles.css
+    html-helper:
+      caption-prefix: "Table "
+      caption-sep: ": "
+      latex-packages:
+        - amsmath
+        - amssymb
+        - bm
+        - mathrsfs
+        - graphicx
+        - xcolor
+        - booktabs
+        - colortbl
+        - algorithm
+        - algpseudocode
+        - bbding
+      latex-macros: |
+        \definecolor{CadetBlue}{rgb}{0.37,0.62,0.63}
+        \definecolor{BrickRed}{rgb}{0.8,0.25,0.33}
+        \definecolor{MidnightBlue}{rgb}{0.1,0.1,0.44}
+        \definecolor{YellowGreen}{rgb}{0.6,0.8,0.2}
+        \newcommand{\colorcell}{\cellcolor{CadetBlue!8}}
+        \newcommand{\hcolorcell}{\cellcolor{YellowGreen!10}}
+---
+
+::: {.callout-note appearance="simple" icon="false"}
+## Abstract
+
+{{< include sections/abstract.md >}}
+
+:::
+
+{{< include sections/body.md >}}

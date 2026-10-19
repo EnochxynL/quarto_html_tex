@@ -107,7 +107,8 @@ local function convert_table(el, bibstr, macros)
   -- 之后的 pandoc.read latex reader 不解析浮动体 table 环境——整块变 Para
   -- 导致表格消失；组合表靠 resizebox 剥离侥幸成功，简单表直接暴露。只留
   -- 内核内容，caption/label 已从原文提取）
-  cleaned = cleaned:gsub("\\begin{table%*?}%[?[^]]*%]?\n?", "")
+  cleaned = cleaned:gsub("\\begin{table%*?}%[[^%]]*%]\n?", "")
+  cleaned = cleaned:gsub("\\begin{table%*?}\n?", "")
   cleaned = cleaned:gsub("\\end{table%*?}\n?", "")
   cleaned = cleaned:gsub("\\caption%b{}\n?", "")
   cleaned = cleaned:gsub("\\label%b{}\n?", "")

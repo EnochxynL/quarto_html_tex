@@ -1,0 +1,84 @@
+[
+  {
+    "paper": "arXiv-2203.04955v2",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 43.5,
+    "latex_failures": 0,
+    "unresolved_placeholders": [],
+    "output": "index.html",
+    "bytes": 313089
+  },
+  {
+    "paper": "arXiv-2203.04955v2",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 18.7,
+    "unresolved_references": [],
+    "output": "paper.pdf",
+    "bytes": 12539504
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 3.0,
+    "latex_failures": 0,
+    "unresolved_placeholders": [],
+    "output": "index.html",
+    "bytes": 85354
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 4.8,
+    "unresolved_references": [],
+    "output": "paper.pdf",
+    "bytes": 2857305
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 6.0,
+    "latex_failures": 0,
+    "unresolved_placeholders": [],
+    "output": "index.html",
+    "bytes": 383445
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 37.0,
+    "unresolved_references": [
+      "tbl-corpus",
+      "tbl-event-types",
+      "tbl-gap-types",
+      "tbl-info-gap",
+      "tbl-seal-l2"
+    ],
+    "output": "main.pdf",
+    "bytes": 4792537
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 22.4,
+    "latex_failures": 0,
+    "unresolved_placeholders": [],
+    "output": "index.html",
+    "bytes": 267692
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 73.1,
+    "unresolved_references": [],
+    "output": "main.pdf",
+    "bytes": 1007954
+  }
+]

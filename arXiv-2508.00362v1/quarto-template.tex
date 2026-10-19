@@ -1,0 +1,75 @@
+
+
+\documentclass[a4paper, 10pt, conference]{ieeeconf}      
+
+\IEEEoverridecommandlockouts                              
+
+\overrideIEEEmargins                                      
+
+
+
+\title{\LARGE \bf
+A Whole-Body Motion Imitation Framework from Human Data for Full-Size Humanoid Robot
+}
+
+
+\author{Zhenghan Chen$$^{1,2^*} $$, Haodong Zhang$$^{1,2^*}$$, Dongqi Wang$$^{2,3}$$, Jiyu Yu$$^{1,2}$$, Haocheng Xu$$^{1,2}$$, \\ Yue Wang$$^{1}$$, Rong Xiong$$^{1,2}$$ 
+\thanks{*The first two authors contributed equally. 1 The State Key Laboratory of Industrial Control and Technology of Zhejiang University. 2 Zhejiang Humanoid Robot Innovation Center. 3 Department of Engineering Mechanics of Zhejiang University. Rong Xiong is the corresponding author. rxiong@zju.edu.cn. This work was supported by the Joint Funds of the National Natural Science Foundation of China (Grant No. U24A20128).}
+}
+
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\makeatletter
+\let\NAT@parse\undefined
+\makeatother
+\usepackage[numbers]{natbib}
+\usepackage{hyperref}
+\usepackage{bbm}
+\usepackage{bm}
+\usepackage{stfloats}
+\usepackage{subfigure} 
+\usepackage{float} 
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{cleveref}
+\usepackage{mathrsfs}
+\usepackage{threeparttable}
+
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\passthrough}[1]{#1}
+$for(header-includes)$
+$header-includes$
+$endfor$
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\begin{document}
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+
+\begin{abstract}
+
+Motion imitation is a pivotal and effective approach for humanoid robots to achieve a more diverse range of complex and expressive movements, making their performances more human-like. However, the significant differences in kinematics and dynamics between humanoid robots and humans present a major challenge in accurately imitating motion while maintaining balance. In this paper, we propose a novel whole-body motion imitation framework for a full-size humanoid robot. The proposed method employs contact-aware whole-body motion retargeting to mimic human motion and provide initial values for reference trajectories, and the non-linear centroidal model predictive controller ensures the motion accuracy while maintaining balance and overcoming external disturbances in real time. The assistance of the whole-body controller allows for more precise torque control. Experiments have been conducted to imitate a variety of human motions both in simulation and in a real-world humanoid robot. These experiments demonstrate the capability of performing with accuracy and adaptability, which validates the effectiveness of our approach.
+
+
+\end{abstract}
+$body$
+\input{bibliography.tex}
+\end{document}

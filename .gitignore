@@ -10,7 +10,9 @@
 
 # Quarto 输出
 index.tex
+paper.tex
 *.pdf
+!arXiv-2508.00362v1/figures/*.pdf
 *.html
 _site/
 *_files/

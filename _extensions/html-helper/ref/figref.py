@@ -48,6 +48,12 @@ def process(path):
     fig_nums = {}
     for i, m in enumerate(DIV_RE.finditer(html), 1):
         fig_nums.setdefault(m.group(1), i)
+    # Layout panels keep the figure ID on their outer div. Read the emitted
+    # caption number so grouped figures and ordinary floats share one sequence.
+    for m in re.finditer(
+            r'<figcaption\b[^>]*\bid="(fig-[^"]+?)-caption-[^"]*"[^>]*>'
+            r'\s*[^<\d]*?(\d+(?:\.\d+)*)\s*:', html):
+        fig_nums[m.group(1)] = m.group(2)
     if not fig_nums:
         print(f"figref: {path} 无图（跳过）")
         return

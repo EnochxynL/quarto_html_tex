@@ -1,0 +1,177 @@
+[
+  {
+    "id": "c1",
+    "type": "article",
+    "title": "Dragan, Anca D. et al. \"Legibility and predictability of robot motion.\" 2013 8th ACM/IEEE International Conference on Human-Robot Interaction (HRI). IEEE, 2013."
+  },
+  {
+    "id": "c2",
+    "type": "article",
+    "title": "Penco, Luigo, et al. \"Robust real-time whole-body motion retargeting from human to humanoid.\" 2018 IEEE-RAS 18th International Conference on Humanoid Robots (Humanoids). IEEE, 2018."
+  },
+  {
+    "id": "c3",
+    "type": "article",
+    "title": "Elobaid, Mohamed, et al. \"Telexistence and teleoperation for walking humanoid robots.\" Intelligent Systems and Applications: Proceedings of the 2019 Intelligent Systems Conference (IntelliSys) Volume 2."
+  },
+  {
+    "id": "c4",
+    "type": "article",
+    "title": "Grandia, Ruben, et al. \"Perceptive locomotion through nonlinear model-predictive control.\" IEEE Transactions on Robotics 39.5 (2023): 3402-3421."
+  },
+  {
+    "id": "c5",
+    "type": "article",
+    "title": "Stanton, Christopher, et al. \"Teleoperation of a humanoid robot using full-body motion capture, example movements, and machine learning.\" Proc. Australasian Conference on Robotics and Automation. Vol. 8. 2012."
+  },
+  {
+    "id": "c6",
+    "type": "article",
+    "title": "Liarokapis, Minas V., et al. \"Directions, methods and metrics for mapping human to robot motion with functional anthropomorphism: A review.\" School of Mechanical Engineering, National Technical University of Athens, Tech. Rep (2013)."
+  },
+  {
+    "id": "c7",
+    "type": "article",
+    "title": "Ayusawa, Ko, and Eiichi Yoshida. \"Motion retargeting for humanoid robots based on simultaneous morphing parameter identification and motion optimization.\" IEEE Transactions on Robotics 33.6 (2017): 1343-1357."
+  },
+  {
+    "id": "c8",
+    "type": "article",
+    "title": "Miura, Kanako, et al. \"Robot motion remix based on motion capture data towards human-like locomotion of humanoid robots.\" 2009 9th IEEE-RAS International Conference on Humanoid Robots. IEEE, 2009."
+  },
+  {
+    "id": "c9",
+    "type": "article",
+    "title": "Herr, Hugh, and Marko Popovic. \"Angular momentum in human walking.\" Journal of experimental biology 211.4 (2008): 467-481."
+  },
+  {
+    "id": "c10",
+    "type": "article",
+    "title": "Zhang, Haodong, et al. \"Kinematic motion retargeting via neural latent optimization for learning sign language.\" IEEE Robotics and Automation Letters 7.2 (2022): 4582-4589."
+  },
+  {
+    "id": "c11",
+    "type": "article",
+    "title": "R. Villegas, J. Yang et al., “Neural kinematic networks for unsupervised motion retargetting,” in IEEE/CVF Conf. on Computer Vision and Pattern Recognition, Jun 2018."
+  },
+  {
+    "id": "c12",
+    "type": "article",
+    "title": "Peng, Xue Bin, et al. \"Amp: Adversarial motion priors for stylized physics-based character control.\" ACM Transactions on Graphics (ToG) 40.4 (2021): 1-20."
+  },
+  {
+    "id": "c13",
+    "type": "article",
+    "title": "Grandia, Ruben, et al. \"Doc: Differentiable optimal control for retargeting motions onto legged robots.\" ACM Transactions on Graphics (TOG) 42.4 (2023): 1-14."
+  },
+  {
+    "id": "c14",
+    "type": "article",
+    "title": "Dariush, Behzad, et al. \"Online transfer of human motion to humanoids.\" International Journal of Humanoid Robotics 6.02 (2009): 265-289."
+  },
+  {
+    "id": "c15",
+    "type": "article",
+    "title": "Ishiguro, Yasuhiro, et al. \"Bipedal oriented whole body master-slave system for dynamic secured locomotion with lip safety constraints.\" 2017 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). IEEE, 2017."
+  },
+  {
+    "id": "c16",
+    "type": "article",
+    "title": "Otani, et al. \"Generating assistive humanoid motions for co-manipulation tasks with a multi-robot quadratic program controller.\" 2018 IEEE International Conference on Robotics and Automation (ICRA). IEEE, 2018."
+  },
+  {
+    "id": "c17",
+    "type": "article",
+    "title": "Penco, Luigi, et al. \"A multimode teleoperation framework for humanoid loco-manipulation: An application for the icub robot.\" IEEE Robotics Automation Magazine 26.4 (2019): 73-82."
+  },
+  {
+    "id": "c18",
+    "type": "article",
+    "title": "Romualdi, Giulio, et al. \"Online non-linear centroidal mpc for humanoid robot locomotion with step adjustment.\" 2022 International Conference on Robotics and Automation (ICRA). IEEE, 2022."
+  },
+  {
+    "id": "c19",
+    "type": "article",
+    "title": "Miura, Kanako, et al. \"Robot motion remix based on motion capture data towards human-like locomotion of humanoid robots.\" 2009 9th IEEE-RAS International Conference on Humanoid Robots. IEEE, 2009."
+  },
+  {
+    "id": "c20",
+    "type": "article",
+    "title": "Pollard, Nancy S., et al. \"Adapting human motion for the control of a humanoid robot.\" Proceedings 2002 IEEE international conference on robotics and automation (Cat. No. 02CH37292). Vol. 2. IEEE, 2002."
+  },
+  {
+    "id": "c21",
+    "type": "article",
+    "title": "KDarvish, Kourosh, et al. \"Whole-body geometric retargeting for humanoid robots.\" 2019 IEEE-RAS 19th International Conference on Humanoid Robots (Humanoids). IEEE, 2019."
+  },
+  {
+    "id": "c22",
+    "type": "article",
+    "title": "Ishiguro, Yasuhiro, et al. \"High speed whole body dynamic motion experiment with real time master-slave humanoid robot system.\" 2018 IEEE International Conference on Robotics and Automation (ICRA). IEEE, 2018."
+  },
+  {
+    "id": "c23",
+    "type": "article",
+    "title": "Yamane, Katsu, Stuart O. Anderson, and Jessica K. Hodgins. \"Controlling humanoid robots with human motion data: Experimental validation.\" 2010 10th IEEE-RAS International Conference on Humanoid Robots. IEEE, 2010."
+  },
+  {
+    "id": "c24",
+    "type": "article",
+    "title": "Righetti, Ludovic, et al. \"Quadratic programming for inverse dynamics with optimal distribution of contact forces.\" 2012 12th IEEE-RAS International Conference on Humanoid Robots (Humanoids 2012). IEEE, 2012."
+  },
+  {
+    "id": "c25",
+    "type": "article",
+    "title": "Al Borno, Mazen, et al. \"Robust Physics‐based Motion Retargeting with Realistic Body Shapes.\" Computer Graphics Forum. Vol. 37. No. 8. 2018."
+  },
+  {
+    "id": "c26",
+    "type": "article",
+    "title": "Hwangbo, Jemin, Joonho Lee, and Marco Hutter. \"Per-contact iteration method for solving contact dynamics.\" IEEE Robotics and Automation Letters 3.2 (2018): 895-902."
+  },
+  {
+    "id": "c28",
+    "type": "article",
+    "title": "F. Farshidian et al., “OCS2: An open source library for optimal control of switched systems,” [Online]. Available: https://github.com/leggedrobotics/ocs2."
+  },
+  {
+    "id": "c30",
+    "type": "article",
+    "title": "Mahmood, Naureen, et al. \"AMASS: Archive of motion capture as surface shapes.\" Proceedings of the IEEE/CVF international conference on computer vision. 2019."
+  },
+  {
+    "id": "c31",
+    "type": "article",
+    "title": "Sungjoon Choi, Matt Pan, and Joohyung Kim. “Nonparametric Motion Retargeting for Humanoid Robots on Shared Latent Space”. In: Proceedings of Robotics: Science and Systems (RSS) (2020)."
+  },
+  {
+    "id": "c33",
+    "type": "article",
+    "title": "M. Diehl, H.G. Bock, et al. “Real-time optimization and nonlinear model predictive control of processes governed by differential-algebraic equations,” Journal of Process Control, vol. 12, no. 4, pp. 577 – 585, 2002."
+  },
+  {
+    "id": "c34",
+    "type": "article",
+    "title": "P.-B. Wieber, “Holonomy and nonholonomy in the dynamics of articulated motion,” in Fast motions in biomechanics and robotics. Springer, 2006, pp. 411–425."
+  },
+  {
+    "id": "c36",
+    "type": "article",
+    "title": "S. Caron, Q.-C. Pham, and Y. Nakamura, “Stability of surface contacts for humanoid robots: Closed-form formulae of the contact wrench cone for rectangular support areas,” 2015 International Conference on Robotics and Automation(ICRA). IEEE, 2015."
+  },
+  {
+    "id": "c37",
+    "type": "article",
+    "title": "F. Farshidian, M. Neunert, A. W. Winkler, G. Rey, and J. Buchli, “An efficient optimal planning and control framework for quadrupedal locomotion,” in International Conference on Robotics and Automation (ICRA). IEEE, 2017, pp. 93–100."
+  },
+  {
+    "id": "c38",
+    "type": "article",
+    "title": "“Video of the experimental results.” https://youtu.be/4pYzrXH1aUU https://www.bilibili.com/video/BV1qhKjeEEQu"
+  },
+  {
+    "id": "c39",
+    "type": "article",
+    "title": "\"https://github.com/qiayuanl/legged_control\""
+  }
+]

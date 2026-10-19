@@ -1,0 +1,17 @@
+---
+filters: [pdf-helper]
+bibliography: references.json
+format:
+  pdf:
+    output-file: paper.pdf
+    pdf-engine: pdflatex
+    template: quarto-template.tex
+    keep-tex: true
+    latex-clean: false
+    number-sections: true
+    cite-method: natbib
+    citeproc: false
+    syntax-highlighting: none
+---
+
+{{< include sections/body.md >}}
