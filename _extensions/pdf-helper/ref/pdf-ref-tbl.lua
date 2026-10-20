@@ -1,3 +1,8 @@
+-- pdf-helper/ref：现在只是表格引用检查器，不修复、不重新计数。
+-- pdf-ref-tbl.lua 收集文档中的表格标签和 \ref{tbl-*}，发现引用没有对应目标时输出：
+-- [pdf-ref-tbl] WARNING: missing table label: tbl-example
+-- 它不修改正文，也不保证最终编号正确。此前修复 Ara 五处引用时，真正恢复标签的是 md 和 html 转换模块；这个文件负责检查转换后有没有把标签弄丢。
+-- 所以它更适合叫“引用诊断器”，可以归入检查工具，甚至只在开发或回归测试时启用。
 -- Verify table references after the Markdown and HTML table converters run.
 -- A tbl- prefix alone does not guarantee that a LaTeX label survived conversion.
 if FORMAT ~= "pdf" and FORMAT ~= "latex" then
