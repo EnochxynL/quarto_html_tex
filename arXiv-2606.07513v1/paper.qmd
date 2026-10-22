@@ -1,0 +1,35 @@
+---
+filters: [pdf-helper, pdf-layout.lua]
+bibliography: main.bib
+format:
+  pdf:
+    output-file: paper.pdf
+    pdf-engine: pdflatex
+    template: quarto-template.tex
+    keep-tex: true
+    latex-clean: false
+    number-sections: true
+    cite-method: natbib
+    citeproc: false
+    syntax-highlighting: none
+---
+
+{{< include Sections/1_intro.md >}}
+
+{{< include Sections/2_related.md >}}
+
+{{< include Sections/3_framework.md >}}
+
+{{< include Sections/4_method.md >}}
+
+{{< include Sections/5_experiments.md >}}
+
+{{< include Sections/6_conclusion.md >}}
+
+```{=latex}
+\bibliography{main}
+\clearpage
+\appendix
+```
+
+{{< include Sections/appendix.md >}}
