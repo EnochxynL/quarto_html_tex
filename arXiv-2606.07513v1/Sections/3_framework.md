@@ -1,85 +1,85 @@
 # Agentopia {#sec-framework}
 
-This section presents the design of Agentopia, a unified framework for long-term life simulation in agent societies. The framework is organized around three core concepts: the simulation procedure, the agent, and the environment model: *(1)* For the simulation procedure, agents live through weekly cycles, each consisting of four stages: Plan, Contact, Activity, and Review, which jointly support diverse social behaviors. *(2)* For the agent, the core challenge is context management, *i.e.*, providing each LLM with sufficient context including the character's persona, states, relationships, and memories. Agents' long-term memory is implemented as a file system that agents autonomously manage via function calls. *(3)* To orchestrate the simulation, Agentopia introduces the environment model, a separate LLM that organizes events, provides environmental feedback, and drives the simulation forward, replacing hard-coded rules. We describe agent design in § \ref{sec-agent-design}, the simulation procedure in § \ref{sec-simulation-procedure}, contact and scheduling in § \ref{sec-contact}, activities in § \ref{sec-activity}, and environment design in § \ref{sec-environment}.
+本节介绍 Agentopia 的设计。Agentopia 是一个用于智能体社会长期生活模拟的统一框架。该框架围绕三个核心概念组织：模拟流程、智能体和环境模型。*(1)* 在模拟流程方面，智能体经历按周循环的生活，每周包含规划（Plan）、联系（Contact）、活动（Activity）和回顾（Review）四个阶段，共同支持多种社会行为。*(2)* 在智能体方面，核心挑战是上下文管理，即为每个 LLM 提供充分的上下文，包括角色的人格、状态、关系和记忆。智能体的长期记忆通过文件系统实现，并由其通过函数调用自主管理。*(3)* 为协调模拟，Agentopia 引入了环境模型，即一个独立的 LLM，用于组织事件、提供环境反馈并推动模拟进行，从而替代硬编码规则。我们将在 § \ref{sec-agent-design} 介绍智能体设计，在 § \ref{sec-simulation-procedure} 介绍模拟流程，在 § \ref{sec-contact} 介绍联系与日程安排，在 § \ref{sec-activity} 介绍活动，并在 § \ref{sec-environment} 介绍环境设计。
 
-## Agent Design {#sec-agent-design}
+## 智能体设计 {#sec-agent-design}
 
-In Agentopia, each agent role-plays as a specific persona, which comprises a *profile*, *social relationships*, and *dynamic states*, comprehensively representing the character.
+在 Agentopia 中，每个智能体都扮演一个特定角色，其由*个人档案*、*社会关系*和*动态状态*构成，共同完整地描述角色。
 
-1.  **Profile**: The profile stores an agent's identity information, including a background story, personality traits, talents, as well as initial values for positions and assets. These attributes remain relatively stable during simulation and are only updated once per simulated year. The full profile schema is provided in § \ref{sec-schema}, and the character creation process is described in § \ref{sec-creation}.
+1.  **个人档案（Profile）**：存储智能体的身份信息，包括背景故事、人格特质、天赋，以及职位和资产的初始值。这些属性在模拟中相对稳定，每个模拟年仅更新一次。完整的档案数据结构见 § \ref{sec-schema}，角色创建过程见 § \ref{sec-creation}。
 
-2.  **Social Relationships**: In Agentopia, relationships are modeled entirely via inter-character memory. We do not explicitly define or store character relationships. Instead, relationships are represented through each character's memory of the other, stored as free text and autonomously managed by agents. This design uniformly represents friends, lovers, strangers, rivals, and other relationship types without requiring separate mechanisms. Relationships can be unidirectional and expanded through multi-person activities. The relationship network is initialized during world creation (§ \ref{sec-creation}) and subsequently managed autonomously by agents.
+2.  **社会关系（Social Relationships）**：在 Agentopia 中，关系完全通过角色之间的记忆来建模。我们不显式定义或存储角色关系；相反，关系体现为每个角色对其他角色的记忆，由自由文本存储，并交由智能体自主管理。这一设计无需单独的机制，就可以统一表示朋友、恋人、陌生人、竞争对手等各种关系。关系可以是单向的，并可通过多人活动拓展。在世界创建过程中初始化关系网络（§ \ref{sec-creation}），之后由智能体自主维护。
 
-3.  **Dynamic States**: Dynamic states represent an agent's current life conditions and evolve with activities. They include vitality, fulfillment, skills, position, and assets. *Vitality* represents energy level. *Fulfillment* is based on Maslow's hierarchy of needs [@maslow1943theory], which captures agents' subjective satisfaction from four dimensions: mood, material, social, and esteem. It serves as the basis for subjective rewards. Following hedonic adaptation theory [@Headey2014], fulfillment decays naturally each week. Fulfillment and vitality changes are determined by the environment model based on activity content, rather than hard-coded rules. The details are provided in § \ref{sec-appendix-states}. *Skills* represent an agent's acquired abilities. *Position* represents an agent's current occupation, which provides weekly income and skill growth (§ \ref{sec-appendix-enrollment}). *Assets* consist of a deposit and a list of possessions (§ \ref{sec-economy}).
+3.  **动态状态（Dynamic States）**：动态状态表示智能体当前的生活状况，并随活动不断变化，包括活力、满足感、技能、职位和资产。*活力（Vitality）*表示精力水平。*满足感（Fulfillment）*基于马斯洛需求层次理论 [@maslow1943theory]，从情绪、物质、社交和尊重四个维度刻画智能体的主观满意程度，是主观奖励的基础。遵循享乐适应理论 [@Headey2014]，满足感会每周自然衰减。满足感和活力的变化由环境模型根据活动内容决定，而不是通过硬编码规则决定。详见 § \ref{sec-appendix-states}。*技能（Skills）*表示智能体习得的能力。*职位（Position）*表示当前职业，提供每周收入和技能成长（§ \ref{sec-appendix-enrollment}）。*资产（Assets）*由存款和拥有的物品列表构成（§ \ref{sec-economy}）。
 
-Besides, Agentopia carefully designs a context management mechanism to provide agents with sufficient context across stages, and equips agents with memory files as long-term memory that agents autonomously manage. Together, Agentopia provides rich context for LLMs to simulate human social lives.
+此外，Agentopia 精心设计了上下文管理机制，为智能体在各个阶段提供充分的信息，并配备由智能体自主管理的长期记忆文件。二者共同为 LLM 模拟人类社会生活提供了丰富的上下文。
 
-1.  **Context Management**: Agentopia carefully designs a comprehensive context management mechanism to provide agents' underlying LLMs with sufficient information to simulate human social lives. This is achieved through three context layers: *(1)* **Roleplay prompt**: provides the foundational role-playing information shared across all stages. It contains the agent's full persona, recent weekly diaries as short-term memory, summaries of key memory files as long-term memory, worldview rules and role-play principles, *e.t.c.*, enabling agents to correctly accumulate memory across stages and weeks throughout the simulation. *(2)* **Stage prompt**: provides stage-specific instructions and context, *e.g.*, scheduling rules and communication history for the Contact stage. *(3)* **Message history**: records LLMs' multi-turn messages accumulated within the current stage, including prior dialogues, calls and results of memory functions, and compacted reasoning process. Together, these three layers combine automatic and agent-driven context management, providing comprehensive context for agents to simulate human social lives. The details are elaborated in § \ref{sec-appendix-context}.
+1.  **上下文管理（Context Management）**：Agentopia 设计了完整的上下文管理机制，使驱动智能体的 LLM 获得模拟人类社会生活所需的充分信息。该机制包含三层上下文：*(1)* **角色扮演提示词（Roleplay prompt）**：提供贯穿所有阶段的基础角色信息，包括完整的人格设定、作为短期记忆的近期周记、作为长期记忆的关键记忆文件摘要、世界观规则和角色扮演原则等，使智能体能够在整个模拟过程中跨阶段、跨周正确积累记忆。*(2)* **阶段提示词（Stage prompt）**：提供特定阶段的指令和上下文，例如联系阶段的日程安排规则和通信历史。*(3)* **消息历史（Message history）**：记录当前阶段内 LLM 累积的多轮消息，包括先前对话、记忆函数的调用及结果，以及压缩后的推理过程。三层共同结合了自动化与智能体自主驱动的上下文管理，为模拟人类社会生活提供全面的上下文。详见 § \ref{sec-appendix-context}。
 
-2.  **Memory Files**: While weekly diaries serve as short-term memory by recording recent experiences, memory files provide agents with *long-term memory*, a file-system-based persistent store that agents autonomously manage via function calls. Agents decide what to remember, update, or discard, giving them full control over what persists across weeks and years. Each agent maintains memory files in three categories: `general.txt` for personal notes and plans, `characters/<who>.txt` for the agent's knowledge of and relationship with specific people, and `others/<name>.txt` for any other topics. Memory files provide context to LLMs in two ways: (1) summaries of recently accessed files are *automatically* included in the roleplay prompt, and (2) agents *autonomously* retrieve full content on demand, included in the message history. Agents manage these files through three functions: `read_file` to retrieve content, `update_file` to write new content, and `list_files` to list all files. A read-before-write constraint is enforced: an update is only permitted after the agent has read the target file in the same invocation, ensuring updates build upon existing content rather than overwriting blindly. Agents can also create new files for topics they wish to track.
+2.  **记忆文件（Memory Files）**：周记通过记录近期经历充当短期记忆，而记忆文件则提供*长期记忆*，即一种基于文件系统的持久存储，由智能体通过函数调用自主管理。智能体决定记住、更新或丢弃什么信息，完全控制哪些内容能够跨周、跨年保留。每个智能体维护三类记忆文件：`general.txt` 用于个人笔记和计划；`characters/<who>.txt` 用于记录对特定人物的了解及与其关系；`others/<name>.txt` 用于其他主题。记忆文件以两种方式向 LLM 提供上下文：(1) 最近访问的文件摘要会*自动*纳入角色扮演提示词；(2) 智能体可以按需*自主*检索完整内容，并将其纳入消息历史。智能体通过三个函数管理文件：`read_file` 读取内容，`update_file` 写入新内容，`list_files` 列出所有文件。系统强制执行“先读后写”约束：只有在同一次调用中读取过目标文件后才能更新，从而保证更新以已有内容为基础，而非盲目覆盖。智能体也可以为需要追踪的主题创建新文件。
 
-## Simulation Procedure {#sec-simulation-procedure}
+## 模拟流程 {#sec-simulation-procedure}
 
-A fundamental constraint of LLM-based agents is that they generate responses turn by turn: they receive a complete context and produce a single reply, unlike humans who continuously perceive and react in real time (*e.g.*, interrupting a conversation mid-sentence). The simulation procedure must therefore be designed around turn-based interaction. Meanwhile, Agentopia focuses on abstract social interactions (*e.g.*, planning, socializing, decision-making) rather than low-level operations (*e.g.*, movement, object manipulation). This abstraction enables the system to model richer social behaviors with fewer LLM calls, achieving higher token efficiency for long-term simulation.
+基于 LLM 的智能体面临一项根本约束：它们逐轮生成响应，即接收完整上下文并产生一次回复，而不像人类那样持续实时感知并作出反应（*例如*在对方话说到一半时打断）。因此，模拟流程必须围绕回合制互动设计。同时，Agentopia 侧重抽象的社会互动（*例如*规划、社交与决策），而非底层操作（*例如*移动或物体操作）。这种抽象使系统能够通过更少的 LLM 调用模拟更丰富的社会行为，从而提高长期模拟的 token 效率。
 
-With these considerations, we design a comprehensive simulation procedure. Agentopia uses the *week* as its basic time unit. A simulated year spans $n_w$ weeks; year-end triggers profile updates, position application, and life reward calculation. [^3_framework-1] Each week consists of four stages: Plan, Contact, Activity, and Review.
+基于这些考虑，我们设计了完整的模拟流程。Agentopia 以*周*为基本时间单位。一个模拟年由 $n_w$ 周构成；年末触发个人档案更新、职位申请和生活奖励计算。 [^3_framework-1] 每周包含规划（Plan）、联系（Contact）、活动（Activity）和回顾（Review）四个阶段。
 
-1.  **Plan**: Based on memory and current state, each agent makes a weekly plan. Agents are able to review previous plans and store or update new ones through function calls (*e.g.*, `read_file`, `update_file`). Agents also select an abstract consumption level (*i.e.*, living standard) for the week, which abstracts their monetary spending and influences material fulfillment.
+1.  **规划（Plan）**：每个智能体根据记忆和当前状态制定周计划。智能体可通过函数调用（*例如* `read_file`、`update_file`）回顾既往计划，并存储或更新新计划。智能体还会选择本周的抽象消费水平（即生活标准），以概括其货币支出并影响物质满足感。
 
-2.  **Contact (& Scheduling)**: In this stage, agents communicate with each other over multiple rounds. One primary purpose of communication is to arrange shared schedules: agents can propose invitations, which others may accept or decline, thereby creating joint activity schedules. The detailed mechanism is introduced in § \ref{sec-contact}.
+2.  **联系（及日程安排）（Contact & Scheduling）**：在此阶段，智能体进行多轮相互通信。通信的一个主要目的是安排共同日程：智能体可以发出活动邀请，其他智能体可以接受或拒绝，从而形成联合活动日程。具体机制见 § \ref{sec-contact}。
 
-3.  **Activity**: In this stage, agents carry out diverse activities. Each weekly cycle contains $n_d$ active days, and on each day, every agent carries out exactly one activity. Activities fall into four types: joint, solo, encounter, and public. Through these activities, agents can pursue personal growth, work, or leisure on their own, or engage with others in shared experiences. Activity types and execution are detailed in § \ref{sec-activity}.
+3.  **活动（Activity）**：在此阶段，智能体开展各类活动。每周包含 $n_d$ 个活动日，在每个活动日，每个智能体恰好开展一项活动。活动分为联合、单人、偶遇和公共活动四种类型。通过这些活动，智能体可以独自追求个人成长、工作或休闲，也可以与他人共享经历。活动类型和执行机制详见 § \ref{sec-activity}。
 
-4.  **Review**: At the end of each week, agents reflect on their weekly experiences and summarize them into a weekly diary. Based on this reflection, agents can update their memory files via function calls. The weekly diaries are included in each agent's context in subsequent weeks, allowing agents to recall their past experiences.
+4.  **回顾（Review）**：每周结束时，智能体反思一周的经历，并将其总结为周记。在此基础上，智能体可以通过函数调用更新记忆文件。周记会纳入之后各周的上下文，使智能体能够回忆过去的经历。
 
-At the end of each simulated year, three processes take place. *(1) Profile Update:* the environment model makes incremental updates to each agent's profile (*e.g.*, personality traits, talents) based on their accumulated experiences over the year. *(2) Position Application:* agents may apply for new positions based on their preferences and compete for limited vacancy based on their abilities and skills. *(3) Life Reward Calculation:* life rewards are calculated, measuring each agent's social standing, subjective fulfillment, and economic status over the past year.
+每个模拟年结束时，会进行三项流程：*(1) 个人档案更新：*环境模型根据智能体一年内累积的经历，对其个人档案（*例如*人格特质、天赋）进行增量更新。*(2) 职位申请：*智能体可以根据自己的偏好申请新职位，并凭借能力和技能竞争有限的空缺。*(3) 生活奖励计算：*计算生活奖励，衡量智能体在过去一年中的社会地位、主观满足感和经济状况。
 
-## Contact & Scheduling {#sec-contact}
+## 联系与日程安排 {#sec-contact}
 
-The Contact stage serves two purposes: communication between agents and scheduling of activities. Communication is restricted to pairwise exchanges, while multi-person conversations are deferred to joint activities. Constrained by the turn-based nature of LLM generation, communication in Agentopia proceeds in rounds. Each week consists of $n_c$ contact rounds. In each round, an agent receives newly arrived messages along with the contact history from the past three weeks, then decides whom to contact and what actions to take. After all rounds conclude, the system resolves the contact history to determine which joint activities have been successfully created.
+联系阶段有两个目的：智能体之间的通信和活动日程安排。通信仅限于两两交流，多人对话则放在联合活动中进行。受 LLM 回合制生成方式的约束，Agentopia 中的通信按轮次进行。每周包含 $n_c$ 轮联系。在每一轮中，智能体接收新到达的消息以及过去三周的联系历史，然后决定联系谁以及采取什么行动。所有轮次结束后，系统整理联系历史，确定哪些联合活动成功创建。
 
-#### Actions
+#### 动作
 
-In Agentopia, agents must generate *actions* to trigger real communication and scheduling. Actions are wrapped with `<role_action>` tags in agents' responses, which the system then parses and executes. They are different from function calls. Four action types are available: `contact`, `propose_joint_activity`, `respond_invitation` and `cancel_joint_activity` (§ \ref{sec-appendix-contact-details}).
+在 Agentopia 中，智能体必须生成*动作*，才能触发实际的通信和日程安排。动作被包裹在智能体响应中的 `<role_action>` 标签内，随后由系统解析并执行。动作与函数调用不同。系统提供四种动作类型：`contact`、`propose_joint_activity`、`respond_invitation` 和 `cancel_joint_activity`（§ \ref{sec-appendix-contact-details}）。
 
-#### Schedule Resolution
+#### 日程解析
 
-After all contact rounds conclude, the system resolves which joint activities are successfully created based on all collected actions. The process handles cancellations, deduplicates responses, resolves time conflicts, and checks creation condition. The full rules and procedure are described in § \ref{sec-appendix-procedure}.
+所有联系轮次结束后，系统根据收集到的全部动作，确定成功创建的联合活动。该过程处理取消请求、去除重复响应、解决时间冲突，并检查活动创建条件。完整规则和流程见 § \ref{sec-appendix-procedure}。
 
-#### Scheduling Public and Encounter Activities
+#### 公共活动与偶遇活动的安排
 
-Public and encounter activities are scheduled in dedicated stages before and after Contact, respectively. Before Contact, the environment model creates public events for the upcoming weeks, and agents sign up for those that match their interests. After Contact, the environment model arranges encounter activities to create chance meetings for idle agents, *i.e.*, those without any scheduled activity on a given day.
+公共活动和偶遇活动分别在联系阶段之前和之后的专门阶段进行安排。在联系阶段之前，环境模型为未来几周创建公共活动，智能体自主报名感兴趣的活动。在联系阶段之后，环境模型安排偶遇活动，让空闲智能体（即某一天未安排任何活动的智能体）获得偶然相遇的机会。
 
-## Activities {#sec-activity}
+## 活动 {#sec-activity}
 
-Activities are the core stage of Agentopia, where agents carry out activities and develop abilities, fulfillment, wealth, and social relationships. Agentopia supports four activity types: joint, solo, encounter, and public. Agents carry out activities according to their schedules, defaulting to solo activities when unscheduled. After each activity, the environment model provides feedback based on the agent's experience (including state changes), and the agent reflects on the outcome and may update its memory files accordingly. The four activity types are described below:
+活动是 Agentopia 的核心阶段，智能体在此开展活动，并发展能力、满足感、财富与社会关系。Agentopia 支持四种活动类型：联合、单人、偶遇和公共活动。智能体根据日程开展活动，未安排活动时默认开展单人活动。每项活动结束后，环境模型根据智能体的经历提供反馈（包括状态变化），智能体则反思活动结果，并可相应更新记忆文件。四种活动类型如下：
 
-1.  **Joint Activity**: Joint activities model multi-agent, multi-turn interactions. They are created through invitation and negotiation during the Contact stage. Participants take turns speaking; following @wang2025coser, we employ the environment model to provide environmental descriptions and select the next speaker each turn. Agents can choose the visibility of their generated content, using special tags to mark each segment as public, private, or selective (visible only to specified persons). Agents are also permitted two actions: `gift` to transfer items to another participant, and `exit` to leave the activity early. Additionally, we introduce a response filtering mechanism, where the environment model evaluates each agent response based on a set of roleplay principles covering anthropomorphism, character fidelity, and feasibility, filtering out responses that violate any principle. Details about joint activity execution and response filtering are provided in § \ref{sec-appendix-activity} and § \ref{sec-appendix-principles}, respectively.
+1.  **联合活动（Joint Activity）**：联合活动用于建模多智能体、多轮次互动，在联系阶段通过邀请和协商创建。参与者轮流发言；借鉴 @wang2025coser，我们使用环境模型提供环境描述，并在每一轮选择下一位发言者。智能体可以控制其生成内容的可见范围，通过特殊标签将各片段标为公开、私密或选择性可见（仅指定人物可见）。智能体还可以执行两种动作：`gift` 将物品赠予另一名参与者，`exit` 提前退出活动。此外，我们引入响应过滤机制：环境模型依据涵盖拟人化、角色忠实度和可行性的角色扮演原则评估每次智能体响应，并过滤违反任何原则的内容。联合活动执行与响应过滤的细节分别见 § \ref{sec-appendix-activity} 和 § \ref{sec-appendix-principles}。
 
-2.  **Solo Activity**: Solo activity serves as the default when an agent has no other schedule, allowing activities such as studying, working, or leisure and consumption. It follows a single-turn format: the agent describes its intended action, and the environment model evaluates the feasibility of the action based on the character's background and provides an outcome. If the agent's intention does not match its abilities, the environment model provides negative feedback. Solo activities also support spending, where agents may purchase goods or services to gain material fulfillment (§ \ref{sec-economy}). Details about solo activity execution are described in § \ref{sec-appendix-solo-activity}.
+2.  **单人活动（Solo Activity）**：当智能体没有其他日程时，默认开展单人活动，包括学习、工作、休闲与消费等。采用单轮形式：智能体描述计划采取的行动，环境模型根据角色背景评估行动的可行性并给出结果。如果智能体的意图与自身能力不符，环境模型便提供负面反馈。单人活动也支持消费，智能体可以购买商品或服务以提高物质满足感（§ \ref{sec-economy}）。单人活动执行细节见 § \ref{sec-appendix-solo-activity}。
 
-3.  **Encounter Activity**: Encounters are chance meetings arranged by the environment model for idle agents, and serve as a special case of joint activity. They follow the same multi-turn dialogue format as joint activities, but do not appear in agent schedules. Encounters are designed to let the environment model create meaningful chance meetings: for example, introducing strangers to expand social networks, or bringing together agents with significant plot connections or special relationships.
+3.  **偶遇活动（Encounter Activity）**：偶遇是环境模型为闲置智能体安排的随机相遇，属于联合活动的一种特殊形式。它采用与联合活动相同的多轮对话格式，但不出现在智能体的日程中。偶遇旨在让环境模型创造有意义的偶然相遇，例如让陌生人认识以扩大社交网络，或让具有重要情节关联或特殊关系的智能体相遇。
 
-4.  **Public Activity**: Public activities represent open community events centered around shared interests (*e.g.*, workshops, interest groups). They are designed by the environment model, and agents may sign up independently based on their own interests. The execution generally follows a similar flow to solo activity. The key difference is that, at the end of the activity, agents see what other participants did, and may get to know them. Details for public activities are described in § \ref{sec-appendix-public-activity}.
+4.  **公共活动（Public Activity）**：公共活动是围绕共同兴趣开展的开放式社区活动（*例如*工作坊、兴趣小组）。由环境模型设计，智能体可以根据自身兴趣独立报名。执行流程总体上与单人活动相似，关键区别在于：活动结束时，智能体能够看到其他参与者做了什么，并可能因此与他们相识。公共活动详情见 § \ref{sec-appendix-public-activity}。
 
-## Environment Design {#sec-environment}
+## 环境设计 {#sec-environment}
 
-This section introduces the environment design in Agentopia, including the environment model, the economy system, the position application mechanism, and the location system. These components serve as essential parts that support the comprehensive simulation of social lives in agent societies.
+本节介绍 Agentopia 的环境设计，包括环境模型、经济系统、职位申请机制和地点系统。这些组成部分为全面模拟智能体社会中的社会生活提供必要支持。
 
-#### Environment Model
+#### 环境模型
 
-Building a comprehensive social simulation environment to appropriately orchestrate the simulation and provide environmental feedback for role-playing agents is a complex yet important task. In Agentopia, we introduce the environment model, a stateless LLM, to handle these functions instead of hard-coding extensive rules. During activities, it provides feedback to agent behavior, judging feasibility and evaluating outcomes. Besides, it predicts next speakers in joint activities, generates public and encounter activities, ranks candidates for position applications, updates agent profiles at year-end, and performs response filtering to exclude low-quality outputs. These functions collectively support the smooth progression of life simulation in the multi-agent society. Hence, the environment model essentially serves as a generative environment engine, providing intelligent, generative responses to agent behaviors. Our prompts for the environment model are displayed in Tables \ref{tab-prompts-god-joint}, \ref{tab-prompts-god-eval}, and \ref{tab-prompts-god-world}.
+构建一个能够恰当协调模拟并向角色扮演智能体提供环境反馈的完整社会模拟环境，是一项复杂而重要的任务。在 Agentopia 中，我们引入一个无状态 LLM 作为环境模型，负责这些功能，而不需要硬编码大量规则。在活动过程中，它反馈智能体行为，判断其可行性并评估结果。此外，它还负责预测联合活动中的下一位发言者、生成公共与偶遇活动、对职位申请者排序、在年末更新智能体档案，以及过滤低质量响应。这些功能共同保证了多智能体社会生活模拟的顺利推进。因此，环境模型本质上充当一个生成式环境引擎，为智能体行为提供智能的生成式响应。环境模型使用的提示词见表 \ref{tab-prompts-god-joint}、\ref{tab-prompts-god-eval} 和 \ref{tab-prompts-god-world}。
 
-#### Economy System
+#### 经济系统
 
-Agentopia includes a basic economy system where agents earn and spend money. Income comes from three sources: a position-based weekly salary, character-specific weekly income, and additional work during the activity stage. Expenses take two forms. First, agents select a living standard each week (from frugal to luxurious), representing the richness of their material life for that week. Second, agents may choose to engage in consumption activities during solo activities (*e.g.*, shopping, entertainment). Through spending, agents gain material fulfillment, which contributes to improvement in subjective reward. Meanwhile, accumulating more wealth leads to higher economy reward (§ \ref{sec-economy}).
+Agentopia 包含一个基本经济系统，允许智能体挣钱和花钱。收入来源有三种：职位对应的每周工资、角色特有的每周收入，以及活动阶段的额外工作收入。支出有两种形式。首先，智能体每周选择一种生活标准（从节俭到奢华），代表该周物质生活的丰富程度。其次，智能体可以在单人活动中选择消费（*例如*购物、娱乐）。通过消费，智能体获得物质满足感，从而有助于提升主观奖励；同时，积累更多财富则会提高经济奖励（§ \ref{sec-economy}）。
 
-#### Position System
+#### 职位系统
 
-Each agent holds a position that represents its job or social role. A position provides two weekly benefits: a fixed income and skill growth in relevant abilities. During character construction, the environment model assigns each agent an initial position based on the world setting and character profiles. Once per year, a position application process allows agents to decide whether to change their position, and the environment model determines outcomes based on agents' abilities and position requirements. The details about position and position application are described in § \ref{sec-appendix-enrollment}.
+每个智能体都拥有一个职位，代表其工作或社会角色。职位提供两项每周收益：固定收入和相关能力的技能成长。在角色构建期间，环境模型根据世界设定与角色档案，为每个智能体分配初始职位。每年一次的职位申请流程允许智能体决定是否更换职位，环境模型则根据智能体的能力和职位要求确定结果。职位和职位申请详见 § \ref{sec-appendix-enrollment}。
 
-#### Location System
+#### 地点系统
 
-Agentopia implements a simple location mechanism. Its primary purpose is to provide agents with grounded environmental perception. In our early experiments, we find that agents tend to hallucinate environmental details and objects without location information explicitly provided. Hence, we employ the environment model to create a set of locations for each world, and require joint activities and encounter activities to specify a location. Details are provided in § \ref{sec-appendix-location}.
+Agentopia 实现了一个简单的地点机制，其主要目的是为智能体提供有实际环境依据的感知。在早期实验中，我们发现，如果未显式提供地点信息，智能体倾向于虚构环境细节和物品。因此，我们使用环境模型为每个世界创建一组地点，并要求联合活动和偶遇活动指定地点。详见 § \ref{sec-appendix-location}。
 
-[^3_framework-1]: The *day*, *week*, and *year* in Agentopia serve as three hierarchical layers of abstract simulation time. They are designed to simulate human life cycles at comparable scales, without strictly corresponding to real-world calendar units.
+[^3_framework-1]: Agentopia 中的*日*、*周*和*年*构成抽象模拟时间的三个层级，用于以大致可比的尺度模拟人类生活周期，但不严格对应现实日历单位。

@@ -1,67 +1,67 @@
-# Reward and Optimization {#sec-reward}
+# 奖励与优化 {#sec-reward}
 
-This section presents life reward and the training method built upon it. The design of life reward draws from human well-being as a prior to define agent rewards, guiding agents toward human-like goals. As LLMs optimize toward these goals, they are expected to naturally develop emotional intelligence, social intelligence, and life wisdom, similar to how humans grow through social lives.
+本节介绍生活奖励以及基于该奖励的训练方法。生活奖励的设计以人类福祉为先验来定义智能体奖励，引导智能体追求人类式目标。随着 LLM 朝这些目标优化，我们预期它们能够像人类在社会生活中成长一样，自然地发展出情绪智能、社会智能与生活智慧。
 
-## Life Reward {#sec-life-reward}
+## 生活奖励 {#sec-life-reward}
 
-At the end of each simulated year, life reward is calculated for every agent. Grounded in Maslow's hierarchy of needs [@maslow1943theory], life reward in Agentopia is defined with three dimensions: social, subjective, and economy. Social reward measures an agent's social standing based on perception from other agents. Subjective reward measures an agent's fulfillment over the past year. Economy reward measures an agent's yearly financial gain. The three dimensions are determined or estimated by the external environment, rather than self-reported by agents.
+每个模拟年结束时，系统都会为每个智能体计算生活奖励。以马斯洛需求层次理论 [@maslow1943theory] 为基础，Agentopia 将生活奖励定义为三个维度：社会、主观与经济。社会奖励根据其他智能体的感知衡量智能体的社会地位；主观奖励衡量其过去一年的满足感；经济奖励衡量其年度财务收益。这三个维度由外部环境决定或估计，而非智能体自行报告。
 
-#### Social Reward
+#### 社会奖励
 
-Social reward is computed from how others in an agent's social circle perceive them. Based on the Warmth-Competence model [@fiske2007universal], we consider two dimensions of perception: *affection* and *respect*, corresponding to warmth and competence respectively. Each agent is asked to independently score every person in their social circle on both dimensions, using a 0 to 100 scale. Agents are told that these ratings are private and will not be revealed to others, preventing agents from giving dishonest ratings due to social pressure. Then, these scores are sorted and rescaled to 0 to 100 based on the ranking (first place receives 100, last place receives 0), eliminating differences in scoring scales across agents. Based on the scores, we construct two weighted directed graphs for affection and respect respectively, where the scores serve as edge weights.
+社会奖励根据社交圈内其他智能体对某个智能体的看法计算。基于温暖—能力模型（Warmth-Competence model） [@fiske2007universal]，我们考虑两个感知维度：*喜爱（affection）*与*尊重（respect）*，分别对应温暖与能力。我们要求每个智能体独立地对其社交圈中的每个人在两个维度上打分，范围为 0 至 100。系统告知智能体，这些评分是保密的，不会向其他人披露，以防止智能体因社会压力而给出不诚实的评分。随后，按排名对分数进行排序并重新缩放至 0 至 100（第一名为 100，最后一名为 0），消除不同智能体评分尺度的差异。根据评分，分别构建喜爱与尊重的两个加权有向图，分数作为边权重。
 
-We apply Weighted PageRank [@page1999pagerank] to compute each agent $i$'s social standing score $S_i$ on each graph. Inspired by Sociometer Theory [@leary2012sociometer], we add a Mutual Affection Bonus after PageRank convergence to obtain the final score:
+我们采用加权 PageRank [@page1999pagerank] 在每个图上计算智能体 $i$ 的社会地位分数 $S_i$。受社会计量器理论（Sociometer Theory） [@leary2012sociometer] 启发，在 PageRank 收敛后加入相互喜爱奖励（Mutual Affection Bonus），得到最终分数：
 
 $$
 S_i' = \sum_{j \in \mathcal{N}_{in}(i)} w_{ji} \cdot (1 + \alpha \cdot w_{ij}) \cdot S_j
 $$ {#eq-agentopia-1}
 
-where $S_j$ is agent $j$'s raw PageRank score, $\mathcal{N}_{in}(i)$ means the set of agents who know $i$, $w_{ji}$ denotes the normalized edge weight from $j$ to $i$, and $\alpha$ is the mutual affection coefficient. This mechanism models the psychological effect that "being valued by those I value" matters more, amplifying the contribution from reciprocated relationships.
+其中，$S_j$ 为智能体 $j$ 的原始 PageRank 分数，$\mathcal{N}_{in}(i)$ 表示认识 $i$ 的智能体集合，$w_{ji}$ 表示从 $j$ 到 $i$ 的归一化边权重，$\alpha$ 是相互喜爱系数。该机制模拟了“受到我所重视之人的重视更加重要”这一心理效应，从而增强双向关系的贡献。
 
-We denote the scores for affection and respect as $S_{\text{aff}}'$ and $S_{\text{resp}}'$ respectively, and take their average as the social reward: $r_{\text{social}} = \frac{1}{2}S_{\text{aff}}' + \frac{1}{2}S_{\text{resp}}'$.
+我们分别将喜爱和尊重的分数记为 $S_{\text{aff}}'$ 和 $S_{\text{resp}}'$，取二者平均作为社会奖励：$r_{\text{social}} = \frac{1}{2}S_{\text{aff}}' + \frac{1}{2}S_{\text{resp}}'$。
 
-#### Subjective Reward
+#### 主观奖励
 
-Subjective reward is computed from an agent's fulfillment history over the past year. It is primarily measured across four fulfillment dimensions: mood, material, social, and esteem. Additionally, a penalty mechanism is introduced to penalize agents with excessively low fulfillment or vitality. Specifically, for each fulfillment dimension, the 25th percentile across all agents in each week serves as the threshold. Agents falling below this threshold receive a penalty. Similarly, vitality below its threshold is penalized independently. The final subjective reward is:
+主观奖励根据智能体过去一年的满足感历史计算，主要从情绪、物质、社交和尊重四个满足感维度衡量。此外，我们引入惩罚机制，对满足感或活力过低的智能体进行惩罚。具体而言，对于每个满足感维度，以每周所有智能体得分的第 25 百分位数作为阈值，低于阈值的智能体受到惩罚。同样，活力低于其阈值时也会受到独立惩罚。最终主观奖励为：
 
 $$
 r_{\text{subj}} = \frac{\sum_{w=1}^{n_w} \sum_{d=1}^{D} f_{w,d} - n_p \cdot \lambda_p}{n_w \cdot D}
 $$ {#eq-agentopia-2}
 
-where $n_w$ is the number of weeks in each year, $D$ is the number of fulfillment dimensions, $f_{w,d}$ is the fulfillment value for week $w$ and dimension $d$, $n_p$ is the total number of penalty instances over the year, and $\lambda_p$ is the penalty weight.
+其中，$n_w$ 为每年的周数，$D$ 为满足感维度数，$f_{w,d}$ 为第 $w$ 周第 $d$ 个维度的满足感值，$n_p$ 为全年惩罚触发的总次数，$\lambda_p$ 为惩罚权重。
 
-#### Economy Reward
+#### 经济奖励
 
-Economy reward measures an agent's objective financial gain over the past year, computed as $r_{\text{econ}} = \text{deposit}_{\text{end}} - \text{deposit}_{\text{start}}$, capturing both earning ability and spending wisdom.
+经济奖励衡量智能体过去一年的客观财务收益，计算方式为 $r_{\text{econ}} = \text{deposit}_{\text{end}} - \text{deposit}_{\text{start}}$，同时体现挣钱能力与消费智慧。
 
-#### Total Reward
+#### 总奖励
 
-Total reward combines the three reward dimensions. Since the three dimensions have different scales, we apply z-score normalization to each independently, and compute total reward $r$ as a weighted sum of the normalized scores:
+总奖励整合三个奖励维度。由于三者的尺度不同，我们分别对其进行 z-score 标准化，并将归一化分数加权求和，得到总奖励 $r$：
 
 $$
 r = \lambda_{\text{social}} \cdot z_{\text{social}} + \lambda_{\text{subj}} \cdot z_{\text{subj}} + \lambda_{\text{econ}} \cdot z_{\text{econ}}
 $$ {#eq-agentopia-3}
 
-where $\lambda_{\text{social}}$, $\lambda_{\text{subj}}$, and $\lambda_{\text{econ}}$ are the weights for the three rewards.
+其中，$\lambda_{\text{social}}$、$\lambda_{\text{subj}}$ 和 $\lambda_{\text{econ}}$ 是三个奖励的权重。
 
-## Life Reward Training {#sec-training-data}
+## 生活奖励训练 {#sec-training-data}
 
-To optimize LLMs towards improved well-being in social life simulation, we propose life reward training, a rejection-sampling-based optimization method. The challenge lies in the extremely long-horizon nature of social simulation, which makes end-to-end algorithms like PPO [@schulman2017proximal] infeasible in this setting. Each agent's trajectory involves hundreds of LLM calls per simulated year, and a full simulation spans tens of such years. Therefore, we adopt a rejection-sampling approach that selects high-advantage trajectories based on life reward (§ \ref{sec-life-reward}).
+为了优化 LLM，使其在社会生活模拟中获得更高的福祉，我们提出生活奖励训练：一种基于拒绝采样的优化方法。难点在于社会模拟具有极长的时间跨度，使 PPO [@schulman2017proximal] 等端到端算法在这一场景下不可行。每个智能体在每个模拟年中的轨迹都涉及数百次 LLM 调用，而完整模拟跨越数十个这样的年份。因此，我们采用拒绝采样，根据生活奖励（§ \ref{sec-life-reward}）选择高优势值的轨迹。
 
-#### Estimating Returns and Advantages
+#### 回报与优势值估计
 
-Given the life reward defined in § \ref{sec-life-reward}, we estimate returns and advantages for each agent at each time step $t$ (*i.e.*, a simulated year). For agent $i$, the return is defined as the discounted sum of future rewards: $$G_{i,t} = \sum_{k=0}^{T-t} \gamma^k r_{i,t+k},$$ where $\gamma$ is the discount factor and $T$ is the final time step.
+给定 § \ref{sec-life-reward} 中定义的生活奖励，我们估计每个智能体在每个时间步 $t$（即一个模拟年）的回报与优势值。对于智能体 $i$，回报定义为未来奖励的折扣和：$$G_{i,t} = \sum_{k=0}^{T-t} \gamma^k r_{i,t+k},$$ 其中，$\gamma$ 为折扣因子，$T$ 为最终时间步。
 
-Estimating advantages requires a baseline. In our life simulation setting, it is difficult to learn a critic as in PPO [@schulman2017proximal] or to estimate a baseline by averaging over multiple rollouts as in GRPO [@guo2025deepseek], since each agent produces a single life trajectory. We therefore use each agent's own previous return as a self-referential baseline.
+估计优势值需要基线。在我们的生活模拟场景中，每个智能体只产生一条人生轨迹，因此难以像 PPO [@schulman2017proximal] 一样训练价值评估器（critic），也难以像 GRPO [@guo2025deepseek] 一样通过多次轨迹采样取平均来估计基线。因此，我们将每个智能体自身的上一期回报用作自参照基线。
 
-Before computing advantages, we normalize returns across time steps to make them more comparable, as raw returns may have different effective horizons and distributions; details are provided in § \ref{sec-appendix-sft}. Let $G^{norm}_{i,t}$ denote the normalized return. We define the advantage as: $$A_{i,t} = G^{norm}_{i,t} - G^{norm}_{i,t-1}.$$ This formulation measures whether an agent's expected future life reward improves relative to its own past, rather than comparing absolute performance across agents. The advantage measures each agent's improvement relative to its own past, rather than cross-agent comparison. It therefore reduces the tendency to favor agents with inherently better initial conditions, whose high absolute returns may reflect design-time advantages rather than behavioral quality.
+在计算优势值前，我们首先对不同时间步的回报进行归一化，以增强可比性，因为原始回报可能具有不同的有效时间跨度和分布；细节见 § \ref{sec-appendix-sft}。记 $G^{norm}_{i,t}$ 为归一化回报，将优势值定义为：$$A_{i,t} = G^{norm}_{i,t} - G^{norm}_{i,t-1}.$$ 该公式衡量一个智能体的预期未来生活奖励相较于其自身过去是否有所改善，而非比较智能体之间的绝对表现。优势值反映的是每个智能体相对自身过去的进步，而不是跨智能体比较。因此，它能够降低对先天初始条件较优的智能体的偏好，因为这些智能体的高绝对回报可能源自角色设计时的优势，而非行为质量。
 
-#### Trajectory Selection
+#### 轨迹选择
 
-Within each reward period, we select the top 25% of agents by advantage, *i.e.*, those who improved the most over the past year. Once an agent is selected, all of its trajectories within that period are included as training data. Since advantage measures improvement relative to one's own past rather than absolute standing, the selected trajectories represent beneficial behaviors for diverse personas and backgrounds, rather than converging toward homogeneous behavioral patterns.
+在每个奖励周期中，我们根据优势值选择排名前 25% 的智能体，即过去一年进步最大的智能体。一个智能体被选中后，该周期内它的全部轨迹都被纳入训练数据。由于优势值衡量的是相对于自身过去的进步，而不是绝对地位，所选轨迹能够代表不同人格和背景下的有益行为，而不至于收敛成同质化的行为模式。
 
-#### Response Filtering
+#### 响应过滤
 
-Response filtering is applied as an additional quality filter to exclude low-quality responses from training data. Agent responses with malformed actions or invalid parameters (*e.g.*, referencing a non-existent character) are filtered out. Also, agent responses in joint and encounter activities are checked against a set of 16 roleplay principles (Table \ref{tab-principles}) covering anthropomorphism, character fidelity and reasonableness, with violating responses filtered out.
+我们进一步采用响应过滤作为质量筛选手段，排除训练数据中的低质量响应。对动作格式错误或参数无效（*例如*引用不存在的角色）的智能体响应进行过滤。此外，联合活动与偶遇活动中的响应还会按照一套包含 16 项原则的角色扮演规则（表 \ref{tab-principles}）检查，这些原则涵盖拟人化、角色忠实度和合理性；违反原则的响应会被排除。
 
-To prevent catastrophic forgetting, we employ self-distillation [@lu2025onpolicy]. We sample the model's own responses to general-purpose instructions from the Tulu 3 dataset [@lambert2024tulu], and mix them with Agentopia trajectories at a 50:50 ratio, which are measured by output tokens. Detailed training settings are provided in §\ref{sec-appendix-sft}.
+为防止灾难性遗忘，我们采用自蒸馏 [@lu2025onpolicy]。我们从 Tulu 3 数据集 [@lambert2024tulu] 的通用指令中采样模型自身的响应，并按输出 token 数量，将这些响应与 Agentopia 轨迹以 50:50 的比例混合。详细训练设置见 §\ref{sec-appendix-sft}。

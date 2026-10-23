@@ -1,33 +1,33 @@
-# Conclusion {#sec-conclusion}
+# 结论 {#sec-conclusion}
 
-This paper studies long-term life simulation and LLM learning in agent societies. We present Agentopia, a multi-agent society where agents live their own lives. We define life reward to model agents' well-being, and propose life reward training, a rejection-sampling-based method that selects high-advantage agent trajectories to optimize LLMs.
+本文研究了智能体社会中的长期生活模拟与 LLM 学习。我们提出 Agentopia，一个让智能体过自己的生活的多智能体社会。我们定义了生活奖励来建模智能体的福祉，并提出生活奖励训练，即一种基于拒绝采样、选择高优势值智能体轨迹来优化 LLM 的方法。
 
-We conduct simulations across three diverse worlds, each with 100 agents running for 10 simulated years. Agents exhibit diverse emergent behaviors, including personal growth, relationship formation, and life choices. Life reward training leads to improved well-being in simulation, including broader social recognition, higher subjective fulfillment, and better economic gains. Through evaluation on downstream role-playing benchmarks, we validate that life reward training improves LLMs' anthropomorphism and role-playing ability, yielding a 15.6% overall improvement on CoSER Test, with the largest increases in anthropomorphism (+23.7%) and character fidelity (+16.4%).
+我们在三个不同的世界中进行了模拟，每个世界包含 100 个智能体，运行 10 个模拟年。智能体展现出多样化的涌现行为，包括个人成长、关系形成和人生选择。生活奖励训练改善了模拟中的福祉，包括更广泛的社会认可、更高的主观满足感和更大的经济收益。通过下游角色扮演基准评测，我们验证了生活奖励训练能够提高 LLM 的拟人化和角色扮演能力，在 CoSER Test 上取得整体 15.6% 的性能提升，其中拟人化能力（+23.7%）和角色忠实度（+16.4%）的提升幅度最大。
 
-# Limitations {#limitations .unnumbered}
+# 局限性 {#limitations .unnumbered}
 
-In this paper, we present Agentopia, a comprehensive framework for agent social life simulation that models a wide range of human social behaviors. As an agent environment, its complexity goes beyond existing simulation systems. However, building a agent system that comprehensively simulates human social life is extremely challenging, and our system has room for improvement in several aspects.
+本文提出的 Agentopia 是一个能够建模多种人类社会行为的综合智能体社会生活模拟框架。作为智能体环境，其复杂度超越了现有模拟系统。然而，构建一个全面模拟人类社会生活的智能体系统极具挑战性，我们的系统仍有以下几个方面需要改进。
 
-#### Turn-based design
+#### 回合制设计
 
-Our system is built on turn-based LLM generation, which fundamentally differs from real-time human perception and reaction. As discussed in § \ref{sec-appendix-design-philosophy}, real-time perception would consume prohibitive computation on low-level operations, drastically reducing the density of social interactions and making long-term simulation infeasible.
+我们的系统基于 LLM 的回合制生成机制，与人类的实时感知和反应存在根本差异。如 § \ref{sec-appendix-design-philosophy} 所讨论的，实时感知会使底层操作消耗难以承受的计算资源，大幅降低社会互动密度，从而使长期模拟不可行。
 
-#### Hallucination
+#### 幻觉
 
-Human behaviors are naturally grounded by the physical world, but LLM-powered agents operate through text generation with few constraints, making them susceptible to hallucination, such as fabricating non-existent characters or locations. Agentopia mitigate this through the context management and the location system (§ \ref{sec-appendix-location}), and employ principle verification to filter hallucinated outputs (§ \ref{sec-appendix-principles}), but fully eliminating hallucination remains an open challenge.
+人类行为天然受到物理世界的约束，而 LLM 驱动的智能体通过约束较少的文本生成进行运作，因此容易出现幻觉，例如编造不存在的角色或地点。Agentopia 通过上下文管理和地点系统（§ \ref{sec-appendix-location}）缓解这一问题，并借助原则验证过滤幻觉响应（§ \ref{sec-appendix-principles}），但彻底消除幻觉仍是一项开放性挑战。
 
-#### Environment and numeric systems
+#### 环境与数值系统
 
-Agentopia's environment includes predefined numeric systems and a generative environment engine, but fully aligning them with real-world societies is extremely difficult. It is challenging for the environment model to produce responses that perfectly mirror real-world outcomes, and the numeric mechanisms governing agent states are difficult to align with human behavioral and physiological patterns.
+Agentopia 的环境包含预定义的数值系统和生成式环境引擎，但要让它们与真实社会完全对齐极为困难。环境模型很难产生与真实世界结果完全一致的响应，而控制智能体状态的数值机制也难以与人类行为和生理规律保持一致。
 
-#### Optimization and alignment
+#### 优化与对齐
 
-While training with life reward yields notable improvements, two alignment gaps remain. First, we cannot ensure that the life reward objective fully aligns with human well-being. The simulated environment cannot fully reproduce the complexity of real-world societies. Moreover, the reward signals themselves (*e.g.*, subjective fulfillment) are difficult to fully align with human physiological and cognitive mechanisms. Second, Agentopia is fundamentally a society of agents rather than a human society: all feedback an agent receives comes from other AI models, not from humans, leaving it an open question whether the trained LLMs can align with human cognitive and psychological patterns.
+尽管生活奖励训练取得了显著改善，仍存在两类对齐差距。首先，我们无法确保生活奖励目标与人类福祉完全一致。模拟环境无法完整复现真实社会的复杂性。此外，奖励信号本身（*例如*主观满足感）也很难与人类生理和认知机制完全对齐。其次，Agentopia 本质上是智能体社会，而非人类社会：一个智能体收到的所有反馈都来自其他 AI 模型，而不是人类。因此，训练后的 LLM 能否与人类的认知和心理模式对齐，仍是开放问题。
 
-#### Computational constraints
+#### 计算资源限制
 
-Life simulation in Agentopia is computationally expensive, and our limited resources prevent us from conducting more comprehensive experiments. For example, we did not conduct simulations with more worlds, more agents, or longer time horizons, nor trained on different model families. Also, for trajectory selection, we selected all generations from the chosen year and agent, without exploring fine-grained credit assignment strategies that attribute reward to specific responses. We hope to address these with more computational resources in future work.
+Agentopia 的生活模拟计算开销高昂，有限的资源使我们无法开展更全面的实验。例如，我们没有使用更多世界、更多智能体或更长时间跨度进行模拟，也没有在不同模型家族上训练。此外，在轨迹选择方面，我们纳入了被选中的年份和智能体所产生的全部输出，而没有探索将奖励归因于特定响应的细粒度信用分配策略。我们希望未来利用更多计算资源解决这些问题。
 
-# Impact Statement {#impact-statement .unnumbered}
+# 影响声明 {#impact-statement .unnumbered}
 
-Agentopia aims to advance research in agent society simulation and LLM-based role-playing. All characters and worlds in our simulations are fictional and do not represent real individuals or groups. Our methods could potentially be applied to simulate real-world individuals, and such applications must strictly respect privacy regulations and obtain necessary consent.
+Agentopia 旨在推动智能体社会模拟与基于 LLM 的角色扮演研究。我们的模拟中的所有角色和世界均为虚构，不代表真实个人或群体。我们的方法可能被用于模拟现实世界中的个人，此类应用必须严格遵守隐私法规，并获得必要的同意。

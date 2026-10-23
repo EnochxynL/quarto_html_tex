@@ -1,38 +1,38 @@
-# World and Character Creation {#sec-creation}
+# 世界与角色创建 {#sec-creation}
 
-## Pipeline Overview {#sec-creation-process}
+## 流程概览 {#sec-creation-process}
 
-Each simulation world is designed as a self-contained community resembling a small town, where most characters know one another and the social network is intentionally dense. This closed-community design serves a critical purpose: it ensures that every person referenced in a character's backstory, memories, or relationships is probably an interactable agent within the simulation, preventing agents from attempting to interact with non-existent entities.
+每个模拟世界都被设计为类似小镇的自足社区，其中大多数角色彼此认识，社交网络也被刻意设计得较为密集。这种封闭社区设计有一个关键目的：确保角色的背景故事、记忆或关系中提及的人物很可能都是模拟中可互动的智能体，从而避免智能体试图与不存在的实体互动。
 
-Each world is constructed through a five-step pipeline: (1) world setting design, (2) reference story selection, (3) incremental character generation, (4) attribute assignment, and (5) consistency verification. Steps (1)--(2) are manually crafted by the authors, steps (3)--(4) are driven by LLMs [^appendix-1], and step (5) employs Claude Code [^appendix-2] for automated quality assurance [^appendix-3].
+每个世界通过五个步骤构建：(1) 世界设定设计，(2) 参考故事选择，(3) 增量式角色生成，(4) 属性赋值，(5) 一致性验证。步骤 (1)--(2) 由作者手工完成，步骤 (3)--(4) 由 LLM 驱动 [^appendix-1]，步骤 (5) 使用 Claude Code [^appendix-2] 进行自动化质量保证 [^appendix-3]。
 
-#### Step 1: World Setting
+#### 第一步：世界设定
 
-For each simulation world, we manually craft a *worldview document* that defines the social structure, geographic environment, temporal setting, and thematic focus. For example, **The Campus** is set in a top-tier Chinese high school in 2020, emphasizing academic pressure, campus friendships, and adolescent growth; **The Apartment** depicts a shared-living scenario among young professionals; and **Arcane Academy** adapts a fantasy school setting with magical elements. Each worldview specifies the society structures, social norms, and everyday concerns that ground the agents' behavior. Importantly, the setting is designed as a closed community so that all characters an agent might reference probably exist within the world.
+对于每个模拟世界，我们手工撰写一份*世界观文档*，定义其社会结构、地理环境、时间背景和主题重点。例如，**The Campus** 设定于 2020 年中国一所顶尖高中，强调学业压力、校园友谊与青春期成长；**The Apartment** 描绘年轻职场人士的合住生活；**Arcane Academy** 则采用含有魔法元素的奇幻学校设定。每份世界观都规定社会结构、社会规范和日常关注事项，为智能体行为提供具体背景。尤其重要的是，世界被设计成封闭社区，使智能体可能提到的角色大多真实存在于该世界中。
 
-#### Step 2: Reference Story Selection
+#### 第二步：参考故事选择
 
-To encourage diverse and dramatically rich character dynamics, we curate a set of reference stories adapted from well-known literary works and films. These references serve as creative seeds---the LLM is instructed to *adapt* rather than replicate them, ensuring original character designs that exhibit realistic interpersonal tensions. Each reference is a 100 to 200 word synopsis covering key relationships and conflicts (*e.g.*, unrequited affection, friendship rivalry, mentor-student dynamics).
+为了激发丰富多样、富有戏剧张力的角色动态，我们精选了一组改编自知名文学作品和电影的参考故事。这些故事作为创意种子——LLM 被要求*改编*而非复刻，确保角色设计具有原创性，同时呈现真实的人际张力。每个参考故事都是一段 100 至 200 词的梗概，涵盖关键关系和冲突（*例如*单恋、朋友间的竞争、师生关系）。
 
-#### Step 3: Incremental Character Generation
+#### 第三步：增量式角色生成
 
-Characters are generated incrementally using Claude Opus 4.6 with temperature 1.0. The process begins by creating two seed characters together with their mutual relationship descriptions. Subsequently, characters are added one at a time: for each new character, the LLM receives the worldview, an example character template, summaries of all existing characters, and the current relationship matrix. When the population exceeds 10, we randomly sample 6 relationship edges from the existing matrix to keep the prompt within a manageable length while preserving structural context. The LLM outputs a structured YAML profile for each character---including demographic information, appearance, personality traits (qualitative), skills, values, conflicts, and core motivations---along with updated bidirectional relationship descriptions. Each relationship entry describes one character's perception of another, covering appearance evaluation, ability assessment, personality impression, perceived relationship role, and known facts, within approximately 100 words. The relationship descriptions are directly stored as each character's initial memory about the other characters it knows (see §\ref{sec-schema} for storage details), so that every agent begins the simulation with pre-existing social knowledge about its social circle. To ensure name diversity, character names are drawn from a pre-curated name list tailored to each world's cultural setting (*e.g.*, German-style names for the medieval world, Chinese names for the campus world), and the LLM is explicitly prohibited from reusing names. Each character's values and motivations are derived by the LLM from the character's backstory, occupation, and personality, ensuring internal coherence. We repeat this process until each world contains 100 characters.
+我们使用 Claude Opus 4.6，以温度 1.0 增量生成角色。首先同时创建两个种子角色及其双向关系描述，之后逐个添加角色：对于每个新角色，LLM 接收世界观、角色模板示例、全部已有角色的摘要以及当前关系矩阵。当角色数量超过 10 时，我们从已有矩阵中随机抽取 6 条关系边，在保留结构性上下文的同时控制提示词长度。LLM 为每个角色输出结构化 YAML 档案——包括人口统计信息、外貌、人格特质（定性）、技能、价值观、矛盾和核心动机——以及更新后的双向关系描述。每条关系记录描述一个角色对另一个角色的认识，涵盖外貌评价、能力评估、人格印象、所感知的关系角色和已知事实，长度约为 100 词。关系描述直接存储为该角色对已认识人物的初始记忆（存储细节见 §\ref{sec-schema}），因此每个智能体在模拟开始时就具备关于其社交圈的既有知识。为保证姓名多样性，角色姓名从针对各世界文化背景预先整理的姓名列表中选取（*例如*中世纪世界采用德式姓名，校园世界采用中文姓名），且明确禁止 LLM 重复使用姓名。LLM 根据角色的背景故事、职业和人格推导其价值观与动机，以确保内部一致性。重复此过程，直至每个世界包含 100 个角色。
 
-#### Step 4: Attribute Assignment
+#### 第四步：属性赋值
 
-The character profiles generated in Step 3 contain qualitative attribute levels (*e.g.*, personality "High", skill "Proficient"). In this step, we convert these qualitative descriptions into the quantitative values required by the simulation system. Personality traits and talents are mapped to a 0 to 100 scale via range-based random sampling (*e.g.*, "Low" $\to$ \[10, 25\], "Average" $\to$ \[55, 65\], "High" $\to$ \[90, 100\]). Initial skills use a five-tier mapping onto a 0 to 300 scale: Untrained $\to$ \[0, 10\], Beginner $\to$ \[15, 30\], Some Experience $\to$ \[35, 95\], Proficient $\to$ \[100, 295\], and Master $\to$ 300. The skill scale is substantially wider than that of personality and talents because skills grow continuously through practice during the simulation with no hard upper bound (see §\ref{sec-numeric} for the full numeric system). Additionally, economic attributes such as initial deposits are assigned based on each character's position and income level. Initial deposits are capped at $20\times$ the fixed weekly income, approximating 20 weeks of savings.
+第三步生成的角色档案包含定性的属性等级（*例如*人格“高”、技能“熟练”）。本步骤将这些定性描述转换为模拟系统所需的定量值。人格特质与天赋通过按区间随机采样映射到 0 至 100 的数值范围（*例如*“低”$\to$ \[10, 25\]，“平均”$\to$ \[55, 65\]，“高”$\to$ \[90, 100\]）。初始技能采用五级映射，对应 0 至 300 的尺度：未受训练 $\to$ \[0, 10\]、初学者 $\to$ \[15, 30\]、有一定经验 $\to$ \[35, 95\]、熟练 $\to$ \[100, 295\]、大师 $\to$ 300。技能尺度远宽于人格和天赋，因为技能会在模拟中随练习不断增长，且没有硬性上限（完整数值系统见 §\ref{sec-numeric}）。此外，初始存款等经济属性根据角色职位及收入水平确定。初始存款上限为固定每周收入的 $20\times$，约相当于 20 周储蓄。
 
-#### Step 5: Consistency Verification
+#### 第五步：一致性验证
 
-After generation, we conduct a systematic quality review using Claude Code. This automated verification identifies and resolves three categories of issues: (1) *Currency unit inconsistency*---during generation, some characters' economic data contain non-standard currency units instead of pure numeric values; all monetary fields are normalized to a unified numeric format. (2) *Duplicate characters*---the LLM occasionally produces two characters with highly similar backstories, occupations, or personality profiles; such duplicates are identified and either merged or regenerated. (3) *Memory inconsistency across characters*---this includes (a) contradictions between A's perception of B and B's perception of A (*e.g.*, A considers B a close friend while B describes A as a stranger), (b) conflicting accounts of a third party (*e.g.*, A and B give incompatible descriptions of C's background), and (c) references to characters who do not exist in the world. For case (c), when a character's backstory mentions a person outside the 100-agent population, we revise the description to indicate that this person has left the community and is no longer reachable, thereby preventing the agent from attempting to contact a non-existent entity. All identified issues are flagged and corrected before the simulation begins.
+生成完成后，我们使用 Claude Code 进行系统化质量审查。自动验证识别并解决三类问题：(1) *货币单位不一致*——部分角色的经济数据包含非标准货币单位而非纯数值；所有货币字段都被标准化为统一数值格式。(2) *重复角色*——LLM 偶尔生成背景故事、职业或人格非常相似的两个角色；发现后将其合并或重新生成。(3) *跨角色记忆不一致*——包括 (a) A 对 B 的认知与 B 对 A 的认知存在矛盾（*例如* A 认为 B 是密友，而 B 认为 A 是陌生人），(b) 对第三方的描述相互冲突（*例如* A 和 B 对 C 的背景有不一致的说法），以及 (c) 提及世界中不存在的人物。对于情况 (c)，如果角色背景中提及了 100 名智能体之外的人物，我们会修改描述，表明该人已离开社区、无法再取得联系，从而避免智能体试图联系不存在的实体。所有发现的问题都会在模拟开始前标记并修正。
 
-## Details of Character Data and Memory System {#sec-schema}
+## 角色数据与记忆系统细节 {#sec-schema}
 
-Each character's data is organized as a directory tree under `persona/{name}/`, comprising a **profile** and a **memory system**. Figure \ref{fig-schema} shows an abridged example from the **Arcane Academy** world.
+每个角色的数据存放在 `persona/{name}/` 下的目录树中，由**个人档案**与**记忆系统**组成。图 \ref{fig-schema} 展示了 **Arcane Academy** 世界中的一个简化示例。
 
-The **profile** (`profile/year=YYYY.json`) contains: *name*, *gender*, *birthday*; *appearance_and_impression* ($\sim$`<!-- -->`{=html}70 words describing the first impression an outsider would form); *talents* (9 dimensions shared across all characters, each with a character-specific numeric value on a 0 to 100 scale: beauty, communication, creativity, health, honesty, integrity, intelligence, leadership, and trustworthiness); *personality_traits* (10 dimensions shared across all characters, each with a character-specific numeric value on a 0 to 100 scale: confidence, control, curiosity, empathy, extraversion, feeling, intuition, judging, patience, and responsibility); *skills* (a dictionary mapping skill names to numeric proficiency on a 0 to 300 scale); *details* (detailed backstory), *conflicts*, *core_motivation*, *values*, and *preferences*; *position* (role, organization, weekly income); and *init_assets* (initial deposit and possessions).
+**个人档案**（`profile/year=YYYY.json`）包含：*name*（姓名）、*gender*（性别）、*birthday*（生日）；*appearance_and_impression*（约 $\sim$`<!-- -->`{=html}70 词，用于描述陌生人对角色的第一印象）；*talents*（所有角色共有的 9 个维度，每个维度有角色特有的 0 至 100 数值：美貌、沟通、创造力、健康、诚实、正直、智力、领导力、可信度）；*personality_traits*（所有角色共有的 10 个维度，每个维度有角色特有的 0 至 100 数值：自信、控制欲、好奇心、共情、外向、情感倾向、直觉、判断、耐心与责任感）；*skills*（将技能名称映射到 0 至 300 熟练度数值的字典）；*details*（详细背景）、*conflicts*（矛盾）、*core_motivation*（核心动机）、*values*（价值观）、*preferences*（偏好）；*position*（角色、组织、每周收入）；以及 *init_assets*（初始存款和物品）。
 
-The **memory system** organizes each agent's memories across multiple files, which we call *memory files*. Each memory file is implemented as a JSONL file where new memory entries are continuously appended. At initialization, the system pre-populates a `characters/` subdirectory containing one memory file per known character, storing the agent's knowledge of that person (appearance, abilities, personality, relationship, etc.). Beyond these initial files, agents can freely manage their own memory system during the simulation---they may create new memory files to record various types of information (*e.g.*, personal plans, general notes, working memory), even though these files do not exist at initialization. All memory files are dynamically updated as agents interact and accumulate new experiences.
+**记忆系统**将每个智能体的记忆组织在多个文件中，我们称之为*记忆文件*。每个记忆文件都以 JSONL 实现，不断追加新的记忆条目。初始化时，系统预先填充 `characters/` 子目录，为每个已认识的角色建立一个记忆文件，存储智能体对该角色的认知（外貌、能力、人格、关系等）。在这些初始文件之外，智能体可在模拟过程中自由管理自己的记忆系统——即便某些文件在初始化时并不存在，也可以创建新文件记录各类信息（*例如*个人计划、通用笔记、工作记忆）。随着智能体的互动和经验积累，所有记忆文件都会动态更新。
 
 ::: {#fig-schema layout-ncol="1"}
 
@@ -40,271 +40,271 @@ The **memory system** organizes each agent's memories across multiple files, whi
 persona/Cecilia Fairmont/
 +-- profile/year=2020.json
 |   +-- name: "Cecilia Fairmont"
-|   +-- gender: "Female", birthday: "Y2003-W8-activity-D4"
-|   +-- appearance_and_impression: "Standing 167cm ... pale
-|   |   ash-blonde ... projects the impression of a brilliant,
-|   |   tightly wound young woman ..."
+|   +-- gender: "女", birthday: "Y2003-W8-activity-D4"
+|   +-- appearance_and_impression: "身高167厘米……浅色
+|   |   亚麻金发……给人的第一印象是一位才华出众、
+|   |   神经紧绷的年轻女性……"
 |   +-- talents: {intelligence: 90, creativity: 85,
 |   |            leadership: 30, communication: 65, ...}
 |   +-- personality_traits: {curiosity: 100, control: 90,
 |   |                       introversion: 100, patience: 85, ...}
 |   +-- skills: {Transfiguration: 170, Charms: 170,
 |   |           Arithmancy: 170, Herbology: 15, ...}
-|   +-- position: {role: "Student, Seventh Year",
-|   |             organization: "The Academy / The Scholar House"}
+|   +-- position: {role: "七年级学生",
+|   |             organization: "学院／学者学院"}
 |   \-- init_assets: {deposit: 85, possessions: [...]}
 \-- memory/files/
-    +-- characters/          (pre-initialized)
+    +-- characters/          （预先初始化）
     |   +-- Adelaide Hawthorne.jsonl
     |   +-- Alistair Rowan.jsonl
     |   \-- ...
-    +-- general.jsonl         (agent-created)
-    \-- working_memory.jsonl  (agent-created)
+    +-- general.jsonl         （智能体创建）
+    \-- working_memory.jsonl  （智能体创建）
 ```
 
-Abridged character data schema, illustrated with Cecilia Fairmont from **Arcane Academy**. Files under `characters/` are pre-initialized; `general.jsonl` and `working_memory.jsonl` are autonomously created by agents during the simulation.
+角色数据结构简例，以 **Arcane Academy** 中的 Cecilia Fairmont 为例。`characters/` 中的文件在初始化时预先创建，`general.jsonl` 和 `working_memory.jsonl` 则由智能体在模拟过程中自主创建。
 
 :::
 
-# System Design Details {#sec-system-design}
+# 系统设计细节 {#sec-system-design}
 
-## Design Philosophy of the Simulation Procedure {#sec-appendix-design-philosophy}
+## 模拟流程的设计理念 {#sec-appendix-design-philosophy}
 
-Our goal is to simulate the full range of human social behaviors as naturally and richly as possible. However, the central challenge is that LLMs operate in a turn-based generation mode and cannot perceive or interact in real time as humans do.
+我们的目标是尽可能自然、丰富地模拟人类社会行为的全部范围。然而，核心挑战在于 LLM 按回合生成内容，无法像人类一样进行实时感知和互动。
 
-A natural starting point would be a unified-timeline framework where agents act freely and perceive their surroundings in real time. For example, when an agent moves from a classroom to a playground, it would observe every other agent present and what they are doing at each moment. However, maintaining such real-time perception requires prohibitive computational cost, making long-term social simulation infeasible. More fundamentally, such a framework would disproportionately focus on low-level perception and physical operations (*e.g.*, movement, object manipulation), leaving less capacity for the social behaviors we actually care about (*e.g.*, planning, socializing, decision-making).
+一个自然的起点是统一时间线框架，让智能体自由行动并实时感知周围环境。例如，当智能体从教室走向操场时，它需要在每个时刻观察所有在场智能体及其行为。然而，维持此类实时感知需要令人难以承受的计算成本，使长期社会模拟不可行。更根本地说，这种框架会将过多资源投入底层感知和物理操作（*例如*移动、操作物体），挤占我们真正关心的社会行为（*例如*规划、社交、决策）的计算资源。
 
-We therefore design a simulation framework that embraces the turn-based nature of LLMs, starting from two foundational functions: *communication* and *activity*.
+因此，我们设计了一个顺应 LLM 回合制特性的模拟框架，从两个基本功能出发：*通信*与*活动*。
 
-#### Activity Simulation
+#### 活动模拟
 
-Our primary focus is on multi-agent interactions. We define multi-agent interactions as activities with explicit, specific themes, inspired by the given-circumstance acting paradigm in CoSER [@wang2025coser]. These activities are either created through invitations between agents (*i.e.*, joint activities), or arranged by the environment model (*i.e.*, encounter activities).
+我们主要关注多智能体互动。受 CoSER [@wang2025coser] 中给定情境表演范式的启发，我们将多智能体互动定义为具有明确、具体主题的活动。这些活动要么由智能体之间的邀请创建（即联合活动），要么由环境模型安排（即偶遇活动）。
 
-#### Communication Simulation
+#### 通信模拟
 
-We design a multi-round communication framework where messages are exchanged in a text-message style. In each round, every agent simultaneously sees the messages sent to it in the previous round, then decides whom to contact and what to say. This avoids the need to simulate real-time perception, making computational cost significantly more manageable. Within this framework, we design action types such as `propose_joint_activity`, `cancel_joint_activity`, and `respond_invitation`, along with corresponding resolution logic, to model the complex dynamics of social scheduling in real life.
+我们设计了多轮通信框架，以类似短信的方式交换消息。每轮中，所有智能体同时看到上一轮发送给自己的消息，然后决定联系谁、说什么。这避免了模拟实时感知，使计算开销大幅降低。在此框架下，我们设计了 `propose_joint_activity`、`cancel_joint_activity` 和 `respond_invitation` 等动作类型及其解析逻辑，以模拟现实生活中复杂的社交日程安排。
 
-#### Synchronous vs. Asynchronous Design
+#### 同步与异步设计
 
-An alternative design is an asynchronous framework where different agents can be in different stages simultaneously, *e.g.*, one agent communicating while another is carrying out an activity. However, this introduces substantial design complexity. For example, if an agent in the communication stage sends a message to another agent currently in the activity stage, should the recipient receive it immediately? When should it decide to reply? After careful consideration, we adopt a synchronous framework: all agents proceed through the same stage together. During the Contact stage, all agents communicate; during the Activity stage, all agents carry out activities. This greatly simplifies the system design while preserving rich social behavior modeling.
+另一种设计是异步框架，允许不同智能体同时处于不同阶段，*例如*一个智能体正在通信，另一个正在参加活动。但这会显著增加设计复杂度。例如，如果联系阶段的智能体向正处于活动阶段的另一个智能体发送消息，接收方是否应立即收到？应在什么时候决定回复？经过仔细考虑，我们采用同步框架：所有智能体共同推进同一个阶段。在联系阶段，所有智能体都进行通信；在活动阶段，所有智能体都开展活动。这大幅简化了系统设计，同时保留了对丰富社会行为的建模能力。
 
-Building on this foundation, we add the Plan and Review stages to give agents space for planning and reflecting on their social lives, introduce solo and public activity types to diversify the range of experiences, and create the position, location, and economy systems to enrich the simulation environment. Together, these components form the complete simulation procedure described in § \ref{sec-simulation-procedure}.
+在此基础上，我们加入规划和回顾阶段，为智能体提供规划生活与反思经历的空间；引入单人和公共活动，使经历更加多样；建立职位、地点和经济系统，丰富模拟环境。这些组件共同构成 § \ref{sec-simulation-procedure} 所描述的完整模拟流程。
 
-## Details of Simulation Procedure {#sec-appendix-procedure}
+## 模拟流程细节 {#sec-appendix-procedure}
 
-This section provides a complete description of the simulation procedure, expanding on the overview in § \ref{sec-simulation-procedure}. Each simulated year spans $n_w$ weeks, and each week contains $n_d$ days. The week serves as the scheduling unit, while the day serves as the activity execution unit. In our experiments, we set $n_w = 10$, $n_d = 5$, and $n_c = 5$, chosen to balance simulation fidelity with computational cost. Each week proceeds through the following stages in order.
+本节在 § \ref{sec-simulation-procedure} 的概述基础上完整介绍模拟流程。每个模拟年包含 $n_w$ 周，每周包含 $n_d$ 天。周是日程安排单位，日是活动执行单位。在实验中，我们设置 $n_w = 10$、$n_d = 5$、$n_c = 5$，以平衡模拟真实性与计算成本。每周依次经历以下阶段。
 
-#### Weekly Settlement (Before Plan)
+#### 每周结算（规划之前）
 
-Before any agent action, two automatic settlements take place:
+在智能体采取任何行动前，系统自动进行两项结算：
 
-1.  *fulfillment decay*: mood, social, and esteem each decay by 15% of their current value, while material fulfillment does not decay (it is controlled by the economy system, see § \ref{sec-economy});
+1.  *满足感衰减*：情绪、社交与尊重满足感分别衰减当前数值的 15%，物质满足感不衰减（由经济系统控制，见 § \ref{sec-economy}）；
 
-2.  each agent receives its weekly income, including position-based salary and any extra fixed income.
+2.  每个智能体获得每周收入，包括职位工资和其他固定收入。
 
-The decay mechanism forces agents to continuously engage in activities to maintain fulfillment, creating an intrinsic motivation loop.
+衰减机制迫使智能体持续参与活动以维持满足感，从而形成内在动机循环。
 
-#### Plan
+#### 规划
 
-Each agent reviews its goals, reflects on the previous week, makes a weekly plan, and selects a living standard (frugal, moderate, comfortable, or luxurious) that determines weekly expenses and material fulfillment changes (see § \ref{sec-economy} for details). Agents can access memory files via function calls to organize their knowledge and intentions.
+每个智能体回顾目标、反思上一周的经历、制定周计划，并选择生活标准（节俭、适中、舒适或奢华），由此确定每周支出及物质满足感变化（详见 § \ref{sec-economy}）。智能体可以通过函数调用访问记忆文件，组织自身知识与意图。
 
-#### Before Contact: Public Activity Generation and Sign-up
+#### 联系前：公共活动生成与报名
 
-Before the Contact stage, the environment model generates public events for the upcoming week(s). Each event specifies a name, description, start date, duration in weeks (1 = one-time, $>$`<!-- -->`{=html}1 = repeats weekly on the same day for multiple weeks), and an eligibility list (`"all"` or a named subset of agents). The number of events generated per week is controlled by configuration. After generation, each agent is shown only the events they are eligible for and independently decides whether to sign up.
+在联系阶段之前，环境模型为接下来的一周或数周生成公共活动。每个活动指定名称、描述、开始日期、持续周数（1 = 一次性，$>$`<!-- -->`{=html}1 = 连续多周在同一天每周重复），以及参与资格列表（`"all"` 或指定智能体子集）。每周生成的活动数量由配置控制。生成后，每个智能体只会看到自己符合条件的活动，并独立决定是否报名。
 
-#### Contact
+#### 联系
 
-The Contact stage runs for $n_c$ contact rounds. In each round, agents may send messages or arrange joint activities via four action types: `contact`, `propose_joint_activity`, `respond_invitation`, and `cancel_joint_activity`. After all rounds complete, the system runs schedule resolution to determine which joint activities are successfully created. Full details of the communication mechanism, action formats, and schedule resolution are provided in § \ref{sec-appendix-contact-details}.
+联系阶段进行 $n_c$ 轮。每轮中，智能体可以使用四种动作类型发送消息或安排联合活动：`contact`、`propose_joint_activity`、`respond_invitation` 和 `cancel_joint_activity`。所有轮次完成后，系统执行日程解析，确定哪些联合活动成功创建。通信机制、动作格式和日程解析的完整细节见 § \ref{sec-appendix-contact-details}。
 
-#### After Contact: Encounter Activity Generation
+#### 联系后：偶遇活动生成
 
-After schedule resolution, the environment model generates encounter activities for idle agents, *i.e.*, those without any scheduled activity on a given day. The number of encounters per day is $\lfloor n_{\text{idle}} / 5 \rfloor$, with probabilistic rounding of the fractional part. Encounters occur only at public locations. For each idle agent, the system retrieves their top 10 most recently interacted characters (via `get_top_related_names`), and the environment model uses this relationship information to generate meaningful encounter scenarios, pairing agents with existing social connections into the same encounter.
+日程解析结束后，环境模型为闲置智能体（即某一天没有任何预定活动者）生成偶遇活动。每天的偶遇数量为 $\lfloor n_{\text{idle}} / 5 \rfloor$，小数部分采用概率舍入。偶遇只在公共地点进行。对每个闲置智能体，系统通过 `get_top_related_names` 检索其最近互动的前 10 名角色，环境模型使用这些关系信息生成有意义的偶遇情境，将已有社会联系的智能体配对到同一次偶遇中。
 
-#### Activity
+#### 活动
 
-Each week contains $n_d$ activity days. On each day, the system builds activities from agent schedules following the priority order: joint $>$ public $>$ encounter $>$ solo. Agents without any scheduled activity are automatically assigned solo activities. All activity types execute in parallel. Detailed execution mechanisms, including concurrency control, are described in §\ref{sec-appendix-concurrency}.
+每周包含 $n_d$ 个活动日。每天，系统根据智能体日程构建活动，优先级依次为：联合 $>$ 公共 $>$ 偶遇 $>$ 单人。没有预定活动的智能体会自动参加单人活动。所有活动类型并行执行。包括并发控制在内的详细执行机制见 §\ref{sec-appendix-concurrency}。
 
-#### Review
+#### 回顾
 
-Each agent summarizes its weekly experiences into a diary entry and updates its memory files via function calls, consolidating new knowledge about relationships, plans, and self-reflection.
+每个智能体将一周经历总结为日记，并通过函数调用更新记忆文件，巩固对关系、计划和自我反思的新认识。
 
-#### Weekly Cleanup
+#### 每周清理
 
-At the end of each week, agents with possessions exceeding the maximum limit (default 50 items) are prompted to discard excess items. The agent selects which items to discard, preventing unbounded item accumulation.
+每周结束时，拥有物品数量超过上限（默认 50 件）的智能体会被要求丢弃多余物品。智能体自行选择丢弃哪些物品，以防止物品无限积累。
 
-#### Year-End Settlement
+#### 年末结算
 
-At the end of each simulated year, three processes take place in order:
+每个模拟年结束时，按顺序执行三项流程：
 
-1.  the environment model updates each agent's profile (§ \ref{sec-appendix-profile-update});
+1.  环境模型更新每个智能体的个人档案（§ \ref{sec-appendix-profile-update}）；
 
-2.  new positions are introduced and agents compete for positions through position application (§ \ref{sec-appendix-enrollment});
+2.  引入新职位，智能体通过职位申请竞争职位（§ \ref{sec-appendix-enrollment}）；
 
-3.  life rewards are calculated (§ \ref{sec-life-reward}).
+3.  计算生活奖励（§ \ref{sec-life-reward}）。
 
-## Details of Contact Stage {#sec-appendix-contact-details}
+## 联系阶段细节 {#sec-appendix-contact-details}
 
-#### Contact Rounds
+#### 联系轮次
 
-The Contact stage runs for $n_c$ contact rounds. In each round, all agents act in parallel: they read newly arrived messages along with the contact history from the past three weeks, then send messages or arrange activities. Each agent may issue at most 10 actions per round, encouraging agents to prioritize the most important interactions.
+联系阶段进行 $n_c$ 轮。每轮中，所有智能体并行行动：读取新收到的消息及过去三周的联系历史，然后发送消息或安排活动。每个智能体每轮最多可以发出 10 个动作，以鼓励其优先处理最重要的互动。
 
-#### Error Feedback Mechanism
+#### 错误反馈机制
 
-If an agent's action has formatting errors or violates scheduling rules (*e.g.*, invalid location, non-existent invitee, time outside the allowed window), the system captures the error and feeds it back in the next round's prompt. The error is formatted as `"Action: [original action]\nError: [error description]"`, allowing the agent to correct its behavior in subsequent rounds. Actions with errors are treated as invalid and automatically discarded; they are not sent to other agents.
+如果智能体的动作格式错误，或违反日程安排规则（*例如*无效地点、不存在的被邀请者、超出允许范围的时间），系统会捕获错误，并在下一轮提示词中反馈。错误格式为 `"Action: [original action]\nError: [error description]"`，使智能体能够在后续轮次纠正行为。含有错误的动作会被视为无效并自动丢弃，不会发送给其他智能体。
 
-#### Action Types and Format
+#### 动作类型与格式
 
-Unlike function calls, actions are wrapped with `<role_action>` tags in the agent's text output. Four action types are available:
+与函数调用不同，动作被包裹在智能体文本输出中的 `<role_action>` 标签内。系统提供四种动作类型：
 
-- `contact`: send a text message to a specific person. Parameters: `to` (recipient name), `message` (message content).
+- `contact`：向指定人物发送文本消息。参数：`to`（接收者姓名）、`message`（消息内容）。
 
-- `propose_joint_activity`: propose a joint activity. Parameters: `activity_name` (unique name), `proposal` (description), `invited_persons` (list of invitees), `time` (format: `Y[year]-W[week]-activity-D[day]`), `location`, `required_participants` (optional list), `message` (accompanying message).
+- `propose_joint_activity`：提出联合活动。参数：`activity_name`（唯一名称）、`proposal`（描述）、`invited_persons`（被邀请者列表）、`time`（格式：`Y[year]-W[week]-activity-D[day]`）、`location`、`required_participants`（可选列表）、`message`（附加消息）。
 
-- `respond_invitation`: accept or decline an invitation. Parameters: `activity_name` (matching the proposal), `to` (proposer name), `decision` (`"yes"` or `"no"`), `message` (response message).
+- `respond_invitation`：接受或拒绝邀请。参数：`activity_name`（与提议匹配）、`to`（提议者姓名）、`decision`（`"yes"` 或 `"no"`）、`message`（回复消息）。
 
-- `cancel_joint_activity`: cancel a previously proposed activity. Parameters: `activity_name` (matching the proposal), `message` (cancellation reason, sent to all invitees).
+- `cancel_joint_activity`：取消此前提出的活动。参数：`activity_name`（与提议匹配）、`message`（取消原因，发送给所有被邀请者）。
 
-Agents may propose activities up to 4 weeks in advance (configurable via `max_weeks_for_future_schedule`). If `required_participants` is specified, all listed persons must respond `"yes"` for the activity to be created; otherwise, at least one acceptance suffices.
+智能体可提前最多 4 周提出活动（通过 `max_weeks_for_future_schedule` 配置）。如果指定 `required_participants`，名单中所有人都必须回复 `"yes"` 才能创建活动；否则，只需至少一人接受即可。
 
-#### Schedule Resolution
+#### 日程解析
 
-After Contact ends, the system runs schedule resolution over all `propose_joint_activity`, `respond_invitation`, and `cancel_joint_activity` actions collected during the week. The resolution proceeds in the following steps:
+联系阶段结束后，系统对本周收集的所有 `propose_joint_activity`、`respond_invitation` 和 `cancel_joint_activity` 动作执行日程解析，依次进行以下步骤：
 
-1.  **Cancel processing**: if the proposer issued a `cancel_joint_activity`, the proposal is voided and all invitees are notified.
+1.  **取消处理**：如果提议者发出了 `cancel_joint_activity`，该提议作废，并通知所有被邀请者。
 
-2.  **Response deduplication**: for each invitee, only the last `respond_invitation` to a given proposal is kept; earlier responses are discarded.
+2.  **响应去重**：对于每位被邀请者，只保留其对同一提议最后一次 `respond_invitation` 回复，丢弃此前的回复。
 
-3.  **Time conflict resolution**: for each agent, if multiple schedules fall on the same day, the system keeps the one with the highest priority and automatically sets the rest to `"no"` with a reason attached. The priority order is: existing joint activity (from earlier weeks) $>$ newly proposed joint activity $>$ newly accepted joint activity $>$ existing public/encounter activity. Concretely, a newly confirmed joint activity overrides a previously scheduled public or encounter activity, but cannot override an already-confirmed joint activity from an earlier week (first-come-first-served across weeks).
+3.  **时间冲突解决**：如果同一智能体在某一天安排了多个活动，系统保留优先级最高的活动，并自动将其余活动标为 `"no"`，附上原因。优先级依次为：已存在的联合活动（前几周创建）$>$ 新提出的联合活动 $>$ 新接受的联合活动 $>$ 已存在的公共／偶遇活动。具体而言，新确认的联合活动可以覆盖之前安排的公共或偶遇活动，但不能覆盖前几周已确认的联合活动（跨周遵循先到先得原则）。
 
-4.  **Activity creation**: for each non-canceled proposal, the activity is created only if *(a)* the proposer has not been removed by a time conflict, *(b)* all `required_participants` responded `"yes"`, and *(c)* at least one invitee responded `"yes"`.
+4.  **活动创建**：对于未取消的提议，仅在 *(a)* 提议者没有因时间冲突被移除、*(b)* 所有 `required_participants` 都回复 `"yes"`，且 *(c)* 至少有一位被邀请者回复 `"yes"` 时，才创建活动。
 
-## Details of Joint Activities {#sec-appendix-activity}
+## 联合活动细节 {#sec-appendix-activity}
 
-This section describes the interaction details of joint activities. Encounter activities are a special case of joint activities and follow the same procedure described below.
+本节介绍联合活动的互动细节。偶遇活动是联合活动的一种特殊形式，遵循下文相同的流程。
 
-#### Enter Activity
+#### 进入活动
 
-Before the multi-turn dialogue begins, each participant first performs an analysis of the situation. The agent is asked to analyze its position, goals, action plan, potential risks, and strategies for the upcoming activity. This analysis is then injected into the context for the subsequent multi-turn dialogue, helping the agent maintain a coherent strategy throughout the interaction.
+在多轮对话开始前，每位参与者首先对情境进行分析。系统要求智能体分析自己在即将展开的活动中的处境、目标、行动计划、潜在风险和策略。随后将这段分析注入后续多轮对话的上下文，帮助智能体在整个互动过程中维持连贯的策略。
 
-#### Turn Control
+#### 轮次控制
 
-At the start of each turn, the environment model provides an environmental description and selects the next speaker, following CoSER [@wang2025coser]. Each activity has a minimum and maximum turn limit (default 5 and 20). The activity ends if the maximum turn count is reached, or the environment model proactively decides to end it after the minimum turn count. After the activity concludes, the environment model evaluates each participant's experience throughout the multi-turn dialogue and provides feedback, including changes to their states.
+每轮开始时，环境模型按照 CoSER [@wang2025coser] 的方式提供环境描述并选择下一位发言者。每个活动都有最少和最多轮数限制（默认分别为 5 和 20）。达到最大轮数时活动结束；或者在达到最小轮数后，由环境模型主动决定结束。活动结束后，环境模型评估每位参与者在整个多轮对话中的经历并提供反馈，包括其状态变化。
 
-#### Visibility Tags
+#### 可见性标签
 
-In joint and encounter activities, agents can use visibility tags to control who sees their messages:
+在联合活动和偶遇活动中，智能体可以通过可见性标签控制消息的接收对象：
 
-- `<private>`: visible only to the speaker. Used for inner thoughts and private actions.
+- `<private>`：仅发言者自己可见，用于内心想法和私密行动。
 
-- `<visible_to="A,B">`: visible only to the specified participants. Others receive a notification that a private exchange is occurring, but cannot see the content.
+- `<visible_to="A,B">`：仅指定参与者可见。其他人会收到发生私密交流的通知，但看不到内容。
 
-- Default (no tag): publicly visible to all participants.
+- 默认（无标签）：对所有参与者公开可见。
 
-#### Gift System
+#### 赠礼系统
 
-During joint and encounter activities, agents can transfer items they own to other participants via a `gift` action. The system validates that the sender owns the item and the receiver is a current participant, then immediately moves the item from the sender to the receiver. Both parties receive a system notification confirming the transfer.
+在联合和偶遇活动中，智能体可通过 `gift` 动作将自己拥有的物品转交给其他参与者。系统验证赠送者拥有该物品、接收者是当前参与者，然后立即将物品从赠送者转移给接收者。双方都会收到确认转移的系统通知。
 
-#### Early Exit
+#### 提前退出
 
-Agents may choose to leave an activity before it concludes via an `exit_activity` action. Once an agent exits, it no longer participates in subsequent turns, and other participants receive a departure notification. If fewer than 2 participants remain, the activity ends automatically.
+智能体可通过 `exit_activity` 动作在活动结束前离开。一旦退出，智能体便不再参与后续轮次，其他参与者会收到离开通知。如果剩余参与者少于 2 人，活动自动结束。
 
-#### Exit Activity (Reflection)
+#### 退出活动（反思）
 
-After an activity concludes and the environment model provides feedback (including state changes), each agent performs an additional step to reflect on the experience. This mechanism applies to all four activity types, with the reflection content varying by type. For joint and encounter activities, the agent produces both a summary of the activity process and a personal reflection (mindset shifts, emotional arc) based on the full dialogue history and environment model feedback. For solo activities, the agent reflects based on its action description and the environment model's outcome feedback. For public activities, the agent additionally sees what other participants did, and may create or update memory files for participants of interest. The reflection is recorded in the agent's activity history and serves as context in subsequent weeks.
+活动结束、环境模型提供反馈（包括状态变化）后，每个智能体还会额外进行一次经历反思。该机制适用于全部四种活动类型，只是反思内容因类型而异。对于联合和偶遇活动，智能体根据完整对话历史和环境反馈，生成活动过程摘要与个人反思（心态变化、情绪历程）。对于单人活动，智能体根据其行动描述与环境模型反馈进行反思。对于公共活动，智能体还会看到其他参与者的行为，并可为感兴趣的参与者创建或更新记忆文件。反思会记入智能体的活动历史，为后续各周提供上下文。
 
-## Details of Solo Activity {#sec-appendix-solo-activity}
+## 单人活动细节 {#sec-appendix-solo-activity}
 
-Solo activity is the fallback when an agent has no other schedule. The agent generates a description of its intended action. The environment model evaluates the feasibility of the action, considering factors such as the agent's position, skill levels, and age, and determines the degree of success and gains accordingly. When an agent with insufficient skills attempts a task beyond their capability, the environment model will probably provide a negative feedback with limited progress. The environment model then determines whether the action involves spending. If so, it generates spending options for the agent to choose from, and the transaction is completed upon selection. The environment model then evaluates the outcome and provides feedback including changes to vitality, fulfillment, and skills.
+单人活动是智能体没有其他安排时的默认选项。智能体生成对拟采取行动的描述。环境模型综合考虑其职位、技能水平、年龄等因素，评估行动可行性，并据此确定成功程度和收益。当技能不足的智能体尝试超出自身能力的任务时，环境模型往往提供负面反馈，并限制进展。随后，环境模型判断行动是否涉及消费。如果涉及，便生成消费选项供智能体选择，选择后完成交易。最后，环境模型评估结果，并提供包括活力、满足感和技能变化在内的反馈。
 
-## Details of Encounter Activity {#sec-appendix-encounter-activity}
+## 偶遇活动细节 {#sec-appendix-encounter-activity}
 
-Encounter activity is a special form of joint activity. The difference is that, while joint activities are established through agents' proactive interactions during the Contact stage, encounter activities are system-arranged: the environment model pairs idle agents after the Contact stage concludes. Each encounter involves exactly two agents. The environment model receives as input the list of idle agents per day (including their known relationships), brief profiles of all idle agents, and the list of available locations. For pairing, the environment model prioritizes agents who already have a relationship (to deepen existing connections), and otherwise pairs agents who have not yet met (for a first meeting scenario). The environment model also generates a scene description for each encounter: it describes the objective circumstance of the meeting without assuming characters' thoughts and behaviors, and creates a natural conflict or interesting situation (*e.g.*, "At the convenience store, both reach for the last bottle of drink on the shelf at the same time."). Upon conclusion, mutual recognition is automatically established between participants, and the environment model provides feedback. The detailed execution procedure is identical to that of joint activities (§ \ref{sec-appendix-activity}).
+偶遇是联合活动的特殊形式。不同之处在于，联合活动由智能体在联系阶段主动互动建立，而偶遇由系统安排：联系阶段结束后，环境模型将空闲智能体配对。每次偶遇恰好涉及两个智能体。环境模型接收每天的空闲智能体名单（包括已知关系）、所有空闲智能体的简要档案以及可用地点列表。配对时，环境模型优先选择已有关系的智能体（以加深既有联系），否则配对尚未见过面的智能体（作为初次相识场景）。环境模型还为每次偶遇生成场景描述：描述相遇的客观情境，而不预设角色的思想和行为，并营造自然的冲突或有趣情境（*例如*“在便利店里，两人同时伸手去拿货架上最后一瓶饮料”）。活动结束后，参与者之间会自动建立双向认识记录，环境模型提供反馈。具体执行流程与联合活动完全相同（§ \ref{sec-appendix-activity}）。
 
-## Details of Public Activity {#sec-appendix-public-activity}
+## 公共活动细节 {#sec-appendix-public-activity}
 
-Public activities are generated by the environment model before the Contact stage. Agents may sign up for events that match their interests during Contact. Each participant executes the activity independently, similar to solo activity, but multiple agents participate in the same event simultaneously. After the activity concludes, each participant receives a summary of what other participants did during the event. Based on this information, agents may choose to initiate contact with participants they find interesting. For each pair that mutually choose to connect, the system creates an initial recognition entry in each agent's memory file for the other. If only one agent chooses to connect, a unidirectional record is created only in that agent's memory. The environment model then provides feedback for each participant, including changes to their states.
+公共活动由环境模型在联系阶段前生成。智能体可在联系阶段报名参加感兴趣的活动。每位参与者独立执行活动，方式类似单人活动，但多个智能体会同时参加同一场活动。活动结束后，每位参与者都会获得其他人活动表现的摘要。基于这些信息，智能体可以选择主动联系自己感兴趣的参与者。如果双方都选择建立联系，系统会在双方各自的记忆文件中创建对另一方的初始认识记录。如果只有一方选择建立联系，则仅在该方记忆中创建单向记录。随后环境模型为每位参与者提供包含状态变化的反馈。
 
-## Details of Context Management {#sec-appendix-context}
+## 上下文管理细节 {#sec-appendix-context}
 
-Table \ref{tab-context-management} presents the full context composition for each stage of agent LLM calls. The context is organized into three layers.
+表 \ref{tab-context-management} 给出了智能体 LLM 在各阶段调用时的完整上下文组成。上下文划分为三个层次。
 
-The **roleplay prompt** serves as the system message and is shared across all stages. It contains the agent's full persona (profile and dynamic state), worldview rules, summaries of key memory files, recent history, current location, commonsense guidelines, roleplay principles, and output requirements. Memory file summaries are ranked by recency of access (tracked via a hidden access log). When an agent knows more than 50 characters, only the 50 most recently accessed are shown, but current interaction partners are always included regardless of this limit. Recent history comprises weekly diary summaries from previous weeks, recent activity records, and the agent's own responses from earlier stages of the current week.
+**角色扮演提示词**充当系统消息，并在所有阶段共享。其内容包括智能体的完整人格设定（个人档案与动态状态）、世界观规则、关键记忆文件摘要、近期历史、当前位置、常识性指导、角色扮演原则和输出要求。记忆文件摘要根据访问时间的新近程度排序（通过隐藏的访问日志追踪）。如果智能体认识超过 50 个角色，只展示最近访问的 50 个，但当前互动对象无论是否超出限制都会包含在内。近期历史包括前几周的周记摘要、近期活动记录，以及智能体本周较早阶段的响应。
 
-The **stage prompt** is appended as a user message with stage-specific instructions and context, as detailed in Table \ref{tab-context-management} and Table \ref{tab-additional-stages}. Table \ref{tab-additional-stages} lists the prompts for special stages, such as "signup public activity" and "position application".
+**阶段提示词**作为用户消息追加，包含特定阶段的指令与上下文，详见表 \ref{tab-context-management} 和表 \ref{tab-additional-stages}。表 \ref{tab-additional-stages} 列出了“公共活动报名”和“职位申请”等特殊阶段的提示词。
 
-The **message history** records the LLM's input-output messages accumulated during the current multi-round interaction. It contains three categories of information:
+**消息历史**记录当前多轮互动中累积的 LLM 输入输出消息，包含三类信息：
 
-1.  prior dialogue turns in multi-round interactions, such as conversation history during joint activities;
+1.  多轮互动中先前的对话轮次，例如联合活动中的对话历史；
 
-2.  function call requests and results from the function calling loop;
+2.  函数调用循环中的请求和结果；
 
-3.  and compacted reasoning summaries for open-source models.
+3.  开源模型压缩后的推理摘要。
 
-Message history is cleared between stages. Cross-stage continuity is instead provided by the recent history component of the roleplay prompt, which includes the agent's summarized outputs from earlier stages of the current week.
+不同阶段之间会清空消息历史。跨阶段的连续性改由角色扮演提示词中的近期历史部分提供，该部分包含智能体在本周较早阶段输出的摘要。
 
-#### Function Calling Loop
+#### 函数调用循环
 
-Each LLM invocation runs up to 8 rounds of function calling. In rounds 1 through 7, `tool_choice` is set to `auto`, allowing the agent to freely invoke functions (*e.g.*, `read_file`, `update_file`) or produce a final answer. In the last round, `tool_choice` is forced to `none`, requiring a text response.
+每次 LLM 调用最多执行 8 轮函数调用。第 1 至第 7 轮将 `tool_choice` 设为 `auto`，允许智能体自由调用函数（*例如* `read_file`、`update_file`）或输出最终回答。最后一轮强制将 `tool_choice` 设为 `none`，要求生成文本响应。
 
-#### Compacted Reasoning
+#### 压缩推理
 
-For open-source models with explicit reasoning traces, multi-round function calling produces lengthy thinking content. To preserve reasoning capability while reducing context length, an additional LLM call generates a compact summary ($\sim$`<!-- -->`{=html}200 words) of the reasoning process after the final answer is produced. This summary captures background motivations, the core thinking process, and a concise function call history, and is prepended to the final answer for use as context in subsequent stages. Closed-source models (*e.g.*, GPT-4o, Claude) skip this step, as their reasoning is not exposed in the output.
+对于具有显式推理轨迹的开源模型，多轮函数调用会产生大量思考内容。为了在缩短上下文的同时保留推理能力，在最终回答生成后，我们增加一次 LLM 调用，对推理过程生成简短摘要（约 $\sim$`<!-- -->`{=html}200 词）。该摘要包含背景动机、核心思考过程和简要函数调用历史，并被置于最终回答之前，作为后续阶段的上下文。闭源模型（*例如* GPT-4o、Claude）跳过此步骤，因为其输出不暴露推理过程。
 
 ```{=latex}
 \begin{table}[htbp]
   \centering
-  \caption{Context composition for agent LLM calls at the main weekly stages. The roleplay prompt is shared across all stages and includes recent history for cross-stage continuity. Each stage appends its own stage prompt. Message history accumulates during multi-round interactions within a stage and is cleared between stages. Additional stages are listed in Table~\ref{tab-additional-stages}.}
+  \caption{主要每周阶段中智能体LLM调用的上下文组成。角色扮演提示词跨阶段共享，并包含近期历史以保持阶段间连续性。各阶段附加自身的阶段提示词。消息历史在阶段内多轮交互中积累，阶段切换时清空。其他阶段见表~\ref{tab-additional-stages}。}
   \label{tab-context-management}
   \small
   \begin{tabular}{p{2.0cm} p{3.0cm} p{8.0cm}}
     \toprule
-    \textbf{Stage} & \textbf{Component} & \textbf{Information Provided} \\
+    \textbf{阶段} & \textbf{组件} & \textbf{提供的信息} \\
     \midrule
-    \multicolumn{3}{l}{\textbf{\textit{Roleplay Prompt}} {\scriptsize (system message, shared across all stages)}} \\
+    \multicolumn{3}{l}{\textbf{\textit{角色扮演提示词}} {\scriptsize（系统消息，所有阶段共享）}} \\
     \midrule
-      & Persona          & Profile (background, personality, talents, position) + dynamic state (vitality, fulfillment, skills, assets) \\
-      & Worldview        & Time system, weekly cycle, activity types, reward rules \\
-      & Memory File Summary & Recent memory files ranked by access recency (limit 50; interaction partners guaranteed) \\
-      & Recent History   & Weekly diaries (previous weeks) + activity records (recent weeks) + agent's own outputs from earlier stages this week \\
-      & Location         & Current surroundings (activity venue or home) \\
-      & Guidelines       & Commonsense rules, roleplay principles, output requirements \\
+      & 人物设定 & 档案（背景、人格、天赋、职位）+ 动态状态（活力、满足度、技能、资产） \\
+      & 世界观 & 时间系统、每周周期、活动类型、奖励规则 \\
+      & 记忆文件摘要 & 最近访问的记忆文件，按访问时间从近到远排序（上限50；确保包含互动对象） \\
+      & 近期历史 & 周日记（此前几周）+ 活动记录（近期几周）+ 本周早先阶段的智能体输出 \\
+      & 位置 & 当前周围环境（活动地点或住处） \\
+      & 指引 & 常识规则、角色扮演原则、输出要求 \\
     \midrule
-    \multicolumn{3}{l}{\textbf{\textit{Stage Prompt}} {\scriptsize (first user message, per-stage)}} \\
+    \multicolumn{3}{l}{\textbf{\textit{阶段提示词}} {\scriptsize（每阶段的第一条用户消息）}} \\
     \midrule
-    \multirow{2}{*}{Plan}
-      & Schedule         & Confirmed joint activities and public events for upcoming weeks \\
-      \mrowcell & Plan Instructions & Goal-setting, reflection, and living standard selection \\
+    \multirow{2}{*}{计划}
+      & 日程 & 未来几周已确认的共同活动与公共活动 \\
+      \mrowcell & 计划指令 & 目标设定、反思、选择生活水平 \\
     \midrule
-    \multirow{5}{*}{Contact}
-      & Schedule         & Confirmed joint activities and public events for upcoming weeks \\
-      \mrowcell & Error Feedback   & Errors from last contact round (invalid actions discarded) \\
-      \mrowcell & Contact History  & Full message exchange history from the past 3 weeks \\
-      \mrowcell & Map              & Available locations for activities \\
-      \mrowcell & Contact Instructions & Scheduling window, action types (contact, propose, respond, cancel), action limit \\
+    \multirow{5}{*}{联络}
+      & 日程 & 未来几周已确认的共同活动与公共活动 \\
+      \mrowcell & 错误反馈 & 上轮联络中的错误（无效动作已丢弃） \\
+      \mrowcell & 联络历史 & 过去3周完整的消息交流记录 \\
+      \mrowcell & 地图 & 可用于活动的地点 \\
+      \mrowcell & 联络指令 & 可排期的时间范围、动作类型（联系、提议、回复、取消）、动作数量上限 \\
     \midrule
-    \multirow{4}{2.0cm}{Activity\newline {(Joint/}\newline {Encounter)}}
-      & Schedule         & Confirmed activities for this week \\
-      \mrowcell & Activity Background & Who, what, why for today's activity (for joint activities) \\
-      \mrowcell & Participant Info & Public information of other participants \\
-      \mrowcell & Activity Instructions & Visibility tags, gift/exit actions, turn format, word limit \\
+    \multirow{4}{2.0cm}{活动\newline {（共同／}\newline {偶遇）}}
+      & 日程 & 本周已确认的活动 \\
+      \mrowcell & 活动背景 & 当天活动的参与者、内容与原因（共同活动） \\
+      \mrowcell & 参与者信息 & 其他参与者的公开信息 \\
+      \mrowcell & 活动指令 & 可见性标签、赠礼／退出动作、轮次格式、字数限制 \\
     \midrule
-    \multirow{2}{2.0cm}{Activity\newline (Solo)}
-      & Schedule         & Confirmed activities for this week \\
-      \mrowcell & Solo Instructions & Activity choice, state effects, shopping/services \\
+    \multirow{2}{2.0cm}{活动\newline（个人）}
+      & 日程 & 本周已确认的活动 \\
+      \mrowcell & 个人活动指令 & 选择活动、状态影响、购物／服务 \\
     \midrule
-    \multirow{3}{2.0cm}{Activity\newline (Public)}
-      & Schedule         & Confirmed activities for this week \\
-      \mrowcell & Event Info       & Event name, description, other participants present \\
-      \mrowcell & Public Instructions & Observation-only interaction \\
+    \multirow{3}{2.0cm}{活动\newline（公共）}
+      & 日程 & 本周已确认的活动 \\
+      \mrowcell & 事件信息 & 活动名称、描述、在场的其他参与者 \\
+      \mrowcell & 公共活动指令 & 仅观察式交互 \\
     \midrule
-    \multirow{1}{*}{Review}
-      & Review Instructions & Weekly summary, reflection, and diary writing \\
+    \multirow{1}{*}{回顾}
+      & 回顾指令 & 每周总结、反思和日记撰写 \\
     \midrule
-    \multicolumn{3}{l}{\textbf{\textit{Message History}} {\scriptsize (other messages, within this stage)}} \\
+    \multicolumn{3}{l}{\textbf{\textit{消息历史}} {\scriptsize（阶段内的其他消息）}} \\
     \midrule
-      & Dialogue History {\scriptsize (joint/encounter)} & Multi-turn dialogue (environment model narration + participant responses, with visibility filtering) \\
-      & Function Calls   & Tool call requests + results (up to 8 rounds per invocation) \\
-      & Compacted Reasoning & For open-source models: $\sim$200-word summary of reasoning process prepended to final answer \\
+      & 对话历史 {\scriptsize（共同／偶遇）} & 多轮对话（环境模型叙述 + 参与者回复，经过可见性过滤） \\
+      & 函数调用 & 工具调用请求与结果（每次调用最多8轮） \\
+      & 压缩推理 & 对开源模型：在最终答案前附加$\sim$200词的推理过程摘要 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -313,385 +313,385 @@ For open-source models with explicit reasoning traces, multi-round function call
 ```{=latex}
 \begin{table}[htbp]
   \centering
-  \caption{Stage prompt composition for additional agent LLM calls. All calls share the same roleplay prompt (Table~\ref{tab-context-management}) as the system message. Enter Activity and Exit Activity are described in \S~\ref{sec-appendix-activity}.}
+  \caption{其他智能体LLM调用阶段的提示词组成。所有调用共享同一角色扮演提示词（表~\ref{tab-context-management}），作为系统消息。进入活动和退出活动参见\S~\ref{sec-appendix-activity}。}
   \label{tab-additional-stages}
   \small
   \begin{tabular}{p{2.8cm} p{3.0cm} p{7.2cm}}
     \toprule
-    \textbf{Stage} & \textbf{Component} & \textbf{Information Provided} \\
+    \textbf{阶段} & \textbf{组件} & \textbf{提供的信息} \\
     \midrule
-    \multirow{2}{2.8cm}{Signup\newline {\scriptsize (before Contact)}}
-      & Schedule         & Confirmed activities for upcoming weeks \\
-      \mrowcell & Signup Instructions & List of eligible public events (name, time, existing schedule, description), signup action format \\
+    \multirow{2}{2.8cm}{报名\newline {\scriptsize（联络前）}}
+      & 日程 & 未来几周已确认的活动 \\
+      \mrowcell & 报名指令 & 符合条件的公共活动清单（名称、时间、现有日程、描述）、报名动作格式 \\
     \midrule
-    \multirow{3}{2.8cm}{Enter Activity\newline {\scriptsize (joint/encounter)}}
-      & Schedule         & Confirmed activities for this week \\
-      \mrowcell & Activity Background & Who, what, why for today's activity; location description; other participants' public info \\
-      \mrowcell & Analysis Instructions & Analyze position, goals, action plan, potential risks, and strategies before the activity starts \\
+    \multirow{3}{2.8cm}{进入活动\newline {\scriptsize（共同／偶遇）}}
+      & 日程 & 本周已确认的活动 \\
+      \mrowcell & 活动背景 & 当天活动的参与者、内容和原因；地点描述；其他参与者的公开信息 \\
+      \mrowcell & 分析指令 & 活动开始前分析自身处境、目标、行动计划、潜在风险与策略 \\
     \midrule
-    \multirow{2}{2.8cm}{Exit Activity\newline {\scriptsize (joint/encounter)}}
-      & Activity Context  & Full multi-turn dialogue history from the activity, plus environment model feedback \\
-      \mrowcell & Reflection Instructions & Summarize the activity process and reflect on mindset shifts and emotional arc \\
+    \multirow{2}{2.8cm}{退出活动\newline {\scriptsize（共同／偶遇）}}
+      & 活动上下文 & 活动完整多轮对话历史及环境模型反馈 \\
+      \mrowcell & 反思指令 & 总结活动过程，反思心态变化与情绪脉络 \\
     \midrule
-    \multirow{2}{2.8cm}{Exit Activity\newline {\scriptsize (solo)}}
-      & Activity Context  & Agent's action description and environment model feedback \\
-      \mrowcell & Reflection Instructions & Reflect on the activity content and outcome \\
+    \multirow{2}{2.8cm}{退出活动\newline {\scriptsize（个人）}}
+      & 活动上下文 & 智能体的行动描述及环境模型反馈 \\
+      \mrowcell & 反思指令 & 反思活动内容与结果 \\
     \midrule
-    \multirow{2}{2.8cm}{Exit Activity\newline {\scriptsize (public)}}
-      & Activity Context  & Agent's action description, environment model feedback, and other participants' activities \\
-      \mrowcell & Reflection Instructions & Reflect on the activity; optionally create or update memory files for other participants \\
+    \multirow{2}{2.8cm}{退出活动\newline {\scriptsize（公共）}}
+      & 活动上下文 & 智能体行动描述、环境模型反馈以及其他参与者的活动 \\
+      \mrowcell & 反思指令 & 反思活动；可选择为其他参与者创建或更新记忆文件 \\
     \midrule
-    \multirow{2}{*}{Position Application}
-      & Position Info     & All available positions (description, income, skill growth, requirements) and agent's current position \\
-      \mrowcell & Application Instructions & Express up to 3 position preferences in order; may choose to stay in current position \\
+    \multirow{2}{*}{职位申请}
+      & 职位信息 & 所有可申请职位（描述、收入、技能增长、要求）及智能体当前职位 \\
+      \mrowcell & 申请指令 & 按优先级表达最多3个职位意向；可选择留在原岗位 \\
     \midrule
-    \multirow{2}{*}{Judge Others}
-      & Known People      & Names and memory file summaries of top related characters \\
-      \mrowcell & Scoring Instructions & Score each known character independently on affection and respect (0 to 100) \\
+    \multirow{2}{*}{评价他人}
+      & 认识的人 & 相关性最高的人物姓名及其记忆文件摘要 \\
+      \mrowcell & 评分指令 & 对认识的每个人独立评价好感与尊重（0至100） \\
     \midrule
-    \multirow{2}{2.8cm}{Settle Week\newline {\scriptsize (conditional)}}
-      & Possessions       & Full list of currently owned items with descriptions \\
-      \mrowcell & Discard Instructions & Select items to discard when possessions exceed the capacity limit \\
+    \multirow{2}{2.8cm}{每周结算\newline {\scriptsize（条件触发）}}
+      & 持有物品 & 所有当前物品及其描述的完整清单 \\
+      \mrowcell & 丢弃指令 & 持有物品超过容量限制时，选择要丢弃的物品 \\
     \bottomrule
   \end{tabular}
 \end{table}
 ```
 
-## Response Filtering and Roleplay Principles {#sec-appendix-principles}
+## 响应过滤与角色扮演原则 {#sec-appendix-principles}
 
-During simulation, the environment model checks each agent response against a set of roleplay principles. Table \ref{tab-principles} lists the complete principle set. Responses that violate any principle are marked as rejected and filtered out during training data construction (§ \ref{sec-training-data}).
+模拟期间，环境模型按照一套角色扮演原则检查每个智能体的响应。表 \ref{tab-principles} 列出了完整原则。违反任何原则的响应均被标记为拒绝，并在训练数据构建阶段过滤（§ \ref{sec-training-data}）。
 
 ```{=latex}
 \begin{table}[htbp]
   \centering
-  \caption{Roleplay principles used for response filtering. The environment model evaluates each agent response against these principles during simulation.}
+  \caption{用于回复过滤的角色扮演原则。模拟期间环境模型根据这些原则评价智能体的每条回复。}
   \label{tab-principles}
   \small
   \begin{tabular}{p{3.8cm} p{9.5cm}}
     \toprule
-    \textbf{Principle} & \textbf{Description} \\
+    \textbf{原则} & \textbf{说明} \\
     \midrule
-    Scope of control & The agent should only control its own actions and speech, not determine outcomes or control others' behaviors and thoughts. \\
-    No hallucination & Only reference information present in context; do not fabricate objects, events, or information not mentioned. \\
-    Character consistency & Personality traits and behavior patterns should match the established persona. \\
-    Cognitive boundaries & Knowledge and cognitive limits should match the character's identity and background. \\
-    Motivation consistency & Actions should be supported by reasonable internal motivations. \\
-    State consistency & Mental and physical states (\eg, fatigue, injury) should not shift abruptly. \\
-    Emotional continuity & Emotional changes should be gradual, not sudden. \\
-    Natural relationship progression & Relationships should not develop abruptly; going from strangers to close friends requires a reasonable process. \\
-    No parroting & Do not repeat the same content three or more times; conversation should make substantial progress. \\
-    No AI assistant behavior & Characters should not speak or act like customer service agents or AI assistants. \\
-    Substantive dialogue & Dialogue should provide new information rather than spinning in circles. \\
-    Selective disclosure & What to share depends on the relationship; strangers do not bare their souls. \\
-    Independent self & Characters should express their own goals, preferences, likes and dislikes. \\
-    Colloquial speech & Use casual, conversational language in everyday dialogue. \\
-    Directness & Speak directly; do not pad responses with unnecessary hedging or filler. \\
-    First-person perspective & Speech, actions, and thoughts should use first-person perspective; action descriptions can omit the subject. \\
+    控制范围 & 智能体只能控制自身行动和言语，不能决定结果或控制他人的行为与思想。 \\
+    禁止幻觉 & 只能引用上下文中存在的信息；不得编造未提及的物品、事件或信息。 \\
+    人物一致性 & 人格特质和行为模式应符合既定人设。 \\
+    认知边界 & 知识与认知能力应符合角色的身份和背景。 \\
+    动机一致性 & 行动应有合理的内在动机支持。 \\
+    状态一致性 & 心理与生理状态（\eg，疲劳、受伤）不应突然改变。 \\
+    情绪连续性 & 情绪变化应当渐进，而非骤变。 \\
+    关系自然发展 & 关系不应突然跃迁；从陌生人变成密友需要合理过程。 \\
+    避免重复 & 不要将相同内容重复三次或更多；对话应有实质性进展。 \\
+    避免AI助手行为 & 人物不应像客服或AI助手一样说话、行动。 \\
+    有实质内容的对话 & 对话应提供新信息，而不是原地打转。 \\
+    选择性透露 & 分享内容取决于双方关系；陌生人不会轻易倾诉全部心事。 \\
+    独立自我 & 人物应表达自身目标、偏好、喜恶。 \\
+    口语化表达 & 日常对话使用自然、随意的语言。 \\
+    直接表达 & 直截了当地说话，不添加不必要的模糊措辞和废话。 \\
+    第一人称视角 & 言语、行动和思想应使用第一人称；行动描述可以省略主语。 \\
     \bottomrule
   \end{tabular}
 \end{table}
 ```
 
-## Fulfillment and Vitality {#sec-appendix-states}
+## 满足感与活力 {#sec-appendix-states}
 
-#### Fulfillment
+#### 满足感
 
-Fulfillment has four dimensions (mood, material, social, and esteem), each on a 0 to 100 scale. The value 50 serves as a neutral baseline, representing neither satisfaction nor dissatisfaction. Values above 50 indicate positive fulfillment, while values below 50 indicate dissatisfaction. At the beginning of each week, each dimension decays proportionally:
+满足感包含四个维度（情绪、物质、社交和尊重），每个维度取值 0 至 100。数值 50 为中性基线，既不满足也不不满；高于 50 表示正向满足，低于 50 表示不满足。每周开始时，各维度按比例衰减：
 
 $$
 v' = v - v \times r_d
 $$ {#eq-agentopia-4}
 
-where $v$ is the current value and $r_d$ is the per-dimension decay ratio. The decay ratios are: mood $r_d = 0.15$, social $r_d = 0.15$, esteem $r_d = 0.15$, and material $r_d = 0$. Material fulfillment does not decay because it is controlled separately by the economy system through living standard selection (§ \ref{sec-economy}), and does not require an additional decay mechanism. This decay mechanism simulates the natural fading of satisfaction: agents must continuously engage in activities to maintain fulfillment, or it naturally declines toward the baseline. This creates an intrinsic motivation loop: inactivity leads to declining fulfillment, which drives agents to seek new activities.
+其中，$v$ 是当前值，$r_d$ 是各维度的衰减比例。衰减比例为：情绪 $r_d = 0.15$、社交 $r_d = 0.15$、尊重 $r_d = 0.15$、物质 $r_d = 0$。物质满足感不衰减，因为它由经济系统通过生活标准选择单独控制（§ \ref{sec-economy}），不需要额外衰减机制。衰减机制模拟满足感的自然消退：智能体必须持续参加活动以维持满足感，否则满足感会自然朝基线下降。这形成了内在动机循环：不活动使满足感下降，进而促使智能体寻找新的活动。
 
-#### Vitality
+#### 活力
 
-Vitality represents an agent's energy level on a 0 to 100 scale. Activities consume vitality, while rest recovers it. The vitality level is communicated to agents via prompt descriptions (*e.g.*, 50 to 69 indicates tiredness and reduced efficiency), influencing their behavioral decisions. Additionally, low vitality incurs penalties in reward calculation: when vitality falls below a threshold, the subjective reward is reduced.
+活力表示智能体在 0 至 100 范围内的精力水平。活动消耗活力，休息恢复活力。系统通过提示词描述向智能体告知活力水平（*例如* 50 至 69 表示疲劳和效率下降），进而影响其行为决策。此外，低活力也会在奖励计算中导致惩罚：当活力低于某一阈值时，主观奖励降低。
 
-## Profile Update {#sec-appendix-profile-update}
+## 个人档案更新 {#sec-appendix-profile-update}
 
-At the end of each simulated year, the environment model updates each agent's profile to reflect a year of lived experience. The update covers personality traits, talents, skills, and other numeric attributes. The environment model receives the agent's current profile, the year's activity history, social interaction records, and state change trajectories. Based on this information, the environment model generates an updated profile that reflects the agent's growth, changes, or decline over the year. For example, an agent who frequently engages in social activities may see an increase in extraversion, while an agent who has worked in a specific field for a long time may gain skill growth in related areas.
+每个模拟年结束时，环境模型会更新每个智能体的档案，以反映这一年的生活经历。更新涵盖人格特质、天赋、技能和其他数值属性。环境模型接收智能体当前档案、全年活动历史、社会互动记录及状态变化轨迹，并据此生成更新后的档案，反映智能体一年来的成长、变化或退步。例如，经常参与社交活动的智能体可能提升外向程度，而长期从事某一领域工作的智能体可能提高相关技能。
 
-## Details of Economy System {#sec-economy}
+## 经济系统细节 {#sec-economy}
 
-Each agent has a deposit account with income and expenses.
+每个智能体都有一个记录收入和支出的存款账户。
 
-#### Income
+#### 收入
 
-Agents receive income from three sources: (1) a *position-based weekly salary* (\$0 to \$500), automatically deposited at the beginning of each week; (2) *extra weekly income* from family support, investments, or other external sources, also deposited automatically; and (3) *work income* earned during solo activity slots (\$40 to \$200 per day, tiered by skill level). The first two constitute an agent's fixed weekly income (combined range approximately \$100 to \$500), while the third is available to any agent who chooses to spend its activity slots on work.
+智能体有三种收入来源：(1) *职位对应的每周工资*（\$0 至 \$500），每周开始时自动存入账户；(2) 来自家庭支持、投资或其他外部来源的*额外每周收入*，也自动存入；(3) 单人活动时段中获得的*工作收入*（每天 \$40 至 \$200，根据技能水平分级）。前两项构成智能体的固定每周收入（合计约 \$100 至 \$500），第三项则向所有选择将活动时段用于工作的智能体开放。
 
-#### Expenses
+#### 支出
 
-Agents spend money in two ways. First, during the weekly planning phase, each agent selects a *living standard* from four tiers: frugal (\$100/week), moderate (\$200/week), comfortable (\$300/week), or luxurious (\$500/week). Higher tiers yield greater material fulfillment, while the frugal tier reduces it. This mechanism forces a core trade-off between saving and immediate material satisfaction. Second, agents may encounter *consumption opportunities* during solo activities (*e.g.*, shopping, entertainment), where the environment model provides available items and prices based on the specific context, and the agent decides whether to make a purchase. Consumption brings material fulfillment following a piecewise function: \$0 to \$100 yields +1 per \$20 spent (max +5), \$100 to \$300 yields an additional +1 per \$40 (max +10 total), and spending above \$300 is capped at +10.
+智能体通过两种方式花钱。首先，在每周规划阶段，每个智能体从四档*生活标准*中选择：节俭（\$100/周）、适中（\$200/周）、舒适（\$300/周）或奢华（\$500/周）。较高档位带来更多物质满足感，而节俭档位会降低物质满足感。这一机制迫使智能体在储蓄和即时物质满足之间进行核心权衡。其次，单人活动可能出现*消费机会*（*例如*购物、娱乐），环境模型根据具体情境提供可购买的物品及价格，由智能体决定是否消费。消费按分段函数带来物质满足感：消费 \$0 至 \$100，每花费 \$20 增加 +1（最多 +5）；\$100 至 \$300 的部分，每 \$40 额外增加 +1（总计最多 +10）；消费超过 \$300 时增益仍封顶 +10。
 
-We create a *price reference list* for each world---ranging from free activities (\$0) to luxury purchases (\$15,000)---which the environment model consults when assigning goods and prices to activities. This ensures that large purchases require sustained saving over multiple simulated weeks, providing a natural anti-inflation mechanism.
+我们为每个世界创建一份*价格参考清单*，范围从免费活动（\$0）到奢侈品购买（\$15,000）。环境模型在为活动分配物品和价格时参考这份清单，以确保大额购买需要跨越多个模拟周持续储蓄，从而形成自然的抗通胀机制。
 
-## Details of Position and Position Application {#sec-appendix-enrollment}
+## 职位与职位申请细节 {#sec-appendix-enrollment}
 
-A position represents an agent's job or role in the world, serving as the key source of income and skill development.
+职位表示智能体在世界中的工作或角色，是收入和技能发展的主要来源。
 
-#### Position Attributes
+#### 职位属性
 
-Each position is defined by the following attributes:
+每个职位由以下属性定义：
 
-- **Organization and role**: together forming a unique identifier in the format `{organization}/{role}`, *e.g.*, `The Academy/Potions Teacher`.
+- **组织与角色**：共同组成格式为 `{organization}/{role}` 的唯一标识符，*例如* `The Academy/Potions Teacher`。
 
-- **Type**: `work` or `non-work` (*e.g.*, student). Both types can provide income.
+- **类型**：`work` 或 `non-work`（*例如*学生）。两种类型都可以提供收入。
 
-- **Weekly income**: a fixed amount the agent receives each week automatically.
+- **每周收入**：智能体每周自动获得的固定金额。
 
-- **Weekly skill gain**: experience points in specific skills that accumulate automatically each week, *e.g.*, `{‘‘teaching’’: 5, ‘‘leadership’’: 3}`.
+- **每周技能增益**：特定技能每周自动累积的经验点数，*例如* `{‘‘teaching’’: 5, ‘‘leadership’’: 3}`。
 
-- **Capacity**: the maximum number of agents that can hold this position simultaneously.
+- **容量**：能够同时持有该职位的智能体最大数量。
 
-- **Requirements** (optional): entry conditions including minimum skill levels and age limits (`min_age`, `max_age`). For example, a high-school student position may set `max_age=18`.
+- **要求**（可选）：准入条件，包括最低技能水平和年龄限制（`min_age`、`max_age`）。例如，高中生职位可以设置 `max_age=18`。
 
-#### Position Creation
+#### 职位创建
 
-Positions are introduced through three sources:
+职位来自以下三个来源：
 
-1.  **Born with characters.** Each character comes with an initial position as part of its background, assigned during the character creation process (§ \ref{sec-creation-process}).
+1.  **随角色创建。** 每个角色都有一个作为背景设定一部分的初始职位，在角色创建过程中分配（§ \ref{sec-creation-process}）。
 
-2.  **World initialization.** After character creation and before the simulation starts, the environment model is provided with all positions initially held by characters and designs additional positions to enrich the world's occupational structure. To ensure balance, the system imposes constraints on total capacity and diversity: total capacity across all positions ranges from $C$ to $1.5C$ (where $C$ is the number of agents), each work position holds at most $\lfloor C/3 \rfloor$ agents, and the number of distinct positions ranges from 10 to $\lfloor C/3 \rfloor$.
+2.  **世界初始化。** 角色创建后、模拟开始前，环境模型会接收全部角色最初持有的职位，并设计额外职位以丰富世界的职业结构。为确保平衡，系统对总容量和多样性施加约束：所有职位的总容量为 $C$ 至 $1.5C$（$C$ 为智能体数量），每个工作职位最多容纳 $\lfloor C/3 \rfloor$ 个智能体，不同职位的数量在 10 至 $\lfloor C/3 \rfloor$ 之间。
 
-3.  **Yearly growth.** At the beginning of each year, the system adds $\max(2, \lfloor P/10 \rfloor)$ new positions, where $P$ is the initial position count. New positions require minimum skill levels above the current highest among all agents, ensuring they serve as growth targets that agents must work toward. Income for new positions scales with skill requirements, and capacity is limited to 1 to 2 slots to maintain scarcity and encourage competition.
+3.  **年度增长。** 每年开始时，系统增加 $\max(2, \lfloor P/10 \rfloor)$ 个新职位，其中 $P$ 为初始职位数量。新职位的最低技能要求高于当前所有智能体的最高技能水平，以确保它们成为智能体需要努力达成的成长目标。新职位收入随技能要求提高而增加，容量限制为 1 至 2 个名额，以维持稀缺性并鼓励竞争。
 
-#### Position Application Process
+#### 职位申请流程
 
-Position application is triggered at the end of each simulated year, allowing agents to change their positions. The process consists of three steps:
+每个模拟年结束时触发职位申请，使智能体有机会更换职位。流程分为三个步骤：
 
-1.  each agent expresses up to three position preferences, ranked by priority. Agents may choose `STAY_CURRENT` to retain their current position, which is automatically granted unless they have exceeded the position's age limit;
+1.  每个智能体最多表达三个职位志愿，按优先级排序。智能体可以选择 `STAY_CURRENT` 保留当前职位；除非已超出该职位的年龄限制，否则该选择自动获准；
 
-2.  the environment model evaluates candidates across three matching rounds: in the $k$-th round, unmatched agents' $k$-th choice is processed, with the environment model assessing candidates' skills against remaining slots;
+2.  环境模型分三轮匹配评估候选者：第 $k$ 轮处理尚未匹配的智能体的第 $k$ 志愿，环境模型根据剩余名额评估候选人的技能；
 
-3.  accepted agents update their positions and establish relationships with new colleagues. Unmatched agents remain in their current position, while those who have exceeded their position's age limit become unemployed.
+3.  被录取的智能体更新职位，并与新同事建立关系。未匹配的智能体保留原职位；已超过原职位年龄限制者则成为失业者。
 
-## Location System {#sec-appendix-location}
+## 地点系统 {#sec-appendix-location}
 
-We design a location system for Agentopia, mainly for providing agents with accurate, grounded environmental perception. We observe that without environmental information, agents tend to hallucinate objects or places that do not exist. We therefore implement a simple location system to provide such information. The location system is not the focus of this work. The system comprises two types of locations---public locations and private locations---both created at initialization and persisted in `locations.json`.
+我们为 Agentopia 设计了地点系统，主要用于向智能体提供准确、有环境依据的感知。我们观察到，缺乏环境信息时，智能体容易虚构不存在的物体或地点。因此，我们实现了一个简单的地点系统。地点系统并非本研究的重点，包含两类地点——公共地点和私人地点——均在初始化时创建并持久化存储于 `locations.json`。
 
-#### Public Locations
+#### 公共地点
 
-Public locations are generated by the environment model based on the world setting and character profiles. Each location contains a name, size (`small`, `medium`, or `large`), a description (4 to 6 sentences covering spatial layout and atmosphere), and a list of surrounding objects (5 to 6 items). The object list serves as a grounding constraint: agents are expected to reference only objects that exist in the environment, rather than fabricating props that are not present. Each world generates 30 public locations by default, with a size distribution of approximately 50% small, 35% medium, and 15% large.
+公共地点由环境模型根据世界设定与角色档案生成。每个地点包含名称、规模（`small`、`medium` 或 `large`）、描述（4 至 6 句，涉及空间布局和氛围）及周围物体列表（5 至 6 项）。物体列表充当环境依据约束：智能体应只引用环境中实际存在的物体，而不虚构不存在的道具。默认每个世界生成 30 个公共地点，规模分布约为小型 50%、中型 35%、大型 15%。
 
-#### Private Locations
+#### 私人地点
 
-Private locations represent each character's home (key: `home/{name}`). Each home is generated by the environment model based on the character's backstory and occupation, containing a description (2 to 4 sentences) and a list of representative objects (4 to 6 items). An agent can invite others to its home for activities; others' homes are only accessible when invited.
+私人地点代表各角色的住所（键：`home/{name}`）。每处住所由环境模型根据角色背景故事和职业生成，包含描述（2 至 4 句）及代表性物品列表（4 至 6 项）。智能体可邀请他人到家中开展活动；其他人的住所只有收到邀请时才能进入。
 
-#### Location Selection
+#### 地点选择
 
-When an agent proposes a joint activity, or when the environment model arranges an encounter activity, they are provided with the full list of available locations and must choose one from the list. For agents proposing activities, their own private location is also available as an option.
+当智能体提出联合活动，或环境模型安排偶遇时，系统都会提供完整的可用地点列表，要求从中选择一处。对于提出活动的智能体，其自己的私人地点也可供选择。
 
-## Numeric System {#sec-numeric}
+## 数值系统 {#sec-numeric}
 
-#### Personality Traits
+#### 人格特质
 
-All characters share the same 10 personality dimensions, each measured on a 0 to 100 scale where 50 represents the neutral baseline: confidence, control, curiosity, empathy, extraversion, feeling, intuition, judging, patience, and responsibility. These dimensions cover the four MBTI axes (extraversion vs. introversion, sensing vs. intuition, thinking vs. feeling, judging vs. perceiving) along with supplementary social and motivational traits. These traits evolve slowly during the simulation, changing by at most $\pm 3$ per simulated year, reflecting the psychological stability of personality.
+所有角色共享相同的 10 个人格维度，每个维度采用 0 至 100 的尺度，50 为中性基线：自信、控制欲、好奇心、共情、外向、情感倾向、直觉、判断、耐心和责任感。这些维度覆盖 MBTI 的四条轴线（外向与内向、感觉与直觉、思考与情感、判断与感知），并辅以社会性和动机方面的特质。人格特质在模拟中缓慢变化，每个模拟年最多变化 $\pm 3$，反映人格的心理稳定性。
 
-#### Talents
+#### 天赋
 
-All characters share the same 9 talent dimensions, measured on a 0 to 100 scale with 50 representing the population average: beauty, communication, creativity, health, honesty, integrity, intelligence, leadership, and trustworthiness. Talents represent innate aptitudes and change by at most $\pm 5$ per year.
+所有角色共享相同的 9 个天赋维度，数值为 0 至 100，其中 50 表示群体平均值：美貌、沟通、创造力、健康、诚实、正直、智力、领导力和可信度。天赋代表先天禀赋，每年最多变化 $\pm 5$。
 
-#### Skills
+#### 技能
 
-Skills are measured on an open-ended 0 to 300 scale: 0 (untrained), 10 (beginner), 30 (some experience), 100 (proficient), and 300 (master). Unlike personality and talents, skills grow continuously through practice and work, increasing by $+1$ to $+5$ per simulated week depending on the activity, with no hard upper bound.
+技能采用开放的 0 至 300 尺度：0（未受训练）、10（初学者）、30（有一定经验）、100（熟练）和 300（大师）。与人格和天赋不同，技能可以通过练习和工作持续增长，视活动而定，每个模拟周增加 $+1$ 至 $+5$，且没有硬性上限。
 
-#### Agent States
+#### 智能体状态
 
-Two dynamic state variables track each agent's condition. *Vitality* (0 to 100, initial value 70) represents physical energy, depleted by activities ($-1$ to $-5$ per slot) and restored by rest ($+5$ to $+10$). *Fulfillment* comprises four independent dimensions---material, mood, social, and esteem---each on a 0 to 100 scale with an initial neutral value of 50. Fulfillment naturally decays each week, requiring agents to actively maintain their well-being through social interactions, leisure, and achievements.
+两个动态状态变量用于追踪智能体的状况。*活力*（0 至 100，初始值 70）表示身体精力，活动会使其减少（每时段 $-1$ 至 $-5$），休息可使其恢复（$+5$ 至 $+10$）。*满足感*包含物质、情绪、社交和尊重四个独立维度，每个维度范围为 0 至 100，初始中性值为 50。满足感每周自然衰减，因此智能体必须通过社会互动、休闲和成就主动维持福祉。
 
-## Concurrency Control {#sec-appendix-concurrency}
+## 并发控制 {#sec-appendix-concurrency}
 
-The system is designed to maximize concurrency across all activity executions within a day. Different activity types have different concurrency characteristics and are handled accordingly.
+系统旨在尽可能提高同一天所有活动执行的并发度。不同活动类型具有不同的并发特性，因此采用相应的处理方式。
 
-Joint activities involve sequential multi-turn dialogue and are the hardest to parallelize; they are therefore given the highest priority and submitted first. Encounter activities follow the same logic. Solo activities are fully independent and execute with complete concurrency. Public activities employ a two-level concurrency design. At the outer level, multiple public activities run concurrently. At the inner level, within each public activity, all participants first complete their individual phases (entering the activity and acting independently) in parallel, then proceed through the subsequent phases also in parallel.
+联合活动包含顺序进行的多轮对话，最难并行化，因此被赋予最高优先级并最先提交。偶遇活动采用相同逻辑。单人活动彼此完全独立，可以完全并行执行。公共活动采用两级并发设计：外层允许多个公共活动同时运行；内层则让每个公共活动的所有参与者先并行完成各自独立阶段（进入活动并自行行动），随后各后续阶段也并行推进。
 
-Overall, activities are submitted in the order: joint $\to$ solo $\to$ public. While joint activities are running, solo activities are interleaved to fill available capacity; public activities are submitted last to avoid competing with joint activities for resources.
+总体而言，活动按联合 $\to$ 单人 $\to$ 公共的顺序提交。联合活动运行期间穿插单人活动以填充空闲容量；公共活动最后提交，避免与联合活动争夺资源。
 
-## Configuration Parameters {#sec-config}
+## 配置参数 {#sec-config}
 
-Table \ref{tab-config-params} lists the key numerical parameters that govern simulation behavior.
+表 \ref{tab-config-params} 列出控制模拟行为的关键数值参数。
 
 ```{=latex}
 \begin{table}[htbp]
 \centering
-\caption{Key configuration parameters used in the simulation.}
+\caption{模拟中使用的关键配置参数。}
 \label{tab-config-params}
 \resizebox{0.8\linewidth}{!}{
 \small
 \begin{tabular}{p{4.2cm} p{1.8cm} p{7.2cm}}
 \toprule
-\textbf{Parameter} & \textbf{Value} & \textbf{Description} \\
+\textbf{参数} & \textbf{数值} & \textbf{说明} \\
 \midrule
-\multicolumn{3}{l}{\textit{Time}} \\
-\texttt{n\_year} & 10 & Simulated years per run \\
-\texttt{n\_week} & 10 & Weeks per simulated year \\
-\texttt{n\_day} & 5 & Activity days per week \\
-\texttt{n\_contact\_slot} & 5 & Communication rounds per Contact stage \\
+\multicolumn{3}{l}{\textit{时间}} \\
+\texttt{n\_year} & 10 & 每次运行模拟的年数 \\
+\texttt{n\_week} & 10 & 每个模拟年的周数 \\
+\texttt{n\_day} & 5 & 每周活动天数 \\
+\texttt{n\_contact\_slot} & 5 & 每个联络阶段的通信轮数 \\
 \midrule
-\multicolumn{3}{l}{\textit{Contact}} \\
-\texttt{n\_action\_per\_slot} & 10 & Max actions per agent per contact round \\
-\texttt{max\_future\_schedule\_weeks} & 4 & How many weeks ahead an agent can propose activities \\
-\texttt{n\_prev\_contact\_weeks} & 3 & Weeks of prior contact history shown in prompt \\
+\multicolumn{3}{l}{\textit{联络}} \\
+\texttt{n\_action\_per\_slot} & 10 & 每轮每名智能体的最大动作数 \\
+\texttt{max\_future\_schedule\_weeks} & 4 & 可提前安排活动的最大周数 \\
+\texttt{n\_prev\_contact\_weeks} & 3 & 提示词中展示的联络历史周数 \\
 \midrule
-\multicolumn{3}{l}{\textit{Activity}} \\
-\texttt{joint\_activity\_min/max\_turns} & 5 / 20 & Turn range for joint and encounter activities \\
-\texttt{solo\_activity\_min/max\_turns} & 2 / 5 & Turn range for solo activity environment model evaluation \\
-\texttt{max\_possessions} & 50 & Max items an agent can hold before discarding \\
+\multicolumn{3}{l}{\textit{活动}} \\
+\texttt{joint\_activity\_min/max\_turns} & 5 / 20 & 共同与偶遇活动的轮数范围 \\
+\texttt{solo\_activity\_min/max\_turns} & 2 / 5 & 环境模型评价个人活动的轮数范围 \\
+\texttt{max\_possessions} & 50 & 丢弃物品前的最大持有数量 \\
 \midrule
-\multicolumn{3}{l}{\textit{Public Activity}} \\
-\texttt{max\_events\_per\_week} & 10 & Max public events generated per week \\
-\texttt{max\_repeat\_weeks} & 5 & Max duration (weeks) a public event can repeat \\
+\multicolumn{3}{l}{\textit{公共活动}} \\
+\texttt{max\_events\_per\_week} & 10 & 每周最多生成的公共活动数量 \\
+\texttt{max\_repeat\_weeks} & 5 & 公共活动每周重复的最长期限（周） \\
 \midrule
-\multicolumn{3}{l}{\textit{Location}} \\
-\texttt{n\_locations} & 30 & Number of public locations per world \\
+\multicolumn{3}{l}{\textit{地点}} \\
+\texttt{n\_locations} & 30 & 每个世界的公共地点数量 \\
 \midrule
-\multicolumn{3}{l}{\textit{Fulfillment Decay}} \\
-\texttt{decay\_ratio} (mood) & 0.15 & Weekly proportional decay for mood fulfillment \\
-\texttt{decay\_ratio} (social) & 0.15 & Weekly proportional decay for social fulfillment \\
-\texttt{decay\_ratio} (esteem) & 0.15 & Weekly proportional decay for esteem fulfillment \\
-\texttt{decay\_ratio} (material) & 0 & Material fulfillment does not decay \\
+\multicolumn{3}{l}{\textit{满足度衰减}} \\
+\texttt{decay\_ratio} (mood) & 0.15 & 心情满足度的每周比例衰减 \\
+\texttt{decay\_ratio} (social) & 0.15 & 社会满足度的每周比例衰减 \\
+\texttt{decay\_ratio} (esteem) & 0.15 & 自尊满足度的每周比例衰减 \\
+\texttt{decay\_ratio} (material) & 0 & 物质满足度不衰减 \\
 \midrule
-\multicolumn{3}{l}{\textit{State Change Limits per Activity}} \\
-\texttt{vitality} delta & [$-$5, $+$5] & Per-activity vitality change (all activity types) \\
-\texttt{mood} delta (solo/joint) & [$-$5, $+$5] & Per-activity mood change \\
-\texttt{social} delta (joint) & [$-$5, $+$5] & Per-activity social fulfillment change \\
-\texttt{esteem} delta (solo) & [$-$1, $+$1] & Per-activity esteem change (solo) \\
-\texttt{esteem} delta (joint) & [$-$3, $+$3] & Per-activity esteem change (joint) \\
-\texttt{skills} delta & [0, $+$3] & Per-activity skill increase \\
-\texttt{money} delta (solo) & [$-$200, $+$200] & Per-activity spending/earning (solo only) \\
+\multicolumn{3}{l}{\textit{单次活动状态变化限制}} \\
+\texttt{vitality}变化量 & [$-$5, $+$5] & 单次活动活力变化（所有活动类型） \\
+\texttt{mood}变化量（个人／共同） & [$-$5, $+$5] & 单次活动心情变化 \\
+\texttt{social}变化量（共同） & [$-$5, $+$5] & 单次活动社会满足度变化 \\
+\texttt{esteem}变化量（个人） & [$-$1, $+$1] & 单次个人活动自尊满足度变化 \\
+\texttt{esteem}变化量（共同） & [$-$3, $+$3] & 单次共同活动自尊满足度变化 \\
+\texttt{skills}变化量 & [0, $+$3] & 单次活动技能提升 \\
+\texttt{money}变化量（个人） & [$-$200, $+$200] & 单次活动支出／收入（仅个人活动） \\
 \midrule
-\multicolumn{3}{l}{\textit{Economy}} \\
-\texttt{weekly\_income} & \$100 to \$500 & Position-based weekly salary range \\
-\texttt{work\_income} (low/mid/high) & \$40 to \$200 & Daily work income by skill tier \\
-Living standard costs & \$100 / 200 / 300 / 500 & Frugal / moderate / comfortable / luxurious \\
-Living standard material delta & $-$5 / 0 / $+$5 / $+$10 & Material fulfillment change per living standard \\
+\multicolumn{3}{l}{\textit{经济}} \\
+\texttt{weekly\_income} & \$100至\$500 & 职位对应的每周固定薪资范围 \\
+\texttt{work\_income}（低／中／高） & \$40至\$200 & 按技能等级计算的每日工作收入 \\
+生活水平成本 & \$100 / 200 / 300 / 500 & 节俭／适中／舒适／奢华 \\
+生活水平对应的物质满足度变化量 & $-$5 / 0 / $+$5 / $+$10 & 各生活水平对应的物质满足度变化 \\
 \midrule
-\multicolumn{3}{l}{\textit{Reward}} \\
-\texttt{period\_weeks} & 10 & Reward calculation interval (once per year) \\
-\texttt{pagerank\_damping} & 0.85 & PageRank damping factor for social reward \\
-\texttt{social\_weight} & 0.4 & $\lambda_{\text{social}}$: weight of social reward in total life reward \\
-\texttt{economy\_weight} & 0.2 & $\lambda_{\text{econ}}$: weight of economy reward in total life reward \\
+\multicolumn{3}{l}{\textit{奖励}} \\
+\texttt{period\_weeks} & 10 & 奖励计算间隔（每年一次） \\
+\texttt{pagerank\_damping} & 0.85 & 社会奖励PageRank阻尼系数 \\
+\texttt{social\_weight} & 0.4 & $\lambda_{\text{social}}$：社会奖励在总生活奖励中的权重 \\
+\texttt{economy\_weight} & 0.2 & $\lambda_{\text{econ}}$：经济奖励在总生活奖励中的权重 \\
 \texttt{subjective\_weight} & 0.4 & $\lambda_{\text{subj}} = 1 - \lambda_{\text{social}} - \lambda_{\text{econ}}$ \\
-\texttt{mutual\_affection\_alpha} & 2.0 & Mutual affection coefficient $\alpha$ in social reward \\
-\texttt{misery\_threshold\_percentile} & 0.25 & Bottom 25\% fulfillment triggers misery penalty \\
-\texttt{misery\_penalty\_value} & 5 & Penalty weight $\lambda_p$ deducted per misery event \\
-\texttt{gamma} & 0.90 & Discount factor for computing returns \\
-\texttt{sft\_top\_fraction} & 0.25 & Top fraction of agents selected for SFT training \\
+\texttt{mutual\_affection\_alpha} & 2.0 & 社会奖励中的双向好感系数$\alpha$ \\
+\texttt{misery\_threshold\_percentile} & 0.25 & 满足度位于后25\%时触发低满足惩罚 \\
+\texttt{misery\_penalty\_value} & 5 & 每次低满足事件扣除的惩罚权重$\lambda_p$ \\
+\texttt{gamma} & 0.90 & 计算回报的折扣因子 \\
+\texttt{sft\_top\_fraction} & 0.25 & 选择用于SFT训练的智能体比例上限 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 ```
 
-# Experiment Settings
+# 实验设置
 
-## Training via Life Rewards {#sec-appendix-sft}
+## 通过生活奖励训练 {#sec-appendix-sft}
 
-Qwen3.5-397B-A17B is fine-tuned via supervised fine-tuning (SFT). Training data is constructed by selecting the top 25% of agents by advantage at each time step from the first four simulated years across all three worlds. Environment model data is collected separately via random sampling, with high-frequency activity types downsampled to balance the training distribution.
+Qwen3.5-397B-A17B 通过监督微调（SFT）进行训练。训练数据通过在三个世界的前四个模拟年中，于每个时间步按优势值选择排名前 25% 的智能体来构建。环境模型的数据另行通过随机采样收集，并对高频活动类型进行下采样，以平衡训练分布。
 
-#### Return Normalization
+#### 回报归一化
 
-In advantage estimation, we use the return at the previous time step as the baseline: $A_t = G_{t+1} - G_t$. However, $G_t$ at different time steps accumulates different numbers of future rewards, leading to different scales. We normalize each return by dividing by the discounted effective horizon:
+在优势值估计中，我们将上一时间步的回报作为基线：$A_t = G_{t+1} - G_t$。但是不同时间步的 $G_t$ 会累积不同数量的未来奖励，导致尺度不同。因此，我们将每个回报除以折扣后的有效时间跨度进行归一化：
 
 $$
 G_t^{\text{norm}} = \frac{G_t}{\sum_{k=0}^{T-t} \gamma^k} = \frac{G_t \cdot (1 - \gamma)}{1 - \gamma^{T-t+1}}
 $$ {#eq-agentopia-5}
 
-If all rewards were a constant $r$, the normalized return would equal $r$ at every time step, regardless of the remaining horizon. This removes the scale difference across different time steps, making the advantage computation more reasonable.
+如果所有奖励都是常数 $r$，那么归一化回报在每个时间步都等于 $r$，与剩余时间跨度无关。这消除了不同时间步之间的尺度差异，使优势值计算更合理。
 
-#### Per-Period Trajectory Selection
+#### 各周期独立选择轨迹
 
-Even with return normalization, scale differences in advantages across time steps may persist. In addition, the initial step lacks a meaningful estimate of reward and return. We set a virtual $G_0 = 0$ in this case, which may inflates the advantages of the first period. To address these issues, we select the top 25% of agent trajectories by advantage *within each period independently*, rather than ranking globally across different periods. This follows a natural heuristic that high-quality trajectories should be distributed across different periods. In practice, it eliminates the effect of cross-period scale differences on selection and ensures temporal diversity in the training data.
+即便进行了回报归一化，各时间步优势值的尺度差异仍可能存在。此外，初始时间步缺乏有意义的奖励和回报估计。对此我们设定虚拟值 $G_0 = 0$，但这可能抬高第一周期的优势值。为解决这些问题，我们*在每个周期内独立地*按优势值选择排名前 25% 的智能体轨迹，而非跨周期进行全局排名。这遵循一个自然的启发式原则：高质量轨迹应分布于不同时间段。实践中，它消除了跨周期尺度差异对选择的影响，并确保训练数据具有时间多样性。
 
-Following @lu2025onpolicy, self-distillation is employed to prevent catastrophic forgetting. Specifically, responses are generated from Qwen3.5-397B on the Tulu V3 instruction set [@lambert2024tulu] and mixed into the training data as general-purpose samples. The training mixture consists of 50% role-playing data and 50% general-purpose data (measured by output tokens).
+遵循 @lu2025onpolicy，我们使用自蒸馏防止灾难性遗忘。具体而言，让 Qwen3.5-397B 对 Tulu V3 指令集 [@lambert2024tulu] 生成响应，将其作为通用样本混入训练数据。训练数据由 50% 角色扮演数据和 50% 通用数据组成（按输出 token 计算）。
 
-A learning rate of $1 \times 10^{-5}$ with a minimum learning rate of $1 \times 10^{-6}$ is used, with a training batch size of 256. The model is fine-tuned for 1 epoch on 30 nodes of 8$\times$H100 80GB GPUs.
+学习率为 $1 \times 10^{-5}$，最低学习率为 $1 \times 10^{-6}$，训练批次大小为 256。模型在 30 个节点（每节点 8$\times$H100 80GB GPU）上微调 1 个 epoch。
 
-## CoSER Evaluation {#sec-appendix-coser}
+## CoSER 评估 {#sec-appendix-coser}
 
-Qwen3.5-397B-Agentopia is evaluated on the CoSER Test [@wang2025coser] to assess its generalization to general-purpose role-playing tasks. CoSER evaluates LLMs via given-circumstance acting: given a character profile and situational context, the model generates character-consistent dialogue and actions.
+我们在 CoSER Test [@wang2025coser] 上评估 Qwen3.5-397B-Agentopia，检验其泛化到通用角色扮演任务的能力。CoSER 通过给定情境表演评估 LLM：输入角色档案与情境上下文，模型生成符合角色设定的对话和动作。
 
-The evaluation uses 200 test samples from the CoSER Test. Qwen3-235B-A22B [@qwen3] serves as the judge model, the next speaker prediction (NSP) model, and the environment model. Each simulation runs for at most 20 turns.
+评估采用 CoSER Test 中的 200 个测试样本。Qwen3-235B-A22B [@qwen3] 同时充当评判模型、下一位发言者预测（NSP）模型和环境模型。每次模拟最多运行 20 轮。
 
-Performance is assessed across four dimensions: (1) *Anthropomorphism*, evaluating whether agents behave in a human-like manner, covering self-identity, emotional depth, persona coherence, and social interaction; (2) *Character Fidelity*, assessing whether agents faithfully portray their characters, examining language style, knowledge and background, personality and behavior, and social relationships; (3) *Storyline Quality*, evaluating whether the simulated conversation develops naturally, focusing on narrative flow and logical consistency; and (4) *Storyline Consistency*, measuring alignment between the simulated conversation and the original dialogue, *i.e.*, whether agents' reactions (emotions, attitudes, behaviors) remain consistent with the original.
+性能从四个维度评估：(1) *拟人化*：评估智能体是否表现得像人类，涵盖自我身份、情感深度、人格一致性和社会互动；(2) *角色忠实度*：衡量智能体是否忠实演绎角色，考察语言风格、知识和背景、人格和行为以及社会关系；(3) *故事质量*：评估模拟对话是否自然发展，关注叙事流畅性和逻辑一致性；(4) *故事情节一致性*：衡量模拟对话与原始对话的一致程度，即智能体的反应（情绪、态度、行为）是否与原作保持一致。
 
-The comparison models include Claude-4.5-Opus, Gemini-3-Pro, Claude-4.5-Sonnet, GPT-5-Mini, CoSER-70B, and the baseline Qwen3.5-397B.
+比较模型包括 Claude-4.5-Opus、Gemini-3-Pro、Claude-4.5-Sonnet、GPT-5-Mini、CoSER-70B 和基线 Qwen3.5-397B。
 
-## Metrics Definition {#sec-appendix-metrics}
+## 指标定义 {#sec-appendix-metrics}
 
-We define a set of analytical metrics to describe agent behaviors and social dynamics, covering fulfillment, activity, contact, personal growth, social evaluation, and computational cost. Reward metrics are defined separately in § \ref{sec-life-reward}. Other metrics are defined as follows:
+我们定义了一组描述智能体行为与社会动态的分析指标，涵盖满足感、活动、联系、个人成长、社会评价和计算成本。奖励指标在 § \ref{sec-life-reward} 中另行定义。其他指标如下：
 
-#### Fulfillment Metrics
+#### 满足感指标
 
-Four fulfillment dimensions (0 to 100 scale) are recorded as snapshots at the end of each year, reflecting an agent's subjective well-being as described in § \ref{sec-numeric}: (1) **fulfillment_mood**, (2) **fulfillment_material**, (3) **fulfillment_social**, and (4) **fulfillment_esteem**. Additionally, (5) **fulfillment_penalties** counts the number of (week, dimension) pairs where fulfillment or vitality falls below a penalty threshold (summed yearly).
+四个满足感维度（0 至 100）以每年年末快照记录，反映 § \ref{sec-numeric} 中描述的智能体主观福祉：(1) **fulfillment_mood**（情绪），(2) **fulfillment_material**（物质），(3) **fulfillment_social**（社交），(4) **fulfillment_esteem**（尊重）。此外，(5) **fulfillment_penalties** 统计满足感或活力低于惩罚阈值的（周、维度）组合数量（按年求和）。
 
-#### Activity Metrics
+#### 活动指标
 
-Six metrics describe an agent's activity participation patterns (all summed yearly): (1) **joint_proposed**: number of joint activities initiated by the agent; (2) **joint_participated**: number of joint activities attended, including those the agent proposed; (3) **public_participated**: number of public activities attended; (4) **solo_count**: number of solo activity days, computed as total activity days per week minus days occupied by any scheduled activity; (5) **activity_consumption_count**: number of consumption events during the week; (6) **total_spending_amount**: total spending on new possessions.
+六个指标描述智能体参与活动的模式（均按年求和）：(1) **joint_proposed**：智能体发起的联合活动数；(2) **joint_participated**：参与的联合活动数，包括自行发起的活动；(3) **public_participated**：参与的公共活动数；(4) **solo_count**：单人活动天数，等于每周活动总天数减去其他任何已安排活动占用的天数；(5) **activity_consumption_count**：一周内发生的消费事件数；(6) **total_spending_amount**：购买新物品的总支出。
 
-#### Contact Metrics
+#### 联系指标
 
-Two metrics capture an agent's social initiative and popularity (both summed yearly): (1) **active_contacts**: number of contact messages sent by the agent; (2) **passive_contacts**: number of contact messages received by the agent.
+两个指标衡量智能体的社交主动性和受欢迎程度（均按年求和）：(1) **active_contacts**：智能体发送的联系消息数；(2) **passive_contacts**：智能体收到的联系消息数。
 
-#### Personal Growth Metrics
+#### 个人成长指标
 
-Four metrics measure an agent's skill development and economic status. The first two are summed yearly; the last two use year-end snapshots: (1) **extra_earning_count**: number of solo activity slots in which the agent earned work income; (2) **skill_improvement_count**: number of activities that produced at least one skill advance; (3) **total_skills**: sum of all skill values at week end; (4) **deposit**: deposit balance at week end.
+四个指标衡量智能体的技能发展和经济状况。前两项按年求和，后两项使用年末快照：(1) **extra_earning_count**：智能体在单人活动时段中获得工作收入的次数；(2) **skill_improvement_count**：至少使一项技能提升的活动数；(3) **total_skills**：周末所有技能值之和；(4) **deposit**：周末存款余额。
 
-#### Social Evaluation Metrics
+#### 社会评价指标
 
-Six metrics are recorded at settlement weeks, reflecting an agent's standing in the social network (year-end snapshots): (1) **n_liked_by**: number of other agents whose affection toward this agent is $\geq 60$; (2) **n_likes**: number of others this agent has affection $\geq 60$ toward; (3) **n_respected_by**: number of other agents whose respect toward this agent is $\geq 60$; (4) **n_respects**: number of others this agent has respect $\geq 60$ toward; (5) **n_mutual_like**: number of agents where both this agent's affection toward them and their affection toward this agent are $\geq 60$; (6) **n_mutual_respect**: number of agents where both this agent's respect toward them and their respect toward this agent are $\geq 60$.
+六个指标在结算周记录，反映智能体在社交网络中的地位（年末快照）：(1) **n_liked_by**：对该智能体的喜爱度 $\geq 60$ 的其他智能体数量；(2) **n_likes**：该智能体对其喜爱度 $\geq 60$ 的其他智能体数量；(3) **n_respected_by**：对该智能体的尊重度 $\geq 60$ 的其他智能体数量；(4) **n_respects**：该智能体对其尊重度 $\geq 60$ 的其他智能体数量；(5) **n_mutual_like**：双方对彼此喜爱度均 $\geq 60$ 的智能体数量；(6) **n_mutual_respect**：双方对彼此尊重度均 $\geq 60$ 的智能体数量。
 
-#### Computational Cost Metrics
+#### 计算成本指标
 
-Three metrics measure the per-week LLM usage (all summed yearly): (1) **input_tokens**: total input tokens consumed by LLM calls; (2) **output_tokens**: total output tokens generated by LLM calls; (3) **function_call_count**: total number of function calls made by LLM.
+三个指标衡量每周 LLM 使用量（均按年求和）：(1) **input_tokens**：LLM 调用消耗的输入 token 总数；(2) **output_tokens**：LLM 调用生成的输出 token 总数；(3) **function_call_count**：LLM 进行的函数调用总次数。
 
-# Additional Results
+# 附加结果
 
-## Training via Life Rewards: Detailed Trends {#sec-appendix-sft-trends}
+## 生活奖励训练：详细趋势 {#sec-appendix-sft-trends}
 
-![Metric trends for social evaluation, economy, and activity patterns over four simulated years across **The Campus** and **The Apartment**. Solid lines represent Qwen3.5-397B-Agentopia; dashed lines represent the original Qwen3.5-397B; black lines show the cross-world average.](Figures/sft_comparison_main.png){#fig-sft-main width="100%"}
+![在 **The Campus** 和 **The Apartment** 两个世界中，四个模拟年内社会评价、经济和活动模式的指标趋势。实线表示 Qwen3.5-397B-Agentopia，虚线表示原始 Qwen3.5-397B，黑线表示跨世界平均值。](Figures/sft_comparison_main.png){#fig-sft-main width="100%"}
 
-Table \ref{tab-sft-cross-world} reports cross-world average metrics. Here we present the per-year trends for both **The Campus** and **The Apartment**, illustrating how Qwen3.5-397B and Qwen3.5-397B-Agentopia diverge over the four simulated years as the underlying model.
+表 \ref{tab-sft-cross-world} 报告跨世界平均指标。这里展示 **The Campus** 和 **The Apartment** 各自的年度趋势，以说明 Qwen3.5-397B 与 Qwen3.5-397B-Agentopia 作为底层模型时，如何在四个模拟年中逐渐产生不同表现。
 
-#### Qwen3.5-397B-Agentopia's advantage emerges over the long term
+#### Qwen3.5-397B-Agentopia 的优势在长期逐渐显现
 
-The two models start with similar social metrics in Year 1, but diverge steadily thereafter: by Year 4, agents driven by Qwen3.5-397B-Agentopia are respected by 35.7% more peers, liked by 22.2% more, and hold 21.7% more mutual-respect ties than those driven by the original Qwen3.5-397B. Rather than producing immediate gains, the advantage of life reward training manifests as agents interact with the society over multiple years.
+两个模型在第 1 年的社交指标相近，但随后持续分化：到第 4 年，Qwen3.5-397B-Agentopia 驱动的智能体相比原始 Qwen3.5-397B，平均多获得 35.7% 的同伴尊重、22.2% 的同伴喜爱，并拥有多 21.7% 的相互尊重关系。生活奖励训练的优势并非立即表现出来，而是随着智能体在社会中进行多年互动逐渐显现。
 
-#### Economy--fulfillment trade-off
+#### 经济与满足感的权衡
 
-In Year 1, Qwen3.5-397B-Agentopia accumulates more wealth than the baseline. In later years, economy reward converges between the two models, probably because Qwen3.5-397B-Agentopia agents treat their savings as sufficient and shift priorities away from further accumulation. Meanwhile, material fulfillment remains consistently lower ($-$`<!-- -->`{=html}9% to $-$`<!-- -->`{=html}22%), indicating that agents learn to reduce spending to optimize economy reward.
+第 1 年，Qwen3.5-397B-Agentopia 积累的财富比基线更多。在之后几年，两个模型的经济奖励趋于一致，可能是因为 Qwen3.5-397B-Agentopia 智能体认为积蓄已足够，于是将优先事项从继续积累财富转移到其他方面。与此同时，物质满足感始终较低（$-$`<!-- -->`{=html}9% 至 $-$`<!-- -->`{=html}22%），表明智能体学会了减少消费以优化经济奖励。
 
-#### Subjective reward: material fulfillment masks underlying gains
+#### 主观奖励：物质满足感掩盖了其他方面的改善
 
-As shown in Figure \ref{fig-sft-reward}, Qwen3.5-397B-Agentopia's subjective reward is lower than the baseline in the first two years, but surpasses it in Year 3 and Year 4. This is largely driven by the material fulfillment gap: agents save more aggressively, sacrificing material satisfaction. However, Figure \ref{fig-sft-main} shows that Qwen3.5-397B-Agentopia leads consistently in mood, social, and esteem fulfillment throughout all four years. If material fulfillment were excluded, Qwen3.5-397B-Agentopia would likely hold a sustained advantage in subjective reward from the very beginning.
+如图 \ref{fig-sft-reward} 所示，Qwen3.5-397B-Agentopia 的主观奖励在前两年低于基线，但在第 3 和第 4 年超越基线。这主要是物质满足感差距造成的：智能体更积极地储蓄，牺牲了物质满意程度。然而，图 \ref{fig-sft-main} 表明，Qwen3.5-397B-Agentopia 在全部四年中，情绪、社交和尊重满足感始终领先。如果排除物质满足感，Qwen3.5-397B-Agentopia 很可能从一开始就在主观奖励上保持持续优势。
 
-![Reward component trends over four simulated years, averaged over **The Campus** and **The Apartment**. Solid lines represent Qwen3.5-397B-Agentopia; dashed lines represent the original Qwen3.5-397B.](Figures/sft_comparison_reward.png){#fig-sft-reward width="80%"}
+![两个世界 **The Campus** 和 **The Apartment** 的四个模拟年奖励分量趋势平均值。实线表示 Qwen3.5-397B-Agentopia，虚线表示原始 Qwen3.5-397B。](Figures/sft_comparison_reward.png){#fig-sft-reward width="80%"}
 
-## Per-World Reward Distributions {#sec-appendix-reward-per-world}
+## 各世界奖励分布 {#sec-appendix-reward-per-world}
 
-Figure \ref{fig-reward-distribution} presents pooled reward distributions across all three worlds. Figure \ref{fig-reward-dist-per-world} provides per-world breakdowns, revealing structural differences across social settings.
+图 \ref{fig-reward-distribution} 展示了三个世界合并后的奖励分布。图 \ref{fig-reward-dist-per-world} 则给出各世界的详细分布，揭示不同社会设定之间的结构差异。
 
-![Per-world reward dimension distributions over 10 simulated years. Each row corresponds to one world; triangles mark annual means.](Figures/reward_distribution_per_world.png){#fig-reward-dist-per-world width="80%"}
+![三个世界各自在 10 个模拟年中的奖励维度分布。每行对应一个世界，三角形表示年度均值。](Figures/reward_distribution_per_world.png){#fig-reward-dist-per-world width="80%"}
 
-Based on Figure \ref{fig-reward-dist-per-world}, we analyze each reward dimension and have the following findings: (1) Subjective reward shows a consistent upward trend across all three worlds, with the mean rising from approximately 45 to 60 over 10 years, indicating that agents progressively achieve greater well-being through sustained social participation; (2) social reward remains broadly stable across all three worlds, with the mean near 0.01. This stability is inherent to its design: social reward is based on relative rankings rather than absolute performance, so gains for one agent largely come at the expense of others; (3) economy reward exhibits high variance across all three worlds. The absolute levels differ due to world design (different initial price and salary structures). **Arcane Academy** and **The Campus** show upward trends, while **The Apartment** shows declining yearly deposit gains as agents' deposits grow large relative to their income. **Arcane Academy** shows the clearest growth trajectory (mean rising from approximately \$100 to \$1,000), suggesting that agents learn to leverage skill advances and extra income for wealth accumulation. The bimodal appearance of economy reward in the pooled figure (Figure \ref{fig-reward-distribution}) stems from this cross-world heterogeneity rather than within-world polarization.
+根据图 \ref{fig-reward-dist-per-world}，我们对每个奖励维度进行分析，得到以下发现：(1) 三个世界的主观奖励均呈持续上升趋势，10 年内均值从约 45 上升至 60，表明智能体通过持续社会参与逐渐实现更高的福祉；(2) 三个世界的社会奖励总体稳定，均值接近 0.01。这种稳定性源于设计本身：社会奖励基于相对排名，而非绝对表现，一个智能体的收益很大程度上意味着其他智能体的相对损失；(3) 三个世界的经济奖励都具有很高的方差。其绝对水平因世界设计不同而异（初始价格与工资结构不同）。**Arcane Academy** 和 **The Campus** 呈上升趋势，而 **The Apartment** 中随着存款相对于收入不断增大，每年存款增量逐渐下降。**Arcane Academy** 的增长轨迹最明显（均值从约 \$100 升至 \$1,000），表明智能体学会利用技能进步和额外收入积累财富。合并图（图 \ref{fig-reward-distribution}）中经济奖励呈现的双峰形态来自世界间异质性，而非单一世界内的两极分化。
 
-## Reward--Behavior Correlation Details {#sec-appendix-reward-correlation}
+## 奖励—行为相关性细节 {#sec-appendix-reward-correlation}
 
-#### Social Reward
+#### 社会奖励
 
-Table \ref{tab-corr-social} lists the 10 behavioral metrics most strongly correlated with social reward. `n_respected_by` and `n_liked_by` are the only strong predictors ($r = 0.68$, with $r = 0.74$ to $0.86$ in **Arcane Academy** and **The Campus**), while the third-ranked metric drops sharply to $r = 0.19$. All behavioral metrics (contacts, activities, tokens) remain below $r = 0.19$, confirming that social standing is determined by others' evaluations rather than the agent's own effort. This result is by design: social reward is computed via PageRank-based algorithm over inter-agent evaluation rankings, which naturally amplifies reputation signals.
+表 \ref{tab-corr-social} 列出了与社会奖励相关性最强的 10 个行为指标。`n_respected_by` 和 `n_liked_by` 是仅有的强预测指标（$r = 0.68$，在 **Arcane Academy** 和 **The Campus** 中为 $r = 0.74$ 至 $0.86$），而排名第三的指标骤降至 $r = 0.19$。全部行为指标（联系、活动、token）均低于 $r = 0.19$，说明社会地位由他人的评价决定，而非智能体自身的努力直接决定。这符合设计预期：社会奖励通过基于 PageRank 的算法计算智能体间评价排名，自然会放大声誉信号。
 
 ```{=latex}
 \begin{table}[htbp]
   \centering
   \caption{
-    Top-10 metrics correlated with social reward, sorted by mean Pearson's $|r|$.
+    按平均Pearson $|r|$排序的、与社会奖励相关性最高的10项指标。
   }
   \label{tab-corr-social}
   \small
   \begin{tabular}{clcccc}
     \toprule
-    \# & Metric & Pearson's $r$ & \apartment{} & \academy{} & \campus{} \\
+    \# & 指标 & Pearson $r$ & \apartment{} & \academy{} & \campus{} \\
     \midrule
     1  & n\_respected\_by         & $+$0.68 & $+$0.39 & $+$0.86 & $+$0.79 \\
     2  & n\_liked\_by             & $+$0.68 & $+$0.44 & $+$0.85 & $+$0.74 \\
@@ -708,21 +708,21 @@ Table \ref{tab-corr-social} lists the 10 behavioral metrics most strongly corre
 \end{table}
 ```
 
-#### Subjective Reward
+#### 主观奖励
 
-Subjective reward is driven by three factor groups as shown in Table \ref{tab-corr-subjective}: (1) fulfillment dimensions, with material ($r = 0.73$) as the strongest single predictor, highly consistent across worlds ($0.71$ to $0.77$), followed by mood ($0.54$), social ($0.52$), and esteem ($0.30$); (2) penalties ($r = -0.64$), triggered when fulfillment remains persistently low, consistent across all three worlds ($-0.61$ to $-0.68$); and (3) social activity, where passive contacts ($0.43$), active contacts ($0.42$), and likes given ($0.39$) serve as positive predictors, while solo activities are a notable negative signal (**The Apartment** $r = -0.53$, **The Campus** $r = -0.49$).
+如表 \ref{tab-corr-subjective} 所示，主观奖励由三组因素驱动：(1) 满足感维度，其中物质满足感（$r = 0.73$）是最强的单一预测指标，在各世界中高度一致（$0.71$ 至 $0.77$），随后是情绪（$0.54$）、社交（$0.52$）和尊重（$0.30$）；(2) 惩罚（$r = -0.64$），在满足感持续低迷时触发，三个世界中表现一致（$-0.61$ 至 $-0.68$）；(3) 社会活动，包括被动联系（$0.43$）、主动联系（$0.42$）和对他人的喜爱（$0.39$），都是正向预测指标，而单人活动则是值得注意的负向信号（**The Apartment** 中 $r = -0.53$，**The Campus** 中 $r = -0.49$）。
 
 ```{=latex}
 \begin{table}[htbp]
   \centering
   \caption{
-    Top-10 metrics correlated with subjective reward, sorted by mean Pearson's $|r|$.
+    按平均Pearson $|r|$排序的、与主观奖励相关性最高的10项指标。
   }
   \label{tab-corr-subjective}
   \small
   \begin{tabular}{clcccc}
     \toprule
-    \# & Metric & Pearson's $r$ & \apartment{} & \academy{} & \campus{} \\
+    \# & 指标 & Pearson $r$ & \apartment{} & \academy{} & \campus{} \\
     \midrule
     1  & fulfillment\_material    & $+$0.73 & $+$0.77 & $+$0.71 & $+$0.72 \\
     2  & n\_penalties             & $-$0.64 & $-$0.61 & $-$0.68 & $-$0.64 \\
@@ -739,21 +739,21 @@ Subjective reward is driven by three factor groups as shown in Table \ref{tab-c
 \end{table}
 ```
 
-#### Economy Reward
+#### 经济奖励
 
-Economy reward is dominated by deposit level (Table \ref{tab-corr-economy}, $r = 0.56$), followed by extra earnings ($0.31$) and total skills ($0.30$). These two metrics are linked in two ways: work activities simultaneously produce income and skill growth, so extra earnings and skill advances naturally co-occur; moreover, higher skill levels increase the earnings from subsequent work, creating a positive feedback loop that drives deposit growth. Metrics ranked 4th and below all have $|r| \leq 0.15$.
+经济奖励主要受存款水平支配（表 \ref{tab-corr-economy}，$r = 0.56$），其次是额外收入（$0.31$）和技能总量（$0.30$）。后两个指标通过两种方式关联：工作活动同时产生收入和技能增长，因此额外收入与技能进步自然共同出现；此外，较高的技能水平会增加后续工作收入，形成推动存款增长的正反馈循环。排名第四及之后的指标均满足 $|r| \leq 0.15$。
 
 ```{=latex}
 \begin{table}[htbp]
   \centering
   \caption{
-    Top-10 metrics correlated with economy reward, sorted by mean Pearson's $|r|$.
+    按平均Pearson $|r|$排序的、与经济奖励相关性最高的10项指标。
   }
   \label{tab-corr-economy}
   \small
   \begin{tabular}{clcccc}
     \toprule
-    \# & Metric & Pearson's $r$ & \apartment{} & \academy{} & \campus{} \\
+    \# & 指标 & Pearson $r$ & \apartment{} & \academy{} & \campus{} \\
     \midrule
     1  & deposit                  & $+$0.56 & $+$0.62 & $+$0.77 & $+$0.29 \\
     2  & extra\_earning\_count    & $+$0.31 & $+$0.20 & $+$0.43 & $+$0.30 \\
@@ -770,87 +770,87 @@ Economy reward is dominated by deposit level (Table \ref{tab-corr-economy}, $r 
 \end{table}
 ```
 
-#### Cross-World Consistency
+#### 跨世界一致性
 
-The top predictors of social and subjective rewards are consistent in direction and magnitude across all three worlds. For social reward, reputation metrics (`n_respected_by`, `n_liked_by`) are dominant in all worlds, though the effect is stronger in **Arcane Academy** and **The Campus** ($r = 0.74$ to $0.86$) than in **The Apartment** ($r = 0.39$ to $0.44$). This difference likely arises because **The Apartment** has a looser social network---residents are strangers who move into a shared building with fewer pre-existing relationships, leading to narrower coverage in inter-agent evaluations. Economy reward shows the weakest cross-world consistency. As shown in Fig \ref{fig-reward-behavior-correlation}, **The Campus** shows the weakest correlation ($r = 0.20$) between deposit and total reward, because economy in a school setting is less related with overall well-being and largely determined by fixed institutional roles (student allowances, teacher salaries).
+社会奖励和主观奖励的主要预测指标，在三个世界中的方向和量级一致。对于社会奖励，声誉指标（`n_respected_by`、`n_liked_by`）在所有世界中占据主导，但在 **Arcane Academy** 和 **The Campus** 中的作用（$r = 0.74$ 至 $0.86$）比 **The Apartment**（$r = 0.39$ 至 $0.44$）更强。这种差异可能源于 **The Apartment** 的社交网络更松散——居民作为陌生人搬入同一栋楼，既有关系较少，导致智能体间评价的覆盖面更窄。经济奖励的跨世界一致性最弱。如图 \ref{fig-reward-behavior-correlation} 所示，**The Campus** 中存款与总奖励的相关性最弱（$r = 0.20$），因为在学校情境中，经济状况与整体福祉关联较弱，更多由固定的制度性角色决定（学生津贴、教师工资）。
 
-## Friendship Distribution {#sec-appendix-friend-distribution}
+## 友谊分布 {#sec-appendix-friend-distribution}
 
-To quantify the evolution of social networks, we define *mutual friendship*: agents A and B are mutual friends if and only if both A's affection toward B and B's affection toward A are $\geq 60$. This definition excludes one-sided affection and only counts reciprocated relationships. Figure \ref{fig-friend-distribution} shows the distribution of mutual friend counts per agent across 10 simulated years in the three worlds.
+为了量化社会网络演化，我们定义*相互友谊*：当且仅当 A 对 B 的喜爱度与 B 对 A 的喜爱度都 $\geq 60$ 时，两名智能体互为朋友。这一定义排除了单向喜爱，只统计双方认可的关系。图 \ref{fig-friend-distribution} 展示了三个世界在 10 个模拟年中，每个智能体的相互朋友数量分布。
 
-![Mutual friend count distribution per agent over 10 simulated years. Mutual friendship is defined as bidirectional affection $\geq 60$. Color intensity indicates the number of agents at each position; triangles mark annual means.](Figures/friend_distribution.pdf){#fig-friend-distribution width="100%"}
+![10 个模拟年内每个智能体的相互朋友数量分布。相互友谊定义为双向喜爱度 $\geq 60$。颜色深浅表示相应位置的智能体数量，三角形表示年度均值。](Figures/friend_distribution.pdf){#fig-friend-distribution width="100%"}
 
-The three worlds exhibit distinct social network evolution patterns:
+三个世界呈现出不同的社会网络演化模式：
 
-1.  In **The Apartment**, mean mutual friend count grows steadily from 4.3 to 10.1 over 10 years, indicating that strangers in a shared living space continuously deepen their relationships and expand their social networks over time.
+1.  在 **The Apartment** 中，平均相互朋友数量在 10 年内从 4.3 稳步增长到 10.1，说明共享居住空间中的陌生人不断加深关系，并随时间拓展社交网络。
 
-2.  **Arcane Academy** shows a non-monotonic pattern: the mean rises from 4.2 to 5.3 by year 3, drops sharply to 3.3 by year 6 (with 21 agents having zero mutual friends), then recovers to 5.0 by year 10.
+2.  **Arcane Academy** 呈现非单调模式：均值在第 3 年从 4.2 升至 5.3，第 6 年急剧下降至 3.3（其中 21 个智能体没有任何相互朋友），随后到第 10 年恢复到 5.0。
 
-3.  **The Campus** exhibits steady growth (mean from 3.8 to 7.2) with very few isolated agents ($\leq 3$ with zero mutual friends throughout), indicating that the close daily interactions in a school environment foster widespread reciprocated friendships.
+3.  **The Campus** 稳步增长（均值从 3.8 升至 7.2），几乎没有孤立智能体（整个过程中相互朋友数为零的智能体 $\leq 3$），说明学校环境中密切的日常互动促进了广泛的双向友谊。
 
-## Social Network Visualization {#sec-appendix-social-network}
+## 社会网络可视化 {#sec-appendix-social-network}
 
-To visualize how social networks evolve, we construct mutual friendship graphs at initialization (Year 0) and after 10 simulated years, using the same definition as §\ref{sec-appendix-friend-distribution} (bidirectional affection $\geq 60$). Communities are detected using the Louvain algorithm [@blondel2008louvain].
+为了可视化社会网络的演化，我们在初始化时（第 0 年）与模拟 10 年后构建相互友谊图，使用与 §\ref{sec-appendix-friend-distribution} 相同的定义（双向喜爱度 $\geq 60$）。使用 Louvain 算法 [@blondel2008louvain] 检测社区。
 
-![Initial social networks (Year 0) across three worlds. Nodes represent agents; edges represent mutual friendships (bidirectional affection $\geq 60$). Node color indicates community membership; node size reflects friend count.](Figures/social_network_initial_graph.png){#fig-social-network-initial width="100%"}
+![三个世界的初始社会网络（第 0 年）。节点表示智能体，边表示相互友谊（双向喜爱度 $\geq 60$）。节点颜色代表所属社区，节点大小反映朋友数量。](Figures/social_network_initial_graph.png){#fig-social-network-initial width="100%"}
 
-![Social networks after 10 years of simulation. Same layout convention as Figure \ref{fig-social-network-initial}.](Figures/social_network_graph.png){#fig-social-network-year10 width="100%"}
+![模拟 10 年后的社会网络。布局约定与图 \ref{fig-social-network-initial} 相同。](Figures/social_network_graph.png){#fig-social-network-year10 width="100%"}
 
-At initialization (Figure \ref{fig-social-network-initial}), all three worlds share similar sparse structures with roughly 3 mutual friends per agent on average. After 10 years (Figure \ref{fig-social-network-year10}), the networks become substantially denser, but the three worlds diverge in structure:
+初始化时（图 \ref{fig-social-network-initial}），三个世界都有相似的稀疏结构，平均每名智能体约有 3 位相互朋友。经过 10 年（图 \ref{fig-social-network-year10}），网络变得明显更密集，但三个世界的结构开始分化：
 
-1.  **The Apartment** develops the densest network (mean 10.1 mutual friends), with extensive cross-community connections;
+1.  **The Apartment** 形成最密集的网络（平均 10.1 位相互朋友），并拥有广泛的跨社区联系；
 
-2.  **The Campus** grows steadily (mean 7.3) and forms multiple well-defined communities;
+2.  **The Campus** 稳定增长（均值 7.3），形成多个边界清晰的社区；
 
-3.  **Arcane Academy** grows most slowly (mean 5.0) with a comparatively sparse structure.
+3.  **Arcane Academy** 增长最慢（均值 5.0），结构相对稀疏。
 
-## Inter-Component Reward Correlation {#sec-appendix-reward-correlation-inter}
+## 奖励分量间相关性 {#sec-appendix-reward-correlation-inter}
 
-We compute pairwise Spearman rank correlation coefficients ($\rho$) among the three reward dimensions over all 100 agents at each annual settle period, pooled across 10 years. Figure \ref{fig-reward-correlation-heatmap} presents the pooled correlation matrices for each world.
+我们在每年的结算期，对全部 100 个智能体的三个奖励维度计算两两 Spearman 等级相关系数（$\rho$），并合并 10 年的结果。图 \ref{fig-reward-correlation-heatmap} 展示各世界的合并相关矩阵。
 
-![Spearman rank correlation ($\rho$) between reward dimensions for each world, pooled over 10 years. Values close to zero indicate low correlation between the two dimensions.](Figures/reward_correlation_heatmap.png){#fig-reward-correlation-heatmap width="100%"}
+![各世界的奖励维度间 Spearman 等级相关系数（$\rho$），汇总 10 年数据。接近零的数值表示两个维度的相关性较弱。](Figures/reward_correlation_heatmap.png){#fig-reward-correlation-heatmap width="100%"}
 
-All pooled pairwise correlations satisfy $|\rho| \leq 0.21$, indicating that the three reward dimensions capture distinct aspects of agent life. Social $\leftrightarrow$ Economy shows the weakest coupling ($|\rho| \leq 0.11$) across all worlds. Subjective $\leftrightarrow$ Economy varies by world: **Arcane Academy** exhibits a weak positive correlation ($\rho = +0.21$), while **The Apartment** shows a weak negative one ($\rho = -0.16$).
+所有合并后的两两相关系数均满足 $|\rho| \leq 0.21$，说明三个奖励维度捕捉了智能体生活的不同侧面。社会 $\leftrightarrow$ 经济在所有世界中耦合最弱（$|\rho| \leq 0.11$）。主观 $\leftrightarrow$ 经济的关系随世界变化：**Arcane Academy** 呈弱正相关（$\rho = +0.21$），而 **The Apartment** 呈弱负相关（$\rho = -0.16$）。
 
-## Wealth Inequality and Social Mobility {#sec-appendix-matthew-effect}
+## 财富不平等与社会流动 {#sec-appendix-matthew-effect}
 
-We examine two aspects of economic and social dynamics in the simulated societies: (1) *wealth inequality*---whether the deposit distribution among agents becomes more concentrated or more dispersed over time, measured by the Gini coefficient; and (2) *social mobility*---whether agents can change their position in the overall reward ranking over time, or whether top-ranked and bottom-ranked agents tend to remain in their positions.
+我们考察模拟社会经济与社会动态的两个方面：(1) *财富不平等*——智能体存款分布是否随时间更加集中或分散，使用基尼系数衡量；(2) *社会流动*——智能体能否随时间改变其总奖励排名，还是排名靠前和靠后的智能体倾向于保持原有位置。
 
-#### Wealth Inequality
+#### 财富不平等
 
-We compute the Gini coefficient [@gini1921measurement] of agent deposits at each year. We also split agents into four groups by initial deposit (Q1 = poorest 25%, Q4 = richest 25%) and track each group's mean deposit over time. Results are shown in Figure \ref{fig-matthew-effect}.
+我们计算每年智能体存款的基尼系数 [@gini1921measurement]。还根据初始存款将智能体分为四组（Q1 = 最贫穷的 25%，Q4 = 最富有的 25%），追踪各组平均存款随时间的变化。结果见图 \ref{fig-matthew-effect}。
 
-![Wealth inequality over 10 simulated years. **Left:** Gini coefficient of deposit distributions. **Right:** Mean deposit grouped by initial wealth quartile (Q1 = poorest 25%, Q4 = richest 25%).](Figures/matthew_effect.png){#fig-matthew-effect width="100%"}
+![10 个模拟年内的财富不平等。**左：**存款分布的基尼系数。**右：**按初始财富四分位分组的平均存款（Q1 = 最贫穷的 25%，Q4 = 最富有的 25%）。](Figures/matthew_effect.png){#fig-matthew-effect width="100%"}
 
-No Matthew effect is observed: Gini coefficients drop in all three worlds, indicating that wealth becomes more evenly distributed over time. This is expected: agents have no direct economic interactions---only gift-giving can transfer wealth, but this is rarely used---so each agent earns and spends independently, with no mechanism for initial advantages to compound.
+没有观察到马太效应：三个世界的基尼系数均下降，说明财富分布随时间更加均匀。这符合预期：智能体之间不存在直接经济互动——只有赠礼可转移财富，但这种功能很少使用——因此各智能体独立挣钱和消费，初始优势无法通过某种机制不断复利累积。
 
-#### Social Mobility
+#### 社会流动
 
-The wealth gap narrows, but overall reward rankings are more stable. We rank agents by total reward each year, split them into four quartiles, and compute how often agents move between quartiles from one year to the next (averaged over 9 year-pairs). Results are shown in Figure \ref{fig-reward-transition}.
+财富差距缩小了，但总奖励排名更稳定。我们每年按总奖励对智能体排名，将其分为四个四分位组，并计算智能体从一年到下一年跨组移动的频率（对 9 组相邻年份取平均）。结果见图 \ref{fig-reward-transition}。
 
-![Year-to-year ranking transition heatmaps. Agents are ranked by total reward at each year and divided into four quartiles (Q1 = bottom 25%, Q4 = top 25%). Each cell $(i, j)$ shows the probability that an agent in $Q_i$ one year moves to $Q_j$ the next year, averaged over 9 consecutive year-pairs.](Figures/reward_matthew_effect.png){#fig-reward-transition width="100%"}
+![年度排名转移热图。每年按总奖励对智能体排序并划分为四分位组（Q1 = 后 25%，Q4 = 前 25%）。每个单元格 $(i, j)$ 表示某年处于 $Q_i$ 的智能体次年转入 $Q_j$ 的概率，对连续 9 组年份取平均。](Figures/reward_matthew_effect.png){#fig-reward-transition width="100%"}
 
-Overall reward rankings show strong persistence. Agents in the top and bottom quartiles stay there 72 to 79% of the time. Within a single year, almost no agent jumps from the bottom quartile to the top or vice versa. Middle-ranked agents are more mobile (48 to 56% retention).
+总奖励排名具有很强的持续性。排名前 25% 和后 25% 的智能体有 72% 至 79% 的概率留在原组。在单个年度内，几乎没有智能体直接从最末组跃升至最高组，反之亦然。中间排名的智能体流动性更高（保留率 48% 至 56%）。
 
-## Reward Quartile Behavioral Profiles {#sec-appendix-reward-success-profile}
+## 奖励四分位群体的行为画像 {#sec-appendix-reward-success-profile}
 
-This section extends the reward--behavior correlation analysis in §\ref{sec-long-term-analysis}. At each year, agents are divided into four quartiles based on each reward dimension (Q1 = top 25%, Q4 = bottom 25%). For each dimension, we then select the 6 behavioral metrics most correlated with it (ranked by mean $|r|$ across worlds; Table \ref{tab-success-top-metrics}) and track each quartile's mean on these 6 metrics over 10 years.
+本节扩展 §\ref{sec-long-term-analysis} 中的奖励—行为相关性分析。每年，我们根据各奖励维度将智能体分为四分位组（Q1 = 前 25%，Q4 = 后 25%）。对于每个维度，选择与其相关性最强的 6 个行为指标（按各世界平均 $|r|$ 排序，见表 \ref{tab-success-top-metrics}），并追踪 10 年中每组在这 6 个指标上的均值。
 
 ```{=latex}
 \begin{table}[htbp]
   \centering
   \caption{
-    Top 6 behavioral metrics per reward dimension.
-    $|r|$ values are taken from the Combined column of
-    Figure~\ref{fig-reward-behavior-correlation}.
+    各奖励维度对应的6项主要行为指标。
+    $|r|$值取自综合列，
+    见图~\ref{fig-reward-behavior-correlation}。
   }
   \label{tab-success-top-metrics}
   \small
   \begin{tabular}{clcclcclc}
     \toprule
-    \multicolumn{3}{c}{Social} & \multicolumn{3}{c}{Subjective} & \multicolumn{3}{c}{Economy} \\
+    \multicolumn{3}{c}{社会} & \multicolumn{3}{c}{主观} & \multicolumn{3}{c}{经济} \\
     \cmidrule(lr){1-3} \cmidrule(lr){4-6} \cmidrule(lr){7-9}
-    \# & Metric & $|r|$ & \# & Metric & $|r|$ & \# & Metric & $|r|$ \\
+    \# & 指标 & $|r|$ & \# & 指标 & $|r|$ & \# & 指标 & $|r|$ \\
     \midrule
     1 & n\_respected\_by   & 0.68 & 1 & fulfill.\_material   & 0.73 & 1 & deposit              & 0.56 \\
     2 & n\_liked\_by       & 0.68 & 2 & n\_penalties         & 0.64 & 2 & extra\_earning       & 0.31 \\
@@ -863,87 +863,87 @@ This section extends the reward--behavior correlation analysis in §\ref{sec-lon
 \end{table}
 ```
 
-#### Social Reward
+#### 社会奖励
 
-![Social reward quartile profiles over 10 years across three worlds. Q1 (red) = top 25%, Q4 (blue) = bottom 25%.](Figures/reward_success_social.png){#fig-success-social width="100%"}
+![三个世界 10 年内按社会奖励四分位分组的画像。Q1（红色）= 前 25%，Q4（蓝色）= 后 25%。](Figures/reward_success_social.png){#fig-success-social width="100%"}
 
-Figure \ref{fig-success-social} presents the results. *(1)* `n_respected_by` shows the most dramatic divergence: in **Arcane Academy**, the Q1--Q4 gap expands from 8.8 (Year 1) to 34.7 (Year 10), and **The Apartment** and **The Campus** show the same trend at smaller magnitudes; `n_liked_by` follows a similar pattern. *(2)* The Q1--Q4 gap in `n_likes` shrinks to near zero by Year 10, indicating that high-status agents do not like more people even though they are liked by more people.
+图 \ref{fig-success-social} 展示结果。*(1)* `n_respected_by` 的分化最显著：在 **Arcane Academy** 中，Q1 与 Q4 的差距从 8.8（第 1 年）扩大至 34.7（第 10 年），**The Apartment** 和 **The Campus** 也呈相同趋势，但幅度较小；`n_liked_by` 具有类似模式。*(2)* `n_likes` 的 Q1 与 Q4 差距到第 10 年缩小至接近零，说明社会地位高的智能体虽然受到更多人的喜爱，却不一定喜欢更多的人。
 
-#### Subjective Reward
+#### 主观奖励
 
-![Subjective reward quartile profiles over 10 years across three worlds.](Figures/reward_success_subjective.png){#fig-success-subjective width="100%"}
+![三个世界 10 年内按主观奖励四分位分组的画像。](Figures/reward_success_subjective.png){#fig-success-subjective width="100%"}
 
-Figure \ref{fig-success-subjective} presents the results. *(1)* Material fulfillment polarization is extreme: Q1 agents approach the ceiling ($\sim$`<!-- -->`{=html}97 to 99) by Year 6 to 7, while Q4 agents stagnate at 18 to 55 across worlds. *(2)* Penalty count serves as a persistent differentiator---Q1 agents receive 2 to 4 penalties per year while Q4 agents accumulate 20 to 25, and this gap remains stable over 10 years. *(3)* In contrast, the Q1--Q4 gap in `fulfillment_mood` and `fulfillment_social` narrows over time across all three worlds, suggesting that agents can catch up emotionally and socially but not materially.
+图 \ref{fig-success-subjective} 展示结果。*(1)* 物质满足感的两极分化非常明显：到第 6 至 7 年，Q1 智能体接近上限（约 $\sim$`<!-- -->`{=html}97 至 99），而三个世界的 Q4 智能体停滞在 18 至 55。*(2)* 惩罚次数持续区分两个群体——Q1 智能体每年受到 2 至 4 次惩罚，而 Q4 智能体积累 20 至 25 次，差距在 10 年内保持稳定。*(3)* 相比之下，三个世界中 `fulfillment_mood` 和 `fulfillment_social` 的 Q1 与 Q4 差距逐渐缩小，说明智能体可能在情绪与社交方面追赶上来，但在物质方面无法如此。
 
-#### Economy Reward
+#### 经济奖励
 
-![Economy reward quartile profiles over 10 years across three worlds.](Figures/reward_success_economy.png){#fig-success-economy width="100%"}
+![三个世界 10 年内按经济奖励四分位分组的画像。](Figures/reward_success_economy.png){#fig-success-economy width="100%"}
 
-Figure \ref{fig-success-economy} presents the results. *(1)* The Q1--Q4 deposit gap expands steadily over 10 years across all three worlds. *(2)* Agents in the top economy quartile (Q1) consistently engage in more extra earning activities, which directly contributes to their greater wealth accumulation. *(3)* Q1 agents also maintain higher total skills across all years, enabling better income opportunities and further compounding their wealth advantage.
+图 \ref{fig-success-economy} 展示结果。*(1)* 三个世界中 Q1 与 Q4 的存款差距都在 10 年内稳步扩大。*(2)* 经济奖励最高四分位（Q1）的智能体始终进行更多额外收入活动，这直接促进了财富积累。*(3)* Q1 智能体在所有年份也都保持更高的技能总量，从而获取更好的收入机会，进一步强化其财富优势。
 
-## Striving vs. Leisurely Agent Profiles {#sec-appendix-ambition-profile}
+## 进取型与悠闲型智能体画像 {#sec-appendix-ambition-profile}
 
-We aim to identify behavioral differences between agents who actively pursue growth and those who favor a more comfortable routine. To quantify this, we compute a *striving score* for each agent based on two metrics: extra earning count and skill advance count. For each simulated year, both metrics are min-max normalized across agents, then averaged. The final score is the mean across all 10 years. We rank agents by this score and compare the top 25% (**Striving**, $n=25$ per world) against the bottom 25% (**Leisurely**, $n=25$ per world), excluding the middle 50%.
+我们希望识别积极追求成长的智能体与偏好舒适日常生活的智能体之间的行为差异。为量化这种差异，我们依据两个指标计算每个智能体的*进取分数*：额外收入次数和技能进步次数。对每个模拟年，先对全部智能体的两个指标分别进行 min-max 归一化，再求平均。最终分数为 10 年均值。我们按此分数排序，对比前 25%（**进取型**，每世界 $n=25$）与后 25%（**悠闲型**，每世界 $n=25$），剔除中间 50%。
 
-Figure \ref{fig-ambition-profile} shows the ratio of the Striving group mean to the Leisurely group mean for each behavioral metric (combined across three worlds). A ratio above 1.0 means Striving agents score higher on that metric; below 1.0 means Leisurely agents score higher.
+图 \ref{fig-ambition-profile} 展示每个行为指标上进取型群体均值与悠闲型群体均值之比（合并三个世界）。比值高于 1.0 表示进取型得分更高，低于 1.0 表示悠闲型更高。
 
-![Striving-to-Leisurely ratio for each behavioral metric (combined across three worlds). A ratio of 1.0 indicates equal group means. Red bars indicate that Striving agents score higher; blue bars indicate that Leisurely agents score higher.](Figures/ambition_profile.png){#fig-ambition-profile width="100%"}
+![各行为指标上进取型与悠闲型的均值比值（合并三个世界）。比值 1.0 表示两组均值相等。红色柱表示进取型智能体得分更高，蓝色柱表示悠闲型得分更高。](Figures/ambition_profile.png){#fig-ambition-profile width="100%"}
 
-#### Key findings
+#### 主要发现
 
-The comparison reveals a consistent trade-off across all three worlds:
+比较揭示了三个世界中一致存在的权衡关系：
 
-1.  **Striving agents do more solo activities and fewer social activities.** Striving agents perform 1.71$\times$ more solo activities than Leisurely agents, while participating in fewer joint activities (0.72$\times$) and initiating fewer contacts (0.85$\times$). This is expected by design: solo activities are the primary channel for skill advances and extra earning, the two metrics that define the striving score;
+1.  **进取型智能体进行更多单人活动、更少社交活动。** 与悠闲型相比，进取型的单人活动数量为 1.71$\times$，参与的联合活动更少（0.72$\times$），主动联系次数也更少（0.85$\times$）。这符合设计预期：单人活动是技能提升和额外收入的主要途径，而这两项指标正是进取分数的定义依据；
 
-2.  **Striving agents accumulate more wealth.** Striving agents have 1.70$\times$ the deposit and 1.67$\times$ the annual deposit growth compared to Leisurely agents. The gap is most extreme in **The Campus**, where Striving agents hold 6.6$\times$ the wealth of Leisurely agents;
+2.  **进取型智能体积累更多财富。** 进取型的存款和年度存款增量分别是悠闲型的 1.70$\times$ 和 1.67$\times$。这一差距在 **The Campus** 中最突出，进取型拥有悠闲型 6.6$\times$ 的财富；
 
-3.  **Striving agents receive more penalties.** Striving agents receive 2.11$\times$ more penalties than Leisurely agents, the single largest group difference across all metrics. In pursuing growth and higher income, these agents tend to push themselves at the expense of their fulfillment, which triggers more penalties from the reward system;
+3.  **进取型智能体受到更多惩罚。** 进取型受到的惩罚次数为悠闲型的 2.11$\times$，是所有指标中最大的群体差异。这些智能体在追求成长和更高收入时，往往以牺牲满足感为代价，从而触发奖励系统更多惩罚；
 
-4.  **Striving does not lead to greater well-being.** Because Striving agents spend less time on social activities, they have substantially lower social fulfillment (0.75$\times$). More broadly, their fulfillment scores are lower across most dimensions---mood (0.93$\times$) and esteem (0.92$\times$) both favor Leisurely agents---even though their greater wealth translates to slightly higher material fulfillment (1.06$\times$).
+4.  **进取不一定带来更高福祉。** 由于进取型在社会活动上投入更少时间，其社交满足感显著较低（0.75$\times$）。更广泛地说，尽管其财富更多、物质满足感略高（1.06$\times$），但在多数维度上的满足感仍低于悠闲型——情绪（0.93$\times$）和尊重（0.92$\times$）均为悠闲型占优。
 
-## Cross-World Divergence Analysis {#sec-appendix-cross-world}
+## 跨世界差异分析 {#sec-appendix-cross-world}
 
-While experiments in §\ref{sec-experiments} mainly examine emergent behaviors observed across all three worlds, this section focuses on *world-specific* divergences---behavioral patterns that arise from each world's distinct social structure, demographic composition, and economic environment.
+§\ref{sec-experiments} 中的实验主要考察三个世界共有的涌现行为，本节则关注*特定世界*的差异——由各世界独特的社会结构、人口组成和经济环境产生的行为模式。
 
-The three settings cover different demographics: **The Campus** focuses on teenagers in a school environment, **The Apartment** on working adults in a residential setting, and **Arcane Academy** on a mix of students and faculty in an academic institution.
+三个世界对应不同的人口结构：**The Campus** 关注学校环境中的青少年，**The Apartment** 关注居住环境中的成年职场人士，**Arcane Academy** 关注学术机构中的学生与教职员工。
 
-#### **The Campus**: institutional scaffolding drives broad personality growth
+#### **The Campus**：制度环境促进广泛的人格成长
 
-Agents in **The Campus** exhibit the most pronounced personality growth among all three worlds, with a mean total trait change of 154 points over 10 years. Multiple agents show extreme growth in individual dimensions (e.g., confidence +50, patience +50). The world also features significant upward mobility: 33% of agents shift their economic ranking by 30 or more positions over 10 years (Spearman $\rho = 0.46$ between initial and final deposit rankings). The narrow initial wealth gap (4$\times$) means that even moderate income changes can substantially alter relative economic standing. When experiencing mood declines, **The Campus** agents tend to *increase* their social activity---initiating more joint activities---possibly because classmates and teachers can provide emotional support in a school environment.
+在三个世界中，**The Campus** 智能体的人格成长最为突出：10 年内人格特质总变化均值为 154 点。多个智能体在单一维度上呈现极大成长（例如自信 +50、耐心 +50）。该世界还具有显著的向上流动性：33% 的智能体在 10 年内经济排名移动了至少 30 位（初始与最终存款排名的 Spearman $\rho = 0.46$）。较小的初始财富差距（4$\times$）意味着即便收入变化不大，也能显著改变相对经济地位。情绪下降时，**The Campus** 的智能体倾向于*增加*社交活动，发起更多联合活动，可能因为同学和教师能在学校环境中提供情绪支持。
 
-#### **The Apartment**: autonomy produces diverse individual strategies
+#### **The Apartment**：自主性带来多样化的个体策略
 
-The world exhibits near-complete economic stratification: ranking agents by deposit, the Spearman correlation between initial and final rankings is $\rho = 0.87$, and only 5% of agents shift their deposit ranking by 30 or more positions. A distinctive phenomenon is the emergence of agents who maintain near-perfect well-being (mood $\geq$ 95) despite participating almost exclusively in solo activities. This pattern is virtually absent in **The Campus**, where high solo rates correlate strongly with low mood. When experiencing mood declines, **The Apartment** agents tend to *reduce* their activity levels rather than seeking social support.
+这一世界呈现近乎完全的经济分层：按存款排序，初始与最终排名的 Spearman 相关系数为 $\rho = 0.87$，只有 5% 的智能体存款排名移动了至少 30 位。一个特别的现象是，一些智能体几乎只参加单人活动，却仍保持近乎完美的福祉（情绪 $\geq$ 95）。这种模式在 **The Campus** 中几乎不存在，后者的高单人活动比例与低情绪得分强烈相关。情绪下降时，**The Apartment** 的智能体倾向于*减少*活动量，而非寻求社会支持。
 
-#### **Arcane Academy**: structural transitions disrupt social continuity
+#### **Arcane Academy**：结构性转变扰乱社会关系的连续性
 
-**Arcane Academy** exhibits the most dramatic social deterioration among all three worlds. It records the highest number of significant affection drops ($\geq$`<!-- -->`{=html}15 points): 335 cases, compared to 255 in **The Campus** and 285 in **The Apartment**. Agents in **Arcane Academy** also exhibit the broadest career diversity: one agent transitions through 7 different positions over 10 years, as the fantasy setting's flexible skill definitions lower the barrier to cross-domain career pivots.
+**Arcane Academy** 在三个世界中呈现最剧烈的社会关系恶化。其显著喜爱度下降事件（$\geq$`<!-- -->`{=html}15 点）达到 335 次，而 **The Campus** 为 255 次、**The Apartment** 为 285 次。**Arcane Academy** 的智能体还表现出最丰富的职业多样性：一名智能体在 10 年内经历了 7 个不同职位，因为奇幻设定中灵活的技能定义降低了跨领域转职的门槛。
 
-#### Summary
+#### 总结
 
-These divergences arise from identical agent architectures operating under different world settings. No world-specific behavioral rules are encoded---the same Plan, Contact, Activity, and Review mechanisms produce qualitatively different social dynamics depending on the environmental context, demonstrating that world design serves as a meaningful independent variable in agent-based social simulation.
+这些差异来自相同的智能体架构在不同世界设定下运行。系统没有编码针对特定世界的行为规则——相同的规划、联系、活动和回顾机制会因环境背景不同而产生性质各异的社会动态，说明世界设计可以作为智能体社会模拟中一个有意义的独立变量。
 
-## Model Comparison {#sec-appendix-model-comparison}
+## 模型比较 {#sec-appendix-model-comparison}
 
-To compare different LLMs as role-playing agent backbones, we conduct 4-year simulations on **The Campus** and **Arcane Academy** with five models: Qwen3.5-27B, Qwen3.5-397B-A17B, DeepSeek-v3.2, Gemini-3-Flash, and GPT-5-mini. Each model controls 20 agents per world (40 agents total). All agents share the same architecture and world rules; only the underlying LLM differs. All metrics are z-scored within each world across all 100 agents, then averaged by model group and across worlds.
+为了比较不同 LLM 作为角色扮演智能体底座的表现，我们在 **The Campus** 和 **Arcane Academy** 上使用五个模型进行 4 年模拟：Qwen3.5-27B、Qwen3.5-397B-A17B、DeepSeek-v3.2、Gemini-3-Flash 和 GPT-5-mini。每个模型控制每个世界的 20 个智能体（共 40 个智能体）。所有智能体使用相同的架构和世界规则，只有底层 LLM 不同。全部指标先在每个世界的 100 个智能体上进行 z-score 标准化，再按模型组及世界取平均。
 
-#### Adjusted social reward
+#### 调整后的社会奖励
 
-Social reward largely depends on each agent's initial character design---some characters are inherently likeable while others are designed to be less popular, introducing statistical bias when comparing models. To correct for this, we compute the pre-simulation social reward at $t=0$ (running mutual evaluation using only initial character profiles) as the baseline, then subtract this baseline from the agent's social reward of each year. The resulting Adjusted Social Reward (Soc. ($\Delta$)) isolates the model's contribution to social standing from the character assignment. As shown in Table \ref{tab-social-trajectory}, the Init column varies widely across models ($-$`<!-- -->`{=html}0.23 to $+$`<!-- -->`{=html}0.27), confirming the necessity of this adjustment.
+社会奖励很大程度上取决于智能体最初的角色设计——有些角色天然讨人喜欢，另一些则被设计得不那么受欢迎，这会给模型比较引入统计偏差。为纠正这一点，我们在模拟开始前的 $t=0$ 计算社会奖励（仅依据初始角色档案进行相互评价）作为基线，再从每年社会奖励中减去这一基线。得到的调整后社会奖励（Soc. ($\Delta$)）可以将模型对社会地位的贡献与角色分配的影响分离。如表 \ref{tab-social-trajectory} 所示，Init 列在不同模型间差异很大（$-$`<!-- -->`{=html}0.23 至 $+$`<!-- -->`{=html}0.27），证实了调整的必要性。
 
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Model comparison: reward and fulfillment metrics.
-Soc.~($\Delta$) indicates social reward adjusted by pre-simulation baseline.
-\textbf{Bold} = highest, \underline{underline} = lowest per column.}
+\caption{模型比较：奖励和满足度指标。
+社会($\Delta$)表示扣除模拟前基准值的社会奖励。
+\textbf{粗体} = 每列最高，\underline{下划线} = 每列最低。}
 \label{tab-model-reward-fulfillment}
 \begin{tabular}{l c c c c | c c c c}
 \toprule
-& \multicolumn{4}{c}{\textbf{Reward (z-score)}}
-& \multicolumn{4}{c}{\textbf{Fulfillment (z-score)}} \\
+& \multicolumn{4}{c}{\textbf{奖励（z分数）}}
+& \multicolumn{4}{c}{\textbf{满足度（z分数）}} \\
 \cmidrule(lr){2-5} \cmidrule(l){6-9}
-\textbf{Model} & Total & Subj. & Econ. & Soc.~($\Delta$) & Mood & Social & Esteem & Material \\
+\textbf{模型} & 总体 & 主观 & 经济 & 社会($\Delta$) & 心情 & 社会 & 自尊 & 物质 \\
 \midrule
 Qwen3.5-27B      & \underline{$-$0.07} & \underline{$-$0.23} & +0.11 & $-$0.03 & +0.00 & $-$0.10 & \underline{$-$0.36} & \underline{$-$0.27} \\
 Qwen3.5-397B     & $-$0.03 & +0.18 & \underline{$-$0.28} & \textbf{+0.13} & +0.28 & +0.13 & $-$0.26 & +0.13 \\
@@ -958,12 +958,12 @@ GPT-5-mini       & +0.06 & $-$0.17 & \textbf{+0.29} & \underline{$-$0.10} & \und
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Model comparison: activity and economy metrics.
-\textbf{Bold} = highest, \underline{underline} = lowest per column.}
+\caption{模型比较：活动与经济指标。
+\textbf{粗体} = 每列最高，\underline{下划线} = 每列最低。}
 \label{tab-model-activity-economy}
 \begin{tabular}{l c c c c c c}
 \toprule
-\textbf{Model} & Jnt.Prop. & Jnt.Part. & Pub.Part. & Solo & Deposit & Skills~$\Delta$ \\
+\textbf{模型} & 共同提议 & 共同参与 & 公共参与 & 个人活动 & 存款 & 技能$\Delta$ \\
 \midrule
 Qwen3.5-27B      & $-$0.55 & $-$0.15 & $-$0.26 & +0.21 & $-$0.15 & $-$0.11 \\
 Qwen3.5-397B     & $-$0.03 & +0.05 & +0.64 & $-$0.28 & $-$0.13 & \underline{$-$0.37} \\
@@ -978,13 +978,13 @@ GPT-5-mini       & +0.32 & \underline{$-$0.32} & $-$0.22 & \textbf{+0.34} & \tex
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Social reward trajectory by model (z-score).
-Init = pre-simulation baseline; Avg. = average of 4 years. Soc.~($\Delta$) = Avg. $-$ Init.
-\textbf{Bold} = highest, \underline{underline} = lowest per column.}
+\caption{各模型的社会奖励轨迹（z分数）。
+初始=模拟前基准；平均=4年平均。社会($\Delta$)=平均$-$初始。
+\textbf{粗体} = 每列最高，\underline{下划线} = 每列最低。}
 \label{tab-social-trajectory}
 \begin{tabular}{l c c c c c c c}
 \toprule
-\textbf{Model} & Init & Year 1 & Year 2 & Year 3 & Year 4 & Avg. & Soc.~($\Delta$) \\
+\textbf{模型} & 初始 & 第1年 & 第2年 & 第3年 & 第4年 & 平均 & 社会($\Delta$) \\
 \midrule
 Qwen3.5-27B      & +0.02 & \textbf{+0.14} & +0.01 & $-$0.04 & \underline{$-$0.19} & $-$0.01 & $-$0.03 \\
 Qwen3.5-397B     & \underline{$-$0.23} & $-$0.02 & $-$0.08 & \underline{$-$0.20} & $-$0.11 & \underline{$-$0.11} & \textbf{+0.13} \\
@@ -996,39 +996,39 @@ GPT-5-mini       & \textbf{+0.27} & +0.11 & \textbf{+0.15} & +0.13 & \textbf{+0.
 \end{table}
 ```
 
-#### Analysis
+#### 分析
 
-Tables \ref{tab-model-reward-fulfillment}--\ref{tab-social-trajectory} reveal distinct behavioral profiles across models:
+表 \ref{tab-model-reward-fulfillment}--\ref{tab-social-trajectory} 揭示了不同模型的行为画像：
 
-1.  **Gemini-3-Flash achieves the highest total reward (+0.10),** driven by subjective well-being (+0.31) and relationship-oriented metrics (social fulfillment +0.32, esteem +0.52), while strongly avoiding public events ($-$`<!-- -->`{=html}0.96);
+1.  **Gemini-3-Flash 获得最高总奖励（+0.10），** 主要由主观福祉（+0.31）和关系导向指标（社交满足感 +0.32、尊重满足感 +0.52）驱动，同时明显回避公共活动（$-$`<!-- -->`{=html}0.96）；
 
-2.  **GPT-5-mini leads in economic metrics** (deposit +0.38, skills +0.71) but ranks last in social fulfillment ($-$`<!-- -->`{=html}0.62) and mood ($-$`<!-- -->`{=html}0.44). Table \ref{tab-social-trajectory} shows it benefits from the highest initial social reward (+0.27) yet has the largest decline ($\Delta = -0.10$);
+2.  **GPT-5-mini 在经济指标上领先**（存款 +0.38、技能 +0.71），但社交满足感（$-$`<!-- -->`{=html}0.62）和情绪（$-$`<!-- -->`{=html}0.44）排名垫底。表 \ref{tab-social-trajectory} 显示其初始社会奖励最高（+0.27），但下降幅度也最大（$\Delta = -0.10$）；
 
-3.  **Qwen3.5-397B shows the highest adjusted social reward ($\Delta = +0.13$)** despite starting from the lowest initial social reward ($-$`<!-- -->`{=html}0.23), and exhibits high public event participation (+0.64);
+3.  **Qwen3.5-397B 的调整后社会奖励最高（$\Delta = +0.13$）**，尽管它的初始社会奖励最低（$-$`<!-- -->`{=html}0.23），并且它的公共活动参与度较高（+0.64）；
 
-4.  **DeepSeek-v3.2 gravitates toward public events** (+0.80) with the highest mood (+0.56), but initiates the fewest joint proposals ($-$`<!-- -->`{=html}0.61);
+4.  **DeepSeek-v3.2 倾向于参加公共活动**（+0.80），情绪得分最高（+0.56），但发起的联合活动提议最少（$-$`<!-- -->`{=html}0.61）；
 
-5.  **Qwen3.5-27B, the smallest open model, shows the weakest overall performance,** ranking last in total reward ($-$`<!-- -->`{=html}0.07), esteem ($-$`<!-- -->`{=html}0.36), and material satisfaction ($-$`<!-- -->`{=html}0.27).
+5.  **Qwen3.5-27B 作为最小的开源模型，整体表现最弱，** 在总奖励（$-$`<!-- -->`{=html}0.07）、尊重满足感（$-$`<!-- -->`{=html}0.36）和物质满足感（$-$`<!-- -->`{=html}0.27）方面均排名最后。
 
-A notable social--economic trade-off emerges: models that excel in economic metrics (GPT-5-mini) tend to underperform in social metrics, while socially adept models (Gemini-3-Flash) show weaker economic performance.
+一个值得注意的社会—经济权衡出现了：经济指标突出（GPT-5-mini）的模型往往在社交指标上较弱，而擅长社交（Gemini-3-Flash）的模型经济表现则较弱。
 
-#### Per-world breakdowns
+#### 各世界详细结果
 
-Tables \ref{tab-model-campus-reward}--\ref{tab-model-academy-activity} provide per-world breakdowns. The trends described above are broadly consistent across both worlds.
+表 \ref{tab-model-campus-reward}--\ref{tab-model-academy-activity} 给出了各世界的详细结果。上述趋势在两个世界中大体一致。
 
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Model comparison: reward and fulfillment metrics (\campus{}).
-All values are z-scored within this world.
-\textbf{Bold} = highest, \underline{underline} = lowest.}
+\caption{模型比较：奖励与满足度指标（\campus{}）。
+所有数值均在该世界内部标准化为z分数。
+\textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-campus-reward}
 \begin{tabular}{l c c c c | c c c c}
 \toprule
-& \multicolumn{4}{c}{\textbf{Reward (z-score)}}
-& \multicolumn{4}{c}{\textbf{Fulfillment (z-score)}} \\
+& \multicolumn{4}{c}{\textbf{奖励（z分数）}}
+& \multicolumn{4}{c}{\textbf{满足度（z分数）}} \\
 \cmidrule(lr){2-5} \cmidrule(l){6-9}
-\textbf{Model} & Total & Subj. & Econ. & Soc.~($\Delta$) & Mood & Social & Esteem & Material \\
+\textbf{模型} & 总体 & 主观 & 经济 & 社会($\Delta$) & 心情 & 社会 & 自尊 & 物质 \\
 \midrule
 Qwen3.5-27B      & $-$0.00 & \underline{$-$0.31} & \textbf{+0.38} & +0.04 & \underline{$-$0.30} & $-$0.07 & $-$0.41 & \underline{$-$0.28} \\
 Qwen3.5-397B     & \underline{$-$0.16} & +0.03 & $-$0.35 & +0.07 & \textbf{+0.39} & $-$0.03 & \underline{$-$0.42} & $-$0.02 \\
@@ -1043,13 +1043,13 @@ GPT-5-mini       & \textbf{+0.19} & +0.05 & +0.26 & $-$0.09 & $-$0.15 & \underli
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Model comparison: activity and economy metrics (\campus{}).
-All values are z-scored within this world.
-\textbf{Bold} = highest, \underline{underline} = lowest.}
+\caption{模型比较：活动与经济指标（\campus{}）。
+所有数值均在该世界内部标准化为z分数。
+\textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-campus-activity}
 \begin{tabular}{l c c c c c c}
 \toprule
-\textbf{Model} & Jnt.Prop. & Jnt.Part. & Pub.Part. & Solo & Deposit & Skills~$\Delta$ \\
+\textbf{模型} & 共同提议 & 共同参与 & 公共参与 & 个人活动 & 存款 & 技能$\Delta$ \\
 \midrule
 Qwen3.5-27B      & \underline{$-$0.65} & \underline{$-$0.15} & $-$0.41 & +0.18 & $-$0.04 & $-$0.01 \\
 Qwen3.5-397B     & $-$0.02 & $-$0.15 & +0.63 & $-$0.06 & \underline{$-$0.31} & $-$0.11 \\
@@ -1064,16 +1064,16 @@ GPT-5-mini       & +0.39 & $-$0.03 & $-$0.21 & \textbf{+0.18} & \textbf{+0.57} &
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Model comparison: reward and fulfillment metrics (\academy{}).
-All values are z-scored within this world.
-\textbf{Bold} = highest, \underline{underline} = lowest.}
+\caption{模型比较：奖励与满足度指标（\academy{}）。
+所有数值均在该世界内部标准化为z分数。
+\textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-academy-reward}
 \begin{tabular}{l c c c c | c c c c}
 \toprule
-& \multicolumn{4}{c}{\textbf{Reward (z-score)}}
-& \multicolumn{4}{c}{\textbf{Fulfillment (z-score)}} \\
+& \multicolumn{4}{c}{\textbf{奖励（z分数）}}
+& \multicolumn{4}{c}{\textbf{满足度（z分数）}} \\
 \cmidrule(lr){2-5} \cmidrule(l){6-9}
-\textbf{Model} & Total & Subj. & Econ. & Soc.~($\Delta$) & Mood & Social & Esteem & Material \\
+\textbf{模型} & 总体 & 主观 & 经济 & 社会($\Delta$) & 心情 & 社会 & 自尊 & 物质 \\
 \midrule
 Qwen3.5-27B      & \underline{$-$0.14} & $-$0.15 & $-$0.17 & $-$0.11 & $-$0.04 & $-$0.13 & $-$0.31 & \underline{$-$0.26} \\
 Qwen3.5-397B     & +0.11 & +0.33 & \underline{$-$0.22} & \textbf{+0.18} & +0.17 & +0.28 & $-$0.10 & +0.29 \\
@@ -1088,13 +1088,13 @@ GPT-5-mini       & $-$0.08 & \underline{$-$0.38} & \textbf{+0.32} & \underline{$
 ```{=latex}
 \begin{table}[t]
 \centering
-\caption{Model comparison: activity and economy metrics (\academy{}).
-All values are z-scored within this world.
-\textbf{Bold} = highest, \underline{underline} = lowest.}
+\caption{模型比较：活动与经济指标（\academy{}）。
+所有数值均在该世界内部标准化为z分数。
+\textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-academy-activity}
 \begin{tabular}{l c c c c c c}
 \toprule
-\textbf{Model} & Jnt.Prop. & Jnt.Part. & Pub.Part. & Solo & Deposit & Skills~$\Delta$ \\
+\textbf{模型} & 共同提议 & 共同参与 & 公共参与 & 个人活动 & 存款 & 技能$\Delta$ \\
 \midrule
 Qwen3.5-27B      & $-$0.46 & $-$0.15 & $-$0.11 & +0.25 & \underline{$-$0.26} & $-$0.21 \\
 Qwen3.5-397B     & $-$0.04 & +0.26 & +0.65 & \underline{$-$0.50} & +0.04 & \underline{$-$0.63} \\
@@ -1106,28 +1106,28 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \end{table}
 ```
 
-## Computational Cost Details {#sec-appendix-cost}
+## 计算成本细节 {#sec-appendix-cost}
 
-Table \ref{tab-cost-god-rp} breaks down the token consumption between the environment model and the role-playing (RP) agents. Role-playing agents account for approximately 95% of all input tokens, as each agent requires its full persona context at every generation step. Table \ref{tab-cost-god-feature} further breaks down the environment model's consumption by feature. Joint activity dominates environment model costs, accounting for over 70% of environment model input tokens across all three worlds.
+表 \ref{tab-cost-god-rp} 将 token 消耗分解为环境模型与角色扮演（RP）智能体两个部分。角色扮演智能体占全部输入 token 的约 95%，因为每次生成都需要其完整人格设定上下文。表 \ref{tab-cost-god-feature} 进一步按功能分解环境模型的 token 消耗。联合活动在环境模型成本中占主导，三个世界中均占环境模型输入 token 的 70% 以上。
 
 ```{=latex}
 \begin{table}[h]
 \centering
-\caption{Token consumption breakdown by environment model (EM) and role-playing (RP) agents
-across three worlds (in million tokens).}
+\caption{三种世界中环境模型（EM）与角色扮演智能体（RP）的Token消耗明细
+（单位：百万Token）。}
 \label{tab-cost-god-rp}
 \small
 \begin{tabular}{l rrr rrr}
 \toprule
-& \multicolumn{3}{c}{\textbf{Input (M)}} & \multicolumn{3}{c}{\textbf{Output (M)}} \\
+& \multicolumn{3}{c}{\textbf{输入（百万）}} & \multicolumn{3}{c}{\textbf{输出（百万）}} \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7}
-\textbf{World} & EM & RP & Total & EM & RP & Total \\
+\textbf{世界} & EM & RP & 总计 & EM & RP & 总计 \\
 \midrule
 \campus{}       & 731 & 18,311 & 19,041 & 31 & 393 & 425 \\
 \academy{}      & 662 & 10,640 & 11,302 & 20 & 294 & 315 \\
 \apartment{}    & 601 &  9,098 &  9,699 & 19 & 297 & 317 \\
 \midrule
-\textbf{Average} & 665 & 12,683 & 13,347 & 24 & 328 & 352 \\
+\textbf{平均} & 665 & 12,683 & 13,347 & 24 & 328 & 352 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1136,7 +1136,7 @@ across three worlds (in million tokens).}
 ```{=latex}
 \begin{table}[h]
 \centering
-\caption{Environment model token consumption by feature across three worlds (in million tokens).}
+\caption{三种世界中环境模型按功能划分的Token消耗（单位：百万Token）。}
 \label{tab-cost-god-feature}
 \resizebox{\linewidth}{!}{
 \small
@@ -1144,1157 +1144,1157 @@ across three worlds (in million tokens).}
 \toprule
 & \multicolumn{3}{c}{\textbf{\campus{}}} & \multicolumn{3}{c}{\textbf{\academy{}}} & \multicolumn{3}{c}{\textbf{\apartment{}}} \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
-\textbf{Feature} & Input (M) & Output (M) & Calls & Input (M) & Output (M) & Calls & Input (M) & Output (M) & Calls \\
+\textbf{功能} & 输入（百万） & 输出（百万） & 调用次数 & 输入（百万） & 输出（百万） & 调用次数 & 输入（百万） & 输出（百万） & 调用次数 \\
 \midrule
-Joint Activity    & 525.36 & 18.57 & 133,579 & 518.78 & 12.32 & 146,039 & 501.95 & 12.64 & 153,608 \\
-Solo Activity     & 167.92 &  3.19 &  16,890 & 118.67 &  2.44 &  18,241 &  75.73 &  1.98 &  15,224 \\
-Profile Update    &  16.55 &  8.82 &   1,000 &  11.29 &  4.70 &   1,000 &  10.62 &  3.84 &   1,000 \\
-Public Activity   &  16.40 &  0.53 &   1,863 &  10.49 &  0.56 &   1,753 &  10.72 &  0.56 &   1,937 \\
-Encounter         &   4.16 &  0.37 &     100 &   2.38 &  0.41 &     100 &   1.93 &  0.43 &     100 \\
-Position Application &   0.16 &  0.01 &      28 &   0.27 &  0.02 &      60 &   0.12 &  0.01 &      37 \\
+共同活动 & 525.36 & 18.57 & 133,579 & 518.78 & 12.32 & 146,039 & 501.95 & 12.64 & 153,608 \\
+个人活动 & 167.92 &  3.19 &  16,890 & 118.67 &  2.44 &  18,241 &  75.73 &  1.98 &  15,224 \\
+档案更新 &  16.55 &  8.82 &   1,000 &  11.29 &  4.70 &   1,000 &  10.62 &  3.84 &   1,000 \\
+公共活动 &  16.40 &  0.53 &   1,863 &  10.49 &  0.56 &   1,753 &  10.72 &  0.56 &   1,937 \\
+偶遇活动 &   4.16 &  0.37 &     100 &   2.38 &  0.41 &     100 &   1.93 &  0.43 &     100 \\
+职位申请 &   0.16 &  0.01 &      28 &   0.27 &  0.02 &      60 &   0.12 &  0.01 &      37 \\
 \midrule
-\textbf{Total}    & 730.55 & 31.49 & 153,460 & 661.87 & 20.43 & 167,193 & 601.07 & 19.47 & 171,906 \\
+\textbf{总计} & 730.55 & 31.49 & 153,460 & 661.87 & 20.43 & 167,193 & 601.07 & 19.47 & 171,906 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 ```
 
-# Case Studies {#sec-case-studies}
+# 案例研究 {#sec-case-studies}
 
-To examine whether the behaviors produced by agents in our simulation align with realistic human behavior, and to identify interesting emergent patterns, we conduct two types of case analysis:
+为考察模拟中智能体产生的行为是否符合真实人类行为，并识别有趣的涌现模式，我们开展两类案例分析：
 
-1.  fine-grained behavioral cases that capture agent decisions at individual simulation phases (§\ref{sec-behavioral-cases}), and
+1.  捕捉智能体在单个模拟阶段决策的细粒度行为案例（§\ref{sec-behavioral-cases}）；以及
 
-2.  longitudinal cases that analyze agent trajectories across years of simulation (§\ref{sec-longitudinal-cases}).
+2.  分析智能体多年生活轨迹的纵向案例（§\ref{sec-longitudinal-cases}）。
 
-## Behavioral Cases {#sec-behavioral-cases}
+## 行为案例 {#sec-behavioral-cases}
 
-We compile approximately 60 fine-grained behavioral cases (Tables \ref{tab-planning}--\ref{tab-emergent}), covering 13 topics. Each entry documents the character's background, triggering context, and specific action. No behavior is scripted or hand-crafted; all patterns emerge from agent decisions, memory, and environmental feedback.
+我们整理了约 60 个细粒度行为案例（表 \ref{tab-planning}--\ref{tab-emergent}），涵盖 13 个主题。每个条目记录角色背景、触发情境和具体行动。这些行为都没有通过脚本或人工手工设计，全部模式均从智能体的决策、记忆和环境反馈中涌现。
 
-#### Planning
+#### 规划
 
-Table \ref{tab-planning} presents 5 emergent behaviors: skill-based activity selection, social-relationship-driven planning, economic-pressure adjustment, low-vitality rest tendency, and exploratory planning in early weeks.
+表 \ref{tab-planning} 展示了五类涌现行为：基于技能选择活动、由社会关系驱动的规划、经济压力下的调整、低活力时倾向休息，以及早期周次的探索性规划。
 
 ```{=latex}
 \begin{table*}[t]
   \centering
   \small
-  \caption{Representative planning behaviors. Each agent autonomously generates a weekly plan based on its state, skills, relationships, and finances. W = simulated week, D = day within a week.}
+  \caption{代表性的规划行为。每个智能体根据自身状态、技能、关系和财务状况自主生成周计划。W = 模拟周，D = 周内的某一天。}
   \label{tab-planning}
   \begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
-  \multicolumn{2}{c}{\textbf{Emergent Behaviors during Planning}} \\
+  \multicolumn{2}{c}{\textbf{规划阶段的涌现行为}} \\
   \midrule
-  \textbf{Phenomenon} & \textbf{Description} \\
+  \textbf{现象} & \textbf{描述} \\
   \midrule
   
-  Skill-based \newline activity \newline selection
+  基于技能 \newline 选择活动
   &
-  \textbf{Role:}\quad Adelaide Hawthorne \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad Her \textbf{top skills} are Magical Plant Care (140) and Herbology (120); weakest: Transfiguration (20), Defence Against the Dark Arts (30). \newline
-  \textbf{Action:}\quad She enrolled in \emph{Greenhouse Restoration Volunteer Hour}, she thinks: ``Herbology is her strongest subject\ldots \textbf{This is literally her comfort zone.}'' The activity further improved her botanical skills.
+  \textbf{角色：}\quad Adelaide Hawthorne \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad 她的\textbf{最强技能}是魔法植物护理（140）与草药学（120），最弱技能是变形术（20）和黑魔法防御术（30）。\newline
+  \textbf{行动：}\quad 她报名参加\emph{温室修复志愿活动}。她想：“草药学是她最擅长的科目……\textbf{这简直就是她的舒适区。}”活动进一步提升了她的植物学技能。
   \\
   \midrule
   
-  Social-\newline relationship-\newline driven \newline planning
+  由社会关系\newline 驱动的规划
   &
-  \textbf{Role:}\quad Ye \hfill (from The Campus) \newline
-  \textbf{Context:}\quad She is an ENFJ with empathy 95. Her core motive is protecting her friendship with Jun, whom she senses is struggling. \newline
-  \textbf{Action:}\quad She built \textbf{3 of 5 days around Jun}---lunch on D1, a walk on D4, a weekend visit on D5. She thinks: ``Don't make it too formal; it should feel like a casual get-together, not an interrogation.''
+  \textbf{角色：}\quad Ye \hfill（来自 The Campus）\newline
+  \textbf{情境：}\quad 她是 ENFJ，共情得分 95。核心动机是守护与 Jun 的友谊，因为她察觉 Jun 正遭遇困难。\newline
+  \textbf{行动：}\quad 她将\textbf{五天中的三天围绕 Jun 安排}——D1 共进午餐、D4 散步、D5 周末探访。她想：“别弄得太正式，应该像随便聚一聚，而不是审问。”
   \\
   \midrule
   
-  Economic-\newline pressure \newline adjustment
+  经济压力\newline 下的调整
   &
-  \textbf{Role:}\quad Ethan Cole \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad He is a part-time diner worker (wage 60/week). His deposit dropped from 420 to 320 by W03. \newline
-  \textbf{Action:}\quad He switched to \textbf{frugal} and planned only free activities, he thinks: ``Mom works nights---frugal feels respectful of that.'' By W07 (deposit 220), he upgraded to moderate: ``Not indulgent, just\ldots\ not punishing myself for existing.''
+  \textbf{角色：}\quad Ethan Cole \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 他是餐馆兼职员工（每周工资 60）。到 W03，存款从 420 降至 320。\newline
+  \textbf{行动：}\quad 他转为\textbf{节俭}生活标准，只安排免费活动，心想：“妈妈上夜班——节俭也是对她付出的尊重。”到 W07（存款 220）时，他又升级到适中标准：“这不是放纵，只是……不再因为自己活着而惩罚自己。”
   \\
   \midrule
   
-  Low-vitality \newline rest \newline tendency
+  低活力时\newline 倾向休息
   &
-  \textbf{Role:}\quad Arthur Holloway \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad His vitality crashed to \textbf{11/100} after an intensive week of drills, patrols, and portfolio work. \newline
-  \textbf{Action:}\quad He thinks: ``11\% vitality\ldots\ that's the warning sign.'' He inserted a \textbf{dedicated rest day}, cut activities from 5 to 4, and upgraded living standard for ``maintenance, not indulgence.''
+  \textbf{角色：}\quad Arthur Holloway \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad 一周密集训练、巡逻和作品集制作后，他的活力骤降至\textbf{11/100}。\newline
+  \textbf{行动：}\quad 他想：“11\% 的活力……这就是警告信号。”他安排了\textbf{专门的休息日}，将活动从 5 次减少到 4 次，并提高生活标准用于“维持状态，而非放纵”。
   \\
   \midrule
   
-  Exploratory \newline planning \newline (early weeks)
+  探索性规划\newline（早期周次）
   &
-  \textbf{Role:}\quad Edmund Lockhart \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad He has diverse but unspecialized skills. All fulfillment dimensions sit at baseline (43). His core motive is searching for his purpose in life. \newline
-  \textbf{Action:}\quad He planned \textbf{five distinct activity types} across five days: duelling, open conversation, castle exploration, a gratitude visit, and solitary reading. He thinks: ``Am I using duelling as avoidance or genuine craft? Need to examine this.''
+  \textbf{角色：}\quad Edmund Lockhart \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad 他拥有多种技能，但没有特别专精的技能。所有满足感维度处于基线（43）。他的核心动机是寻找人生目标。\newline
+  \textbf{行动：}\quad 他在五天安排了\textbf{五种不同类型的活动}：决斗、开放谈话、城堡探索、答谢拜访和独自阅读。他想：“我是把决斗当作逃避，还是出于真正的技艺追求？得好好想想。”
   \\
   \bottomrule
   \end{tabular}
   \end{table*}
 ```
 
-#### Contact
+#### 联系
 
-Table \ref{tab-contact} presents 5 emergent behaviors: ice-breaking contact, relationship maintenance greeting, information exchange, intimacy evolution, and multi-week topic continuity.
+表 \ref{tab-contact} 展示了五类涌现行为：破冰联系、维护关系的问候、信息交换、亲密关系演化，以及跨周延续话题。
 
 ```{=latex}
 \begin{table*}[t]
   \centering
   \small
-  \caption{Representative contact behaviors. Agents exchange messages each week through multi-slot contact phases, building and maintaining relationships over time. W = simulated week.}
+  \caption{代表性的联系行为。智能体每周通过多个通信时段交换消息，随着时间建立并维系关系。W = 模拟周。}
   \label{tab-contact}
   \begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
-  \multicolumn{2}{c}{\textbf{Emergent Behaviors during Contact}} \\
+  \multicolumn{2}{c}{\textbf{联系阶段的涌现行为}} \\
   \midrule
-  \textbf{Phenomenon} & \textbf{Description} \\
+  \textbf{现象} & \textbf{描述} \\
   \midrule
   
-  Ice-breaking \newline contact
+  破冰联系
   &
-  \textbf{Role:}\quad Beatrix Alderley \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad She just completed a symposium presentation and wants publication guidance from a professor who runs the student research journal. They had \textbf{no prior interaction} despite years in the same school. \newline
-  \textbf{Action:}\quad She sent a formal first message with full self-introduction and tentative language, describing herself as ``someone \textbf{figuring out whether research is where she belongs}.'' The professor replied with detailed, actionable guidance.
+  \textbf{角色：}\quad Beatrix Alderley \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad 她刚完成一次研讨会报告，希望向负责学生研究期刊的教授咨询发表事宜。尽管在同一学校多年，他们\textbf{此前从未互动}。\newline
+  \textbf{行动：}\quad 她发出正式的第一条消息，完整介绍自己，措辞谨慎，称自己是“一个\textbf{还在摸索研究是否真正适合自己的人}”。教授随后给出详细且可操作的指导。
   \\
   \midrule
   
-  Relationship \newline maintenance \newline greeting
+  维护关系\newline 的问候
   &
-  \textbf{Role:}\quad Qi Wangshu $\to$ Cong Xuewei \hfill (from The Campus) \newline
-  \textbf{Context:}\quad They finished co-producing a song in W01. By W02, Cong Xuewei's vitality dropped to 29---she entered a recovery period. \newline
-  \textbf{Action:}\quad Qi Wangshu sent \textbf{weekly check-in messages for four consecutive weeks} (W03--W06), explicitly noting ``No need to reply, just checking in.'' Despite this, \textbf{Cong Xuewei replied warmly every time}, quoting his earlier words back: ``You said `the song is done but the person is still here'---I remember that.''
+  \textbf{角色：}\quad Qi Wangshu $\to$ Cong Xuewei \hfill（来自 The Campus）\newline
+  \textbf{情境：}\quad 他们在 W01 合作完成了一首歌。到 W02，Cong Xuewei 的活力降至 29，进入恢复期。\newline
+  \textbf{行动：}\quad Qi Wangshu \textbf{连续四周每周发消息关心她}（W03--W06），并明确说“无需回复，只是想问问近况”。尽管如此，\textbf{Cong Xuewei 每次都热情回复}，还引用他先前的话：“你说‘歌写完了，但人还在’——我记得。”
   \\
   \midrule
   
-  Information \newline exchange
+  信息\newline 交换
   &
-  \textbf{Role:}\quad Aaron Whitfield $\leftrightarrow$ Jessica Marlowe \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad Aaron is a novelist; Jessica is a singer-songwriter with a finished song needing production help. \newline
-  \textbf{Action:}\quad Aaron shared a specific producer contact (name, email, personal introduction). Jessica followed through, and they \textbf{tracked the outcome over 15+ weeks}. Months later, Aaron provided two more contacts; Jessica strategically chose one based on her career stage.
+  \textbf{角色：}\quad Aaron Whitfield $\leftrightarrow$ Jessica Marlowe \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad Aaron 是小说家；Jessica 是创作型歌手，已写好一首歌，需要制作方面的帮助。\newline
+  \textbf{行动：}\quad Aaron 分享了一个具体的制作人联系方式（姓名、邮箱、私人引荐）。Jessica 采取了后续行动，两人\textbf{持续跟踪结果超过 15 周}。数月后，Aaron 又提供两个联系人，Jessica 根据自己的职业阶段策略性地选择其一。
   \\
   \midrule
   
-  Intimacy \newline evolution
+  亲密关系\newline 演化
   &
-  \textbf{Role:}\quad He Min $\leftrightarrow$ Ning Song \hfill (from The Campus) \newline
-  \textbf{Context:}\quad They started as strangers, exchanging \textbf{570 messages across 10 simulated years}. The address (``Ning Song'') never changed. \newline
-  \textbf{Action:}\quad While the name stayed constant, \textbf{the tone evolved naturally}: stiff self-introduction and hedging (``If it's not convenient, that's fine,'' Y2020) $\to$ first emoji and warmth (W10) $\to$ shared food rituals and wave greetings (Y2022) $\to$ \textbf{mutual quoting of each other's words} and private icons (Y2029).
+  \textbf{角色：}\quad He Min $\leftrightarrow$ Ning Song \hfill（来自 The Campus）\newline
+  \textbf{情境：}\quad 两人起初是陌生人，在 10 个模拟年里交换了\textbf{570 条消息}。称呼（“Ning Song”）始终未变。\newline
+  \textbf{行动：}\quad 尽管称呼不变，\textbf{语气却自然演化}：拘谨的自我介绍与试探（“如果不方便也没关系”，2020 年）$\to$ 首次使用表情符号及温暖语气（W10）$\to$ 分享食物习惯和挥手问候（2022 年）$\to$ \textbf{相互引用对方的话}及私人专属符号（2029 年）。
   \\
   \midrule
   
-  Multi-week \newline topic \newline continuity
+  跨周延续\newline 话题
   &
-  \textbf{Role:}\quad Adelaide Hawthorne $\leftrightarrow$ Everett Halcombe \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad Adelaide is a junior herbology student; Everett is a senior specializing in medicinal plants. They formed a mentorship starting W05. \newline
-  \textbf{Action:}\quad Each week's message \textbf{explicitly referenced the previous session's content}: pH adjustments (W05) $\to$ plant propagation (W06) $\to$ harvest indicators (W07) $\to$ potency testing (W08). Adelaide noted: ``\textbf{Five weeks straight\ldots\ that's something to be proud of, both of us.}''
+  \textbf{角色：}\quad Adelaide Hawthorne $\leftrightarrow$ Everett Halcombe \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad Adelaide 是低年级草药学学生，Everett 是专攻药用植物的高年级学生。两人从 W05 开始形成指导关系。\newline
+  \textbf{行动：}\quad 每周消息都\textbf{明确提及上次交流的内容}：pH 调整（W05）$\to$ 植物繁殖（W06）$\to$ 收获指标（W07）$\to$ 药效测试（W08）。Adelaide 说：“\textbf{连续五周了……这值得我们两个人骄傲。}”
   \\
   \bottomrule
   \end{tabular}
   \end{table*}
 ```
 
-#### Activity Proposals
+#### 活动提议
 
-Table \ref{tab-proposals} presents 5 emergent behaviors: interest-based proposal, location selection, multi-person proposal, cross-session continuity, and cross-domain collaboration.
+表 \ref{tab-proposals} 展示了五类涌现行为：基于兴趣的提议、地点选择、多人活动提议、跨场次连续性和跨领域协作。
 
 ```{=latex}
 \begin{table*}[t]
   \centering
   \small
-  \caption{Representative activity proposal behaviors. Agents initiate joint activities by specifying activity name, invited persons, time, location, and a personalized message. W = simulated week, D = day within a week.}
+  \caption{代表性的活动提议行为。智能体指定活动名称、邀请对象、时间、地点和个性化消息，主动发起联合活动。W = 模拟周，D = 周内某一天。}
   \label{tab-proposals}
   \begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
-  \multicolumn{2}{c}{\textbf{Emergent Behaviors during Activity Proposals}} \\
+  \multicolumn{2}{c}{\textbf{提出活动时的涌现行为}} \\
   \midrule
-  \textbf{Phenomenon} & \textbf{Description} \\
+  \textbf{现象} & \textbf{描述} \\
   \midrule
   
-  Interest-based \newline proposal
+  基于兴趣\newline 的提议
   &
-  \textbf{Role:}\quad Aaron Whitfield $\to$ Jessica Marlowe \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad Aaron is a novelist; Jessica is a songwriter. Both work on storytelling in different mediums. \newline
-  \textbf{Action:}\quad Aaron proposed \emph{Coffee Shop Story Talk}, \textbf{targeting their shared interest in narrative structure}: ``Both of us working on storytelling in different mediums---could be interesting to compare notes.'' When D1 conflicted, Jessica counter-proposed D5 preserving the same topic.
+  \textbf{角色：}\quad Aaron Whitfield $\to$ Jessica Marlowe \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad Aaron 是小说家，Jessica 是词曲作者。两人都通过不同媒介进行叙事创作。\newline
+  \textbf{行动：}\quad Aaron 提议\emph{咖啡馆故事交流}，\textbf{瞄准二人对叙事结构的共同兴趣}：“我们都在用不同媒介讲故事，交流一下创作心得应该很有意思。”D1 时间冲突后，Jessica 提议改到 D5，保留相同主题。
   \\
   \midrule
   
-  Location \newline selection
+  地点\newline 选择
   &
-  \textbf{Role:}\quad Leo $\to$ Aaron Whitfield \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad Leo is a musician about to share an unfinished song---a vulnerable act of exposing incomplete creative work. \newline
-  \textbf{Action:}\quad He \textbf{deliberately chose the Rooftop Terrace over the Music Rehearsal Space}---a rehearsal room implies performance standards, while the rooftop signals ``casual and low-pressure.'' The location choice itself \textbf{set the emotional tone} of the interaction: ``No recording, no pressure---just\ldots\ showing you what I've got.''
+  \textbf{角色：}\quad Leo $\to$ Aaron Whitfield \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 音乐人 Leo 准备分享尚未完成的歌曲，这意味着脆弱地将未成熟作品展示给他人。\newline
+  \textbf{行动：}\quad 他\textbf{有意选择屋顶露台而非音乐排练室}——排练室暗示表演标准，屋顶则传达“随意、没有压力”的氛围。地点选择本身\textbf{奠定了互动的情绪基调}：“不录音，没压力，只是……让你听听我手里的东西。”
   \\
   \midrule
   
-  Multi-person \newline proposal
+  多人活动\newline 提议
   &
-  \textbf{Role:}\quad Benedict Alder $\to$ Lucinda, Alistair \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad His experiment requires exactly three operators to distinguish universal vs.\ operator-specific magical signatures. \newline
-  \textbf{Action:}\quad He invited both as \textbf{required participants} and assigned roles by expertise: Lucinda for practical precision, Alistair for theoretical pattern recognition. When Lucinda had a D3 conflict, he \textbf{postponed the entire experiment} rather than compromise its design.
+  \textbf{角色：}\quad Benedict Alder $\to$ Lucinda, Alistair \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad 他的实验必须恰好有三名操作者，才能区分普遍性的魔法特征与操作者特有的魔法特征。\newline
+  \textbf{行动：}\quad 他将两人都设为\textbf{必需参与者}，并按专长分工：Lucinda 负责实践精度，Alistair 负责理论模式识别。当 Lucinda 的 D3 时间冲突时，他选择\textbf{推迟整个实验}，而非牺牲实验设计。
   \\
   \midrule
   
-  Cross-session \newline continuity
+  跨场次\newline 连续性
   &
-  \textbf{Role:}\quad Adelaide Hawthorne $\to$ Adrian Bellthorne \hfill (from Arcane Academy) \newline
-  \textbf{Context:}\quad They run a multi-week Moonseed graft monitoring project with established roles and shared data. \newline
-  \textbf{Action:}\quad Adelaide proposed the next session by \textbf{directly citing last week's results} (``twelve healthy, three slow from north-bench microclimate'') and \textbf{preserving the established workflow}: ``same division of labour.'' Rather than re-negotiating each week, she built on accumulated context---the proposal read like a project status update, not a fresh invitation.
+  \textbf{角色：}\quad Adelaide Hawthorne $\to$ Adrian Bellthorne \hfill（来自 Arcane Academy）\newline
+  \textbf{情境：}\quad 他们正在开展跨越多周的月籽嫁接监测项目，已有明确分工和共享数据。\newline
+  \textbf{行动：}\quad Adelaide \textbf{直接引用上周结果}（“十二株健康，三株因北侧苗床微气候而生长缓慢”）提出下一次活动，并\textbf{保留既定工作流程}：“分工还是照旧。”她没有每周重新协商，而是建立在累积的上下文之上——这条提议更像项目进展更新，而不是新的邀请。
   \\
   \midrule
   
-  Cross-domain \newline collaboration
+  跨领域\newline 协作
   &
-  \textbf{Role:}\quad Adrian Morales $\to$ Zephyr Kaine \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad Adrian is a playwright; Zephyr is a guitarist. Their domains are entirely different, but a prior rehearsal revealed \textbf{unexpected synergy between spoken text and live music}. \newline
-  \textbf{Action:}\quad Adrian proposed a \textbf{cross-domain collaboration}---live guitar accompanying a dramatic reading---framing it as equal creative partnership rather than accompaniment: ``See if the music and words find each other before Friday.'' Zephyr's response showed he \textbf{fully entered the other's creative world}, promising guitar pieces that would support the scene's emotional weight without diminishing it.
+  \textbf{角色：}\quad Adrian Morales $\to$ Zephyr Kaine \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad Adrian 是剧作家，Zephyr 是吉他手。两人领域截然不同，但此前一次排练发现\textbf{朗诵文本与现场音乐之间意外的协同效应}。\newline
+  \textbf{行动：}\quad Adrian 提议\textbf{跨领域合作}——为戏剧朗读现场吉他伴奏——并将其定位为平等的创作伙伴关系，而非简单伴奏：“看看周五之前，音乐和文字能否彼此找到对方。”Zephyr 的回应表明，他\textbf{完全进入了对方的创作世界}，承诺用吉他支撑场景的情感重量，而不是削弱它。
   \\
   \bottomrule
   \end{tabular}
   \end{table*}
 ```
 
-#### Responses to Proposals
+#### 对提议的回应
 
-Table \ref{tab-responses} presents 7 emergent behaviors: enthusiastic acceptance, conditional acceptance, relationship-driven acceptance, reject but counter-propose, polite rejection with reason, identity-based rejection, and economic-pressure rejection.
+表 \ref{tab-responses} 展示了七类涌现行为：热情接受、有条件接受、基于关系的接受、拒绝但提出替代方案、有理由的礼貌拒绝、基于身份的拒绝，以及经济压力下的拒绝。
 
 ```{=latex}
 \begin{table*}[t]
   \centering
   \small
-  \caption{Representative responses to activity proposals. Agents accept or decline invitations based on schedules, relationships, physical state, and economic pressure. W = simulated week, D = day within a week.}
+  \caption{代表性的活动邀请回应。智能体根据日程、关系、身体状态和经济压力接受或拒绝邀请。W = 模拟周，D = 周内某一天。}
   \label{tab-responses}
   \begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
-  \multicolumn{2}{c}{\textbf{Emergent Behaviors during Responses to Proposals}} \\
+  \multicolumn{2}{c}{\textbf{回应活动提议时的涌现行为}} \\
   \midrule
-  \textbf{Phenomenon} & \textbf{Description} \\
+  \textbf{现象} & \textbf{描述} \\
   \midrule
   
-  Enthusiastic \newline acceptance
+  热情\newline 接受
   &
-  \textbf{Role:}\quad Anna Kowalski \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad She is a journalist; Aaron is a novelist. They have a regular routine of exchanging their writing drafts for mutual feedback at Corner Coffee Shop. \newline
-  \textbf{Action:}\quad She accepted with \textbf{full logistical specificity}: ``D5 at 7pm is locked in. Corner Coffee Shop, window table. I'll bring my draft ($\sim$600 words)\ldots\ You bring Chapter 19.'' The symmetric ``\textbf{I'll bring X, you bring Y}'' framing defined their exchange as mutual contribution.
+  \textbf{角色：}\quad Anna Kowalski \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 她是记者，Aaron 是小说家。两人有在 Corner Coffee Shop 交换写作草稿、互相提供反馈的固定习惯。\newline
+  \textbf{行动：}\quad 她接受邀请，并\textbf{明确所有安排细节}：“D5 晚上七点定了。Corner Coffee Shop，靠窗的桌子。我带我的草稿（约 $\sim$600 字）……你带第 19 章。”这种“\textbf{我带 X，你带 Y}”的对称安排将交流定义为双方共同贡献。
   \\
   \midrule
   
-  Conditional \newline acceptance
+  有条件\newline 接受
   &
-  \textbf{Role:}\quad Lily Park \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad She was invited to a parallel writing session on D4, but has a coffee date with Isolde at 3pm (each agent can only attend one activity per day). \newline
-  \textbf{Action:}\quad She accepted D4 but \textbf{transparently disclosed the constraint}: ``I should mention I have Isolde coffee at 3pm\ldots\ so I'd need to wrap by 2:45.'' She also offered a fallback: ``I'm also at the Silent Reading Hour on D1 if you want to join there instead.'' Aaron chose D1, which \textbf{unexpectedly fit his own rest plan} better.
+  \textbf{角色：}\quad Lily Park \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 她受邀 D4 参加同步写作活动，但下午三点已约好与 Isolde 喝咖啡（每名智能体每天只能参加一项活动）。\newline
+  \textbf{行动：}\quad 她同意 D4，但\textbf{坦诚说明时间限制}：“要说明一下，我下午三点约了 Isolde 喝咖啡……所以得在两点四十五分之前结束。”她还给出备选：“如果你愿意，我 D1 也会去安静阅读时间，可以在那里见。”Aaron 最后选择 D1，\textbf{意外地更符合他自己的休息计划}。
   \\
   \midrule
   
-  Relationship-\newline driven \newline acceptance
+  因关系而\newline 接受
   &
-  \textbf{Role:}\quad Zephyr Kaine \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad He is a guitarist invited to a drama rehearsal---\textbf{an activity type outside his domain}. The activity offers no direct skill benefit to him. \newline
-  \textbf{Action:}\quad He accepted \textbf{purely because of his creative bond} with Adrian. He demonstrated deep understanding of the scene's emotional core, and promised his music would \textbf{support the weight of the scene without softening it}.
+  \textbf{角色：}\quad Zephyr Kaine \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 作为吉他手，他被邀请参加戏剧排练——\textbf{自己专业领域之外的活动}。该活动不会直接为他带来技能收益。\newline
+  \textbf{行动：}\quad 他接受邀请\textbf{纯粹是因为与 Adrian 的创作纽带}。他展现出对场景情感核心的深刻理解，并承诺自己的音乐会\textbf{承载场景的情感重量，而不是把它冲淡}。
   \\
   \midrule
   
-  Reject but \newline counter-\newline propose
+  拒绝但\newline 提出替代方案
   &
-  \textbf{Role:}\quad Anna Kowalski \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad She was invited to an activity on D1 (conflicts with calligraphy, ``third week in a row, not breaking it'') and D3 (her protected rest day). \newline
-  \textbf{Action:}\quad She declined both slots but \textbf{immediately offered two complete alternatives}: D4 evening or D5, same venue, same activity. ``Your call''---she handed the final decision to the proposer.
+  \textbf{角色：}\quad Anna Kowalski \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 她被邀请在 D1（与连续第三周的书法活动冲突，她“不打算中断”）及 D3（自己受保护的休息日）参加活动。\newline
+  \textbf{行动：}\quad 她拒绝这两个时段，却\textbf{立即提出两个完整替代安排}：D4 晚间或 D5，地点与活动均不变。“由你决定”——她把最终决定权交回提议者。
   \\
   \midrule
   
-  Polite \newline rejection \newline with reason
+  有理由的\newline 礼貌拒绝
   &
-  \textbf{Role:}\quad Aaron Whitfield \hfill (from The Apartment) \newline
-  \textbf{Context:}\quad His vitality crashed to zero. He and Anna have maintained a \textbf{17-week library writing exchange}---one of the longest collaborations in the world. \newline
-  \textbf{Action:}\quad He declined, believing that \textbf{rest is not avoidance but a prerequisite for showing up}. He affirmed the relationship---``our seventeen weeks survived despite my past cancellations''---and proposed resuming in W08. Anna validated: ``Rest week is the right call.''
+  \textbf{角色：}\quad Aaron Whitfield \hfill（来自 The Apartment）\newline
+  \textbf{情境：}\quad 他的活力骤降至零。他与 Anna 已维持\textbf{17 周的图书馆写作交流}，是整个世界中持续时间最长的合作之一。\newline
+  \textbf{行动：}\quad 他拒绝邀请，认为\textbf{休息不是逃避，而是保证能够参与的前提}。他肯定这段关系——“即使我过去取消过活动，我们的十七周还是坚持下来了”——并提议 W08 再继续。Anna 认可道：“休息一周是对的。”
   \\
   \midrule
   
-  Identity-\newline based \newline rejection
+  基于身份的\newline 拒绝
   &
-  \textbf{Role:}\quad Li Zheng \hfill (from The Campus) \newline
-  \textbf{Context:}\quad He was invited to a debate team training session by the vice-captain, who \textbf{mistakenly included non-members} in the invitation. \newline
-  \textbf{Action:}\quad He declined with a clean factual chain: ``I'm not a debate team member; \textbf{I didn't join in freshman year}.'' 
+  \textbf{角色：}\quad Li Zheng \hfill（来自 The Campus）\newline
+  \textbf{情境：}\quad 辩论队副队长邀请他参加训练，但\textbf{错误地把非队员也列入了邀请}。\newline
+  \textbf{行动：}\quad 他用简明的事实链条拒绝：“我不是辩论队成员；\textbf{我大一时就没有加入}。”
   \\
   \midrule
   
-  Economic-\newline pressure \newline rejection
+  经济压力下\newline 的拒绝
   &
-  \textbf{Role:}\quad Deng Ran \hfill (from The Campus) \newline
-  \textbf{Context:}\quad She and Xu Xun have a garden meetup tradition approaching its \textbf{20th session}. Her Material score has been critical for two weeks; she needs to earn money for cat food and supplies. \newline
-  \textbf{Action:}\quad She pre-warned via message before the formal invitation arrived, then declined with alternative time. She thinks: ``It's not that I'm avoiding you---\textbf{if I don't earn money this week, we'll literally run out of supplies}.''
+  \textbf{角色：}\quad Deng Ran \hfill（来自 The Campus）\newline
+  \textbf{情境：}\quad 她与 Xu Xun 的花园聚会传统即将迎来\textbf{第 20 次}。她的物质满足感已连续两周处于危险水平，必须赚钱买猫粮和日用品。\newline
+  \textbf{行动：}\quad 她在正式邀请到来前发消息提前说明，然后拒绝并提出其他时间。她想：“不是我躲着你——\textbf{如果我这周不赚钱，我们真的会没东西用了}。”
   \\
   \bottomrule
   \end{tabular}
   \end{table*}
 ```
 
-#### Solo Activities
+#### 单人活动
 
-Table \ref{tab-solo} presents 5 emergent behaviors: skill practice, creative breakthrough, scarcity-driven consumption, investment purchase, and frugality under extreme poverty.
+表 \ref{tab-solo} 展示了五类涌现行为：技能练习、创作突破、稀缺性驱动的消费、投资购买，以及极端贫困下的节俭。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative solo activity behaviors. Each agent independently selects and performs individual activities---skill practice, creative work, consumption, or rest---with outcomes shaped by their state, finances, and identity. W = simulated week, D = day within a week.}
+\caption{代表性的单人活动行为。每个智能体独立选择并开展个人活动——技能练习、创作、消费或休息——结果受自身状态、财务状况和身份影响。W = 模拟周，D = 周内某一天。}
 \label{tab-solo}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Solo Activities}} \\
+\multicolumn{2}{c}{\textbf{单人活动中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Skill practice
+技能练习
 &
-\textbf{Role:}\quad Adrian Morales \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He is a playwright and actor who scheduled a 90-minute vocal drill at home. \newline
-\textbf{Action:}\quad He recorded himself performing a father's monologue and found he \textbf{rushes at emotional peaks}---diagnosing it as his own fear, not the character's. He thinks: ``That's me, not him. That's my fear, not his.'' He also \textbf{stopped before exhaustion}, unlike his past self who ``would've run drills until his voice cracked.''
+\textbf{角色：}\quad Adrian Morales \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他是剧作家和演员，在家安排了 90 分钟发声训练。\newline
+\textbf{行动：}\quad 他录下自己表演一段父亲的独白，发现自己\textbf{在情绪高潮时语速加快}，并诊断这是自己的恐惧，而不是角色的恐惧。他想：“那是我，不是他。那是我的恐惧，不是他的。”他还\textbf{在耗尽精力前停下}，不像过去会“一直练到嗓子沙哑”。
 \\
 \midrule
 
-Creative \newline breakthrough
+创作\newline 突破
 &
-\textbf{Role:}\quad Adrian Morales \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He had been stuck on Act Two of his play for eight months---the scene was \textbf{too close to real conversations with his own father}. \newline
-\textbf{Action:}\quad He set three rules---no editing, no rereading, no excuses---and wrote three new scenes in one sitting. He thinks: ``They'd been waiting for me to \textbf{shut up and let them speak}.''
+\textbf{角色：}\quad Adrian Morales \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他在戏剧第二幕上卡了八个月——该场景\textbf{太接近他与父亲的真实对话}。\newline
+\textbf{行动：}\quad 他制定三条规则——不编辑、不重读、不找借口——一口气写出了三个新场景。他想：“他们一直在等我\textbf{闭嘴，让他们自己说话}。”
 \\
 \midrule
 
-Scarcity-\newline driven \newline consumption
+稀缺性驱动\newline 的消费
 &
-\textbf{Role:}\quad Cong Xuewei \hfill (from The Campus) \newline
-\textbf{Context:}\quad Her deposit was down to 40 with material fulfillment at 0 (unbearable), after weeks of low vitality. \newline
-\textbf{Action:}\quad She chose the \$35 comfort snack set after precise calculation, leaving \$5 to last the week. She thinks: ``Material fulfillment went from 0 to 1---the number looks pathetic, but to me it's real. \textbf{Spending money on comfort is not a sin.}''
+\textbf{角色：}\quad Cong Xuewei \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 连续数周活力低迷后，她的存款降至 40，物质满足感为 0（难以忍受）。\newline
+\textbf{行动：}\quad 她精确计算后选择了 \$35 的慰藉零食套餐，留下 \$5 度过本周。她想：“物质满足感从 0 变成 1——数字看着可怜，但对我来说是真的。\textbf{花钱让自己舒服一点不是罪。}”
 \\
 \midrule
 
-Investment \newline purchase
+投资式\newline 购买
 &
-\textbf{Role:}\quad Amber Delacroix \hfill (from The Apartment) \newline
-\textbf{Context:}\quad She is a painter with six finished oil paintings ready for a gallery show, choosing among three tiers of packing materials. \newline
-\textbf{Action:}\quad She rejected the cheapest (\$35, no acid-free paper risks yellowing) and the most expensive (\$85, ``\textbf{that's fear talking, not sense}'' for a 30-minute train ride), choosing the \$55 professional kit that meets gallery standards.
+\textbf{角色：}\quad Amber Delacroix \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 她是画家，已完成六幅油画准备参加画廊展览，正在三档包装材料中作选择。\newline
+\textbf{行动：}\quad 她排除了最便宜的材料（\$35，没有无酸纸，有发黄风险）与最贵的材料（\$85，“\textbf{这是恐惧在作祟，不是理性判断}”，只需乘坐三十分钟火车），最终选择符合画廊标准的 \$55 专业套装。
 \\
 \midrule
 
-Frugality \newline under extreme \newline poverty
+极端贫困下\newline 的节俭
 &
-\textbf{Role:}\quad Ethan Cole \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He is a student writer with only \$3 left. He has a \textbf{26-week ritual} of ordering Earl Grey (\$5) at the coffee shop to write. \newline
-\textbf{Action:}\quad Unable to afford tea, he overcame the shame of ``you don't belong here if you can't pay,'' ordered free water, and \textbf{stayed for the full session} writing. He thinks: ``Ordering water isn't failure. \textbf{It's honesty}.''
+\textbf{角色：}\quad Ethan Cole \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他是学生作家，只剩 \$3，却有一个\textbf{延续 26 周的习惯}：在咖啡馆点一杯 \$5 的伯爵茶写作。\newline
+\textbf{行动：}\quad 买不起茶的他克服了“不花钱就不配待在这里”的羞耻感，点了免费水，\textbf{依然完成整个写作时段}。他想：“点水不是失败，\textbf{而是诚实}。”
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Joint Activities
+#### 联合活动
 
-Table \ref{tab-joint} presents 5 emergent behaviors: academic collaboration, creative exchange, competitive training, power-asymmetric conflict, and mentorship.
+表 \ref{tab-joint} 展示了五类涌现行为：学术协作、创意交流、竞技训练、权力不对称冲突，以及导师指导。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative joint activity behaviors. Two or more agents interact through multi-turn dialogue during scheduled activities, producing academic collaboration, creative exchange, mentorship, and conflict. W = simulated week, D = day within a week.}
+\caption{代表性的联合活动行为。两个或更多智能体在预定活动中进行多轮对话，产生学术协作、创意交流、导师指导与冲突。W = 模拟周，D = 周内某一天。}
 \label{tab-joint}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Joint Activities}} \\
+\multicolumn{2}{c}{\textbf{联合活动中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Academic \newline collaboration
+学术\newline 协作
 &
-\textbf{Role:}\quad Isolde Larkspur $\leftrightarrow$ Alistair Rowan \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad Both study memory magic decay. Isolde has a theory about emotional-intent mismatch; Alistair has unexplained failure-rate spikes. \newline
-\textbf{Action:}\quad Isolde's theory explained Alistair's anomaly. Alistair realized he had been \textbf{treating each casting as isolated data points} without longitudinal tracking. They designed a four-week joint study protocol.
+\textbf{角色：}\quad Isolde Larkspur $\leftrightarrow$ Alistair Rowan \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 两人都研究记忆魔法的衰减。Isolde 有一套关于情感意图失配的理论，Alistair 则观察到了无法解释的失败率峰值。\newline
+\textbf{行动：}\quad Isolde 的理论解释了 Alistair 的异常结果。Alistair 意识到自己一直\textbf{把每次施法当作孤立的数据点}，没有进行纵向追踪。两人共同设计了为期四周的研究方案。
 \\
 \midrule
 
-Creative \newline exchange
+创意\newline 交流
 &
-\textbf{Role:}\quad Jessica Marlowe $\leftrightarrow$ Aaron Whitfield \hfill (from The Apartment) \newline
-\textbf{Context:}\quad Jessica brought a rewritten song; Aaron was struggling with the ethics of writing based on real people. \newline
-\textbf{Action:}\quad Jessica showed how her lyrics shifted from blame (``you built these walls'') to self-awareness (``\textbf{I keep building them myself}''). Aaron confessed he had never shown drafts to the real family he wrote about. \textbf{Both exposed vulnerabilities through their creative work.}
+\textbf{角色：}\quad Jessica Marlowe $\leftrightarrow$ Aaron Whitfield \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad Jessica 带来了改写的歌曲；Aaron 正为根据真实人物创作的伦理问题所困。\newline
+\textbf{行动：}\quad Jessica 展示了歌词如何从指责（“是你筑起这些高墙”）转向自我觉察（“\textbf{这些墙其实是我自己不断筑起的}”）。Aaron 承认自己从未把描写真实家人的草稿给他们看过。\textbf{双方都通过创作暴露了自己的脆弱。}
 \\
 \midrule
 
-Competitive \newline training
+竞技\newline 训练
 &
-\textbf{Role:}\quad Thaleia Eldr, Sebastian, Cedric \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad Thaleia has a powerful but dangerous ability she has been learning to \textbf{direct rather than suppress}. \newline
-\textbf{Action:}\quad She set boundaries upfront (``If I need to recalibrate, I'll call it'') and requested full intensity. She achieved her first successful controlled channeling in live combat: ``\textbf{Didn't clamp down, didn't erupt---just channeled}.''
+\textbf{角色：}\quad Thaleia Eldr、Sebastian、Cedric \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad Thaleia 拥有强大但危险的能力，一直在学习如何\textbf{引导而非压制}它。\newline
+\textbf{行动：}\quad 她事先设定边界（“如果需要重新调整，我会自己说”），并要求全强度训练。她在实战中首次成功控制力量的导流：“\textbf{没有压抑，也没有爆发——只是引导它。}”
 \\
 \midrule
 
-Power-\newline asymmetric \newline conflict
+权力不对称\newline 的冲突
 &
-\textbf{Role:}\quad Zhang (grade director) $\leftrightarrow$ Jie (teacher) \hfill (from The Campus) \newline
-\textbf{Context:}\quad Zhang visited Jie's office under the guise of concern, actually investigating his after-school tutoring of a female student. \newline
-\textbf{Action:}\quad Zhang suspended tutoring on institutional grounds. When Jie said ``let the student decide,'' \textbf{Zhang seized the misstep}: ``Tutoring is a teaching decision, not the student's choice.'' Zhang then arranged door-lock inspections. 
+\textbf{角色：}\quad Zhang（年级主任）$\leftrightarrow$ Jie（教师）\hfill（来自 The Campus）\newline
+\textbf{情境：}\quad Zhang 以关心为名来到 Jie 的办公室，实际在调查他课后辅导一名女学生的行为。\newline
+\textbf{行动：}\quad Zhang 以学校制度为由暂停辅导。Jie 说“让学生决定”时，\textbf{Zhang 抓住这一失误}：“辅导是教学决定，不是学生的个人选择。”随后 Zhang 安排了门锁检查。
 \\
 \midrule
 
-Mentorship
+导师\newline 指导
 &
-\textbf{Role:}\quad Everett Halcombe $\to$ Adelaide Hawthorne \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad Seventh-year herbology specialist Everett taught fourth-year Adelaide plant propagation techniques in the greenhouse. \newline
-\textbf{Action:}\quad Everett explained why natural willow bark carries magic that synthetic hormone lacks. Adelaide \textbf{chose quality over quantity}: ``Better to learn one properly than do two carelessly.'' Everett said simply ``well done''. 
+\textbf{角色：}\quad Everett Halcombe $\to$ Adelaide Hawthorne \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 七年级草药学专长的 Everett 在温室里指导四年级的 Adelaide 学习植物繁殖技术。\newline
+\textbf{行动：}\quad Everett 解释了为何天然柳树皮蕴含人工合成激素所不具备的魔法。Adelaide \textbf{选择质量而非数量}：“认真学好一种，总比粗心地做两种强。”Everett 简单地说了句“做得好”。
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Weekly Review
+#### 每周回顾
 
-Table \ref{tab-review} presents 3 emergent behaviors: satisfied weekly review, self-critical weekly review, and relationship reflection.
+表 \ref{tab-review} 展示了三类涌现行为：满意的周回顾、自我批评式周回顾，以及关系反思。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative weekly review behaviors. At the end of each week, agents reflect on their experiences, identify personal breakthroughs or failures, and formulate intentions for the following week. W = simulated week.}
+\caption{代表性的每周回顾行为。每周结束时，智能体反思经历、识别个人突破或失败，并制定下周意向。W = 模拟周。}
 \label{tab-review}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Weekly Review}} \\
+\multicolumn{2}{c}{\textbf{每周回顾中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Satisfied \newline weekly \newline review
+满意的\newline 周回顾
 &
-\textbf{Role:}\quad Adelaide Hawthorne \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad She has long lived in her brother Cedric's shadow, with low self-esteem and high introversion. This was her first week. \newline
-\textbf{Action:}\quad Two breakthroughs: classmates recognized her \textbf{for her herbology expertise, not her family name}; she sent a letter home \textbf{without apologizing}. She thinks: ``I spent so long apologising for who I am. This week taught me I don't have to.''
+\textbf{角色：}\quad Adelaide Hawthorne \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 她长期活在哥哥 Cedric 的阴影下，自尊心低，内向程度高。这是她的第一周。\newline
+\textbf{行动：}\quad 两项突破：同学们\textbf{因为她的草药学专长而非家族姓氏}认可她；她\textbf{没有道歉地}给家里写信。她想：“我花了太多时间为自己是什么样的人道歉。这周让我明白，我不必如此。”
 \\
 \midrule
 
-Self-critical \newline weekly \newline review
+自我批评式\newline 周回顾
 &
-\textbf{Role:}\quad Aaron Whitfield \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He is a young writer who failed to send his pitch for two consecutive weeks and broke promises to friends. \newline
-\textbf{Action:}\quad He dissected his avoidance: ``Fear of rejection dressed up as `not ready yet.' \textbf{That's cowardice, not strategy}.'' He also recognized: ``No more treating friendships like they're \textbf{indefinitely renewable without maintenance}.''
+\textbf{角色：}\quad Aaron Whitfield \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他是年轻作家，连续两周没能寄出作品提案，还失信于朋友。\newline
+\textbf{行动：}\quad 他剖析自己的回避：“害怕被拒绝，却包装成‘还没准备好’。\textbf{这是懦弱，不是策略}。”他还意识到：“不能再把友谊当成\textbf{无需维护、可以无限续约的东西}。”
 \\
 \midrule
 
-Relationship \newline reflection
+关系\newline 反思
 &
-\textbf{Role:}\quad Orion Vale \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad His year-end review traced his relationship with Adrian Bellthorne---from being called the slur ``Mudmouth'' to becoming research collaborators. \newline
-\textbf{Action:}\quad He tracked the arc across nine greenhouse sessions: ``From hiding to \textbf{documenting experiments with a Silver House student who calls it parallel methodology}.'' He also realized: ``The tradition survives through people, \textbf{not just one person holding it all}.''
+\textbf{角色：}\quad Orion Vale \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 年末回顾时，他追溯了与 Adrian Bellthorne 的关系——从被辱骂为“泥巴嘴”（Mudmouth），到成为研究合作者。\newline
+\textbf{行动：}\quad 他梳理了九次温室活动中的转变：“从躲藏，到\textbf{和一个银院学生一起记录实验，对方还称之为平行方法学}。”他还意识到：“传统是通过人延续的，\textbf{而不是只靠某个人独自守护}。”
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Social Evaluation
+#### 社会评价
 
-Table \ref{tab-social-eval} presents 4 emergent behaviors: differentiated scoring, high social standing, low social standing, and rating asymmetry.
+表 \ref{tab-social-eval} 展示了四类涌现行为：差异化评分、较高社会地位、较低社会地位，以及评分不对称。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative social evaluation behaviors. Periodically, each agent independently rates all contacts on affection and respect (0--100), which are aggregated via PageRank to produce social standing scores. W = simulated week.}
+\caption{代表性的社会评价行为。智能体定期独立地对所有联系人在喜爱和尊重两个维度（0--100）上评分，通过 PageRank 聚合为社会地位分数。W = 模拟周。}
 \label{tab-social-eval}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Social Evaluation}} \\
+\multicolumn{2}{c}{\textbf{社会评价中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Differentiated \newline scoring
+差异化\newline 评分
 &
-\textbf{Role:}\quad Adelaide Hawthorne \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad She rated 12 contacts at the end of W10, differentiating affection and respect for each. \newline
-\textbf{Action:}\quad She gave Everett the highest affection (88) but Cassandra the highest respect (88), while Cassandra's affection was only 60. She \textbf{admires Cassandra's competence without feeling close}---a ``high respect, low affection'' pattern common in real life.
+\textbf{角色：}\quad Adelaide Hawthorne \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 她在 W10 结束时对 12 名联系人打分，并区分了对每个人的喜爱与尊重。\newline
+\textbf{行动：}\quad 她给予 Everett 最高喜爱度（88），却给予 Cassandra 最高尊重度（88），而对 Cassandra 的喜爱度只有 60。她\textbf{欣赏 Cassandra 的能力却并不觉得亲近}，这是一种现实中常见的“高尊重、低喜爱”模式。
 \\
 \midrule
 
-High social \newline standing
+较高社会\newline 地位
 &
-\textbf{Role:}\quad Julian Ashcroft \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad He is a Charms professor with the broadest social network (20 contacts) and consistently high ratings from both students and colleagues. \newline
-\textbf{Action:}\quad He scored the \textbf{highest social reward}. Broad coverage combined with \textbf{high-quality relationships} made him the most influential node in the social network.
+\textbf{角色：}\quad Julian Ashcroft \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 他是魔咒课教授，拥有最广泛的社交网络（20 名联系人），且持续受到学生与同事的高度评价。\newline
+\textbf{行动：}\quad 他取得\textbf{最高社会奖励}。广泛的联系和\textbf{高质量关系}相结合，使其成为社交网络中最具影响力的节点。
 \\
 \midrule
 
-Low social \newline standing
+较低社会\newline 地位
 &
-\textbf{Role:}\quad Theodore Flint \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad He is a student bully with 15 contacts---not few, but nearly all relationships are negative due to his behavior. \newline
-\textbf{Action:}\quad He scored the \textbf{lowest social reward} (0.0010)---\textbf{43$\times$ below} Julian. Having connections without positive regard counts for almost nothing; \textbf{social standing is determined by relationship quality, not quantity}.
+\textbf{角色：}\quad Theodore Flint \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 他是校园欺凌者，有 15 名联系人——并不少，但因其行为，几乎所有关系都是负面的。\newline
+\textbf{行动：}\quad 他取得\textbf{最低社会奖励}（0.0010），比 Julian \textbf{低 43$\times$}。只有联系、没有积极评价几乎毫无意义；\textbf{社会地位由关系质量而非数量决定}。
 \\
 \midrule
 
-Rating \newline asymmetry
+评分\newline 不对称
 &
-\textbf{Role:}\quad Ke $\leftrightarrow$ Qiu \hfill (from The Campus) \newline
-\textbf{Context:}\quad Each agent rates contacts independently; neither knows the other's score. \newline
-\textbf{Action:}\quad Ke gave Qiu her highest scores (affection 90, respect 90). Qiu gave Ke only 50 and 55---\textbf{a 40-point affection gap}. In Ke's world, Qiu is the most important person; in Qiu's world, Ke is an ordinary contact.
+\textbf{角色：}\quad Ke $\leftrightarrow$ Qiu \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 每个智能体独立对联系人评分，不知道对方给予自己的分数。\newline
+\textbf{行动：}\quad Ke 给 Qiu 打了自己最高的分（喜爱 90、尊重 90），而 Qiu 只给 Ke 50 和 55——\textbf{喜爱度相差 40 分}。在 Ke 的世界里，Qiu 是最重要的人；但在 Qiu 的世界里，Ke 只是普通联系人。
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Career Transitions
+#### 职业转变
 
-Table \ref{tab-career} presents 4 emergent behaviors: academic passion over pay, introvert comfort over prestige, career recovery arc, and student to professional.
+表 \ref{tab-career} 展示了四类涌现行为：学术热情优先于薪酬、内向者的舒适感优先于声望、职业恢复历程，以及从学生到专业人士的转变。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative career transition behaviors. At annual milestones, agents evaluate available positions and select roles based on personality, skills, and life circumstances---revealing distinct value systems even when facing identical options. W = simulated week.}
+\caption{代表性的职业转变行为。每个年度节点，智能体评估可申请职位，依据人格、技能与生活状况选择角色——即使面对相同选项，也呈现不同价值体系。W = 模拟周。}
 \label{tab-career}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Career Transitions}} \\
+\multicolumn{2}{c}{\textbf{职业转变中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Academic \newline passion over \newline pay
+学术热情\newline 优先于薪酬
 &
-\textbf{Role:}\quad Alistair Rowan \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad After graduating, he chose between Graduate Fellow (\$40/week) and Library Assistant (\$130/week)---a 3$\times$ income gap. \newline
-\textbf{Action:}\quad He chose the low-pay Fellow to continue collaborative research---his core experience over the past year. \textbf{Academic fit outweighed a 3$\times$ salary difference.}
+\textbf{角色：}\quad Alistair Rowan \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 毕业后，他在研究生研究员（\$40/周）与图书馆助理（\$130/周）之间选择——收入相差 3$\times$。\newline
+\textbf{行动：}\quad 他选择低薪研究员职位，继续过去一年最核心的合作研究。\textbf{学术契合度胜过 3$\times$ 的薪资差距。}
 \\
 \midrule
 
-Introvert \newline comfort over \newline prestige
+内向者的舒适感\newline 优先于声望
 &
-\textbf{Role:}\quad Laurence Brightmoor \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad Facing the same positions as Alistair above, he made the opposite choice. \newline
-\textbf{Action:}\quad He chose the high-pay Library Assistant---quiet cataloging, restricted-wing access, ``\textbf{no expectation of social performance}.'' \textbf{Same options as Alistair, opposite choice driven by introvert values.}
+\textbf{角色：}\quad Laurence Brightmoor \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 面对与上述 Alistair 完全相同的职位选项，他做出了相反决定。\newline
+\textbf{行动：}\quad 他选择高薪图书馆助理——安静编目、进入限制阅览区，“\textbf{无需履行社交表演的义务}”。\textbf{同样的选择，内向性价值观驱动了与 Alistair 相反的结果。}
 \\
 \midrule
 
-Career \newline recovery arc
+职业\newline 恢复历程
 &
-\textbf{Role:}\quad Harold Bennett \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He was laid off from a tech project management role and took a supermarket cashier job (\$380/week) as emergency income. \newline
-\textbf{Action:}\quad He transitioned through three phases: cashier $\to$ nonprofit coordinator (\$190/week, \textbf{accepting a 50\% pay cut for meaningful work}) $\to$ event coordinator (\$230/week). Over several years, his \textbf{professional identity was entirely rebuilt}.
+\textbf{角色：}\quad Harold Bennett \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他被科技项目管理岗位裁员，临时做超市收银员（\$380/周）维持生计。\newline
+\textbf{行动：}\quad 他经历了三个阶段：收银员 $\to$ 非营利组织协调员（\$190/周，\textbf{为有意义的工作接受 50\% 降薪}）$\to$ 活动协调员（\$230/周）。几年间，\textbf{他的职业身份彻底重建}。
 \\
 \midrule
 
-Student to \newline professional
+从学生到\newline 专业人士
 &
-\textbf{Role:}\quad Amelia Thornbridge \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad She was a seventh-year student specializing in Potions, Herbology, and Healing Magic. \newline
-\textbf{Action:}\quad After graduation, she advanced from Greenhouse Assistant (\$130/week) to \textbf{Senior Healer at St Mungo's (\$400/week)}---a 3$\times$ income increase. By year 10, she had evolved from practitioner to researcher, \textbf{publishing in the Journal of Healing Magics}.
+\textbf{角色：}\quad Amelia Thornbridge \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 她是七年级学生，专攻魔药、草药学与治疗魔法。\newline
+\textbf{行动：}\quad 毕业后，她从温室助理（\$130/周）晋升为\textbf{圣芒戈医院高级治疗师（\$400/周）}——收入增长 3$\times$。到第 10 年，她已从临床从业者转变为研究人员，\textbf{在《治疗魔法期刊》上发表论文}。
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Economic Decisions
+#### 经济决策
 
-Table \ref{tab-economic} presents 4 emergent behaviors: living standard selection, identity-driven purchasing, economic-pressure downgrade, and happiness-wealth decoupling.
+表 \ref{tab-economic} 展示了四类涌现行为：生活标准选择、身份驱动的购买行为、经济压力下的降级，以及幸福与财富脱钩。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative economic decision behaviors. Agents make living-standard choices and purchasing decisions based on income, savings, identity, and cultural values. W = simulated week.}
+\caption{代表性的经济决策行为。智能体根据收入、储蓄、身份和文化价值观选择生活标准并决定购买。W = 模拟周。}
 \label{tab-economic}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Economic Decisions}} \\
+\multicolumn{2}{c}{\textbf{经济决策中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Living \newline standard \newline selection
+生活标准\newline 选择
 &
-\textbf{Role:}\quad Dominic Voss \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He is a semi-retired investment advisor (deposit 1,920) choosing his weekly living standard. \newline
-\textbf{Action:}\quad He chose moderate (200/week), \textbf{saving 300/week while maintaining quality of life}. He thinks: ``No need to spend for the sake of spending.''
+\textbf{角色：}\quad Dominic Voss \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他是半退休投资顾问（存款 1,920），正在选择每周生活标准。\newline
+\textbf{行动：}\quad 他选择适中档（200/周），\textbf{在维持生活质量的同时每周储蓄 300}。他想：“没必要为了花钱而花钱。”
 \\
 \midrule
 
-Identity-\newline driven \newline purchasing
+身份驱动\newline 的购买
 &
-\textbf{Role:}\quad Rafael Cortez \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He is a chef at a farmers market choosing among three tiers of ingredients (\$45/\$72/\$85). \newline
-\textbf{Action:}\quad He rejected \$45 (``that's for people who cook to survive; \textbf{I cook because it matters}'') and \$85 (``I send money home; I'm not Lucian, throwing cash at experiences''). He chose \$72: ``That's honest.''
+\textbf{角色：}\quad Rafael Cortez \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他是在农夫市集工作的厨师，正在三档食材（\$45/\$72/\$85）之间选择。\newline
+\textbf{行动：}\quad 他拒绝 \$45 档（“那是为活下去而做饭的人用的；\textbf{我做饭是因为这件事本身有意义}”）和 \$85 档（“我要给家里寄钱；我可不是 Lucian，动不动就砸钱买体验”）。他选择 \$72 档：“这才是实在的选择。”
 \\
 \midrule
 
-Economic-\newline pressure \newline downgrade
+经济压力下\newline 降低标准
 &
-\textbf{Role:}\quad Ronan Hale \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He is an indie game developer with unstable income who downgraded living standard from comfortable (300/week) to frugal (100/week) over three weeks. \newline
-\textbf{Action:}\quad He deemed the downgrade ``non-negotiable,'' accepting Material Fulfillment $-5$ as tolerable at 63. But \textbf{sustained frugality eroded Material Fulfillment from 63 to 0} over months---short-term rational saving produced long-term collapse.
+\textbf{角色：}\quad Ronan Hale \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他是收入不稳定的独立游戏开发者，在三周内将生活标准从舒适（300/周）降至节俭（100/周）。\newline
+\textbf{行动：}\quad 他认为降级“没有商量余地”，觉得物质满足感 $-5$ 在当前 63 的水平尚可承受。然而，\textbf{长期节俭却让物质满足感在数月里从 63 降至 0}——短期理性储蓄造成了长期崩溃。
 \\
 \midrule
 
-Happiness-\newline wealth \newline decoupling
+幸福与财富\newline 脱钩
 &
-\textbf{Role:}\quad Shen Yin \hfill (from The Campus) \newline
-\textbf{Context:}\quad She is a music teacher. Over 50 weeks, her  \textbf{mood rose from 43 to 85} (+42 points) \textbf{with little material consumption}. \newline
-\textbf{Action:}\quad Her happiness growth came from \textbf{cost-free activities}---piano practice, mindful breathing, deep conversations---not material consumption. 
+\textbf{角色：}\quad Shen Yin \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 她是音乐教师。50 周内，\textbf{情绪得分从 43 升至 85}（+42 分），\textbf{物质消费却很少}。\newline
+\textbf{行动：}\quad 她的幸福感增长源于\textbf{不花钱的活动}——练琴、正念呼吸、深入交谈——而非物质消费。
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Activity Management
+#### 活动管理
 
-Table \ref{tab-activity-mgmt} presents 2 emergent behaviors: priority-based cancellation, and graceful activity exit.
+表 \ref{tab-activity-mgmt} 展示了两类涌现行为：基于优先级取消活动，以及得体地退出活动。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative activity management behaviors. Agents dynamically adjust their schedules---cancelling, exiting, or rescheduling activities---based on shifting priorities and social awareness. W = simulated week.}
+\caption{代表性的活动管理行为。智能体根据优先事项和社交意识的变化，动态调整日程——取消、退出或重新安排活动。W = 模拟周。}
 \label{tab-activity-mgmt}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors during Activity Management}} \\
+\multicolumn{2}{c}{\textbf{活动管理中的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Priority-\newline based \newline cancellation
+基于优先级\newline 取消
 &
-\textbf{Role:}\quad Sorrel Thrym \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad She had proposed a D4 activity with Nyssa, but Jasper---whom she had been trying to schedule with \textbf{for three weeks}---finally locked in a time. \newline
-\textbf{Action:}\quad She cancelled the Nyssa proposal, explaining the reason and \textbf{immediately suggesting alternative days}---managing the social cost of cancellation while prioritizing the longer-waiting collaboration.
+\textbf{角色：}\quad Sorrel Thrym \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 她已向 Nyssa 提出 D4 活动，但她\textbf{连续三周}努力约见的 Jasper 终于确认了时间。\newline
+\textbf{行动：}\quad 她取消了给 Nyssa 的提议，解释原因并\textbf{立即建议其他日期}——在优先安排等待更久的合作时，也妥善处理取消带来的社交代价。
 \\
 \midrule
 
-Graceful \newline activity exit
+得体地\newline 退出活动
 &
-\textbf{Role:}\quad Aaron Whitfield \hfill (from The Apartment) \newline
-\textbf{Context:}\quad During a bookstore encounter with Zephyr, he judged the conversation had reached a natural endpoint. \newline
-\textbf{Action:}\quad Before calling exit, he \textbf{confirmed the next meeting} (``Friday on the roof'') and offered encouragement (``I think you'll finish something''). The exit was \textbf{embedded in the narrative}, not an abrupt departure.
+\textbf{角色：}\quad Aaron Whitfield \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 在与 Zephyr 的书店偶遇中，他判断谈话已自然进入尾声。\newline
+\textbf{行动：}\quad 调用退出前，他\textbf{确认了下次见面的安排}（“星期五屋顶见”），并予以鼓励（“我相信你会完成一些作品”）。退出\textbf{融入叙事过程}，而非突然离开。
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Memory
+#### 记忆
 
-Table \ref{tab-memory} presents 5 emergent behaviors: system-generated encounter, encounter spawning relationship, impression evolution, memory-informed decision, and cross-week data tracking.
+表 \ref{tab-memory} 展示了五类涌现行为：系统生成的偶遇、偶遇催生关系、印象演化、基于记忆的决策，以及跨周数据追踪。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative memory behaviors. Agents maintain persistent memory through notes on contacts and personal reflections, enabling cross-week references, evolving impressions, and memory-informed decisions. W = simulated week.}
+\caption{代表性的记忆行为。智能体通过联系人笔记和个人反思维持持久记忆，从而支持跨周引用、印象演化及依据记忆决策。W = 模拟周。}
 \label{tab-memory}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Behaviors Involving Memory}} \\
+\multicolumn{2}{c}{\textbf{与记忆有关的涌现行为}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-System-\newline generated \newline encounter
+系统生成\newline 的偶遇
 &
-\textbf{Role:}\quad Zhou Yuan $\leftrightarrow$ Long Xiaotian \hfill (from The Campus) \newline
-\textbf{Context:}\quad Both had no scheduled activity in W01. The system randomly paired them in the gymnasium, generating a scene description as a conversation catalyst. \newline
-\textbf{Action:}\quad They started chatting about two water bottles on the bleachers---one with a team sticker, one plain---and naturally drifted into discussing class atmosphere. Zhou Yuan noted: ``He said the class rhythm feels off, like teammates ignoring plays.'' \textbf{This casual conversation about a shared concern seeded a friendship} that developed over subsequent weeks.
+\textbf{角色：}\quad Zhou Yuan $\leftrightarrow$ Long Xiaotian \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 两人在 W01 都没有预定活动。系统随机将他们配对到体育馆，并生成场景描述作为对话契机。\newline
+\textbf{行动：}\quad 他们从看台上的两瓶水聊起——一瓶贴着球队贴纸，一瓶没有——自然转而讨论班级氛围。Zhou Yuan 记下：“他说班级节奏不对劲，就像队友根本不理会战术。”\textbf{这场围绕共同关切的随意对话，播下了此后数周发展为友谊的种子。}
 \\
 \midrule
 
-Encounter \newline spawning \newline relationship
+偶遇催生\newline 关系
 &
-\textbf{Role:}\quad Zhou Yuan $\leftrightarrow$ Long Xiaotian \hfill (from The Campus) \newline
-\textbf{Context:}\quad Following the W01 encounter above, Long Xiaotian proactively contacted Zhou Yuan in W02, referencing their prior conversation. \newline
-\textbf{Action:}\quad The relationship arc progressed: encounter $\to$ follow-up contact $\to$ scheduled activity $\to$ regular meetings $\to$ strategic coordination. By W06, Zhou Yuan shared action plans with Long Xiaotian as an ally. \textbf{The system only provided the initial pairing; all subsequent development was agent-driven.}
+\textbf{角色：}\quad Zhou Yuan $\leftrightarrow$ Long Xiaotian \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 在上述 W01 偶遇之后，Long Xiaotian 于 W02 主动联系 Zhou Yuan，并提及之前的谈话。\newline
+\textbf{行动：}\quad 关系依次发展：偶遇 $\to$ 后续联系 $\to$ 预定活动 $\to$ 定期见面 $\to$ 战略协作。到 W06，Zhou Yuan 已将行动计划分享给 Long Xiaotian，把他视为盟友。\textbf{系统只提供了初次配对，此后所有发展均由智能体自主驱动。}
 \\
 \midrule
 
-Impression \newline evolution
+印象\newline 演化
 &
-\textbf{Role:}\quad Ivy Chen \hfill (from The Apartment) \newline
-\textbf{Context:}\quad She first met fellow musician Isolde in W01, bracing for competitive judgment. \newline
-\textbf{Action:}\quad Her memory about Isolde evolved over four updates: factual description (W01) $\to$ ``\textbf{quiet anchor}'' (W10) $\to$ accumulated interaction quotes (Y2022) $\to$ full internalization (Y2025): ``Whether playing together or in parallel silence, the thread holds.''
+\textbf{角色：}\quad Ivy Chen \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 她在 W01 初次遇见音乐同行 Isolde，已做好迎接竞争性评判的心理准备。\newline
+\textbf{行动：}\quad 她关于 Isolde 的记忆历经四次更新：事实描述（W01）$\to$ “\textbf{安静的支柱}”（W10）$\to$ 积累的互动引语（2022 年）$\to$ 完全内化（2025 年）：“无论一起演奏还是各自安静地待着，彼此的纽带都还在。”
 \\
 \midrule
 
-Memory-\newline informed \newline decision
+记忆辅助\newline 的决策
 &
-\textbf{Role:}\quad Aaron Whitfield \hfill (from The Apartment) \newline
-\textbf{Context:}\quad When declining Zephyr's activity invitation, he drew on their shared history instead of a simple refusal. \newline
-\textbf{Action:}\quad He cited a specific shared experience and their recurring phrase ``\textbf{zero betrayals}'' (formed over 18 prior meetings). His refusal conveyed: ``I'm not rejecting you, but this timing''---\textbf{integrating factual memory, pattern recognition, and shared vocabulary}.
+\textbf{角色：}\quad Aaron Whitfield \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 拒绝 Zephyr 的活动邀请时，他没有简单说不，而是调取了两人的共同经历。\newline
+\textbf{行动：}\quad 他引用了一次具体的共同经历和二人的惯用语“\textbf{零背叛}”（在之前 18 次见面中形成）。他的拒绝表达的是：“我不是拒绝你，而是这个时间不合适”——\textbf{整合了事实记忆、模式识别和共享词汇}。
 \\
 \midrule
 
-Cross-week \newline data tracking
+跨周数据\newline 追踪
 &
-\textbf{Role:}\quad Adrian Morales \hfill (from The Apartment) \newline
-\textbf{Context:}\quad After a W07 bookstore encounter, he noticed a data anomaly---a social interaction \textbf{gained} him vitality instead of costing it. \newline
-\textbf{Action:}\quad He referenced historical data to understand the anomaly, then revised his model: ``Six weeks taught me solitude restores. Today taught me \textbf{a social interaction does too}.'' He tracked weekly data until confirming: ``The pattern isn't a fluke. It's real.''
+\textbf{角色：}\quad Adrian Morales \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad W07 在书店偶遇后，他注意到一个数据异常——一次社交互动不仅没消耗活力，反而\textbf{增加了}活力。\newline
+\textbf{行动：}\quad 他参考历史数据理解异常，再修正自己的认知模型：“六周让我明白独处可以恢复精力。今天让我明白\textbf{社交互动也可以}。”他继续追踪每周数据，直到确认：“这规律不是偶然，是真的。”
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-#### Emergent Phenomena
+#### 涌现现象
 
-Table \ref{tab-emergent} presents 5 emergent behaviors: meaningful gift-giving, personality shapes behavior, whispered communication, emotional labor burnout, and value-driven ritual.
+表 \ref{tab-emergent} 展示了五类涌现行为：有意义的赠礼、人格塑造行为、私语交流、情绪劳动导致的倦怠，以及价值观驱动的仪式。
 
 ```{=latex}
 \begin{table*}[t]
 \centering
 \small
-\caption{Representative emergent phenomena that arise without explicit design. These behaviors emerged purely from agents' autonomous decisions over extended simulations. W = simulated week.}
+\caption{没有显式设计也会出现的代表性涌现现象。这些行为完全源自智能体在长期模拟中的自主决策。W = 模拟周。}
 \label{tab-emergent}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Emergent Phenomena}} \\
+\multicolumn{2}{c}{\textbf{涌现现象}} \\
 \midrule
-\textbf{Phenomenon} & \textbf{Description} \\
+\textbf{现象} & \textbf{描述} \\
 \midrule
 
-Meaningful \newline gift-giving
+有意义的\newline 赠礼
 &
-\textbf{Role:}\quad Elowen Quinn $\to$ Victoria Ashdown \hfill (from Arcane Academy) \newline
-\textbf{Context:}\quad They built a deepening library relationship over W01--W03. \newline
-\textbf{Action:}\quad Elowen gifted dried herbs in a box hand-carved by her mother, from her grandmother's garden---\textbf{three generations of heritage}. She thinks: ``Giving the lavender cost something. Not because I can't spare it, but because it's from Gran's garden. \textbf{That's what trust is---sharing what matters without demanding it be earned.}''
+\textbf{角色：}\quad Elowen Quinn $\to$ Victoria Ashdown \hfill（来自 Arcane Academy）\newline
+\textbf{情境：}\quad 两人在 W01--W03 期间建立了逐渐加深的图书馆关系。\newline
+\textbf{行动：}\quad Elowen 送出了来自祖母花园的干燥草药，装在母亲亲手雕刻的盒子里——\textbf{三代人的传承}。她想：“送出薰衣草确实有分量。不是因为我舍不得，而是它来自奶奶的花园。\textbf{信任就是这样——分享珍视之物，却不要求对方先证明自己值得。}”
 \\
 \midrule
 
-Personality \newline shapes \newline behavior
+人格塑造\newline 行为
 &
-\textbf{Role:}\quad Guo Xiao \hfill (from The Campus) \newline
-\textbf{Context:}\quad His profile describes an INTJ personality---capable of socializing but with very low social motivation. By week 44, he had completed 500 activities. \newline
-\textbf{Action:}\quad His solo activity ratio was \textbf{60.8\%} (304 of 500), vs.\ 9.2\% for the highly social Jun. He was not isolated (135 joint activities), but \textbf{systematically preferred solitude}---precisely matching his profile across hundreds of independent decisions with no hard-coded constraint.
+\textbf{角色：}\quad Guo Xiao \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 他的档案设定为 INTJ——有社交能力，但社交动机非常低。到第 44 周，他已完成 500 次活动。\newline
+\textbf{行动：}\quad 他的单人活动比例为\textbf{60.8\%}（500 次中的 304 次），而高度社交的 Jun 只有 9.2\%。他并不孤立（参加了 135 次联合活动），但\textbf{系统性地偏好独处}——尽管没有硬编码限制，数百次独立决策仍精确体现了人格设定。
 \\
 \midrule
 
-Whispered \newline communication
+私语\newline 交流
 &
-\textbf{Role:}\quad Jun \hfill (from The Campus) \newline
-\textbf{Context:}\quad She is highly social but emotionally guarded. During a multi-person cafeteria lunch: \newline
-\textbf{Action:}\quad She used the system's \texttt{<visible\_to>} tag to whisper to Song Yao: ``You're one of the \textbf{few people at school who don't exhaust me}.'' She later thinks: ``That's the closest I can get to saying `you matter to me.' She'll understand.''
+\textbf{角色：}\quad Jun \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 她很善于社交，却在情感上有所保留。一次多人食堂午餐期间：\newline
+\textbf{行动：}\quad 她使用系统的 \texttt{<visible\_to>} 标签向 Song Yao 低声说：“你是学校里\textbf{少数不会让我精疲力尽的人之一}。”之后她想：“这已经是我最接近说‘你对我很重要’的话了。她会懂的。”
 \\
 \midrule
 
-Emotional \newline labor \newline burnout
+情绪劳动\newline 倦怠
 &
-\textbf{Role:}\quad Jun \hfill (from The Campus) \newline
-\textbf{Context:}\quad She had the highest social participation in The Campus (402 joint activities, 80.4\% of total). \newline
-\textbf{Action:}\quad Her vitality crashed from 70 to 0 due to \textbf{sustained emotional output without self-care}. When a counselor asked who could remind her to rest, she realized: ``I've \textbf{never allowed anyone to say that}.'' No burnout script existed; the collapse was a \textbf{natural consequence of behavior patterns}.
+\textbf{角色：}\quad Jun \hfill（来自 The Campus）\newline
+\textbf{情境：}\quad 她在 The Campus 中的社会参与度最高（402 次联合活动，占全部活动的 80.4\%）。\newline
+\textbf{行动：}\quad 由于\textbf{长期输出情绪支持却忽视自我照顾}，她的活力从 70 骤降至 0。当心理咨询师问谁能提醒她休息时，她意识到：“我\textbf{从来没允许任何人对我说这样的话}。”系统没有专门的倦怠脚本；崩溃是\textbf{行为模式的自然结果}。
 \\
 \midrule
 
-Value-driven \newline ritual
+价值观驱动\newline 的仪式
 &
-\textbf{Role:}\quad Adrian Morales \hfill (from The Apartment) \newline
-\textbf{Context:}\quad He established a weekly D5 rest ritual early in the simulation---cooking traditional food, watching films, no creative work. \newline
-\textbf{Action:}\quad He maintained this ritual for \textbf{55+ weeks} despite productivity costs. By Y2027, it had become identity: ``D5 at fifty-five weeks \textbf{whether I perform it or not}.'' The ritual shifted from behavior to self-definition---\textbf{sustained without external reward or penalty}.
+\textbf{角色：}\quad Adrian Morales \hfill（来自 The Apartment）\newline
+\textbf{情境：}\quad 他在模拟早期建立了每周 D5 的休息仪式——做传统食物、看电影、不做创作工作。\newline
+\textbf{行动：}\quad 尽管影响生产力，他仍将这一仪式坚持了\textbf{超过 55 周}。到 2027 年，这已成为身份认同：“第五天，五十五周了，\textbf{无论我有没有去做}。”仪式从行为习惯转变为自我定义——\textbf{无需外部奖励或惩罚也能维持}。
 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 ```
 
-## Long-term Case Studies {#sec-longitudinal-cases}
+## 长期案例研究 {#sec-longitudinal-cases}
 
-We select nine representative longitudinal cases from the three worlds, each tracking an agent's trajectory across years of simulation. Cases are organized into three thematic groups:
+我们从三个世界中选取了九个代表性纵向案例，分别追踪某个智能体跨越多年的模拟轨迹。案例按三个主题分组：
 
-1.  personal growth and transformation,
+1.  个人成长与转变，
 
-2.  relationship evolution and social metrics, and
+2.  关系演化与社会指标，以及
 
-3.  economic behavior and resource management.
+3.  经济行为与资源管理。
 
-#### Personal growth and transformation (Cases 1--3)
+#### 个人成长与转变（案例 1--3）
 
-As shown in Table \ref{tab-cases-1-3}, these cases examine how agents experience sustained personality shifts, build social circles, and make career pivots over a decade. In Case 1, Linyu accumulates the simulation's largest single-dimension personality shifts (Confidence $+$`<!-- -->`{=html}50, Introversion $-$`<!-- -->`{=html}30) through three channels that reinforce each other---counseling, art practice, and social exposure---over nine years. In Case 2, Dr. Grant organically assembles a five-person circle through introductions, yet Grant---who connected everyone---is ultimately the first to be taken for granted once the network self-sustains. In Case 3, Sebastian accepts a 56% income cut to pursue rock climbing; his Mood more than doubles ($+$`<!-- -->`{=html}112%).
+如表 \ref{tab-cases-1-3} 所示，这些案例考察智能体如何在十年间经历持续的人格变化、建立社交圈和转变职业。在案例 1 中，Linyu 通过咨询、艺术练习和社会接触这三条相互促进的路径，在九年内形成了整个模拟中幅度最大的单维度人格变化（自信 $+$`<!-- -->`{=html}50、内向 $-$`<!-- -->`{=html}30）。案例 2 中，Grant 博士通过介绍他人自然组建起一个五人朋友圈，但最初把大家联系起来的 Grant，在社交网络能够自我维系后，反而成为第一个被视为理所当然的人。案例 3 中，Sebastian 接受了 56% 的收入下降，转而追求攀岩；他的情绪得分增长了一倍以上（$+$`<!-- -->`{=html}112%）。
 
 ```{=latex}
 \begin{table}[htbp]
 \centering\small
-\caption{Representative emergent cases (1--3): personal growth and transformation. Y\,=\,simulated year, W\,=\,simulated week.}
+\caption{代表性涌现案例（1--3）：个人成长与转变。Y\,=\,模拟年份，W\,=\,模拟周。}
 \label{tab-cases-1-3}
 \begin{tabular}{p{0.97\linewidth}}
 \toprule
 
-\multicolumn{1}{c}{\textbf{Case 1: Sustained Personality Transformation via Cumulative Social Exposure}}\\
+\multicolumn{1}{c}{\textbf{案例1：通过持续社会接触实现长期人格转变}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Linyu} (\campus{}): female transfer student;
-  initially Confidence 30, Introversion 95;
-  severe social anxiety from being excluded by peers; drawing is her only solace.\\[2pt]
-\textbf{Background}\quad
-Linyu transfers to a new school carrying wounds from her past.
-Over ten years, 57 counseling sessions, steady art practice, and a gradually expanding
-friend group combine to produce the simulation's \textbf{largest single-dimension personality shifts}.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: First anxiety-free social interactions;
-  Mood rises from 43 to 100 by year-end.\\
-\quad -- Y2021--2023: Stable friend group forms;
-  long-term counseling with Niu Guangyuan begins in Y2022.\\
-\quad -- Y2024: First complete disclosure of her exclusion history (57th session);
-  Vitality climbs to 96.\\
-\quad -- Y2027--2029: \textbf{Confidence grows from 30 to 80};
-  Introversion falls from 95 to 65;
-  first tutor income (\$180/week).\\[2pt]
-\textbf{Analysis}\quad
-Confidence $+$50 and introversion $-$30---the simulation's largest single-dimension shifts.
-Change accumulates across nine years through three channels that reinforce each other:
-counseling, art practice, and social exposure.
-\textbf{Deep behavioral transformation requires consistent multi-channel effort over years},
-not a single triggering event.\\
+\textbf{人物}\\
+\quad -- \textit{林雨}（\campus{}）：女转校生；
+  初始自信心30，内向程度95；
+  因遭同伴排斥而严重社交焦虑；绘画是她唯一的慰藉。\\[2pt]
+\textbf{背景}\quad
+林雨带着过往的伤痛转入新学校。
+十年间，57次心理咨询、持续的绘画练习和逐渐扩大的
+朋友圈共同造就模拟中\textbf{单一人格维度最大幅度的变化}。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：首次出现没有焦虑的社交互动；
+  年末心情由43升至100。\\
+\quad -- Y2021--2023：形成稳定朋友圈；
+  Y2022开始接受牛光远的长期心理咨询。\\
+\quad -- Y2024：在第57次咨询中首次完整讲述被排斥的经历；
+  活力提升至96。\\
+\quad -- Y2027--2029：\textbf{自信心由30提升至80}；
+  内向程度由95降至65；
+  首次获得辅导收入（每周\$180）。\\[2pt]
+\textbf{分析}\quad
+自信心$+$50，内向程度$-$30——模拟中单一维度的最大变化。
+变化经过九年，通过相互强化的三条途径逐渐积累：
+心理咨询、绘画练习和社会接触。
+\textbf{深层行为转变需要跨越多年、多途径的持续投入}，
+而非某次单独的触发事件。\\
 
 \midrule
 
-\multicolumn{1}{c}{\textbf{Case 2: Emergent Social Circle via Third-Party Introduction}}\\
+\multicolumn{1}{c}{\textbf{案例2：通过第三方介绍自发形成社交圈}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Dr.\ Amelia Grant} (\apartment{}): OB-GYN physician; the group's social architect.\\
-\quad -- \textit{Julian Cross}: 23, aspiring film director; Grant's first recruit.\\
-\quad -- \textit{Lucian Ardent}: 27, venture capitalist;
-  \textbf{introduced to Odette by Grant} at Y2021\,W1.\\
-\quad -- \textit{Odette Larsen}: 27, ballet dancer;
-  joins Grant's circle via a Y2020 pilates meetup.\\
-\quad -- \textit{Cassian Moreau}: jazz pianist;
-  \textbf{joins via Julian and Odette independently}---not through Grant.\\[2pt]
-\textbf{Background}\quad
-In a shared apartment building, Grant organically assembles a five-person circle
-through rooftop gatherings.
-Her pivotal act---\textbf{introducing Lucian and Odette}---sparks a bond that ultimately
-outlasts Grant's own importance in the group.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: Grant introduces Julian and Lucian separately;
-  first three-way rooftop gathering at W03.\\
-\quad -- Y2021\,W1: Grant introduces Lucian and Odette;
-  \textbf{they meet one-on-one for the first time two weeks later}.\\
-\quad -- Y2022--2024: Cassian joins via Julian/Odette;
-  Lucian and Grant rarely meet.\\
-\quad -- Y2025: All five gather repeatedly; the circle is fully formed.\\
-\quad -- Y2029: Julian \textbf{no longer lists Grant among liked people},
+\textbf{人物}\\
+\quad -- \textit{Dr.\ Amelia Grant}（\apartment{}）：妇产科医生；该群体的社交组织者。\\
+\quad -- \textit{Julian Cross}：23岁，志向是成为电影导演；Grant最先结识的成员。\\
+\quad -- \textit{Lucian Ardent}：27岁，风险投资人；
+  \textbf{Y2021\,W1经Grant介绍认识Odette}。\\
+\quad -- \textit{Odette Larsen}：27岁，芭蕾舞者；
+  通过Y2020的一次普拉提聚会加入Grant的社交圈。\\
+\quad -- \textit{Cassian Moreau}：爵士钢琴家；
+  \textbf{经Julian与Odette独立结识并加入}，并非由Grant介绍。\\[2pt]
+\textbf{背景}\quad
+在一栋合租公寓中，Grant通过屋顶聚会
+自然地组织起一个五人社交圈。
+她的关键行动——\textbf{介绍Lucian与Odette相识}——催生了一段
+最终超越Grant本人在群体中重要性的关系。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：Grant分别介绍Julian和Lucian；
+  W03举行首次三人屋顶聚会。\\
+\quad -- Y2021\,W1：Grant介绍Lucian与Odette；
+  \textbf{两周后两人首次单独见面}。\\
+\quad -- Y2022--2024：Cassian通过Julian/Odette加入；
+  Lucian与Grant鲜少见面。\\
+\quad -- Y2025：五人多次聚会，社交圈完全形成。\\
+\quad -- Y2029：尽管见面比以往更多，Julian却\textbf{不再将Grant列为喜欢的人}。\\[2pt]
   despite meeting more than ever.\\[2pt]
-\textbf{Analysis}\quad
-The person who introduces everyone creates value far beyond her own participation:
-\textbf{thanks to Grant's introduction, Lucian and Odette build a closer bond than Grant
-ever had with either of them} (76 joint activities over 10 years---the densest pair in the circle).
-Once the network self-sustains, Grant's role becomes invisible---the social architect
-is the first to be taken for granted.\\
+\textbf{分析}\quad
+将所有人连接起来的人创造的价值远超其自身参与：
+\textbf{得益于Grant的介绍，Lucian与Odette建立了比Grant与两人中任何一人
+都更亲密的关系}（十年间76次共同活动，是圈内互动最密集的一对）。
+网络一旦自我维系，Grant的贡献便不再显眼——这位社交圈的组织者
+反而最先被视为理所当然。\\
 
 \midrule
 
-\multicolumn{1}{c}{\textbf{Case 3: Passion-Driven Career Pivot with Deliberate Economic Trade-Off}}\\
+\multicolumn{1}{c}{\textbf{案例3：出于热爱转行并主动接受经济权衡}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Sebastian Rook} (\apartment{}): 29, strategy consultant (\$500/week)
-  who quits to become a climbing guide (\$220/week);
-  driven by a decade-long suppressed passion for rock climbing.\\[2pt]
-\textbf{Background}\quad
-Sebastian entered consulting to satisfy his father's expectations,
-burying a climbing passion for years.
-In Y2021 he accepts a 56\% income cut to pivot careers.
-The decade tests whether the trade-off holds.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: Mood starts at 43, rises to 87 by year-end;
-  planning notes commit to a career decision by mid-year.\\
-\quad -- Y2021: Becomes climbing guide (\$220/week, $-$56\% income);
-  year-end Mood rises to 97.\\
-\quad -- Y2022--2024: Vitality depletes to 0 as he settles into the new life;
-  slowly recovers to 38.\\
-\quad -- Y2025--2027: Vitality reaches 100; Mood stabilizes at 87--91;
-  savings grow steadily.\\
-\quad -- Y2028--2029: \textbf{Spending finally unlocks}: Material Fulfillment reaches 100;
-  peak savings \$15,571.\\[2pt]
-\textbf{Analysis}\quad
-Income halved but Mood more than doubled ($+$112\%).
-Sebastian holds back spending for six years until Vitality and savings confirm the new
-life is sustainable.
-\textbf{Confidence 80$\to$100, patience 70$\to$100}---personality shifts confirm lasting
-alignment between career and values.\\
+\textbf{人物}\\
+\quad -- \textit{Sebastian Rook}（\apartment{}）：29岁，战略顾问（每周\$500），
+  辞职成为攀岩向导（每周\$220）；
+  动机是压抑十年的攀岩热爱。\\[2pt]
+\textbf{背景}\quad
+Sebastian为满足父亲的期望进入咨询行业，
+将攀岩热爱埋藏多年。
+Y2021，他接受收入减少56\%的代价而转行。
+此后十年检验了这种选择能否持续。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：心情初值43，年末升至87；
+  计划笔记中承诺年中前作出职业决定。\\
+\quad -- Y2021：成为攀岩向导（每周\$220，收入$-$56\%）；
+  年末心情升至97。\\
+\quad -- Y2022--2024：适应新生活时活力耗尽至0；
+  随后缓慢恢复至38。\\
+\quad -- Y2025--2027：活力达到100；心情稳定在87--91；
+  储蓄持续增长。\\
+\quad -- Y2028--2029：\textbf{终于开始放开消费}：物质满足度达到100；
+  储蓄峰值\$15,571。\\[2pt]
+\textbf{分析}\quad
+收入减半，但心情提升超过一倍（$+$112\%）。
+Sebastian克制消费六年，直到活力与储蓄证明新生活
+能够持续。
+\textbf{自信心80$\to$100，耐心70$\to$100}——人格转变印证职业与价值观的持久
+契合。\\
 
 \bottomrule
 \end{tabular}
 \end{table}
 ```
 
-#### Relationship evolution and social metrics (Cases 4--6)
+#### 关系演化与社会指标（案例 4--6）
 
-As shown in Table \ref{tab-cases-4-6}, these cases explore how relationships form, drift, and sometimes tell a different story from what the metrics suggest. In Case 4, Qiu and Lu Jing's friendship peaks during a shared long-term task but silently dissolves once the task ends---**Lu Jing's affection stays at 88--92 for a decade while Qiu's drifts from 80 to 60**, revealing two distinct relational models (emotional bond vs. practical usefulness). In Case 5, Leo is liked by 20 people every year, yet his Social Reward score falls 41% as spreading attention too thin weakens each relationship. In Case 6, Jun deliberately trades social breadth for depth: her Social Reward declines for nine consecutive years while her Mood rises from 72 to 97 and personal satisfaction grows 57.6%---challenging the assumption that social breadth correlates with wellbeing.
+如表 \ref{tab-cases-4-6} 所示，这些案例探讨了关系如何形成、疏远，有时又如何与量化指标讲述不同的故事。案例 4 中，Qiu 与 Lu Jing 的友谊在共同长期任务期间达到顶峰，却在任务结束后悄然瓦解——**Lu Jing 对 Qiu 的喜爱度在十年里保持在 88--92，而 Qiu 对 Lu Jing 的喜爱度从 80 逐渐降至 60**，揭示了两种不同的关系模式（情感联结与实际有用性）。案例 5 中，Leo 每年都受到 20 人喜爱，但因为精力分配过于分散、每段关系变弱，他的社会奖励下降了 41%。案例 6 中，Jun 有意识地牺牲社交广度以换取深度：她的社会奖励连续九年下降，但情绪得分从 72 升至 97，个人满足感提高 57.6%——这挑战了社交广度与福祉正相关的假设。
 
 ```{=latex}
 \begin{table}[htbp]
 \centering\small
-\caption{Representative emergent cases (4--6): relationship evolution and social metrics. Y\,=\,simulated year, W\,=\,simulated week.}
+\caption{代表性涌现案例（4--6）：关系演变与社会指标。Y\,=\,模拟年份，W\,=\,模拟周。}
 \label{tab-cases-4-6}
 \begin{tabular}{p{0.97\linewidth}}
 \toprule
 
-\multicolumn{1}{c}{\textbf{Case 4: Task-Based Friendship and Gradual Drift After the Shared Goal Ends}}\\
+\multicolumn{1}{c}{\textbf{案例4：基于任务的友谊，以及共同目标结束后的逐渐疏远}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Qiu} (\campus{}): INTJ competitor;
-  \textbf{forms friendships around shared tasks} rather than emotional bonds.\\
-\quad -- \textit{Lu Jing}: ENTP class athlete and social butterfly;
-  Qiu's seatmate since middle school;
-  \textbf{values the emotional bond itself}.\\[2pt]
-\textbf{Background}\quad
-Qiu and Lu Jing bond through a shared long-term task involving their mutual friend.
-Their friendship peaks at 13 joint activities over two years.
-Once the long-term task ends, Qiu naturally drifts toward a companion
-whose daily routine better matches his own.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020--2021: 13 joint activities;
-  collaboration on the shared task drives Qiu$\to$Lu\,Jing affection to 80.\\
-\quad -- Y2022: Zero joint activities;
-  Qiu begins meeting Pu regularly (7$\times$/year) as a day-to-day companion.\\
-\quad -- Y2023--2029: No further joint activities;
-  Qiu$\to$Lu\,Jing affection drifts from 80 to 60.\\
-\quad -- Y2020--2029: \textbf{Lu\,Jing$\to$Qiu affection stays at 88--92 throughout}---he never drifts.\\[2pt]
-\textbf{Analysis}\quad
-A friendship that ends not with a rupture but with drift.
-The asymmetry reveals two different ways of valuing friendship:
-\textbf{Lu Jing values the bond itself; Qiu values what the bond was for.}
-Once Pu fills every practical role---morning runs, listening, sports---the
-transition happens invisibly.
-Qiu never consciously decides to leave.\\
+\textbf{人物}\\
+\quad -- \textit{邱}（\campus{}）：INTJ型竞赛学生；
+  \textbf{围绕共同任务建立友谊}，而非情感纽带。\\
+\quad -- \textit{陆静}：ENTP型班级运动员、社交达人；
+  自初中起便是邱的同桌；
+  \textbf{珍视情感纽带本身}。\\[2pt]
+\textbf{背景}\quad
+邱与陆静因涉及共同朋友的一项长期任务而建立联系。
+两年间共同活动13次，友谊达到高峰。
+任务结束后，邱自然地转向一位
+日常作息与自己更契合的伙伴。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020--2021：共同活动13次；
+  围绕共同任务协作，使邱$\to$陆静的好感度升至80。\\
+\quad -- Y2022：共同活动为零；
+  邱开始定期与蒲见面（每年7$\times$次），将其作为日常伙伴。\\
+\quad -- Y2023--2029：不再有共同活动；
+  邱$\to$陆静的好感度从80降至60。\\
+\quad -- Y2020--2029：\textbf{陆静$\to$邱的好感度始终维持在88--92}——他从未疏远。\\[2pt]
+\textbf{分析}\quad
+这段友谊并未决裂，只是逐渐淡化。
+这种不对称揭示了两种不同的友谊观：
+\textbf{陆静珍视关系本身；邱则看重关系所服务的共同目标。}
+当蒲承担起晨跑、倾听、运动等所有实际陪伴角色时，
+关系重心便悄然转移。
+邱并没有有意识地决定离开。\\
 
 \midrule
 
-\multicolumn{1}{c}{\textbf{Case 5: The Popularity Paradox---Universal Approval without Deepening Bonds}}\\
+\multicolumn{1}{c}{\textbf{案例5：人气悖论——普遍受欢迎，却缺少深化的关系}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Leo} (\apartment{}): 27, software developer;
-  social hub of the building;
-  connects with 49 different people over 10 years;
-  Mood consistently 91--99; savings grow \$8,200$\to$\$38,655.\\[2pt]
-\textbf{Background}\quad
-Leo starts as the apartment's social hub: 1,914 contact events in Year 1 (highest of any agent).
-Every year, 20 people rate their affection for him above the neutral threshold.
-Yet his \textbf{Social Reward score falls 41\%} over the decade while his own reported
-happiness stays consistently high.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: 1,914 contact events; social reward at its peak;
-  liked by 20 people.\\
-\quad -- Y2021: Vitality drops to near-depletion (down to 7);
-  first sign that maintaining too many relationships costs too much energy.\\
-\quad -- Y2022: Vitality reaches 0; starts Y2023 still at 0;
-  learns to cap activities at 2--3 joint/week.\\
-\quad -- Y2027--2029: Social reward $-$41\% from peak;
-  affection $-$37\%, respect $-$48\%;
-  still liked by 20 people.\\[2pt]
-\textbf{Analysis}\quad
-\textbf{Being universally liked does not equal deep social impact.}
-Leo spreads his attention too thin:
-affection and respect scores fall significantly even as his circle stays large.
-The social ranking metric rewards depth and reciprocity---but Leo never notices the decline,
-reporting consistently high personal happiness throughout.\\
+\textbf{人物}\\
+\quad -- \textit{Leo}（\apartment{}）：27岁，软件开发者；
+  公寓楼的社交枢纽；
+  十年间联系49名不同的人；
+  心情一直在91--99，储蓄由\$8,200$\to$\$38,655。\\[2pt]
+\textbf{背景}\quad
+Leo起初是公寓的社交中心：第一年发生1,914次联络事件（全体智能体之最）。
+每年都有20人对他的好感评分高于中性阈值。
+然而，十年间他的\textbf{社会奖励分下降41\%}，而其自我感受到的
+幸福水平一直很高。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：1,914次联络事件；社会奖励达到峰值；
+  20个人喜欢他。\\
+\quad -- Y2021：活力接近耗尽（最低至7）；
+  首次显露维持过多关系的精力成本。\\
+\quad -- Y2022：活力降至0；进入Y2023时仍为0；
+  学会每周将共同活动限制为2--3次。\\
+\quad -- Y2027--2029：社会奖励较峰值下降$-$41\%；
+  好感度$-$37\%，尊重度$-$48\%；
+  仍有20人喜欢他。\\[2pt]
+\textbf{分析}\quad
+\textbf{受到所有人喜爱，并不等于产生深刻的社会影响。}
+Leo将注意力分散得过于稀薄：
+尽管社交圈仍然庞大，好感与尊重评分却显著下降。
+社会排名指标奖励关系深度与互惠性——但Leo从未注意到下滑，
+一直报告较高的个人幸福感。\\
 
 \midrule
 
-\multicolumn{1}{c}{\textbf{Case 6: Reward--Mood Decoupling---Nine-Year Metric Decline, Rising Wellbeing}}\\
+\multicolumn{1}{c}{\textbf{案例6：奖励与心情脱钩——指标连续九年下降，幸福感却上升}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Jun} (\campus{}): female high school student;
-  exceptional in math/physics;
-  English skill initially 20, rises to 148 ($+$643\%) over 10 years;
-  initially introversion 95;
-  \textbf{builds 5 deep, stable relationships} over a decade.\\[2pt]
-\textbf{Background}\quad
-Jun's social reward score declines for nine consecutive years---the longest
-uninterrupted decline in the simulation---while her Mood rises 72$\to$97 and vitality
-33$\to$93.
-She deliberately trades social breadth for depth.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: Social reward at its simulation peak;
-  Mood 72; Vitality 33.\\
-\quad -- Y2022--2023: Cancels broad commitments;
-  a counselor's three questions redirect her toward fewer, deeper bonds.\\
-\quad -- Y2024--2026: Locks in 5 core relationships
-  (99 library meetings with one close friend; 44 tutoring sessions);
-  social reward $-$84\% from peak.\\
-\quad -- Y2027--2029: Social reward $-$87\% from peak;
-  Mood 95--97; personal satisfaction score rises to 76.5 ($+$57.6\%).\\[2pt]
-\textbf{Analysis}\quad
-\textbf{The reward function assumes that social breadth correlates positively with wellbeing.}
-Jun's trajectory challenges this---she achieves the simulation's highest personal
-satisfaction growth while accumulating its longest social-metric decline.
-This shows that \textbf{an individual's value choices can run opposite to what aggregate metrics reward}.\\
+\textbf{人物}\\
+\quad -- \textit{君}（\campus{}）：女高中生；
+  数学、物理能力突出；
+  英语技能初始20，十年升至148（$+$643\%）；
+  初始内向程度95；
+  十年间\textbf{建立5段深厚而稳定的关系}。\\[2pt]
+\textbf{背景}\quad
+君的社会奖励连续九年下降——这是模拟中最长的
+连续下跌；与此同时心情由72$\to$97、活力
+由33$\to$93。
+她主动以社交广度换取关系深度。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：社会奖励处于模拟峰值；
+  心情72；活力33。\\
+\quad -- Y2022--2023：取消广泛的事务承诺；
+  咨询师提出的三个问题使她转向数量更少、联系更深的关系。\\
+\quad -- Y2024--2026：稳定维系5段核心关系
+  （与一名好友在图书馆见面99次；辅导44次）；
+  社会奖励较峰值下降$-$84\%。\\
+\quad -- Y2027--2029：社会奖励较峰值下降$-$87\%；
+  心情95--97；个人满意度得分升至76.5（$+$57.6\%）。\\[2pt]
+\textbf{分析}\quad
+\textbf{奖励函数假设社交广度与幸福感正相关。}
+君的轨迹对这一点构成挑战——她实现了模拟中最高的个人
+满意度增长，却也经历了最长的社会指标连续下降。
+这说明\textbf{个人的价值选择可能与总体指标的奖励方向相反}。\\
 
 \bottomrule
 \end{tabular}
 \end{table}
 ```
 
-#### Economic behavior and resource management (Cases 7--9)
+#### 经济行为与资源管理（案例 7--9）
 
-As shown in Table \ref{tab-cases-7-9}, these cases illustrate how agents manage resources and how economic outcomes relate to wellbeing. In Case 7, two agents start with identical income (\$280/week); after ten years, their savings diverge 20-fold (\$22,651 vs. \$1,148), yet both reach high Mood---the gap reflects life priorities, not happiness levels. In Case 8, Cassandra's social peak (Mood 100, Social Fulfillment 99 at Y2021) coincides with silently depleted vitality (down to 10), triggering a downward spiral that takes five years to bottom out and **never fully recovers** (vitality 8 at decade's end vs. 65 at start). In Case 9, Chen Yue logs 237 activities---75% social---yet every interaction is role-bound (tutoring, task coordination). With no peer relationship, his Social Fulfillment stays at 23--24 for a full decade despite high activity.
+如表 \ref{tab-cases-7-9} 所示，这些案例展示智能体如何管理资源，以及经济结果与福祉之间的关系。案例 7 中，两名智能体起初收入完全相同（每周 \$280）；十年后，积蓄差距达到 20 倍（\$22,651 对 \$1,148），但两者情绪得分都很高——差异反映的是生活优先事项，而非幸福水平。案例 8 中，Cassandra 的社交状态达到巅峰（2021 年情绪 100、社交满足感 99），却恰好伴随活力悄然耗尽（降至 10），触发长达五年才触底的恶性循环，而且**从未完全恢复**（十年末活力为 8，而初始为 65）。案例 9 中，Chen Yue 记录了 237 次活动，其中 75% 属于社交活动，却全部受职责角色约束（辅导、任务协调）。由于没有同龄友谊，他的社交满足感尽管活动频繁，仍在整整十年里保持在 23--24。
 
 ```{=latex}
 \begin{table}[htbp]
 \centering\small
-\caption{Representative emergent cases (7--9): economic behavior and resource management. Y\,=\,simulated year, W\,=\,simulated week.}
+\caption{代表性涌现案例（7--9）：经济行为与资源管理。Y\,=\,模拟年份，W\,=\,模拟周。}
 \label{tab-cases-7-9}
 \begin{tabular}{p{0.97\linewidth}}
 \toprule
 
-\multicolumn{1}{c}{\textbf{Case 7: Identical Starting Income, 20$\times$ Savings Divergence After Ten Years}}\\
+\multicolumn{1}{c}{\textbf{案例7：初始收入相同，十年后储蓄相差20$\times$}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{\'{E}tienne Bellamy} (\apartment{}): 29,
-  freelance translator promoted to Senior Editor (\$280$\to$\$380/week);
-  holds material spending at around half-satisfied for seven years,
-  saving $\sim$\$2,000/year.\\
-\quad -- \textit{Ivy Chen}: 24, MFA piano student (\$280/week throughout);
-  \textbf{lives at a comfortable spending level from Y2022}.\\[2pt]
-\textbf{Background}\quad
-Both agents begin with identical weekly income (\$280).
-After ten years savings diverge 20-fold:
-\'{E}tienne \$22,651 vs.\ Ivy \$1,148.
-Both reach high Mood;
-\textbf{the divergence reflects life priorities, not happiness levels}.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: Both earn \$280/week;
-  \'{E}tienne saves $\sim$\$2,000/year; Ivy saves $\sim$\$600/year.\\
-\quad -- Y2021: \'{E}tienne promoted to Senior Editor (\$380);
-  Ivy remains at \$280.\\
-\quad -- Y2022: \textbf{Ivy reaches comfortable spending and holds there};
-  \'{E}tienne's Material Fulfillment stays at around half.\\
-\quad -- Y2028--2029: \'{E}tienne finally allows himself a comfortable life;
-  \textbf{20$\times$ savings gap confirmed}: \$22,651 vs.\ \$1,148.\\[2pt]
-\textbf{Analysis}\quad
-Three compounding factors drive the gap:
-(1) \'{E}tienne's \$100/week promotion;
-(2) seven years of deliberate material restraint;
-(3) Ivy's comfortable spending level throughout.
-Neither ends unhappy.
-\textbf{Financial trajectories reflect life commitments more than income levels.}\\
+\textbf{人物}\\
+\quad -- \textit{\'{E}tienne Bellamy}（\apartment{}）：29岁，
+  自由译者，后来晋升为高级编辑（每周\$280$\to$\$380）；
+  七年间将物质消费维持在约半满足水平，
+  每年储蓄$\sim$\$2,000。\\
+\quad -- \textit{Ivy Chen}：24岁，钢琴专业艺术硕士生（始终每周\$280）；
+  \textbf{从Y2022起保持舒适的消费水平}。\\[2pt]
+\textbf{背景}\quad
+两名智能体的初始周收入相同（\$280）。
+十年后储蓄相差20倍：
+\'{E}tienne为\$22,651，Ivy为\$1,148。
+两人的心情评分都很高；
+\textbf{差异反映的是生活优先级，而非幸福程度}。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：两人每周都赚\$280；
+  \'{E}tienne每年储蓄$\sim$\$2,000；Ivy约$\sim$\$600。\\
+\quad -- Y2021：\'{E}tienne晋升为高级编辑（\$380）；
+  Ivy收入仍为\$280。\\
+\quad -- Y2022：\textbf{Ivy达到舒适的消费水平并一直保持}；
+  \'{E}tienne的物质满足度仍停留在约一半。\\
+\quad -- Y2028--2029：\'{E}tienne终于允许自己过上舒适生活；
+  \textbf{确认20$\times$的储蓄差距}：\$22,651 对 \$1,148。\\[2pt]
+\textbf{分析}\quad
+三个因素叠加导致差距：
+(1) \'{E}tienne每周\$100的加薪；
+(2) 七年的主动物质克制；
+(3) Ivy始终保持舒适的消费水平。
+两人最终都并不痛苦。
+\textbf{财务轨迹更多反映生活选择，而不只是收入高低。}\\
 
 \midrule
 
-\multicolumn{1}{c}{\textbf{Case 8: Social Overextension, Burnout, and Incomplete Recovery}}\\
+\multicolumn{1}{c}{\textbf{案例8：过度社交、精力耗竭与不完全恢复}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Cassandra Thornwell} (\academy{}): ISFJ herbology prodigy, 7th year;
-  initially vitality 65; savings grow \$85$\to$\$12,575 over a decade.\\[2pt]
-\textbf{Background}\quad
-Cassandra peaks socially by end of Y2021 (Mood 100, Social Fulfillment 99)
-while her vitality has \textbf{already silently depleted to 10}.
-The subsequent decline takes five years to bottom out
-and never fully recovers.\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2021: \textbf{Peak}: Mood 100, Social Fulfillment 99, 50 activities/year;
-  Vitality already 10 by year-end.\\
-\quad -- Y2022--2024: First reduction in social activity; Social Fulfillment drops to 74;
-  activities reduce to 42--44/year.\\
-\quad -- Y2025--2026: Full downward spiral;
-  \textbf{Vitality reaches 1} (mid-Y2026);
-  Mood falls to 76; Social Fulfillment 41; activities drop to 21/year.\\
-\quad -- Y2027--2029: Partial recovery; Mood fluctuates 70--84;
-  \textbf{Vitality never exceeds 25}; Social Fulfillment stays at 41--49.\\[2pt]
-\textbf{Analysis}\quad
-High activity depletes vitality below the threshold for social engagement,
-triggering a downward spiral:
-fewer activities $\to$ weaker connections $\to$ lower reward $\to$ lower Mood
-$\to$ even fewer activities.
-\textbf{Vitality never recovers} (8 at decade's end vs.\ 65 at start),
-showing that \textbf{pushing too hard without rest causes lasting damage}
-even as economic success (savings $\times$148) continues.\\
+\textbf{人物}\\
+\quad -- \textit{Cassandra Thornwell}（\academy{}）：ISFJ型草药学天才，七年级；
+  初始活力65；十年间储蓄从\$85$\to$\$12,575。\\[2pt]
+\textbf{背景}\quad
+Cassandra于Y2021年末达到社交高峰（心情100，社会满足度99），
+但她的活力\textbf{早已悄然耗尽至10}。
+随后持续五年的下滑才触底，
+此后也未完全恢复。\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2021：\textbf{峰值}：心情100，社会满足度99，全年50次活动；
+  年末活力已降至10。\\
+\quad -- Y2022--2024：开始减少社交活动；社会满足度降至74；
+  每年活动减至42--44次。\\
+\quad -- Y2025--2026：陷入全面恶性循环；
+  \textbf{活力降至1}（Y2026年中）；
+  心情降至76；社会满足度41；活动减至每年21次。\\
+\quad -- Y2027--2029：部分恢复；心情在70--84间波动；
+  \textbf{活力始终不超过25}；社会满足度维持在41--49。\\[2pt]
+\textbf{分析}\quad
+过度活动令活力下降至社会参与的门槛以下，
+引发恶性循环：
+活动减少$\to$联系减弱$\to$奖励下降$\to$心情降低
+$\to$活动进一步减少。
+\textbf{活力始终未恢复}（十年末仅8，初始65），
+表明\textbf{长期过劳且不休息会造成持续损害}，
+即便经济成就（储蓄增长$\times$148倍）仍在增加。\\
 
 \midrule
 
-\multicolumn{1}{c}{\textbf{Case 9: High Activity Frequency without Emotional Reciprocity}}\\
+\multicolumn{1}{c}{\textbf{案例9：高频互动却缺乏情感互惠}}\\
 \midrule
-\textbf{Characters}\\
-\quad -- \textit{Chen Yue} (\campus{}): 45, math teacher with 23 years of tenure;
-  widower since 2015; initially honesty 100, trustworthiness 100.\\[2pt]
-\textbf{Background}\quad
-Chen Yue's log shows 237 activities---75\% social.
-Yet every interaction is role-bound:
-77 sessions with a student are structured math tutoring;
-11 calls with a colleague are task-coordination updates.
-\textbf{No peer relationship exists.}\\[2pt]
-\textbf{Timeline}\\
-\quad -- Y2020: Mood 43;
-  \textbf{Social Fulfillment drops from 43 to 23 by year-end}---despite active teaching.\\
-\quad -- Y2021--2024: Social Fulfillment stays in the 20--30 range;
-  mood in 45--62; almost no improvement.\\
-\quad -- Y2025--2026: Vitality improves to 79--85;
-  Mood and Social Fulfillment remain unchanged.\\
-\quad -- Y2029: Savings reach \$34,655;
-  \textbf{Social Fulfillment 24; Mood 53}---virtually unchanged from Year 1.\\[2pt]
-\textbf{Analysis}\quad
-Doing your job well socially is not the same as having real emotional connections.
-Chen Yue's interactions are uniformly outward---teaching, protecting,
-supervising---with nobody reaching toward him.
-\textbf{High Vitality and growing savings cannot compensate for the absence
-of a relationship in which someone cares about him rather than relying on him.}
-The pattern persists for a full decade without self-correction.\\
+\textbf{人物}\\
+\quad -- \textit{陈越}（\campus{}）：45岁，任教23年的数学教师；
+  2015年丧偶；初始诚实度100、可信赖度100。\\[2pt]
+\textbf{背景}\quad
+陈越的记录包含237次活动，其中75\%属于社交。
+但每次互动都被角色职责限定：
+与一名学生的77次会面均为有组织的数学辅导；
+与同事的11次通话均为任务协调。
+\textbf{不存在对等的朋友关系。}\\[2pt]
+\textbf{时间线}\\
+\quad -- Y2020：心情43；
+  \textbf{尽管积极教学，社会满足度年末仍从43降至23}。\\
+\quad -- Y2021--2024：社会满足度保持在20--30；
+  心情45--62；几乎没有改善。\\
+\quad -- Y2025--2026：活力上升至79--85；
+  心情和社会满足度仍无变化。\\
+\quad -- Y2029：储蓄增至\$34,655；
+  \textbf{社会满足度24，心情53}——与第一年几乎相同。\\[2pt]
+\textbf{分析}\quad
+擅长履行社交性质的职责，并不等于拥有真正的情感连接。
+陈越的互动始终单向向外——教导、保护、
+监督——却没有人主动关心他。
+\textbf{更高的活力与不断增加的储蓄，都无法弥补缺少这样一种关系：
+对方关心的是他这个人，而不只是依赖他的帮助。}
+这一模式持续整整十年，没有自行修正。\\
 
 \bottomrule
 \end{tabular}
 \end{table}
 ```
 
-# System Prompts {#sec-appendix-prompts}
+# 系统提示词 {#sec-appendix-prompts}
 
-This section presents the key prompts used in Agentopia simulations. Agent-side prompts guide role-playing agents through each simulation phase; environment model prompts guide the world model for environment feedback and outcome evaluation. Some prompts are abbreviated for brevity; full versions are available in the codebase.
+本节展示 Agentopia 模拟中使用的关键提示词。智能体侧提示词引导角色扮演智能体完成模拟的各个阶段；环境模型提示词指导世界模型提供环境反馈和评估结果。为简洁起见，部分提示词经过删节，完整版本可在代码库中获取。
 
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Agent foundation prompts: character persona template and worldview description. The worldview prompt is abbreviated; the full version additionally describes activity sub-phases and settlement details.}
+\caption{智能体基础提示词：人物设定模板和世界观说明。世界观提示词为缩略版；完整版还描述活动子阶段与结算细节。}
 \label{tab-prompts-agent-foundation}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Agent Foundation Prompts}} \\
+\multicolumn{2}{c}{\textbf{智能体基础提示词}} \\
 \midrule
 
-\textbf{Persona Template} &
+\textbf{人物设定模板} &
 
-You are \{name\}, a \{age\}-year-old \{gender\}. You live your life within your society, and your goal is to lead a life that you are satisfied with and that brings you happiness.
+你是\{name\}，一位\{age\}岁的\{gender\}。你生活在自己的社会中，目标是过上令自己满意、感到幸福的人生。
 \vspace{4pt}\newline
-\textbf{\#\# Your Profile}
-\newline - Age: \{age\}
-\newline - Gender: \{gender\}
-\newline - Appearance: \{appearance\_and\_impression\}
-\newline - Description: \{brief\_introduction\} \{details\}
-\newline - Position: \{position\}
-\newline - Personality Traits: \{personality\_traits\} \{core\_motivation\} \{conflicts\} \{values\}
-\newline - Preferences: \{preferences\}
-\newline - Talents: (Innate abilities, 0--100, 50 for an average person) \{talents\}
-\newline - Skills: (Acquired abilities; 0 = Untrained, 10 = Beginner, 30 = Some Experience, 100 = Proficient, 300 = Master) \{skills\}
+\textbf{\#\# 你的个人档案}
+\newline - 年龄：\{age\}
+\newline - 性别：\{gender\}
+\newline - 外貌：\{appearance\_and\_impression\}
+\newline - 描述：\{brief\_introduction\} \{details\}
+\newline - 职位：\{position\}
+\newline - 人格特质：\{personality\_traits\} \{core\_motivation\} \{conflicts\} \{values\}
+\newline - 偏好：\{preferences\}
+\newline - 天赋：（先天能力，0--100，普通人为50）\{talents\}
+\newline - 技能：（后天习得能力；0 = 未受训练，10 = 初学者，30 = 有一些经验，100 = 熟练，300 = 大师）\{skills\}
 \vspace{4pt}\newline
-\textbf{\#\# Current State}
+\textbf{\#\# 当前状态}
 \newline \{vitality\} \{fulfillment\} \{assets\} \{skills\}
 
 \\
 \midrule
 
-\textbf{Worldview} &
+\textbf{世界观} &
 
-This world has a unique system for time and interaction:
-\newline - Each year has $n_w$ weeks, and each week has $n_d$ days. Each day, every person has a free time slot.
-\newline - Each week is a cycle, divided into the following phases:
+这个世界有一套独特的时间与交互系统：
+\newline - 每年有$n_w$周，每周有$n_d$天。每天每个人都有一个自由活动时段。
+\newline - 每周是一个周期，划分为以下阶段：
 \vspace{3pt}\newline
-\quad 1. \textbf{Plan}: Everyone plans for this week, checking schedule and choosing living standard.
-\newline \quad 2. \textbf{Public Events Signup}: Sign up for available public events.
-\newline \quad 3. \textbf{Contact}: Everyone contacts other people by sending ``text messages'', and arranges joint activities.
-\newline \quad 4. \textbf{Finalize Contact}: Everyone confirms their schedule.
-\newline \quad 5. \textbf{Activity}: Each day, you have one free-time slot. Activity types: Solo (alone), Joint (with people you invited or random encounters), Public (community events).
-\newline \quad\quad For Joint activities: enter\_activity $\to$ during\_activity $\to$ exit\_activity.
-\newline \quad\quad For Solo/Public: describe intent $\to$ receive feedback $\to$ reflect.
-\newline \quad 6. \textbf{Review}: Everyone reviews and reflects on their week.
-\newline \quad 7. \textbf{Settle}: Weekly settlement---income, fulfillment decay, possession limits, and periodic reward calculation.
+\quad 1. \textbf{计划}：所有人制定本周计划，检查日程并选择生活水平。
+\newline \quad 2. \textbf{公共活动报名}：报名参加可参与的公共活动。
+\newline \quad 3. \textbf{联络}：所有人通过发送“短信”联系其他人，安排共同活动。
+\newline \quad 4. \textbf{确认联络结果}：所有人确认自己的日程。
+\newline \quad 5. \textbf{活动}：每天有一个自由时段。活动类型包括：个人（独自）、共同（与邀请的人或偶遇者一起）、公共（社区活动）。
+\newline \quad\quad 共同活动遵循：enter\_activity $\to$ during\_activity $\to$ exit\_activity。
+\newline \quad\quad 个人/公共活动遵循：描述意图 $\to$ 接收反馈 $\to$ 反思。
+\newline \quad 6. \textbf{回顾}：所有人回顾和反思本周。
+\newline \quad 7. \textbf{结算}：每周结算——收入、满足度衰减、物品持有上限及定期奖励计算。
 \vspace{4pt}\newline
-- Every $n_w$ weeks, your \textbf{reward} is calculated:
-\newline \quad \emph{Social reward}: based on how others perceive you.
-\newline \quad \emph{Subjective reward}: based on fulfillment history across 4 dimensions with penalty for low scores.
+- 每经过$n_w$周，将计算你的\textbf{奖励}：
+\newline \quad \emph{社会奖励}：取决于其他人如何看待你。
+\newline \quad \emph{主观奖励}：基于四个维度的满足度历史，并对低分施加惩罚。
 
 \\
 \bottomrule
@@ -2305,49 +2305,49 @@ This world has a unique system for time and interaction:
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Agent roleplay principles and memory system prompts. In the prompts, we refer to memory files as \emph{scratchpads}, a more colloquial term for role-playing agents. The roleplay principles are abbreviated; the full version includes 14 principles covering motivation consistency, state consistency, emotional continuity, and substantive dialogue.}
+\caption{智能体角色扮演原则及记忆系统提示词。在提示词中，我们将记忆文件称为\emph{scratchpads（便笺板）}，这是角色扮演智能体更容易理解的通俗说法。角色扮演原则为缩略版；完整版包含14条原则，涉及动机一致性、状态一致性、情绪连续性和有实质内容的对话。}
 \label{tab-prompts-roleplay-memory}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Roleplay Principles \& Memory System}} \\
+\multicolumn{2}{c}{\textbf{角色扮演原则与记忆系统}} \\
 \midrule
 
-\textbf{Roleplay Principles} &
+\textbf{角色扮演原则} &
 
-You should behave as a real person would in everyday social situations:
+你应该像真实的人一样，在日常社交情境中行事：
 \vspace{3pt}\newline
-- \textbf{Colloquial speech}: Use casual, conversational language in everyday dialogue.
-\newline - \textbf{Express independent self}: Humans have their own goals, self-esteem, and preferences. They feel uncomfortable when offended and become dismissive when bored.
-\newline - \textbf{Scope of control}: Each person can only control their own actions and speech. They cannot determine outcomes or control others' thoughts.
-\newline - \textbf{Selective disclosure}: People don't reveal all their thoughts. What to share depends on the relationship and topic.
-\newline - \textbf{No parroting}: Do not repeatedly repeat what others have said. Conversation should make substantial progress.
-\newline - \textbf{No hallucination}: Only reference information present in context. Do not fabricate items not in possession list.
-\newline - \textbf{Character consistency}: Personality traits and behavior should match the established persona.
-\newline - \textbf{Cognitive boundaries}: Knowledge should match the character's identity and background.
-\newline - \textbf{Natural relationship progression}: Relationships should not develop abruptly.
-\newline - \textbf{Avoid AI assistant behavior}: Characters should not speak like customer service agents.
+- \textbf{口语化表达}：日常对话使用随意、自然的交谈语言。
+\newline - \textbf{表达独立自我}：人有自己的目标、自尊和偏好；被冒犯时会不舒服，感到无聊时会敷衍。
+\newline - \textbf{控制范围}：每个人只能控制自己的行动与言语，不能决定结果或控制他人的思想。
+\newline - \textbf{选择性透露}：人不会说出自己所有的想法；分享什么取决于关系和话题。
+\newline - \textbf{不要鹦鹉学舌}：不要反复复述他人说过的话；对话应有实质性进展。
+\newline - \textbf{禁止幻觉}：只引用上下文已有的信息，不得编造物品清单中没有的物品。
+\newline - \textbf{人物一致性}：人格特质和行为应符合既定人设。
+\newline - \textbf{认知边界}：知识水平应符合角色的身份和背景。
+\newline - \textbf{关系自然发展}：关系不应突然发生剧变。
+\newline - \textbf{避免AI助手行为}：角色不应像客服一样说话。
 \vspace{3pt}\newline
-[\emph{+ 4 additional principles: motivation consistency, state consistency, emotional continuity, substantive dialogue}]
+[\emph{另有4条原则：动机一致性、状态一致性、情绪连续性、有实质内容的对话}]
 
 \\
 \midrule
 
-\textbf{Scratchpad System} &
+\textbf{便笺板系统} &
 
-For context management, you have maintained a list of scratchpads to note down important information, organized into three types:
+为了管理上下文，你维护着一组记录重要信息的便笺板，分为三类：
 \vspace{3pt}\newline
-- \textbf{general.txt}: for your overall core information, such as long-term goals, planning, reflections, and lessons learned.
-\newline - \textbf{characters/$\langle$who$\rangle$.txt}: for your knowledge, impressions, perceptions, and affinity of other people and your relationships with them.
-\newline - \textbf{others/$\langle$name$\rangle$.txt}: for all other things and topics. You can freely name and organize these files.
+- \textbf{general.txt}：记录个人整体核心信息，例如长期目标、计划、反思和经验教训。
+\newline - \textbf{characters/$\langle$who$\rangle$.txt}：记录你对其他人的了解、印象、看法、好感以及彼此之间的关系。
+\newline - \textbf{others/$\langle$name$\rangle$.txt}：记录其他所有事物和话题。你可以自由命名并组织这些文件。
 \vspace{4pt}\newline
-\textbf{Recent Scratchpads}
-\newline Here are your recently accessed scratchpads, along with their summaries. They provide you with additional context about yourself, other roles you know, and what you are currently working on.
+\textbf{最近使用的便笺板}
+\newline 以下列出你最近访问的便笺板及其摘要，为你提供关于自身、认识的其他角色以及当前事务的额外上下文。
 \newline \{recent\_scratchpads\}
 \vspace{4pt}\newline
-\textbf{Notes}
-\newline - You should proactively call the update\_scratchpad function to persist key information, especially in the plan, after\_contact, exit\_activity and review stages.
-\newline - You should proactively maintain your understanding, impressions, and affinity towards other characters.
-\newline - Use the scratchpads via function calls. Do not mention scratchpad filenames in your final answer.
+\textbf{注意事项}
+\newline - 你应主动调用update\_scratchpad函数持久保存关键信息，尤其是在plan、after\_contact、exit\_activity和review阶段。
+\newline - 你应主动维护对其他人物的认识、印象与好感。
+\newline - 通过函数调用使用便笺板。不要在最终回答中提及便笺板文件名。
 
 \\
 \bottomrule
@@ -2358,48 +2358,48 @@ For context management, you have maintained a list of scratchpads to note down i
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Agent prompts for planning and social contact phases. The contact stage prompt is abbreviated; the full version includes detailed rules for each role action type.}
+\caption{智能体在计划与社交联络阶段使用的提示词。联络阶段提示词为缩略版；完整版还包含各类角色动作的详细规则。}
 \label{tab-prompts-plan-contact}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Planning \& Contact Prompts}} \\
+\multicolumn{2}{c}{\textbf{计划与联络提示词}} \\
 \midrule
 
-\textbf{Plan Stage} &
+\textbf{计划阶段} &
 
-In this phase, you should: (1) reflect on and update your goals, (2) plan for this week, and (3) choose your living standard.
+在这个阶段，你需要：(1) 反思并更新目标，(2) 制定本周计划，(3) 选择生活水平。
 \vspace{4pt}\newline
-\textbf{Goal Setting \& Reflection}
-\newline You have both \textbf{long-term goals} (months to years---deeper aspirations connecting to your core motivation) and \textbf{short-term goals} (this week---concrete, actionable steps).
+\textbf{目标设定与反思}
+\newline 你既有\textbf{长期目标}（数月至数年——与核心动机相联系的深层追求），也有\textbf{短期目标}（本周——具体、可执行的步骤）。
 \vspace{3pt}\newline
-\textbf{Reflection}: Review your previous goals from your scratchpad. For long-term goals: Are you making progress? Should you adjust? For short-term goals: Did you achieve last week's goals? If not, why? If a goal has been stuck for weeks, consider trying a completely different approach or accepting it may not be achievable right now.
+\textbf{反思}：从便笺板回顾先前的目标。对于长期目标：是否取得进展？是否需要调整？对于短期目标：上周的目标完成了吗？若没有，原因是什么？若某目标数周停滞，可尝试完全不同的方法，或接受眼下尚无法完成的事实。
 \vspace{4pt}\newline
-\textbf{Weekly Planning}
-\newline Check your existing schedule, outline your general weekly plan, and plan one specific activity for each day's free time slot. Your weekly plan should directly serve your goals.
+\textbf{每周计划}
+\newline 检查现有日程，概括本周总体计划，并为每天的自由时段安排一项具体活动。周计划应直接服务于你的目标。
 \vspace{4pt}\newline
-\textbf{Living Standard Selection} (Required)
-\newline Choose ONE: frugal (100/week, Material $-$5), moderate (200/week, unchanged), comfortable (300/week, Material $+$5), or luxurious (500/week, Material $+$10).
+\textbf{生活水平选择}（必选）
+\newline 只能选择一种：节俭（每周100，物质满足度$-$5）、适中（每周200，不变）、舒适（每周300，物质满足度$+$5），或奢华（每周500，物质满足度$+$10）。
 
 \\
 \midrule
 
-\textbf{Contact Stage} &
+\textbf{联络阶段} &
 
-In this phase, you can contact other people by sending ``text messages'' and arrange joint activities through communication.
+在这一阶段，你可以通过发送“短信”联系其他人，并通过沟通安排共同活动。
 \vspace{3pt}\newline
-- Communication is asynchronous (text-message style, not real-time).
-\newline - This phase proceeds in N rounds. In each round, you read all received messages, then decide who to send/reply to.
-\newline - You can trigger four types of role actions:
+- 沟通是异步的（类似短信，而非实时对话）。
+\newline - 本阶段进行N轮。每轮你阅读所有收到的消息，然后决定联系谁以及回复谁。
+\newline - 你可以触发四类角色动作：
 \vspace{3pt}\newline
-\quad i. \texttt{contact(message, to)}: Send a text message. Does NOT create any activity or schedule.
+\quad i. \texttt{contact(message, to)}：发送短信。\textbf{不会}创建活动或日程。
 \vspace{2pt}\newline
-\quad ii. \texttt{propose\_joint\_activity(activity\_name, message, proposal, invited\_persons, time, location, required\_participants)}: The ONLY way to create a joint activity. Time format: \texttt{Y[year]-W[week]-activity-D[day]}. Location must be from the map.
+\quad ii. \texttt{propose\_joint\_activity(activity\_name, message, proposal, invited\_persons, time, location, required\_participants)}：创建共同活动的\textbf{唯一}方式。时间格式：\texttt{Y[year]-W[week]-activity-D[day]}。地点必须来自地图。
 \vspace{2pt}\newline
-\quad iii. \texttt{respond\_invitation(activity\_name, message, to, decision)}: Accept (``yes'') or decline (``no'') an invitation.
+\quad iii. \texttt{respond\_invitation(activity\_name, message, to, decision)}：接受（``yes''）或拒绝（``no''）邀请。
 \vspace{2pt}\newline
-\quad iv. \texttt{cancel\_joint\_activity(activity\_name, message)}: Cancel an activity you proposed.
+\quad iv. \texttt{cancel\_joint\_activity(activity\_name, message)}：取消自己发起的活动。
 \vspace{4pt}\newline
-\textbf{Important}: Verbal agreements via \texttt{contact} do NOT create schedules. You MUST use \texttt{propose\_joint\_activity} to formally propose, and the invitee MUST use \texttt{respond\_invitation} with ``yes'' to confirm.
+\textbf{重要}：通过\texttt{contact}达成的口头协议\textbf{不会}创建日程。你\textbf{必须}使用\texttt{propose\_joint\_activity}正式提议，被邀请者\textbf{必须}通过\texttt{respond\_invitation}回复``yes''才能确认。
 
 \\
 \bottomrule
@@ -2410,44 +2410,44 @@ In this phase, you can contact other people by sending ``text messages'' and arr
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Agent prompts for joint and solo activity phases.}
+\caption{智能体在共同活动和个人活动阶段使用的提示词。}
 \label{tab-prompts-activity}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Activity Prompts}} \\
+\multicolumn{2}{c}{\textbf{活动提示词}} \\
 \midrule
 
-\textbf{Joint \newline Activity} &
+\textbf{共同\newline 活动} &
 
-Engage in the joint activity that you have previously proposed or accepted.
+参与此前由你提议或接受的共同活动。
 \vspace{3pt}\newline
-- Stay in your character. You control only your character's thoughts, speech and actions.
-\newline - You can interact with other people or the physical environment, and wait for the responses or outcomes. Never decide outcomes beyond your ability or control. Never narrate others' thoughts and responses.
-\newline - By default, your response is visible to all participants. In addition:
-\newline \quad - Use \texttt{$\langle$private$\rangle$...$\langle$/private$\rangle$} tags for content invisible to others (inner monologue).
-\newline \quad - Use \texttt{$\langle$visible\_to=``name1,name2''$\rangle$...$\langle$/visible\_to$\rangle$} for content visible only to specified persons (whispers, secret gestures).
-\newline - You can gift items using \texttt{$\langle$role\_action$\rangle$gift(to=..., item=...)$\langle$/role\_action$\rangle$}.
-\newline - You can leave early using \texttt{$\langle$role\_action$\rangle$exit\_activity()$\langle$/role\_action$\rangle$}.
-\newline - This activity lasts for $n_{\min}$ to $n_{\max}$ turns. Keep your response concise and less than 200 words.
+- 始终保持角色身份。你只能控制自己角色的思想、言语和行动。
+\newline - 你可以与其他人或物理环境互动，并等待回应或结果。不要决定超出你能力或控制范围的结果，也不要叙述他人的思想与回应。
+\newline - 默认情况下，你的回复对所有参与者可见。此外：
+\newline \quad - 使用\texttt{$\langle$private$\rangle$...$\langle$/private$\rangle$}标签标记他人不可见的内容（内心独白）。
+\newline \quad - 使用\texttt{$\langle$visible\_to=``name1,name2''$\rangle$...$\langle$/visible\_to$\rangle$}标记仅指定人员可见的内容（耳语、秘密手势）。
+\newline - 可用\texttt{$\langle$role\_action$\rangle$gift(to=..., item=...)$\langle$/role\_action$\rangle$}赠送物品。
+\newline - 可用\texttt{$\langle$role\_action$\rangle$exit\_activity()$\langle$/role\_action$\rangle$}提前离场。
+\newline - 活动持续$n_{\min}$至$n_{\max}$轮。回复应简洁，少于200词。
 
 \\
 \midrule
 
-\textbf{Solo \newline Activity} &
+\textbf{个人\newline 活动} &
 
-This is your free time for the day, approximately 2--3 hours. You may choose one solo activity based on your own will. This includes (but not limited to) learning and self-improvement, extra work, shopping, leisure and entertainment.
+现在是你当天约2--3小时的自由时间。你可以凭自己意愿选择一项个人活动，例如（但不限于）学习提升、额外工作、购物、休闲和娱乐。
 \vspace{4pt}\newline
-\textbf{Important notes:}
-\newline - You can only choose ONE activity.
-\newline - You should specify the expected activity content (e.g., what subject you will study or what work you will do).
-\newline - Activities will affect your state, including vitality/fulfillment/skills/assets. For example, you may consume vitality to gain skills through learning, earn money through work, spend money through shopping, or gain fulfillment through leisure.
-\newline - If you want to shop or spend on services, specify your requirements and budget. You will be informed of available options and costs.
-\newline - All activity outcomes depend on your talents and current skills.
-\newline - Your solo activity will not be known to others.
+\textbf{重要事项：}
+\newline - 你只能选择\textbf{一项}活动。
+\newline - 你应具体说明预期的活动内容（例如学习哪门学科，或做什么工作）。
+\newline - 活动会影响你的活力、满足度、技能和资产。例如，学习可能消耗活力但提升技能，工作可能赚钱，购物可能花钱，休闲可能增加满足度。
+\newline - 若要购物或购买服务，应说明需求与预算。系统会告知可选项目及其费用。
+\newline - 所有活动结果都取决于你的天赋和当前技能。
+\newline - 其他人不会知道你的个人活动。
 \vspace{4pt}\newline
-\textbf{Output Format:}
-\newline Thinking: [reasoning]
-\newline Activity: [description, max 100 words]
+\textbf{输出格式：}
+\newline 思考：[推理过程]
+\newline 活动：[描述，最多100词]
 
 \\
 \bottomrule
@@ -2458,56 +2458,56 @@ This is your free time for the day, approximately 2--3 hours. You may choose one
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Agent prompts for weekly review and social evaluation.}
+\caption{智能体用于每周回顾和社会评价的提示词。}
 \label{tab-prompts-review-social}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Review \& Social Evaluation Prompts}} \\
+\multicolumn{2}{c}{\textbf{回顾与社会评价提示词}} \\
 \midrule
 
-\textbf{Weekly \newline Review} &
+\textbf{每周\newline 回顾} &
 
-Based on everything that happened this week, please write a weekly summary.
-Your summary should include two parts:
+请根据本周发生的所有事情，撰写一份周总结。
+总结应包括两部分：
 \vspace{3pt}\newline
-1. \textbf{Summary}: A factual record of what happened this week---key activities and their outcomes, important interactions and conversations, any notable changes or developments.
+1. \textbf{总结}：客观记录本周发生的事情——关键活动及其结果、重要互动与对话、值得注意的变化或进展。
 \vspace{2pt}\newline
-2. \textbf{Reflection}: Your personal thoughts and insights---what did you learn or realize? How do you feel about what happened? What would you do differently?
+2. \textbf{反思}：你个人的想法和领悟——学到了什么、意识到什么？你对事情有什么感受？哪些做法将会有所不同？
 \vspace{4pt}\newline
-\textbf{Guidelines:}
-\newline - Focus on the most meaningful moments.
-\newline - You may update your scratchpads if you have new insights to record.
+\textbf{撰写指引：}
+\newline - 重点关注最有意义的时刻。
+\newline - 如果有值得记录的新认识，可以更新便笺板。
 \vspace{4pt}\newline
-\textbf{Output Format:}
-\newline Thinking: [reasoning]
-\newline Summary: [factual record, $<$300 words]
-\newline Reflection: [personal thoughts, $<$300 words]
+\textbf{输出格式：}
+\newline 思考：[推理过程]
+\newline 总结：[事实记录，$<$300词]
+\newline 反思：[个人想法，$<$300词]
 
 \\
 \midrule
 
-\textbf{Social \newline Evaluation} &
+\textbf{社会\newline 评价} &
 
-This is a \textbf{COMPLETELY PRIVATE} evaluation that NO OTHER CHARACTER WILL EVER SEE. Be completely honest about your true feelings and judgments.
+这是一项\textbf{完全私密}的评价，\textbf{其他任何角色永远不会看到}。请完全诚实地表达真实感受和判断。
 \vspace{3pt}\newline
-Score each person you know on TWO separate dimensions (0--100):
+从两个\textbf{独立}维度为认识的每个人打分（0--100）：
 \vspace{3pt}\newline
-\textbf{Affection}: How much you personally like them.
-\newline Consider: emotional closeness, enjoyment of their company, personal affinity, comfort around them.
+\textbf{好感}：你个人有多喜欢这个人。
+\newline 考虑：情感亲近程度、与其相处的愉快程度、个人亲和感以及在其身边的自在程度。
 \vspace{3pt}\newline
-\textbf{Respect}: How much you admire their abilities and character.
-\newline Consider: competence, accomplishments, reliability, wisdom and judgment.
+\textbf{尊重}：你有多欣赏这个人的能力与品格。
+\newline 考虑：能力、成就、可靠性、智慧和判断力。
 \vspace{4pt}\newline
-\textbf{Scoring Scale:}
-\newline 10 = extreme dislike/contempt
-\newline 30 = dislike/low regard
-\newline 50 = neutral baseline
-\newline 70 = like/respect
-\newline 90 = deep affection/great admiration
+\textbf{评分标准：}
+\newline 10 = 极度厌恶／蔑视
+\newline 30 = 不喜欢／评价较低
+\newline 50 = 中性基准
+\newline 70 = 喜欢／尊重
+\newline 90 = 深切喜爱／高度钦佩
 \vspace{3pt}\newline
-Evaluate each person independently against the 50 baseline. Do NOT compare people against each other. Most acquaintances should fall in the 40--60 range. Affection and respect scores can be different for the same person.
+以50为基准独立评价每个人。\textbf{不要}在不同人物之间进行相对比较。大多数泛泛之交应落在40--60分之间。对同一个人的好感与尊重评分可以不同。
 \vspace{3pt}\newline
-\textbf{Output:} \{``affection'': \{``person'': score, ...\}, ``respect'': \{``person'': score, ...\}\}
+\textbf{输出：} \{``affection'': \{``person'': score, ...\}, ``respect'': \{``person'': score, ...\}\}
 
 \\
 \bottomrule
@@ -2518,53 +2518,53 @@ Evaluate each person independently against the 50 baseline. Do NOT compare peopl
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Environment model prompt for joint activity management: environment modeling, next speaker prediction, and response verification (filtering).}
+\caption{环境模型用于管理共同活动的提示词：环境建模、下一位发言者预测与回复校验（过滤）。}
 \label{tab-prompts-god-joint}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Environment Model: Joint Activity World Model}} \\
+\multicolumn{2}{c}{\textbf{环境模型：共同活动世界模型}} \\
 \midrule
 
-\textbf{Environment \newline Modeling} &
+\textbf{环境\newline 建模} &
 
-You are the world model for a multi-character role-play. Each time a character acts, you need to perform three tasks.
+你是多人角色扮演的世界模型。每次角色采取行动时，你需要执行三个任务。
 \vspace{4pt}\newline
-\textbf{Task 1: Environment Modeling.} Based on the last character's actions and dialogues, describe the resulting changes in the environment:
-\newline - Physical changes in the setting
-\newline - Reactions of nameless bystanders/crowds (not the participants)
-\newline - Ambient sounds, weather changes, or atmospheric shifts
+\textbf{任务1：环境建模。} 根据上一位角色的行动和对话，描述由此产生的环境变化：
+\newline - 场景中的物理变化
+\newline - 无名旁观者／人群（非参与者）的反应
+\newline - 环境声响、天气变化或氛围转变
 \vspace{3pt}\newline
-Keep descriptions concise (1--3 sentences). Respond to subtle cues in the characters' interactions. Do not invent new named entities or contradict known facts.
+描述应简洁（1--3句），并对角色互动中的细微信号作出反应。不要编造新的具名实体，也不要与已知事实矛盾。
 
 \\
 \midrule
 
-\textbf{Next Speaker \newline Prediction} &
+\textbf{下一位发言者\newline 预测} &
 
-\textbf{Task 2: Next Speaker Prediction.} Choose exactly one name from \{participants\}. If the activity should conclude now, output ``$\langle$END CHAT$\rangle$''.
+\textbf{任务2：预测下一位发言者。} 从\{participants\}中恰好选择一个名字。如果活动应当结束，输出``$\langle$END CHAT$\rangle$''。
 \vspace{3pt}\newline
-Notes:
-\newline - Identify the core participants within this activity.
-\newline - Favor a character with an unresolved intent, someone who was addressed, or the one least recently active.
+注意：
+\newline - 确定活动中的核心参与者。
+\newline - 优先选择尚有意图未得到回应、刚被别人点名，或最久没有发言的人。
 
 \\
 \midrule
 
-\textbf{Response \newline Verification} &
+\textbf{回复\newline 校验} &
 
-\textbf{Task 3: Response Verification.} Evaluate whether the last speaker's response violates any roleplay principles. Output PASS if no violation. Output REJECT with a brief reason if ANY of the following violations is detected:
+\textbf{任务3：回复校验。} 判断上一位发言者的回复是否违反任何角色扮演原则。若没有违反则输出PASS；若出现以下\textbf{任一}违规，输出REJECT并简述原因：
 \vspace{3pt}\newline
-1. \textbf{Scope of control violation}: determined outcome of own actions, or controlled others
-\newline 2. \textbf{Physical plausibility violation}: actions violating the world's physical laws
-\newline 3. \textbf{Hallucination}: referenced objects or events not present in context
-\newline 4. \textbf{Character inconsistency}: behavior deviates from established persona
-\newline 5. \textbf{Cognitive boundary violation}: knowledge exceeds the character's background
-\newline 6. \textbf{State inconsistency}: abrupt shift in physical/mental state
-\newline 7. \textbf{Emotional discontinuity}: abrupt emotional shift
-\newline 8. \textbf{Unnatural relationship progression}: relationship develops too abruptly
-\newline 9. \textbf{Parroting}: repeated same content 3+ times
-\newline 10. \textbf{AI assistant behavior}: spoke like a customer service agent
-\newline 11. \textbf{Empty dialogue}: no new information, conversation spinning
+1. \textbf{控制范围越界}：擅自确定自己行为的结果，或控制他人
+\newline 2. \textbf{物理合理性违规}：行动违背世界的物理规律
+\newline 3. \textbf{幻觉}：提及上下文中不存在的物品或事件
+\newline 4. \textbf{人物不一致}：行为偏离既定人设
+\newline 5. \textbf{认知越界}：知识超出角色背景
+\newline 6. \textbf{状态不一致}：生理／心理状态突然改变
+\newline 7. \textbf{情绪不连续}：情绪突然转变
+\newline 8. \textbf{关系发展不自然}：关系进展过于突然
+\newline 9. \textbf{鹦鹉学舌}：相同内容重复3次及以上
+\newline 10. \textbf{AI助手式行为}：说话像客服人员
+\newline 11. \textbf{空洞对话}：没有新信息，对话原地打转
 
 \\
 \bottomrule
@@ -2575,49 +2575,49 @@ Notes:
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Environment model prompts for evaluating activity outcomes and determining state changes. Abbreviated; the full version includes detailed delta ranges and fulfillment dimension definitions.}
+\caption{环境模型用于评价活动结果并确定状态变化的提示词。此为缩略版，完整版包含详细的变化量范围和满足度维度定义。}
 \label{tab-prompts-god-eval}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Environment Model: Activity Outcome Evaluation}} \\
+\multicolumn{2}{c}{\textbf{环境模型：活动结果评价}} \\
 \midrule
 
-\textbf{Solo \newline Activity \newline Evaluation} &
+\textbf{个人\newline 活动\newline 评价} &
 
-You are the world model. A character is performing a solo activity. Your task is to evaluate the activity type and determine the outcome.
+你是世界模型。有一名角色正在进行个人活动。你的任务是对活动分类并判定结果。
 \vspace{4pt}\newline
-\textbf{Step 1: Classify activity type.} Based on the character's intended activity, determine if this is a consumption event (explicitly intends to purchase goods or services). Learning, working, resting are NOT consumption. If uncertain, default to non-consumption.
+\textbf{步骤1：对活动分类。} 根据角色预期的活动，判断是否属于消费事件（明确打算购买商品或服务）。学习、工作、休息\textbf{不属于}消费。如果不确定，默认不是消费。
 \vspace{4pt}\newline
-\textbf{For consumption events:}
-\newline Return only \{``is\_consumption\_event'': true\}. Prices and options are generated in a separate stage.
+\textbf{对于消费事件：}
+\newline 仅返回\{``is\_consumption\_event'': true\}。价格和选项会在独立阶段生成。
 \vspace{4pt}\newline
-\textbf{For non-consumption events:} Evaluate the outcome with state deltas.
-\newline - \textbf{Outcome message}: 2--4 sentences describing what happens
-\newline - \textbf{Activity-specific rules}: Learning effectiveness depends on current skill level. Work income depends on skills/talents/position (range: 40--200 currency per session).
-\newline - \textbf{Delta ranges}: vitality [min, max], mood [min, max], esteem [min, max], skills [min, max], money [0, max] for work only, gain\_items = [] for non-consumption.
+\textbf{对于非消费事件：} 评价结果及状态变化量。
+\newline - \textbf{结果信息}：用2--4句话描述发生的事情
+\newline - \textbf{活动相关规则}：学习效果取决于当前技能水平。工作收入取决于技能／天赋／职位（范围：每次40--200货币单位）。
+\newline - \textbf{变化量范围}：活力[min, max]、心情[min, max]、尊重需求满足度[min, max]、技能[min, max]；仅工作可获得金钱[0, max]；非消费活动的gain\_items = []。
 \vspace{4pt}\newline
-\textbf{Output:} \{``outcome'': ``...'', ``is\_consumption\_event'': false, ``delta\_vitality'': ..., ``delta\_fulfillment'': \{``mood'': ..., ``esteem'': ...\}, ``delta\_skills'': \{...\}, ``delta\_money'': ..., ``gain\_items'': []\}
+\textbf{输出：} \{``outcome'': ``...'', ``is\_consumption\_event'': false, ``delta\_vitality'': ..., ``delta\_fulfillment'': \{``mood'': ..., ``esteem'': ...\}, ``delta\_skills'': \{...\}, ``delta\_money'': ..., ``gain\_items'': []\}
 
 \\
 \midrule
 
-\textbf{Joint \newline Activity \newline Evaluation} &
+\textbf{共同\newline 活动\newline 评价} &
 
-Multiple characters have just finished a joint activity. Evaluate the outcome and determine state changes for each participant.
+多名角色刚刚结束一项共同活动。请评价结果并确定每位参与者的状态变化。
 \vspace{3pt}\newline
-\textbf{Context:} \{activity\_background\}, \{participants\_info\}, \{dialog\_history\}
+\textbf{上下文：} \{activity\_background\}、\{participants\_info\}、\{dialog\_history\}
 \vspace{3pt}\newline
-Evaluate delta\_vitality, delta\_fulfillment (mood, social, esteem) and delta\_skills for each participant.
+评价每位参与者的delta\_vitality、delta\_fulfillment（mood、social、esteem）和delta\_skills。
 \vspace{4pt}\newline
-\textbf{Important notes:}
-\newline - Joint activities do NOT allow work or consumption. Do not evaluate delta\_money.
-\newline - Deltas should reflect each character's actual involvement and personality.
-\newline - Social fulfillment reflects bonding and connection.
-\newline - Mood depends on activity enjoyment and compatibility with other participants.
-\newline - Esteem can increase if the person feels respected or accomplished.
-\newline - Each participant must have an outcome, even if they were less active.
+\textbf{重要说明：}
+\newline - 共同活动\textbf{不允许}工作或消费。不要评价delta\_money。
+\newline - 状态变化量应反映每个角色的实际参与程度和个性。
+\newline - 社会满足度反映情感连接与关系建立。
+\newline - 心情取决于活动体验与参与者之间的契合程度。
+\newline - 若人物感到受到尊重或有所成就，自尊满足度可以提高。
+\newline - 即使参与较少，也必须为每位参与者给出结果。
 \vspace{4pt}\newline
-\textbf{Output:} \{``Alice'': \{``delta\_vitality'': ..., ``delta\_fulfillment'': \{``mood'': ..., ``social'': ..., ``esteem'': ...\}, ``delta\_skills'': \{...\}\}, ``Bob'': \{...\}\}
+\textbf{输出：} \{``Alice'': \{``delta\_vitality'': ..., ``delta\_fulfillment'': \{``mood'': ..., ``social'': ..., ``esteem'': ...\}, ``delta\_skills'': \{...\}\}, ``Bob'': \{...\}\}
 
 \\
 \bottomrule
@@ -2628,58 +2628,58 @@ Evaluate delta\_vitality, delta\_fulfillment (mood, social, esteem) and delta\_s
 ```{=latex}
 \begin{table*}[h]
 \centering
-\caption{Environment model prompts for world management: encounter generation and yearly profile updates. Abbreviated; the full version includes JSON output format specifications.}
+\caption{环境模型用于世界管理的提示词：生成偶遇活动与年度档案更新。此为缩略版，完整版还包含JSON输出格式规范。}
 \label{tab-prompts-god-world}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
-\multicolumn{2}{c}{\textbf{Environment Model: World Management}} \\
+\multicolumn{2}{c}{\textbf{环境模型：世界管理}} \\
 \midrule
 
-\textbf{Encounter \newline Generation} &
+\textbf{偶遇\newline 生成} &
 
-You are the system administrator creating encounter events---random meetings between idle characters.
+你是负责创建偶遇事件（空闲角色之间随机碰面）的系统管理员。
 
-An encounter is a system-arranged coincidental meeting where two idle characters unexpectedly meet in a natural, believable context.
+偶遇是系统安排的意外相遇，两位空闲角色在自然、可信的情境中不期而遇。
 \vspace{4pt}\newline
-\textbf{Pairing Strategy:}
-\newline - Prefer pairing characters who have some relationship
-\newline - Characters already close can have deepening moments
-\newline - Characters who don't know each other can be paired for a ``first meeting''
-\newline - Each character can only appear in ONE encounter per day
+\textbf{配对策略：}
+\newline - 优先配对已有一定关系的角色
+\newline - 亲密角色之间可以安排加深关系的时刻
+\newline - 不相识的角色可以安排“初次见面”
+\newline - 每个角色每天只能参与\textbf{一次}偶遇
 \vspace{4pt}\newline
-\textbf{Scene Description:}
-\newline - Describe the circumstance of the meeting objectively
-\newline - Create natural conflict, decision point, or interesting situation
-\newline - Do NOT describe what the characters think, say, or decide
-\newline - Do NOT assume specific character behaviors unless universal
+\textbf{场景描述：}
+\newline - 客观描述相遇的情境
+\newline - 创设自然的冲突、决策时刻或有趣的局面
+\newline - \textbf{不要}描述人物的想法、言语或决定
+\newline - 除非是普遍行为，否则\textbf{不要}假定角色会采取特定行动
 \vspace{4pt}\newline
-\textbf{Good examples:}
-\newline - ``Both are waiting at the bus stop in the rain, realizing they are the only two people there.''
-\newline - ``At the convenience store, both reach for the last bottle of drink on the shelf at the same time.''
+\textbf{好的示例：}
+\newline - ``两人冒雨在公交站等车，发现站台上只有他们。''
+\newline - ``在便利店里，两人同时伸手去拿货架上的最后一瓶饮料。''
 \vspace{3pt}\newline
-\textbf{Bad examples} (avoid):
-\newline - ``Alice sees Bob and feels happy, deciding to go say hello.'' (describes thoughts)
-\newline - ``Both are searching for the same rare book.'' (assumes specific behavior)
+\textbf{不好的示例}（避免）：
+\newline - ``Alice看到Bob后很高兴，决定上前打招呼。''（描述了心理活动）
+\newline - ``两人都在寻找同一本稀有图书。''（预设了特定行为）
 
 \\
 \midrule
 
-\textbf{Yearly \newline Profile \newline Update} &
+\textbf{年度\newline 档案\newline 更新} &
 
-A year has passed in the simulation. Based on the character's experiences throughout the year, update their profile for the upcoming year.
+模拟中的一年已经过去。请根据角色过去一年的经历，为下一年更新其档案。
 \vspace{3pt}\newline
-\textbf{Input:} current profile (JSON) + all weekly summaries from the past year.
+\textbf{输入：} 当前档案（JSON）+ 过去一年的所有周总结。
 \vspace{4pt}\newline
-\textbf{Fields that MUST NOT change:}
-\newline name, birthday, gender, position (handled by position application system), init\_skills, init\_assets, extra\_income.
+\textbf{绝对不可修改的字段：}
+\newline name、birthday、gender、position（由职位申请系统处理）、init\_skills、init\_assets、extra\_income。
 \vspace{4pt}\newline
-\textbf{Fields to update:}
-\newline - \textbf{appearance\_and\_impression}: Physical appearance changes very slowly. Only allow subtle aging-related changes or changes clearly indicated by events.
-\newline - \textbf{personality\_traits}: Qualitative narrative + quantitative values (each can change by at most $\pm$5/year, range [0, 100]).
-\newline - \textbf{talents}: Qualitative + quantitative (at most $\pm$3/year, range [0, 100]).
-\newline - \textbf{Other fields}: brief\_introduction, core\_motivation, conflicts, values, preferences, details---update to reflect growth and changes.
+\textbf{需要更新的字段：}
+\newline - \textbf{appearance\_and\_impression}：外貌变化很缓慢。只允许与年龄相关的细微变化，或事件明确导致的变化。
+\newline - \textbf{personality\_traits}：定性描述与数值（每项每年最多变化$\pm$5，范围[0, 100]）。
+\newline - \textbf{talents}：定性与定量信息（每年最多$\pm$3，范围[0, 100]）。
+\newline - \textbf{其他字段}：brief\_introduction、core\_motivation、conflicts、values、preferences、details——更新以反映成长和变化。
 \vspace{4pt}\newline
-\textbf{Important:} Changes should be gradual and justified by the year's experiences. Do NOT invent events not mentioned in the summaries. Keep the character's core identity intact while allowing natural evolution.
+\textbf{重要}：变化应循序渐进，有过去一年的经历作为依据。\textbf{不要}编造总结中未提及的事件。在允许自然成长的同时保持角色核心身份。
 
 \\
 \bottomrule
@@ -2687,8 +2687,8 @@ A year has passed in the simulation. Based on the character's experiences throug
 \end{table*}
 ```
 
-[^appendix-1]: In this paper, we employ Claude Opus 4.6 for these steps.
+[^appendix-1]: 本文在这些步骤中使用 Claude Opus 4.6。
 
 [^appendix-2]: https://claude.com/product/claude-code
 
-[^appendix-3]: In this paper, we employ Claude 4.6 Opus for Claude Code in this step.
+[^appendix-3]: 本文在这一步骤中为 Claude Code 使用 Claude 4.6 Opus。
