@@ -1,0 +1,37 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "root.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/data/stepgrid_field_vx_vy.csv"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/data/stepgrid_field_vx_wz.csv"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/data/stepgrid_field_vy_wz.csv"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/data/stepgrid_rings_vx_vy.csv"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/data/stepgrid_rings_vx_wz.csv"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/data/stepgrid_rings_vy_wz.csv"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}
