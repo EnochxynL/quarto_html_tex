@@ -1,5 +1,5 @@
 \PassOptionsToPackage{inline,shortlabels}{enumitem}
-\pdfoutput=1
+\ifdefined\pdfoutput\pdfoutput=1\fi
 \documentclass[11pt, letterpaper, shortlabels, inline]{berkeley}
 
 
@@ -61,7 +61,7 @@
 \usepackage{booktabs} 
 
 \usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+\ifdefined\XeTeXversion\else\usepackage[T1]{fontenc}\fi
 \usepackage{url}
 \usepackage{amsfonts}
 \usepackage{xcolor}
@@ -212,7 +212,7 @@ showstringspaces=false
 \correspondingauthor{Corresponding author: xtwang21@m.fudan.edu.cn}
 
 \begin{abstract}
-\textbf{Abstract:} \input{Sections/0_abstract}
+\textbf{摘要：} $abstract$
 \end{abstract}
 
 \let\origunderscore\_

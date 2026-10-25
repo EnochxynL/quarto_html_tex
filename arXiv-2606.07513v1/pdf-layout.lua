@@ -2,6 +2,14 @@
 -- captions outside the box and constrain the body to leave space for them.
 if FORMAT ~= "latex" and FORMAT ~= "pdf" then return {} end
 
+function Pandoc(doc)
+  local file = assert(io.open("Sections/0_abstract.md", "r"))
+  local abstract = file:read("*a")
+  file:close()
+  doc.meta.abstract = pandoc.MetaBlocks(pandoc.read(abstract, "markdown").blocks)
+  return doc
+end
+
 function RawBlock(block)
   if (block.format ~= "latex" and block.format ~= "tex")
     or not block.text:match("\\begin{table%*?}") then return end

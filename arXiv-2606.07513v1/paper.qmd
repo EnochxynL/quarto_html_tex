@@ -4,7 +4,7 @@ bibliography: main.bib
 format:
   pdf:
     output-file: paper.pdf
-    pdf-engine: pdflatex
+    pdf-engine: xelatex
     template: quarto-template.tex
     keep-tex: true
     latex-clean: false
@@ -12,6 +12,15 @@ format:
     cite-method: natbib
     citeproc: false
     syntax-highlighting: none
+    include-in-header:
+      - text: |
+          \usepackage{xeCJK}
+          \defaultfontfeatures{}
+          \setmonofont{lmmono10-regular.otf}[Scale=1.1]
+          \setCJKmainfont{SimSun}[AutoFakeBold=true,AutoFakeSlant=true]
+          \setCJKsansfont{Microsoft YaHei}
+          \setCJKmonofont{SimSun}
+          \microtypesetup{tracking=false,protrusion=false,expansion=false}
 ---
 
 {{< include Sections/1_intro.md >}}
