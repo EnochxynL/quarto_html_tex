@@ -1,0 +1,11 @@
+# Conclusion
+
+SuperMimic removes compute as the bottleneck to scaling humanoid whole-body control. A single learned, differentiable world model captures the dynamics every motion shares, and backpropagation-through-time through it amortizes a whole dataset into one policy. The policy trains on a single GPU, surpasses the return of a policy trained on a 128-GPU cluster, and transfers to a real Unitree G1. Its training cost grows slowly over a controlled dataset-length sweep. The same model can train a downstream velocity interface directly on the interface's own task reward. Measuring the scaling laws of motion tracking is now affordable, at one GPU per run.
+
+# Limitations and Future Work
+
+- **Multi-interface training is understudied.** We train the velocity encoder concurrently with the motion tracker, but the velocity-tracking reward updates only the velocity encoder and not the shared decoder (Appendix \ref{sec-unified}). Concurrent training is therefore the same as training the velocity encoder after the motion tracker, and might not be necessary. Whether concurrent training helps once the velocity-tracking reward also updates the decoder is untested.
+
+- **Simulator-only dynamics.** The world model learns only from simulator transitions. Real-robot data could refine it, and its differentiability could support system identification.
+
+- **No terrain or object interaction.** SuperMimic trains only on flat ground. Extending it to terrain and object interaction is ongoing work.

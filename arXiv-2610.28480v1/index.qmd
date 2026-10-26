@@ -1,0 +1,46 @@
+---
+title: "SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model"
+author: "Qiayuan Liao, Yiyang Shao, Junfeng Long, Kevin Zakka, Roberto Horowitz, Pieter Abbeel, Koushil Sreenath"
+filters: [html-helper]
+bibliography: references.json
+csl: source-numeric.csl
+number-depth: 3
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: true
+    css: styles.css
+    html-helper:
+      caption-prefix: "Table "
+      caption-sep: ": "
+      latex-packages: [amsmath, amssymb, bm, graphicx, xcolor, colortbl, booktabs, array, siunitx, pifont, algorithm, algpseudocode]
+      latex-macros: |
+        \sisetup{group-separator={,},group-minimum-digits=5,range-phrase={--},range-units=single,per-mode=symbol,separate-uncertainty=true,separate-uncertainty-units=single}
+        \definecolor{AnaFill}{RGB}{217,240,211}
+        \newcommand{\cmarkg}{\textcolor{green!55!black}{\checkmark}}
+        \newcommand{\xmarkr}{\textcolor{red!75!black}{\ding{55}}}
+---
+
+{{< include sections/teaser.md >}}
+
+::: {.callout-note appearance="simple" icon="false"}
+## Abstract
+
+{{< include sections/abstract.md >}}
+
+:::
+
+{{< include sections/introduction.md >}}
+
+{{< include sections/related-work.md >}}
+
+{{< include sections/method.md >}}
+
+{{< include sections/results.md >}}
+
+{{< include sections/conclusion.md >}}
+
+{{< include sections/acknowledgments.md >}}
+
+{{< include sections/appendix.md >}}

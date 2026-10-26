@@ -1,0 +1,142 @@
+[
+  {
+    "id": "luo2025sonic",
+    "type": "article",
+    "title": "Z. Luo, Y. Yuan, T. Wang, C. Li, F. Castañeda, S. Chen, Z.-A. Cao, J. Li, D. Minor, Q. Ben, J. Park, D. Sami, Z. Wang, X. Da, R. Ding, C. Hogg, L. Song, E. Lim, E. Jeong, T. He, H. Xue, W. Xiao, S. Yuen, J. Kautz, Y. Chang, U. Iqbal, L. Fan, and Y. Zhu. SONIC: Supersizing motion tracking for natural humanoid whole-body control. Science Robotics, 11 (117): eaed4592, 2026. https://doi.org/10.1126/scirobotics.aed4592."
+  },
+  {
+    "id": "peng2018deepmimic",
+    "type": "article",
+    "title": "X. B. Peng, P. Abbeel, S. Levine, and M. van de Panne. DeepMimic: Example-guided deep reinforcement learning of physics-based character skills. ACM Transactions on Graphics, 37 (4): 143:1–143:14, 2018. https://doi.org/10.1145/3197517.3201311."
+  },
+  {
+    "id": "liao2025beyondmimic",
+    "type": "article",
+    "title": "Q. Liao, T. E. Truong, X. Huang, Y. Gao, G. Tevet, K. Sreenath, and C. K. Liu. BeyondMimic: From motion tracking to versatile humanoid control via guided diffusion. Science Robotics, 11 (117): eadx8924, 2026. https://doi.org/10.1126/scirobotics.adx8924."
+  },
+  {
+    "id": "schulman2017proximal",
+    "type": "article",
+    "title": "J. Schulman, F. Wolski, P. Dhariwal, A. Radford, and O. Klimov. Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347, 2017. URL https://arxiv.org/abs/1707.06347."
+  },
+  {
+    "id": "merel2018neural",
+    "type": "article",
+    "title": "J. Merel, L. Hasenclever, A. Galashov, A. Ahuja, V. Pham, G. Wayne, Y. W. Teh, and N. Heess. Neural probabilistic motor primitives for humanoid control. In International Conference on Learning Representations, 2019. URL https://openreview.net/forum?id=BJl6TjRcY7."
+  },
+  {
+    "id": "yao2022controlvae",
+    "type": "article",
+    "title": "H. Yao, Z. Song, B. Chen, and L. Liu. ControlVAE: Model-based learning of generative controllers for physics-based characters. ACM Transactions on Graphics (TOG), 41 (6): 1–16, 2022. https://doi.org/10.1145/3550454.3555434."
+  },
+  {
+    "id": "won2022physics",
+    "type": "article",
+    "title": "J. Won, D. Gopinath, and J. Hodgins. Physics-based character controllers using conditional VAEs. ACM Transactions on Graphics (TOG), 41 (4): 1–12, 2022. https://doi.org/10.1145/3528223.3530067."
+  },
+  {
+    "id": "luo2024universal",
+    "type": "article",
+    "title": "Z. Luo, J. Cao, J. Merel, A. Winkler, J. Huang, K. Kitani, and W. Xu. Universal humanoid motion representations for physics-based control. In International Conference on Learning Representations, volume 2024, pages 56766–56782, 2024. URL https://proceedings.iclr.cc/paper_files/paper/2024/hash/fb19caf91f4966e426026685028cb73a-Abstract-Conference.html."
+  },
+  {
+    "id": "tessler2024maskedmimic",
+    "type": "article",
+    "title": "C. Tessler, Y. Guo, O. Nabati, G. Chechik, and X. B. Peng. MaskedMimic: Unified physics-based character control through masked motion inpainting. ACM Transactions On Graphics (TOG), 43 (6): 1–21, 2024. https://doi.org/10.1145/3687951."
+  },
+  {
+    "id": "zhang2026learning",
+    "type": "article",
+    "title": "Z. Zhang, H. Lu, Y. Lian, Z. Chen, Y. Liu, C. Lin, H. Xue, Z. Zeng, Z. Qi, S. Zheng, Q. Luan, J. Wang, J. Xing, H. Wang, and L. Yi. Learning athletic humanoid tennis skills from imperfect human motion data. In Proceedings of the IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2026. URL https://arxiv.org/abs/2603.12686."
+  },
+  {
+    "id": "luo2023perpetual",
+    "type": "article",
+    "title": "Z. Luo, J. Cao, A. Winkler, K. Kitani, and W. Xu. Perpetual humanoid control for real-time simulated avatars. In Proceedings of the IEEE/CVF International Conference on Computer Vision, pages 10895–10904, 2023. URL https://openaccess.thecvf.com/content/ICCV2023/html/Luo_Perpetual_Humanoid_Control_for_Real-time_Simulated_Avatars_ICCV_2023_paper.html."
+  },
+  {
+    "id": "fussell2021supertrack",
+    "type": "article",
+    "title": "L. Fussell, K. Bergamin, and D. Holden. SuperTrack: Motion tracking for physically simulated characters using supervised learning. ACM Transactions on Graphics (TOG), 40 (6): 1–13, 2021. https://doi.org/10.1145/3478513.3480527."
+  },
+  {
+    "id": "yao2024moconvq",
+    "type": "article",
+    "title": "H. Yao, Z. Song, Y. Zhou, T. Ao, B. Chen, and L. Liu. MoConVQ: Unified physics-based motion control via scalable discrete representations. ACM Transactions on Graphics (TOG), 43 (4): 1–21, 2024. https://doi.org/10.1145/3658137."
+  },
+  {
+    "id": "lei2025scalable",
+    "type": "article",
+    "title": "Y. Lei, Z. Luo, T. He, J. Cao, G. Shi, and K. Kitani. Scalable humanoid whole-body control via differentiable neural network dynamics. In ICLR 2025 Workshop on World Models: Understanding, Modelling and Scaling, 2025. URL https://openreview.net/pdf/b3031990328dd52267a571b265c15328bf6d6120.pdf."
+  },
+  {
+    "id": "hafner2019dream",
+    "type": "article",
+    "title": "D. Hafner, T. Lillicrap, J. Ba, and M. Norouzi. Dream to control: Learning behaviors by latent imagination. In International Conference on Learning Representations, 2020. URL https://openreview.net/forum?id=S1lOTC4tDS."
+  },
+  {
+    "id": "hafner2025dreamerv3",
+    "type": "article",
+    "title": "D. Hafner, J. Pasukonis, J. Ba, and T. Lillicrap. Mastering diverse control tasks through world models. Nature, 640 (8059): 647–653, 2025. https://doi.org/10.1038/s41586-025-08744-2."
+  },
+  {
+    "id": "hansen2022temporal",
+    "type": "article",
+    "title": "N. Hansen, X. Wang, and H. Su. Temporal difference learning for model predictive control. In K. Chaudhuri, S. Jegelka, L. Song, C. Szepesvari, G. Niu, and S. Sabato, editors, Proceedings of the 39th International Conference on Machine Learning, volume 162 of Proceedings of Machine Learning Research, pages 8387–8406. PMLR, 17–23 Jul 2022. URL https://proceedings.mlr.press/v162/hansen22a.html."
+  },
+  {
+    "id": "wu2023daydreamer",
+    "type": "article",
+    "title": "P. Wu, A. Escontrela, D. Hafner, K. Goldberg, and P. Abbeel. DayDreamer: World models for physical robot learning. In Proceedings of The 6th Conference on Robot Learning, volume 205 of Proceedings of Machine Learning Research, pages 2226–2240. PMLR, 2023. URL https://proceedings.mlr.press/v205/wu23c.html."
+  },
+  {
+    "id": "xu2022accelerated",
+    "type": "article",
+    "title": "J. Xu, V. Makoviychuk, Y. Narang, F. Ramos, W. Matusik, A. Garg, and M. Macklin. Accelerated policy learning with parallel differentiable simulation. In International Conference on Learning Representations, 2022. URL https://openreview.net/forum?id=ZSKRQMvttc."
+  },
+  {
+    "id": "song2025differentiable",
+    "type": "article",
+    "title": "Y. Song, S. Kim, and D. Scaramuzza. Learning quadruped locomotion using differentiable simulation. In Proceedings of The 8th Conference on Robot Learning, volume 270 of Proceedings of Machine Learning Research, pages 258–271. PMLR, 2025. URL https://proceedings.mlr.press/v270/song25a.html."
+  },
+  {
+    "id": "li2025robotic",
+    "type": "article",
+    "title": "C. Li, A. Krause, and M. Hutter. Robotic world model: A neural network simulator for robust policy optimization in robotics. arXiv preprint arXiv:2501.10100, 2025. URL https://arxiv.org/abs/2501.10100. Presented at the NeurIPS 2025 Workshop on Embodied World Models for Decision Making."
+  },
+  {
+    "id": "li2025uncertainty",
+    "type": "article",
+    "title": "C. Li, A. Krause, and M. Hutter. Uncertainty-aware robotic world model makes offline model-based reinforcement learning work on real robots. arXiv preprint arXiv:2504.16680, 2025. URL https://arxiv.org/abs/2504.16680. Presented at the 2nd Workshop on World Models at ICLR 2026."
+  },
+  {
+    "id": "sutton1991dyna",
+    "type": "article",
+    "title": "R. S. Sutton. Dyna, an integrated architecture for learning, planning, and reacting. ACM SIGART Bulletin, 2 (4): 160–163, 1991. https://doi.org/10.1145/122344.122377."
+  },
+  {
+    "id": "janner2019trust",
+    "type": "article",
+    "title": "M. Janner, J. Fu, M. Zhang, and S. Levine. When to trust your model: Model-based policy optimization. In Advances in Neural Information Processing Systems, volume 32, 2019. URL https://papers.nips.cc/paper_files/paper/2019/hash/5faf461eff3099671ad63c6f3f094f7f-Abstract.html."
+  },
+  {
+    "id": "schulman2015high",
+    "type": "article",
+    "title": "J. Schulman, P. Moritz, S. Levine, M. I. Jordan, and P. Abbeel. High-dimensional continuous control using generalized advantage estimation. In International Conference on Learning Representations, 2016. URL https://arxiv.org/abs/1506.02438."
+  },
+  {
+    "id": "todorov2012mujoco",
+    "type": "article",
+    "title": "E. Todorov, T. Erez, and Y. Tassa. MuJoCo: A physics engine for model-based control. In IEEE/RSJ International Conference on Intelligent Robots and Systems, pages 5026–5033, 2012."
+  },
+  {
+    "id": "bones2026seed",
+    "type": "article",
+    "title": "Bones Studio. BONES-SEED: Skeletal everyday embodiment dataset, 2026. URL https://huggingface.co/datasets/bones-studio/seed."
+  },
+  {
+    "id": "harvey2020robust",
+    "type": "article",
+    "title": "F. G. Harvey, M. Yurick, D. Nowrouzezahrai, and C. Pal. Robust motion in-betweening. ACM Transactions on Graphics (Proceedings of ACM SIGGRAPH), 39 (4): 60:1–60:12, 2020. https://doi.org/10.1145/3386569.3392480."
+  }
+]

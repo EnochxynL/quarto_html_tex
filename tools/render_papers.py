@@ -21,7 +21,7 @@ env['PATH'] = ';'.join(str(home / p) for p in (
 quarto = home / 'AppData/Local/Programs/Quarto/bin/quarto.exe'
 report_file = root / 'render-report.json'
 report = json.loads(report_file.read_text(encoding='utf-8')) if report_file.exists() else []
-for name in args.papers or ['arXiv-2203.04955v2', 'arXiv-2508.00362v1', 'arXiv-2604.24658v3', 'arXiv-2605.23904v2', 'arXiv-2606.07513v1']:
+for name in args.papers or ['arXiv-2203.04955v2', 'arXiv-2508.00362v1', 'arXiv-2604.24658v3', 'arXiv-2605.23904v2', 'arXiv-2606.07513v1', 'arXiv-2610.28480v1']:
     pdf_entry = 'paper.qmd' if (root / name / 'paper.qmd').exists() else 'main.qmd'
     for fmt, entry in [('html', 'index.qmd'), ('pdf', pdf_entry)]:
         if fmt not in args.formats:

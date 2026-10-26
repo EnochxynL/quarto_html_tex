@@ -3,7 +3,7 @@
 Each paper has an HTML entry (`index.qmd`) and a PDF entry sharing Markdown
 content under `sections/` (or the source's `Sections/`). Converted source papers
 use `paper.qmd` for PDF so Quarto's intermediate `.tex` file cannot overwrite the
-original `main.tex`.
+original `main.tex` or `root.tex`.
 
 | Paper | HTML | PDF | PDF entry |
 | --- | --- | --- | --- |
@@ -12,8 +12,9 @@ original `main.tex`.
 | Agent-native research artifacts (2604.24658v3) | [Preview](arXiv-2604.24658v3/index.html) | [PDF](arXiv-2604.24658v3/main.pdf) | `main.qmd` |
 | SkillOpt (2605.23904v2) | [Preview](arXiv-2605.23904v2/index.html) | [PDF](arXiv-2605.23904v2/main.pdf) | `main.qmd` |
 | Agentopia (2606.07513v1) | [Preview](arXiv-2606.07513v1/index.html) | [PDF](arXiv-2606.07513v1/paper.pdf) | `paper.qmd` |
+| SuperMimic (2610.28480v1) | [Preview](arXiv-2610.28480v1/index.html) | [PDF](arXiv-2610.28480v1/paper.pdf) | `paper.qmd` |
 
-From the workspace root, run `python tools/render_papers.py` to render all ten
+From the workspace root, run `python tools/render_papers.py` to render all twelve
 outputs sequentially. Quarto, MiKTeX, and Python must be available; the script
 also finds their standard per-user Windows installation locations. Per-format
 logs are saved in each paper directory; `render-report.json` records exit codes.
@@ -40,5 +41,21 @@ Its 45 raw LaTeX tables use the existing lwarp HTML path. Multirow continuation
 markers are added only to the generated Markdown and are inert in PDF.
 The paper-local `pdf-layout.lua` constrains table bodies to the available width
 and 80% of the text height, leaving room for captions on page-sized prompt tables.
+The PDF entry uses XeLaTeX with Chinese fonts; its abstract is read from the same
+`Sections/0_abstract.md` as HTML, so translated Markdown is used in both outputs.
 `python tools/convert_agentopia.py` explicitly regenerates this paper's entries,
 template, stylesheet, and Markdown from the original sources.
+
+SuperMimic uses `paper.qmd` with the original CoRL template. TikZ/PGFPlots figures
+are built from their original code and CSV data into `figures/quarto/*.pdf`,
+shared by native Quarto figures in HTML and PDF. Tables and the algorithm retain
+their LaTeX source. Appendix objects use continuous numbering across both outputs,
+instead of the original document's local `A.` counter resets. The supplied
+`root.bbl` is preserved as `bibliography.tex` and complete reference text in CSL
+records; no unavailable bibliographic metadata is invented.
+`python tools/convert_supermimic.py --build-figures` explicitly regenerates this
+paper's Markdown, entries, template, bibliography records, and vector figures.
+It overwrites generated files; do not run it when only rebuilding edited Markdown.
+Use `python tools/render_papers.py --papers arXiv-2610.28480v1` for normal renders,
+then `python tools/check_supermimic.py` to check labels, links, math compatibility,
+vector assets, and PDF warnings.

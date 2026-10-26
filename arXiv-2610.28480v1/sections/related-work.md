@@ -1,0 +1,39 @@
+# Related Work
+
+```{=latex}
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{6pt}
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+\setlength{\extrarowheight}{0.4ex}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Method & Mimic & Latent & Downstream & Task signal & Real robot \\
+\midrule
+NPMP~\citep{merel2018neural}                & SVG(0) & BC     & SVG(0)      & RL                & \xmarkr \\
+ControlVAE~\citep{yao2022controlvae}        & \multicolumn{2}{>{\columncolor{AnaFill}}c}{MBRL}     & MBRL    & RL                & \xmarkr \\
+PhysicsVAE~\citep{won2022physics}           & PPO   & BC$^1$ & PPO         & RL                & \xmarkr \\
+PULSE~\citep{luo2024universal}              & PPO   & DAgger & PPO         & RL                & \xmarkr \\
+MaskedMimic~\citep{tessler2024maskedmimic}  & A2C   & \multicolumn{2}{>{\columncolor{AnaFill}}c}{DAgger} & Distill     & \xmarkr \\
+BeyondMimic~\citep{liao2025beyondmimic}     & PPO   & DAgger & CGD         & Distill         & \cmarkg \\
+SONIC~\citep{luo2025sonic}                  & \multicolumn{3}{>{\columncolor{AnaFill}}c}{PPO}      & Distill$^2$ & \cmarkg \\
+LATENT~\citep{zhang2026learning}            & PPO   & DAgger & PPO         & RL                & \cmarkg \\
+\midrule
+\textbf{SuperMimic}          & \multicolumn{3}{>{\columncolor{AnaFill}}c}{MBRL}              & Distill\ /\ RL                & \cmarkg \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Comparison of various methods and their training strategies across different stages.} The Mimic, Latent, and Downstream columns indicate the training strategy used at each stage. Task signal is what trains the downstream interface: its own task reward (RL) or a reference-tracking signal (Distill). Merged cells denote jointly trained stages, while adjacent unmerged cells indicate sequential training, with each stage trained after freezing the previous one.\protect\newline SVG(0): stochastic value gradients; BC: offline behavior cloning on fixed expert rollouts, as opposed to DAgger's student rollouts; CGD: classifier guidance diffusion; A2C: advantage actor--critic; DAgger: dataset aggregation. $^1$Behavior cloning with a one-step next-state consistency term through a frozen, learned dynamics model. $^2$Goal encoders train jointly with the tracker on the motion-tracking reward and latent-alignment losses; no task-specific reward.}
+\label{tab-related}
+\end{table}
+```
+
+**Large-scale physics-based motion tracking.** Physics-based motion imitation learns controllers that reproduce reference motions under contact-rich rigid-body dynamics. DeepMimic [@peng2018deepmimic] demonstrated expressive character skills through model-free reinforcement learning, and PHC [@luo2023perpetual] extended this paradigm to large motion sets with robust recovery. SONIC [@luo2025sonic] further demonstrated that scaling motion data, policy capacity, and training compute produces generalist controllers that transfer to humanoid hardware. These results establish motion tracking as a practical route to broad whole-body behavior coverage. However, training these large-scale motion trackers requires extensive simulator rollouts and substantial computation. SuperMimic addresses this bottleneck by learning a differentiable dynamics model shared across all motions, so policy improvement can exploit analytic gradients rather than model-free rollout estimates.
+
+**Learned differentiable dynamics for motion control.** SuperTrack [@fussell2021supertrack] optimizes motion-control policies through a learned differentiable surrogate of the simulator. ControlVAE [@yao2022controlvae] jointly learns a dynamics model, latent skill representation, and generative controller, while MoConVQ [@yao2024moconvq] extends learned-model training to discrete motion representations over tens of hours of data. SuperDyno [@lei2025scalable] scales differentiable neural dynamics to tens of thousands of motion clips. These methods establish the effectiveness of learned dynamics and analytic policy gradients for scalable simulated-character control. SuperMimic extends this direction to single-GPU training of a large-scale humanoid tracker and to its sim-to-real deployment: its world model conditions on simulator context, while the deployed actor uses noisy proprioceptive observations and a goal input (§\ref{sec-wm}). We evaluate how model accuracy, rollout throughput, and differentiable policy updates contribute to training efficiency, and how prediction error behaves as motion coverage grows (§\ref{sec-scaling}--\ref{sec-wm-properties}), and demonstrate physical deployment of the resulting controller (§\ref{sec-real-robot}).
+
+**Model-based policy optimization and robot deployment.** Dreamer [@hafner2019dream] and DreamerV3 [@hafner2025dreamerv3] learn latent dynamics for imagination-based actor--critic learning, while TD-MPC [@hansen2022temporal] combines short-horizon planning with terminal-value prediction. DayDreamer [@wu2023daydreamer] demonstrates world-model learning directly on physical robots. SHAC [@xu2022accelerated] uses differentiable simulation for short-horizon actor--critic updates, motivating SuperMimic's critic-bootstrapped objective. Analytic-gradient robot control can also combine a simplified differentiable surrogate with a high-fidelity forward simulator, as demonstrated for quadruped locomotion [@song2025differentiable]. SuperMimic learns its surrogate from simulator transitions and backpropagates through short imagined rollouts, retaining compatibility with standard rigid-body simulators.
+
+RWM [@li2025robotic] and RWM-U [@li2025uncertainty] demonstrate that policies trained in learned neural simulators can transfer to physical robots. Both optimize policies using PPO on imagined rollouts; RWM-U additionally uses uncertainty-penalized offline optimization. SuperMimic instead optimizes the policy by differentiating the return through its learned dynamics. RWM and RWM-U pretrain the world model on trajectories from other policies. In contrast, SuperMimic fits its world model during training on data its own policy collects.
+
+**Reusable motion representations and downstream control.** Reusable controllers connect motion tracking to downstream goal interfaces (Table \ref{tab-related}). NPMP [@merel2018neural] and PhysicsVAE [@won2022physics] learn latent motor representations from expert behavior; PULSE [@luo2024universal] and LATENT [@zhang2026learning] use learned motion representations for downstream reinforcement learning. MaskedMimic [@tessler2024maskedmimic] supports partial-body and multimodal goals through motion inpainting, while BeyondMimic [@liao2025beyondmimic] uses guided diffusion for goal following. SONIC [@luo2025sonic] jointly trains goal encoders with its tracker using tracking rewards and latent-alignment losses. ControlVAE [@yao2022controlvae] optimizes downstream task policies through its learned model while freezing the skill controller. SuperMimic jointly trains goal-specific encoders and a shared decoder through the same dynamics model (Appendix \ref{sec-unified}). Goal interfaces can optimize either a reference-tracking reward or their own task reward. Our preliminary study trains a velocity interface concurrently with the motion-tracking interface, once on each objective (§\ref{sec-downstream}).
