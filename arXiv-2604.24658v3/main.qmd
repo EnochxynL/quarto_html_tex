@@ -17,7 +17,7 @@ format:
     number-sections: true
     citeproc: false
     cite-method: natbib
-    biblio-style: styles/icml2026
+    biblio-style: ../styles/icml2026/icml2026
     latex-clean: false
     # 代码块走 listings 包（\lstset 样式，与原始论文一致；quarto 1.9+ 用
     # syntax-highlighting: idiomatic 替代已失效的 listings: true，默认是 fancyvrb Shaded）
@@ -35,7 +35,7 @@ format:
           \usepackage{booktabs}
           \usepackage{hyperref}
           \newcommand{\theHalgorithm}{\arabic{algorithm}}
-          \usepackage[preprint]{styles/icml2026}
+          \usepackage[preprint]{../styles/icml2026/icml2026}
           \PassOptionsToPackage{hyphens}{url}
           \usepackage{url}
           \usepackage{amsfonts}

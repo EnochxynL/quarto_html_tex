@@ -11,7 +11,12 @@
 # Quarto 输出
 index.tex
 paper.tex
+arXiv-2604.24658v3/main.tex
+arXiv-2605.23904v2/main.tex
 *.pdf
+!/styles/**/*.pdf
+!arXiv-2203.04955v2/figures/*.pdf
+!arXiv-2605.23904v2/sections/figures/*.pdf
 !arXiv-2508.00362v1/figures/*.pdf
 !arXiv-2606.07513v1/Figures/*.pdf
 !arXiv-2610.28480v1/figures/*.pdf

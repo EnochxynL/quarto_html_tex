@@ -1,0 +1,2 @@
+# Preserve PDF assets as binary files, regardless of global diff drivers.
+*.pdf binary

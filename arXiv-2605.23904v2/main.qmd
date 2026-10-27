@@ -19,10 +19,8 @@ format:
     number-sections: true
     citeproc: false
     cite-method: natbib
-    # 原版 main.tex 用 \usepackage[numbers,sort&compress]{natbib}（microsoft-tech-report.sty
-    # 内部 RequirePackage 同选项）；quarto 的 natbiboptions 会把 & 转义/逗号丢失导致报错，
-    # 因此 sty 已适配为 [numbers]（去 sort&compress），quarto 侧只需 [numbers] 一致加载
-    natbiboptions: "numbers"
+    # The publisher style loads natbib with its own options.
+    biblio-config: false
     biblio-style: unsrtnat
     latex-clean: false
     # 代码块走 listings 包（\lstset 样式；quarto 1.9+ 用
@@ -38,7 +36,12 @@ format:
           \usepackage{graphicx}
           \usepackage{subcaption}
           \usepackage{booktabs}
-          \usepackage{microsoft-tech-report}
+          \usepackage{../styles/microsoft-tech-report-1.0/microsoft-tech-report}
+          \bibliographystyle{unsrtnat}
+          \techreportlabel{Microsoft Research}
+          \techreportbrandmark{\includegraphics[height=0.75cm]{../styles/microsoft-tech-report-1.0/figures/microsoft.pdf}}
+          % Quarto maps level-four headings to run-in paragraphs.
+          \titleformat{\paragraph}[runin]{\normalsize\microsoftsans\bfseries\color{microsoftdark}}{}{0pt}{}
           \usepackage{hyperref}
           \usepackage{url}
           \usepackage{amsmath}
@@ -84,9 +87,9 @@ format:
           % --- hyperref ---
           \hypersetup{
             colorlinks=true,
-            linkcolor=msftblue,
-            citecolor=msftblue,
-            urlcolor=msftblue,
+            linkcolor=microsoftblue,
+            citecolor=microsoftblue,
+            urlcolor=microsoftblue,
             pdftitle={SkillOpt: Executive Strategy for Self-Evolving Agent Skills}
           }
 ---
@@ -96,23 +99,23 @@ format:
 \noindent
 \begin{minipage}[c]{0.5\linewidth}
 \raggedright
-\raisebox{-0.5\height}{\msftbrandmark}
+\raisebox{-0.5\height}{\microsoftbrandmark}
 \end{minipage}%
 \begin{minipage}[c]{0.49\linewidth}
 \raggedleft
-{\msftdatefont\small\color{msftgray}May 2026}
+{\microsoftdatefont\small\color{microsoftgray}May 2026}
 \end{minipage}\par
 \vspace{0.35em}
-\noindent{\color{msftline}\rule{\linewidth}{0.8pt}\par}
+\noindent{\color{microsoftline}\rule{\linewidth}{0.8pt}\par}
 
 \vspace{1.0em}
 \begin{center}
-{{\msfttitlefont\fontsize{21}{25}\selectfont\color{msftdark}
+{{\microsofttitlefont\fontsize{21}{25}\selectfont\color{microsoftdark}
 \ourmethod{}: Executive Strategy for\\
 Self-Evolving Agent Skills\par}}
 \vspace{1.25em}
 
-{\normalsize\rmfamily\color{msftdark}
+{\normalsize\rmfamily\color{microsoftdark}
 Yifan Yang\textsuperscript{1,*,$\ddagger$} \hspace{0.6em}
 Ziyang Gong\textsuperscript{2,*} \hspace{0.6em}
 Weiquan Huang\textsuperscript{3,*} \hspace{0.6em}
@@ -131,7 +134,7 @@ Chong Luo\textsuperscript{1}\par
 }
 \vspace{0.22cm}
 
-{\footnotesize\rmfamily\color{msftgray}
+{\footnotesize\rmfamily\color{microsoftgray}
 \textsuperscript{1} Microsoft \quad
 \textsuperscript{2} Shanghai Jiao Tong University \quad
 \textsuperscript{3} Tongji University \quad
@@ -140,7 +143,7 @@ Chong Luo\textsuperscript{1}\par
 \end{center}
 
 \vspace{0.45em}
-\begin{msfttitlebox}
+\begin{microsofttitlebox}
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{0.14cm}
 \raggedright
@@ -150,15 +153,15 @@ Agent skills today are hand-crafted, generated one-shot, or evolved through loos
 
 \vspace{0.14cm}
 {\setlength{\parskip}{0.06cm}\small
-{\msftmetalabel{Code}\href{https://aka.ms/SkillOpt}{https://aka.ms/SkillOpt}\par}
-{\msftmetalabel{Correspondence}
+{\microsoftmetalabel{Code}\href{https://aka.ms/SkillOpt}{https://aka.ms/SkillOpt}\par}
+{\microsoftmetalabel{Correspondence}
 \href{mailto:yifanyang@microsoft.com}{yifanyang@microsoft.com},
 \href{mailto:yangxue2019-sjtu@sjtu.edu.cn}{yangxue2019-sjtu@sjtu.edu.cn}\par}
 }
 \vspace{0.08cm}
-{\footnotesize\rmfamily\itshape\color{msftgray}
+{\footnotesize\rmfamily\itshape\color{microsoftgray}
 \textsuperscript{*} Equal contribution. \quad \textsuperscript{$\ddagger$} Corresponding authors.\par}
-\end{msfttitlebox}
+\end{microsofttitlebox}
 ```
 :::
 

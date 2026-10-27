@@ -1,9 +1,11 @@
 # Paper previews
 
 Each paper has an HTML entry (`index.qmd`) and a PDF entry sharing Markdown
-content under `sections/` (or the source's `Sections/`). Converted source papers
-use `paper.qmd` for PDF so Quarto's intermediate `.tex` file cannot overwrite the
-original `main.tex` or `root.tex`.
+content under `sections/` (or Agentopia's `Sections/`). Five papers load their
+publisher or report styles from the root `styles/` directory; see
+[the style mapping](styles/README.md). Their unused original TeX manuscripts,
+submission metadata, and duplicate style files have been removed. Generated
+`main.tex` and `paper.tex` are build artifacts, not editable source documents.
 
 | Paper | HTML | PDF | PDF entry |
 | --- | --- | --- | --- |
@@ -22,10 +24,9 @@ or `quarto render arXiv-2610.28480v1/paper.qmd --to pdf`.
 The existing `render-report.json` records earlier development validation;
 normal Quarto rendering does not update it.
 
-The newly converted PDF entries retain their original publication templates.
+The PDF entries retain the paper-specific Quarto template adapters where needed.
 TD-MPC's algorithm syntax is migrated from `algorithmic` to `algpseudocode` in the
-shared body, since lwarp does not support the old package. The original source
-and local style files are preserved. The humanoid paper's supplied bibliography
+shared body, since lwarp does not support the old package. The humanoid paper's supplied bibliography
 is preserved as `bibliography.tex` for PDF and as CSL records in `references.json`
 for HTML; no missing bibliographic metadata is invented.
 
@@ -43,14 +44,14 @@ The paper-local `pdf-layout.lua` constrains table bodies to the available width
 and 80% of the text height, leaving room for captions on page-sized prompt tables.
 The PDF entry uses XeLaTeX with Chinese fonts; its abstract is read from the same
 `Sections/0_abstract.md` as HTML, so translated Markdown is used in both outputs.
-SuperMimic uses `paper.qmd` with the original CoRL template. Its eight TikZ/PGFPlots
+SuperMimic uses `paper.qmd` with the shared CoRL style. Its eight TikZ/PGFPlots
 figures now retain drawing source in shared Markdown, with native Quarto figure
 IDs and captions. `html-tex/figure/html-tikz.lua` builds PDF then Cairo SVG during
 HTML rendering; PDF compiles the raw drawing using the original template.
 `figures/tikz-preamble.tex` declares the independent HTML build's drawing context.
 Tables and the algorithm retain their LaTeX source. Appendix objects use continuous numbering across both outputs,
 instead of the original document's local `A.` counter resets. The supplied
-`root.bbl` is preserved as `bibliography.tex` and complete reference text in CSL
+reference list is preserved as `bibliography.tex` and complete reference text in CSL
 records; no unavailable bibliographic metadata is invented.
 No prebuilt `figures/quarto/` assets are required.
 

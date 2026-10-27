@@ -1,77 +1,10 @@
 [
   {
-    "paper": "arXiv-2203.04955v2",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 15.8,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2508.00362v1",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 5.3,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2605.23904v2",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 12.4,
-    "unresolved_references": []
-  },
-  {
     "paper": "arXiv-2606.07513v1",
     "format": "pdf",
     "exit_code": 0,
     "seconds": 70.9,
     "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2604.24658v3",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 39.0,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2610.28480v1",
-    "format": "pdf",
-    "exit_code": 0,
-    "seconds": 17.4,
-    "unresolved_references": []
-  },
-  {
-    "paper": "arXiv-2203.04955v2",
-    "exit_code": 0,
-    "seconds": 188.4,
-    "format": "html",
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2508.00362v1",
-    "exit_code": 0,
-    "seconds": 50.2,
-    "format": "html",
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2604.24658v3",
-    "exit_code": 0,
-    "seconds": 263.4,
-    "format": "html",
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2605.23904v2",
-    "exit_code": 0,
-    "seconds": 138.0,
-    "format": "html",
-    "latex_failures": 0,
-    "unresolved_placeholders": []
   },
   {
     "paper": "arXiv-2606.07513v1",
@@ -82,10 +15,77 @@
     "unresolved_placeholders": []
   },
   {
+    "paper": "arXiv-2203.04955v2",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 16.4,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 24.6,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 12.2,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2610.28480v1",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 19.8,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "format": "pdf",
+    "exit_code": 0,
+    "seconds": 37.8,
+    "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 46.9,
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 137.4,
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2203.04955v2",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 189.4,
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 260.9,
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
     "paper": "arXiv-2610.28480v1",
     "format": "html",
     "exit_code": 0,
-    "seconds": 221.0,
+    "seconds": 223.1,
     "latex_failures": 0,
     "unresolved_placeholders": []
   }
