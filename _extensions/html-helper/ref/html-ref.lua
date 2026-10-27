@@ -3,10 +3,75 @@
 -- targets use the counter bridge's existing label map; this filter never counts.
 if not quarto.format.is_html_output() then return {} end
 
-local directory = PANDOC_SCRIPT_FILE:match("^(.*[/\\])") or ""
-local query = dofile(directory .. "../../crossref-query/crossref-query.lua")
+-- Transitional adapter. This is the ONLY file that reads private Quarto globals.
+-- Call from a post-quarto (or later) document callback: older Quarto versions
+-- have no reliable public flag indicating that indexing has finished.
+-- Can be removed when official API finished.
+local function quarto_backend()
+  local function internal(name)
+    local value = rawget(_G, name)
+    assert(value ~= nil, "crossref-query: incompatible Quarto internals: " .. name)
+    return value
+  end
+  local param = internal("param")
+  return {
+    enabled = function() return param("enable-crossref", true) end,
+    resolve_numbers = function() return param("crossref-resolve-refs", true) end,
+    entry = function(identifier)
+      local state = internal("crossref")
+      assert(state.index and state.index.entries,
+        "crossref-query requires a post-quarto or later filter")
+      return state.index.entries[identifier]
+    end,
+    ref_type = internal("refType"),
+    number = internal("refNumberOption"),
+    subnumber = internal("subrefNumber"),
+  }
+end
+
+-- Query logic shared by the extension and a possible upstream implementation.
+-- The backend supplies access to the index and Quarto's own number formatters.
+-- Can be migrated to Quarto CLI to develop official API.
+local function query_logic(backend)
+  return {
+    lookup = function(identifier)
+      assert(type(identifier) == "string", "crossref lookup expects an identifier string")
+      if not backend.enabled() then return nil end
+      identifier = pandoc.text.lower(identifier:sub(1, 1)) .. identifier:sub(2)
+      local entry = backend.entry(identifier)
+      if entry == nil then return nil end
+      local result = {
+        identifier = identifier,
+        ref_type = backend.ref_type(identifier),
+        parent = entry.parent,
+        target = "#" .. identifier,
+      }
+      if backend.resolve_numbers() then
+        local number
+        if entry.parent then
+          local parent = backend.entry(entry.parent)
+          if parent == nil then return result end
+          number = pandoc.Inlines(backend.number(backend.ref_type(entry.parent), parent)):clone()
+          number:extend({pandoc.Space(), pandoc.Str("(")})
+          number:extend(backend.subnumber(entry.order))
+          number:insert(pandoc.Str(")"))
+        else
+          number = pandoc.Inlines(backend.number(result.ref_type, entry)):clone()
+        end
+        result.number = number
+      end
+      return result
+    end,
+  }
+end
 
 function Pandoc(doc)
+  local query = query_logic(quarto_backend())
+  -- There might be official API in the future, this is just an example.
+  -- if quarto.doc and quarto.doc.crossref and
+  --     type(quarto.doc.crossref.lookup) == "function" then
+  --   query = {lookup = quarto.doc.crossref.lookup}
+  -- end
   local counters = doc.meta["html-helper-lwarp-counters"] or {}
   local lwarp_refs = counters.refs or {}
   local missing = {}

@@ -1,7 +1,0 @@
-title: Crossref Query
-author: Enoch Xyn
-version: 0.1.0
-contributes:
-  filters:
-    - at: post-quarto
-      path: reference-numbers.lua
