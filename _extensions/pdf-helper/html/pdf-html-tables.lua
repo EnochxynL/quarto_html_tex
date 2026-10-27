@@ -13,7 +13,7 @@
 -- 配置（format 级别，如 pdf 下）：
 --   format:
 --     pdf:
---       html-helper:
+--       html-tex:
 --         html-table-env: table   # {=html} 表环境：table（单栏，默认）| table* | longtable
 --         html-table-pos: htbp    # 浮动位置参数
 --         table-caption-pos: bottom # caption 位置（与 pdf-md-tables 共享）
@@ -34,7 +34,7 @@ end
 -- 从 doc.meta 读取配置（嵌套优先、平铺回退，见 README 踩坑 13）
 -- 键名：html-table-env/html-table-pos（{=html} 表）、table-caption-pos（与 pdf-md-tables 共享）
 local function read_config(meta)
-  local pt = meta["html-helper"] or meta["paper-tables"] or {}
+  local pt = meta["html-tex"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   return {
     env = get_str(pdf["html-table-env"], get_str(pt["html-table-env"], "table")),

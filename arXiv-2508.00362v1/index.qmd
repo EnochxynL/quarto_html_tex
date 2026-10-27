@@ -1,7 +1,7 @@
 ---
 title: "A Whole-Body Motion Imitation Framework from Human Data for Full-Size Humanoid Robot"
 author: "Zhenghan Chen, Haodong Zhang, Dongqi Wang, Jiyu Yu, Haocheng Xu, Yue Wang, Rong Xiong"
-filters: [html-helper]
+filters: [html-tex]
 bibliography: references.json
 format:
   html:
@@ -9,7 +9,7 @@ format:
     toc: true
     number-sections: true
     css: styles.css
-    html-helper:
+    html-tex:
       caption-prefix: "Table "
       caption-sep: ": "
       latex-packages:

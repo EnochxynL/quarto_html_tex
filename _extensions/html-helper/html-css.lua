@@ -1,7 +1,7 @@
 -- html-css.lua — 插件默认样式注入
 --
 -- 作用：把同目录 html-css.css 注入文档（<style> RawBlock，文档开头）。
---   默认生效（挂上 html-helper 即有），零配置。
+--   默认生效（挂上 html-tex 即有），零配置。
 --
 -- 覆盖机制：html-css.css 全部规则用 :where() 包裹（零特异性 0,0,0）——
 --   项目 styles.css 的正常规则（特异性 ≥ 0,1,0）天然压过默认，无需 !important、

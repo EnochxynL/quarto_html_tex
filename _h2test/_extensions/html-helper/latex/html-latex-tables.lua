@@ -13,15 +13,15 @@
 --      pandoc.utils.citeproc（pcall 保护），\citep{key} → (Starace et al. 2025)
 --   3) \cmidrule 行剥离（Pandoc 不认识，会变成垃圾文本）
 --   4) 自定义宏（如 \ara{}）pandoc 不认识会丢弃——通过 metadata 配置注入：
---      html-helper:
+--      html-tex:
 --        latex-macros: |
 --          \newcommand{\ara}{\textsc{Ara}}
 --      pandoc.read 前拼在表格文本开头（latex_macros extension 展开，通用方案，
 --      不硬编码任何具体宏；\cmark/\xmark 有内置预处理，不必声明，声明也无害）
 --
--- 用法（filters 里按名称引用，如 html-helper）：
+-- 用法（filters 里按名称引用，如 html-tex）：
 --   filters:
---     - html-helper
+--     - html-tex
 --
 -- 输出契约（与 ref 模块解耦的边界——ref 侧按以下形态注入编号占位，
 -- 改动输出结构须同步 ref/html-ref-tbl.lua 的定位 pattern）：
@@ -41,7 +41,7 @@ end
 -- 无 t 字段，ipairs 直接遍历出 RawBlock("tex")）；stringify 对 RawBlock 返回空
 -- ——需手动提取 RawBlock 文本
 local function read_config(meta)
-  local pt = meta["html-helper"] or meta["paper-tables"] or {}
+  local pt = meta["html-tex"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   local v = pdf["latex-macros"] or pt["latex-macros"]
   if v == nil then return "" end
@@ -133,7 +133,7 @@ local function convert_table(el, bibstr, macros)
   end)
 
   -- 自定义宏注入（latex_macros extension 展开；\ara/\cmark/\xmark 等由
-  -- format.html.html-helper.latex-macros 配置声明，不硬编码；无配置时 prefix 为空）
+  -- format.html.html-tex.latex-macros 配置声明，不硬编码；无配置时 prefix 为空）
   local prefix = (macros ~= "") and (macros .. "\n") or ""
   local doc = pandoc.read(prefix .. cleaned, "latex")
 

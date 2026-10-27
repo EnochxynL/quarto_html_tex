@@ -13,7 +13,7 @@
 -- 配置（format 级别，如 pdf 下）：
 --   format:
 --     pdf:
---       html-helper:
+--       html-tex:
 --         md-table-env: table*      # 管道表环境：table*（双栏通栏）| table（单栏）| longtable
 --         md-table-pos: htbp        # 浮动位置参数
 --         table-caption-pos: bottom # caption 位置：top | bottom（与 pdf-html-tables 共享）
@@ -21,7 +21,7 @@
 -- 注意（踩坑记录）：
 --   pandoc.meta 在 filter 模块顶层和元素回调（Table/RawBlock）内都是 nil 或空表；
 --   只有 Pandoc(doc) 回调的 doc.meta 才含完整 metadata。metadata 值是 MetaInlines，
---   需 pandoc.utils.stringify 才能比较。quarto 把 format.pdf 下的 html-helper 提升为
+--   需 pandoc.utils.stringify 才能比较。quarto 把 format.pdf 下的 html-tex 提升为
 --   顶层 meta（平铺，无 pdf 嵌套层）——read_config 嵌套优先、平铺回退（README 踩坑 13）。
 --   本 filter 只处理顶层 Table 节点（管道表）：{=html} 表的 Table 在
 --   Div(__quarto_custom_scaffold) 内部，递归进去会抢先把内部 Table 转成
@@ -42,7 +42,7 @@ end
 -- 键名：md-table-env/md-table-pos（管道表）、table-caption-pos（caption 位置，
 -- 与 pdf-html-tables 共享）
 local function read_config(meta)
-  local pt = meta["html-helper"] or meta["paper-tables"] or {}
+  local pt = meta["html-tex"] or meta["paper-tables"] or {}
   local pdf = pt["pdf"] or {}
   return {
     env = get_str(pdf["md-table-env"], get_str(pt["md-table-env"], "table*")),

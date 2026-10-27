@@ -31,7 +31,7 @@ local function ref_link(ref, tab_nums)
   return nil
 end
 
--- tbl- 引用 → 占位符 <a href="#tbl-X">[tbl-X]</a>（html-helper2 新通道）
+-- tbl- 引用 → 占位符 <a href="#tbl-X">[tbl-X]</a>（html-tex2 新通道）
 -- 实证（2026-08-30）：quarto 对 tbl- 管道表 label 原样写回 tex（PDF \ref 命中）、
 -- HTML 端输出 <div id="tbl-X" class="quarto-float quarto-figure">（锚点存在）。
 -- 编号由 tblref.py（post-render）数 float div 文档顺序填充——与 quarto 原生

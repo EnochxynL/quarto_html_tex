@@ -1,6 +1,6 @@
 ---
 # PDF 端主文档（html 端见 index.qmd——两插件分工：main.qmd 走 pdf-helper、
-# index.qmd 走 html-helper，sections/ 共享；渲染：quarto render main.qmd）
+# index.qmd 走 html-tex，sections/ 共享；渲染：quarto render main.qmd）
 # 术语表（{{< term X >}} 跨格式调用——term 插件自动注册；pdf 字段引用
 # include-in-header 宏（PDF 端宏单一来源）、html 字段手写片段——样式自由）
 terms:
@@ -25,7 +25,7 @@ format:
     # 代码块走 listings 包（\lstset 样式，与原始论文一致；quarto 1.9+ 用
     # syntax-highlighting: idiomatic 替代已失效的 listings: true，默认是 fancyvrb Shaded）
     syntax-highlighting: idiomatic
-    html-helper:
+    html-tex:
       md-table-env: table*
       md-table-pos: htbp
       table-caption-pos: bottom

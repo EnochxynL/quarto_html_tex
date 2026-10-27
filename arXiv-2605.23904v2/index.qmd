@@ -1,7 +1,7 @@
 ---
-# HTML 端主文档（pdf 端见 main.qmd——两插件分工：index.qmd 走 html-helper、
+# HTML 端主文档（pdf 端见 main.qmd——两插件分工：index.qmd 走 html-tex、
 # main.qmd 走 pdf-helper，sections/ 共享；渲染：quarto render index.qmd）
-# 术语表（{{< term X >}} 跨格式调用——html-helper/html-md-shortcode 出
+# 术语表（{{< term X >}} 跨格式调用——html-tex/html-md-shortcode 出
 # html、pdf-helper/pdf-md-shortcode 出 latex（引用 include-in-header 宏——
 # PDF 端宏定义单一来源在 main.qmd header））
 terms:
@@ -9,7 +9,7 @@ terms:
     pdf: '\ourmethod{}'
     html: '<span class="smallcaps">SkillOpt</span>'
 filters:
-  - html-helper
+  - html-tex
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
 # 原始论文 article 默认 secnumdepth 3，paragraph 标题无自动编号）
 number-depth: 3
@@ -21,7 +21,7 @@ format:
     css: styles.css
     bibliography: references.bib
     title: "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
-    html-helper:
+    html-tex:
       # HTML 端表格 caption 前缀（英文论文 "Table "；默认中文 "表 "）。
       # PDF 端 LaTeX 自动加 "Table N:"——两端一致。
       caption-prefix: "Table "

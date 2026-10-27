@@ -1,10 +1,10 @@
 ---
 title: lwarp 品牌页构造探针
 filters:
-  - html-helper
+  - html-tex
 format:
   html:
-    html-helper:
+    html-tex:
       latex-packages:
         - xcolor
         - graphicx

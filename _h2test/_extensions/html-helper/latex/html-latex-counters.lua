@@ -17,7 +17,7 @@
 --   5) 块内 label → 全文编号 = start+1（块内 \caption/\refstepcounter
 --      步进后捕获；正文 \ref 与块内 @@REF 解析都用它）
 --
--- 输出写 doc.meta["html-helper-lwarp-counters"]（lwarp filter 读）：
+-- 输出写 doc.meta["html-tex-lwarp-counters"]（lwarp filter 读）：
 --   blocks: MetaList——第 k 个编译候选块（含 \begin{ENV}，与 lwarp 的
 --           is_compile_candidate 分派一致）的 {counter=计数器名, start=起始值}
 --   refs:   MetaMap——label → 编号（start+1）
@@ -50,7 +50,7 @@ end
 -- 从 latex-macros 读取（与 html-latex-lwarp 的 read_config 同逻辑——块状
 -- MetaBlocks 手动提取 RawBlock 文本；注册区可能含 \newtheorem 等定义）
 local function read_macros(meta)
-  local pt = meta["html-helper"] or {}
+  local pt = meta["html-tex"] or {}
   local v = pt["latex-macros"]
   if v == nil then return "" end
   local typ = pandoc.utils.type(v)
@@ -131,12 +131,12 @@ return {
         end
       end
 
-      -- 写输出（独立顶层 key——不碰 html-helper 现有配置结构）
+      -- 写输出（独立顶层 key——不碰 html-tex 现有配置结构）
       local refs_map = pandoc.MetaMap({})
       for lab, num in pairs(refs) do
         refs_map[lab] = pandoc.MetaString(num)
       end
-      doc.meta["html-helper-lwarp-counters"] = pandoc.MetaMap({
+      doc.meta["html-tex-lwarp-counters"] = pandoc.MetaMap({
         blocks = pandoc.MetaList(blocks),
         refs = refs_map,
       })

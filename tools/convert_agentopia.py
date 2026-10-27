@@ -170,7 +170,7 @@ abstract = abstract.replace(r'\textbf{Abstract:}', '').strip()
 authors = re.findall(r'\\author\[\d+\]\{([^}]+)\}', preamble)
 title = 'Agentopia: Long-Term Life Simulation and Learning in Agent Societies'
 html = '---\ntitle: ' + json.dumps(title) + '\nauthor: ' + json.dumps(', '.join(authors)) + '''
-filters: [html-helper]
+filters: [html-tex]
 bibliography: main.bib
 format:
   html:
@@ -178,7 +178,7 @@ format:
     toc: true
     number-sections: true
     css: styles.css
-    html-helper:
+    html-tex:
       caption-prefix: "Table "
       caption-sep: ": "
       latex-packages: [amsmath, amssymb, graphicx, xcolor, booktabs, colortbl, pifont, multirow, makecell, tabularx, arydshln, xspace]

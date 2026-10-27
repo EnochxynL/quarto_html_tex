@@ -3,7 +3,7 @@
 -- Lua only prepares the document, joins parent citations/references, and embeds
 -- the generated HTML/CSS. No table-to-Pandoc conversion or syntax stripping.
 --
--- Requires explicitly declared html-helper.latex-packages / latex-macros.
+-- Requires explicitly declared html-tex.latex-packages / latex-macros.
 -- Each block retains its TeX and logs in .quarto/lwarp/block-N/.
 -- The parent counter pass supplies starting values; lwarp emits captions and
 -- source label anchors. Bibliographic commands use the parent's citeproc data.
@@ -35,11 +35,11 @@ local function extract_labels(text)
   return labels
 end
 
--- 宏包声明：从 doc.meta 读取 latex-packages（html-helper: latex-packages:
+-- 宏包声明：从 doc.meta 读取 latex-packages（html-tex: latex-packages:
 -- [pkg1, pkg2]——块独立编译所需宏包由文档层声明，不从块内容猜；
 -- 与 latex-macros 平行）。pandoc 3 MetaList → 字符串数组
 local function read_packages(meta)
-  local pt = meta["html-helper"] or {}
+  local pt = meta["html-tex"] or {}
   local v = pt["latex-packages"]
   if v == nil then return {} end
   local typ = pandoc.utils.type(v)
@@ -56,7 +56,7 @@ end
 -- 从 doc.meta 读取 latex-macros（嵌套优先、平铺回退，模式同 html-latex-tables；
 -- pandoc 3 块标量 → MetaBlocks，手动提取 RawBlock 文本）
 local function read_config(meta)
-  local pt = meta["html-helper"] or {}
+  local pt = meta["html-tex"] or {}
   local v = pt["latex-macros"]
   if v == nil then return "" end
   local typ = pandoc.utils.type(v)
@@ -709,7 +709,7 @@ end
 
 -- Read only block compilation context; reference lookup belongs to html-ref.
 local function read_counters(meta)
-  local c = meta["html-helper-lwarp-counters"]
+  local c = meta["html-tex-lwarp-counters"]
   local blocks = {}
   if c == nil then return blocks end
   local bl = c["blocks"]

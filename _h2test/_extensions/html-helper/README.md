@@ -1,11 +1,11 @@
-# HTML-Helper
+# html-tex
 
 Quarto 扩展：**qmd（含 latex 内容）→ 单格式 HTML 翻译器**。挂载即用，零配置起步；复杂 latex 块、{=latex} 表格、`\ref` 引用体系按职责分模块，filter 不持有任何"针对特定内容类型"的专门适配（通用性——用户 2026-09-02 验收：职责清晰）。
 
 ## 目录结构
 
 ```
-_extensions/html-helper/
+_extensions/html-tex/
   _extension.yml            filter 链声明（顺序见下）
   html-css.lua              默认样式注入（同目录 html-css.css，:where() 零特异性——项目 styles.css 天然覆盖）
   html-css.css              插件默认样式（论文共性部分，2026-08-31 提取）
@@ -27,11 +27,11 @@ _extensions/html-helper/
 
 ```yaml
 filters:
-  - html-helper          # HTML 端
+  - html-tex          # HTML 端
   - pdf-helper           # PDF 端（另一扩展——HTML filter 全部 FORMAT 守卫，PDF 零影响）
 format:
   html:
-    html-helper:
+    html-tex:
       caption-prefix: "Table "     # 表格 caption 前缀（英文论文；默认中文 "表 "）
       caption-sep: ": "            # caption 分隔符
       latex-packages:              # latex 块独立编译所需宏包——块编译脱离文档层，

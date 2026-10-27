@@ -1,9 +1,9 @@
 ---
 title: Lwarp table regression
-filters: [html-helper]
+filters: [html-tex]
 format:
   html:
-    html-helper:
+    html-tex:
       latex-packages: [graphicx, xcolor, colortbl, booktabs, bbding, pifont, bm]
       latex-macros: |
         \definecolor{CustomRed}{HTML}{B91C1C}

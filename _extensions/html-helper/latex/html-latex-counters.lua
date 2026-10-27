@@ -6,7 +6,7 @@
 -- This is a context bridge, not a complete TeX interpreter: arbitrary counter
 -- resets, optional/unnumbered captions and mixed counter families inside one
 -- block are not modeled. Blocks must declare shared custom counters in metadata.
--- Output: html-helper-lwarp-counters.blocks (counter/start) and .refs (label/number).
+-- Output: html-tex-lwarp-counters.blocks (counter/start) and .refs (label/number).
 if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
@@ -29,7 +29,7 @@ end
 -- 从 latex-macros 读取（与 html-latex-lwarp 的 read_config 同逻辑——块状
 -- MetaBlocks 手动提取 RawBlock 文本；注册区可能含 \newtheorem 等定义）
 local function read_macros(meta)
-  local pt = meta["html-helper"] or {}
+  local pt = meta["html-tex"] or {}
   local v = pt["latex-macros"]
   if v == nil then return "" end
   local typ = pandoc.utils.type(v)
@@ -134,12 +134,12 @@ return {
         end
       end
 
-      -- 写输出（独立顶层 key——不碰 html-helper 现有配置结构）
+      -- 写输出（独立顶层 key——不碰 html-tex 现有配置结构）
       local refs_map = pandoc.MetaMap({})
       for lab, num in pairs(refs) do
         refs_map[lab] = pandoc.MetaString(num)
       end
-      doc.meta["html-helper-lwarp-counters"] = pandoc.MetaMap({
+      doc.meta["html-tex-lwarp-counters"] = pandoc.MetaMap({
         blocks = pandoc.MetaList(blocks),
         refs = refs_map,
       })

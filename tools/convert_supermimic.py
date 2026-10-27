@@ -170,7 +170,7 @@ macros = r'''
 title = 'SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World Model'
 html = '---\ntitle: ' + json.dumps(title) + '''
 author: "Qiayuan Liao, Yiyang Shao, Junfeng Long, Kevin Zakka, Roberto Horowitz, Pieter Abbeel, Koushil Sreenath"
-filters: [html-helper]
+filters: [html-tex]
 bibliography: references.json
 csl: source-numeric.csl
 number-depth: 3
@@ -180,7 +180,7 @@ format:
     toc: true
     number-sections: true
     css: styles.css
-    html-helper:
+    html-tex:
       caption-prefix: "Table "
       caption-sep: ": "
       latex-packages: [amsmath, amssymb, bm, graphicx, xcolor, colortbl, booktabs, array, siunitx, pifont, algorithm, algpseudocode]

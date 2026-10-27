@@ -1,7 +1,7 @@
 ---
 title: "Temporal Difference Learning for Model Predictive Control"
 author: "Nicklas Hansen, Xiaolong Wang, Hao Su"
-filters: [html-helper]
+filters: [html-tex]
 bibliography: main.bib
 format:
   html:
@@ -9,7 +9,7 @@ format:
     toc: true
     number-sections: true
     css: styles.css
-    html-helper:
+    html-tex:
       caption-prefix: "Table "
       caption-sep: ": "
       latex-packages:

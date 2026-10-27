@@ -2,7 +2,7 @@
 
 Quarto 扩展：**pdf(含 html/markdown 表格内容) → 任意期刊模板的 PDF 适配器**。目标：任何 latex 模板（cls/sty）结合自己写的 qmd 就能马上编译。
 
-姊妹扩展：[HTML-Helper](../html-helper/README.md)（qmd(含 latex) → HTML 翻译器）。两者都挂：`filters: [html-helper, pdf-helper]`——一次编译，双端自动（HTML filter 有 FORMAT 守卫，PDF filter 只在 pdf/latex 格式运行，互不干扰）。
+姊妹扩展：[html-tex](../html-tex/README.md)（qmd(含 latex) → HTML 翻译器）。两者都挂：`filters: [html-tex, pdf-helper]`——一次编译，双端自动（HTML filter 有 FORMAT 守卫，PDF filter 只在 pdf/latex 格式运行，互不干扰）。
 
 ## 目录结构
 
@@ -30,11 +30,11 @@ Markdown 内容（管道表、{=html} 表格）编译进期刊 LaTeX 模板时�
 ```yaml
 ---
 filters:
-  - html-helper
+  - html-tex
   - pdf-helper          # 只要 PDF 端则只挂这个
 format:
   pdf:
-    html-helper:        # 配置命名空间暂沿用 html-helper（兼容），后续迁移 pdf-helper
+    html-tex:        # 配置命名空间暂沿用 html-tex（兼容），后续迁移 pdf-helper
       md-table-env: table*    # 管道表环境：table*（双栏通栏）| table（单栏）| longtable
       md-table-pos: htbp      # 管道表浮动位置参数
       html-table-env: table    # {=html} 直写表环境：table（默认）| table*
@@ -47,7 +47,7 @@ format:
 
 | 文件 | 作用 |
 |------|------|
-| `md/pdf-md-tables.lua` | **管道表**（顶层 Table）→ `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-helper`，兼容旧名 `paper-tables`）。只处理顶层 Table，Div 原样保留（{=html} 表交给 html/pdf-html-tables.lua） |
+| `md/pdf-md-tables.lua` | **管道表**（顶层 Table）→ `table*`/`table`/`longtable` booktabs tabular（双栏 longtable 报错故重写为浮动体；caption/label 走 LaTeX 原生）；配置经 `doc.meta` 读取（key: `html-tex`，兼容旧名 `paper-tables`）。只处理顶层 Table，Div 原样保留（{=html} 表交给 html/pdf-html-tables.lua） |
 | `html/pdf-html-tables.lua` | **{=html} 直写表**：`Div(quarto-scaffold)` 包裹的原生 Table → 单栏 `table`（默认）booktabs tabular。独立配置 `html-table-env`/`html-table-pos`（默认 `table`/`htbp`），table-caption-pos 与 pdf-md-tables 共享 |
 | `ref/pdf-ref-tbl.lua` | **tbl- 引用提示器**（INFO 日志，不改文档）：正文 `\ref{tbl-X}` → 提示通道行为。实证 2026-08-30：管道表 `{#tbl-X}` 的 `\label{tbl-X}` 被 PDF writer 原样写回中间 tex——LaTeX 原生 \ref 编译命中，**不 ??**；{=latex} 表 label 被 float 接管挪进 caption（实体保留）但复杂表仍须 tab- 让路（HTML 端 float 接管静默消失） |
 
@@ -75,4 +75,4 @@ format:
 
 ## 历史踩坑
 
-PDF 相关的历史踩坑记录（tex4ht/make4ht/html-crossref 时代，1-27 条）已随 html-helper README 重写删除——完整历史在 git 里（`git log` + `git show <commit>:README.md` 可回溯）。
+PDF 相关的历史踩坑记录（tex4ht/make4ht/html-crossref 时代，1-27 条）已随 html-tex README 重写删除——完整历史在 git 里（`git log` + `git show <commit>:README.md` 可回溯）。

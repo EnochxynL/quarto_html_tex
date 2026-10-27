@@ -12,7 +12,7 @@
 --   2) RawBlock(tex) 非表格块（任意 latex 环境——计数器注入与引用
 --      编号由 html-latex-counters.lua 提供，本文件不持有环境/算法知识）：
 --      a. 生成独立 block.tex：\usepackage[mathjax]{lwarp}（先于一切）
---         + latex-packages（文档层声明，html-helper: latex-packages）
+--         + latex-packages（文档层声明，html-tex: latex-packages）
 --         + latex-macros + \setcounter（counters.lua 的起始值，\@ifundefined
 --         保护——计数器不存在则跳过）
 --      b. 双编译：lualatex block.tex（打印版，lwarp 自动生成
@@ -43,7 +43,7 @@
 -- 边界（与其它模块解耦）：
 --   - 表格块跳过——html-latex-tables.lua 处理
 --   - 宏包不从块内容猜（detect_packages 已删）——块编译所需宏包由
---     文档层声明（html-helper: latex-packages，与 latex-macros 平行）；
+--     文档层声明（html-tex: latex-packages，与 latex-macros 平行）；
 --     项目用 lwarp 不支持的包（老式 algorithmic 等）→ 编译失败走
 --     可见警告块——适配发生在项目层（换包/换写法），filter 不强行适配
 --
@@ -93,11 +93,11 @@ local function extract_labels(text)
   return labels
 end
 
--- 宏包声明：从 doc.meta 读取 latex-packages（html-helper: latex-packages:
+-- 宏包声明：从 doc.meta 读取 latex-packages（html-tex: latex-packages:
 -- [pkg1, pkg2]——块独立编译所需宏包由文档层声明，不从块内容猜；
 -- 与 latex-macros 平行）。pandoc 3 MetaList → 字符串数组
 local function read_packages(meta)
-  local pt = meta["html-helper"] or {}
+  local pt = meta["html-tex"] or {}
   local v = pt["latex-packages"]
   if v == nil then return {} end
   local typ = pandoc.utils.type(v)
@@ -114,7 +114,7 @@ end
 -- 从 doc.meta 读取 latex-macros（嵌套优先、平铺回退，模式同 html-latex-tables；
 -- pandoc 3 块标量 → MetaBlocks，手动提取 RawBlock 文本）
 local function read_config(meta)
-  local pt = meta["html-helper"] or {}
+  local pt = meta["html-tex"] or {}
   local v = pt["latex-macros"]
   if v == nil then return "" end
   local typ = pandoc.utils.type(v)
@@ -676,7 +676,7 @@ end
 -- 从 doc.meta 读 html-latex-counters.lua 的输出：
 -- blocks（每 tex 非表格块的 {counter, start}）+ refs（label→编号）
 local function read_counters(meta)
-  local c = meta["html-helper-lwarp-counters"]
+  local c = meta["html-tex-lwarp-counters"]
   local blocks, refs = {}, {}
   if c == nil then return blocks, refs end
   local bl = c["blocks"]

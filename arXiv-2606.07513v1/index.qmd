@@ -1,7 +1,7 @@
 ---
 title: "Agentopia: Long-Term Life Simulation and Learning in Agent Societies"
 author: "Xintao Wang, Sirui Zheng, Hongqiu Wu, Weiyuan Li, Jen-tse Huang, Minghao Zhu, Can Zu, Qi Deng, Jiawei Wang, Qianyu He, Heng Wang, Xiaojian Wu, Yunzhe Tao"
-filters: [html-helper]
+filters: [html-tex]
 bibliography: main.bib
 format:
   html:
@@ -9,7 +9,7 @@ format:
     toc: true
     number-sections: true
     css: styles.css
-    html-helper:
+    html-tex:
       caption-prefix: "Table "
       caption-sep: ": "
       latex-packages: [amsmath, amssymb, graphicx, xcolor, booktabs, colortbl, pifont, multirow, makecell, tabularx, arydshln, xspace]

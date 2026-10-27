@@ -1,7 +1,7 @@
 ---
 title: Table labels and inline terms
 filters:
-  - html-helper
+  - html-tex
   - pdf-helper
 terms:
   ara:
@@ -18,7 +18,7 @@ format:
       text: |
         \usepackage{booktabs}
         \newcommand{\ara}{\textsc{Ara}}
-    html-helper:
+    html-tex:
       md-table-env: table*
       html-table-env: table
       table-caption-pos: bottom

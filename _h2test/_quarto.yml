@@ -1,5 +1,5 @@
 project:
   type: default
   post-render:
-    - _extensions/html-helper/ref/figref.py
-    - _extensions/html-helper/ref/tblref.py
+    - _extensions/html-tex/ref/figref.py
+    - _extensions/html-tex/ref/tblref.py

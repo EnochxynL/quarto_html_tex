@@ -1,4 +1,4 @@
-# HTML-Helper
+# html-tex
 
 把 Quarto 中保留的原始 LaTeX 环境转换为 HTML。表格、算法等统一交给
 lwarp 执行，不再通过 Lua 拆解表格或经 Pandoc Table 中转。PDF 渲染不受影响。
@@ -6,10 +6,10 @@ lwarp 执行，不再通过 Lua 拆解表格或经 Pandoc Table 中转。PDF 渲
 ## 使用
 
 ~~~yaml
-filters: [html-helper]
+filters: [html-tex]
 format:
   html:
-    html-helper:
+    html-tex:
       latex-packages: [graphicx, xcolor, booktabs, colortbl, multirow]
       latex-macros: |
         \newcommand{\ourmethod}{\textsc{OurMethod}}
@@ -32,7 +32,7 @@ Markdown 原生表格继续由 Quarto 处理。
    也不重新计数或抓取最终 HTML。未登记目标再查 lwarp 计数桥提供的编号。
    lwarp 表格的标题和编号仍由 lwarp 输出。
 
-html-helper 需要同时安装同一工作区内的 `_extensions/crossref-query`。
+html-tex 需要同时安装同一工作区内的 `_extensions/crossref-query`。
 `\ref` 输出编号，`\eqref` 输出带括号的编号；Figure、Table、§ 等前缀由正文提供，
 显式的 `\S` 保留为 §。原生 `@...` 引用仍由 Quarto 处理。
 未找到的目标保留可见占位并输出 `[html-ref] unresolved targets` 诊断。

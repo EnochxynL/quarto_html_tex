@@ -72,7 +72,7 @@ function Pandoc(doc)
   --     type(quarto.doc.crossref.lookup) == "function" then
   --   query = {lookup = quarto.doc.crossref.lookup}
   -- end
-  local counters = doc.meta["html-helper-lwarp-counters"] or {}
+  local counters = doc.meta["html-tex-lwarp-counters"] or {}
   local lwarp_refs = counters.refs or {}
   local missing = {}
 

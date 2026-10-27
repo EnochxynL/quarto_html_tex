@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """tblref.py — HTML 表格引用占位符自动编号（quarto post-render 脚本）
 
-背景（html-helper2 的 tbl- 通道）：
+背景（html-tex2 的 tbl- 通道）：
   管道表用 {#tbl-X} 时 quarto 原生接管（reader 消费 id 进 crossref 内部状态，
   用户 filter 拿不到 id 自数）——实证（2026-08-30）：
     1) PDF 端：\\label{tbl-X} 原样写回中间 tex（\\ref{tbl-X} 在 LaTeX 层命中，
