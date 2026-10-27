@@ -20,6 +20,28 @@ format:
 Markdown 原生表格继续由 Quarto 处理。
 本扩展不修复 PDF 双栏下的 Markdown 表格限制；六篇论文的共享表格使用原生 LaTeX。
 
+## PDF 源图
+
+本地 PDF 图片在 HTML 端使用 `pdfinfo` 检查页数，再由 `pdftocairo -svg` 转为
+SVG，以 data URI 写回原生 Image。宽高、alt、title、class、caption 和 Quarto
+交叉引用仍由原生图片流程处理，不再使用 PDF 阅读器或 MediaBox 比例补丁。
+PDF 输出保持原图，不调用转换器；未指定尺寸时采用 Quarto 的原生图片布局。
+
+单页 PDF 无需额外配置。多页 PDF 必须明确选择页码，使用 Pandoc 已支持的
+`page` 属性，使 HTML 和 PDF 输出选择同一页：
+
+~~~markdown
+![Results](figures/results.pdf){#fig-results page=2 width=80%}
+~~~
+
+HTML 也兼容 PDF 图片 URL 中的 `#page=2`，显式 `page` 属性优先；双格式文档
+推荐使用属性写法。未选页的多页文件、越界页码、缺失或无法转换的文件会明确报错。
+同一文档内重复引用同一文件和页码只转换一次，每次渲染重新读取原文件。
+中间 SVG 和日志保存在 `.quarto/pdf-images/`。
+
+处理范围是本地图片节点：普通 PDF 下载链接保持原样，远程 PDF 图片不自动下载。
+完整文档的阅读器可自行写成原始 HTML，不属于这个图片转换步骤。
+
 ## TikZ / PGFPlots
 
 图体直接写在原始 LaTeX 块中；外层使用 Quarto 原生 figure Div，标题保持 Markdown：
@@ -71,7 +93,8 @@ HTML 配置不会自动改写 PDF 模板。CSV、图片和 `\input` 的路径相
 
 ## 转换链
 
-1. html-css.lua、figure/html-pdf.lua：默认样式和现有 PDF 源图嵌入。
+1. html-css.lua：默认样式；figure/html-pdf.lua 在 post-quarto 将本地 PDF 图片
+   转成 Cairo SVG。无需 embed 专用 CSS，使用原生图片尺寸和响应式布局。
    figure/html-tikz.lua 在 pre-quarto 准备绘图对象，在引用桥之后的 post-quarto
    编译 TikZ → PDF → SVG；figure caption 和编号仍由 Quarto 管理。
 2. latex/html-latex-counters.lua：为独立编译块准备全文计数上下文。
@@ -134,6 +157,7 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 ~~~text
 python tools/check_lwarp_tables.py
 python tools/check_tikz.py
+python tools/check_pdf_images.py
 python tools/check_table_term_regression.py
 python _regression/html-refs/run.py
 python tools/render_papers.py

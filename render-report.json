@@ -1,38 +1,6 @@
 [
   {
     "paper": "arXiv-2203.04955v2",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 180.1,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2605.23904v2",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 141.6,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2508.00362v1",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 40.2,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2606.07513v1",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 772.4,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2203.04955v2",
     "format": "pdf",
     "exit_code": 0,
     "seconds": 15.8,
@@ -67,26 +35,56 @@
     "unresolved_references": []
   },
   {
-    "paper": "arXiv-2604.24658v3",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 253.5,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
-    "paper": "arXiv-2610.28480v1",
-    "format": "html",
-    "exit_code": 0,
-    "seconds": 216.0,
-    "latex_failures": 0,
-    "unresolved_placeholders": []
-  },
-  {
     "paper": "arXiv-2610.28480v1",
     "format": "pdf",
     "exit_code": 0,
     "seconds": 17.4,
     "unresolved_references": []
+  },
+  {
+    "paper": "arXiv-2203.04955v2",
+    "exit_code": 0,
+    "seconds": 188.4,
+    "format": "html",
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2508.00362v1",
+    "exit_code": 0,
+    "seconds": 50.2,
+    "format": "html",
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2604.24658v3",
+    "exit_code": 0,
+    "seconds": 263.4,
+    "format": "html",
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2605.23904v2",
+    "exit_code": 0,
+    "seconds": 138.0,
+    "format": "html",
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2610.28480v1",
+    "exit_code": 1,
+    "seconds": 198.3,
+    "format": "html"
+  },
+  {
+    "paper": "arXiv-2606.07513v1",
+    "exit_code": 0,
+    "seconds": 751.5,
+    "format": "html",
+    "latex_failures": 0,
+    "unresolved_placeholders": []
   }
 ]

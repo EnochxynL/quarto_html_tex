@@ -78,3 +78,8 @@ vector assets, and PDF warnings.
 `python tools/check_tikz.py` verifies native SVG generation, PDF passthrough,
 forward references inside diagrams, nested plots, changed CSV inputs, and
 compiler/missing-reference diagnostics.
+
+Local PDF-source images are converted to Cairo SVG by `html-pdf.lua` for HTML;
+the PDF output retains its original images. No embedded-reader CSS is needed.
+`python tools/check_pdf_images.py` covers native image attributes, captions,
+references, nested cells, encoded paths, explicit multi-page selection and errors.

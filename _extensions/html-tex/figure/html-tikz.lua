@@ -32,6 +32,39 @@ local function run(program, args, log)
   assert(ok, "html-tikz: " .. program .. " failed; see " .. log .. "\n" .. tostring(output))
 end
 
+-- Keep this helper identical in html-pdf.lua and html-tikz.lua. Deliberately
+-- self-contained: no module loading or filter-relative path resolution.
+local function pdf_to_svg(pdf_path, svg_path, page)
+  os.remove(svg_path .. ".log")
+  local function command(program, args)
+    local ok, output = pcall(pandoc.pipe, program, args, "")
+    local log = assert(io.open(svg_path .. ".log", "ab"))
+    log:write(program .. "\n" .. tostring(output) .. "\n")
+    log:close()
+    assert(ok, "html-tex: " .. program .. " failed for " .. pdf_path
+      .. "; see " .. svg_path .. ".log\n" .. tostring(output))
+    return output
+  end
+  local info = command("pdfinfo", {pdf_path})
+  local pages = assert(tonumber(info:match("Pages:%s*(%d+)")),
+    "html-tex: could not read PDF page count: " .. pdf_path)
+  if page == nil then
+    assert(pages == 1, "html-tex: " .. pdf_path .. " has " .. pages
+      .. " pages; explicitly select an image page with {page=N}")
+    page = 1
+  end
+  page = tonumber(page)
+  assert(page and page >= 1 and page <= pages and page == math.floor(page),
+    "html-tex: invalid PDF image page for " .. pdf_path .. " (1.." .. pages .. ")")
+  command("pdftocairo", {"-svg", "-noshrink", "-f", tostring(page), "-l", tostring(page), pdf_path, svg_path})
+  local file = assert(io.open(svg_path, "rb"), "html-tex: missing converted SVG " .. svg_path)
+  local svg = file:read("*a")
+  file:close()
+  assert(svg:find("<svg", 1, true), "html-tex: invalid converted SVG " .. svg_path)
+  return svg
+end
+
+
 function Pandoc(doc)
   local pending = doc.meta[state_key]
   if pending == nil then
@@ -92,13 +125,8 @@ function Pandoc(doc)
       "html-tikz: unresolved drawing citations; see " .. cache .. "/figure.log")
     assert(not log:find("Missing character:", 1, true),
       "html-tikz: missing drawing glyphs; check fonts in " .. cache .. "/figure.log")
-    local pdf = read(cache .. "/figure.pdf")
-    assert(pdf:sub(1, 4) == "%PDF", "html-tikz: invalid compiled PDF")
-    run("pdftocairo", {"-svg", "-noshrink", cache .. "/figure.pdf", cache .. "/figure.svg"},
-      cache .. "/svg.txt")
-    local svg = read(cache .. "/figure.svg")
-    assert(svg:find("<svg", 1, true), "html-tikz: invalid SVG")
-    image.src = "data:image/svg+xml;base64," .. quarto.base64.encode(svg)
+    image.src = "data:image/svg+xml;base64," .. quarto.base64.encode(
+      pdf_to_svg(cache .. "/figure.pdf", cache .. "/figure.svg"))
     image.attributes[marker] = nil
     return image
   end})

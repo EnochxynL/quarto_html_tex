@@ -1,0 +1,31 @@
+---
+title: PDF image conversion regression
+filters: [html-tex]
+number-sections: true
+format:
+  html: default
+  pdf:
+    pdf-engine: pdflatex
+    keep-tex: true
+    latex-clean: false
+---
+
+Reference: \ref{fig-pdf}, and native @fig-pdf.
+
+# Images {#sec-images}
+
+![**Bold caption** with preserved formatting.](.quarto/pdf-fixture/source%20name.pdf "Original title"){#fig-pdf width=40% fig-alt="Accessible diagram" .pdf-demo data-example="retained"}
+
+| Nested image | Description |
+|---|---|
+| ![Nested](.quarto/pdf-fixture/source%20name.pdf){width=25%} | Native table cell |
+
+![Selected second page](.quarto/pdf-fixture/multi.pdf){page=2 width=50%}
+
+[Download the original PDF](.quarto/pdf-fixture/source%20name.pdf).
+
+::: {.content-visible when-format="docx"}
+
+![Hidden missing image](never-created.pdf)
+
+:::

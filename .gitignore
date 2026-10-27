@@ -35,3 +35,4 @@ _mk4ht-test/
 **/.quarto/
 /_table-term-regression.*
 /_tikz-regression.*
+/_pdf-image-regression.*

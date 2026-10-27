@@ -70,17 +70,6 @@
   font-weight: 700;
 }
 
-/* PDF 源图（html-pdf-embed.lua 输出 <embed style="width:100%; aspect-ratio:W/H">；
-   此规则兜底降级场景：MediaBox 读不到时返回原 Image → quarto 默认 embed，
-   img-fluid 只设上限不撑满） */
-:where(embed[src$=".pdf"]) {
-  width: 100%;
-  display: block;
-}
-:where(figure > embed[src$=".pdf"]) {
-  margin: 0 auto;
-}
-
 /* 算法框（html-latex.lua 输出 <div class="algorithm-box">，对应 PDF 端 algorithm
    浮动体；行号/缩进由 HTML <ol> 原生处理） */
 :where(.algorithm-box) {

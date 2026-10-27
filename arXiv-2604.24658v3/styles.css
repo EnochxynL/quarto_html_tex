@@ -42,13 +42,6 @@
 }
 
 /* 复杂表（HTML 侧由转换脚本生成，class 与管道表一致 bootstrap .table） */
-/* PDF 图片：html-pdf-embed.lua 输出 <embed style="width:100%; aspect-ratio:W/H">
-   （读 MediaBox 算比例，浏览器自动算高度）。此规则兜底降级场景（MediaBox
-   读不到时返回原 Image → quarto 默认 embed，img-fluid 只设上限不撑满） */
-embed[src$=".pdf"] {
-  width: 100%;
-  display: block;
-}
 /* caption 统一在表格下方（与 PDF 端 table-caption-pos: bottom 一致，ARA 原版惯例） */
 table caption {
   caption-side: bottom;

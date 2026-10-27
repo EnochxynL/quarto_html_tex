@@ -249,7 +249,7 @@ pdf += '\n\n```{=latex}\n\\clearpage\n\\input{bibliography.tex}\n\\clearpage\n\\
 # Keep globally unique sequential numbers in both outputs. Source-local appendix
 # counter resets are intentionally not copied into the mixed Quarto document.
 (paper / 'paper.qmd').write_text(pdf, encoding='utf-8')
-(paper / 'styles.css').write_text('main { max-width: 1040px; }\nfigure embed { width: 100%; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
+(paper / 'styles.css').write_text('main { max-width: 1040px; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
 
 (paper / 'figures/tikz-preamble.tex').write_text(
     re.sub(r'\\documentclass(?:\[[^]]*\])?\{[^}]+\}', '', plot_preamble).strip() + '\n', encoding='utf-8')

@@ -202,7 +202,7 @@ def convert(name, title, authors, icml=False):
         pdf = pdf.replace('    syntax-highlighting: none\n',
                           '    syntax-highlighting: none\n    include-in-header:\n      - text: |\n          \\providecommand{\\mrowcell}{}\n')
     (directory / 'paper.qmd').write_text(pdf.replace('output-file: quarto.pdf', 'output-file: paper.pdf'), encoding='utf-8')
-    (directory / 'styles.css').write_text('main { max-width: 960px; }\nfigure embed { width: 100%; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
+    (directory / 'styles.css').write_text('main { max-width: 960px; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
     print(name, len(result), 'characters', len(protected), 'preserved blocks')
 
 

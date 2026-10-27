@@ -227,7 +227,7 @@ format:
 pdf += '\n\n'.join('{{< include Sections/' + part + '.md >}}' for part in parts[:-1])
 pdf += '\n\n```{=latex}\n\\bibliography{main}\n\\clearpage\n\\appendix\n```\n\n{{< include Sections/appendix.md >}}\n'
 (paper / 'paper.qmd').write_text(pdf, encoding='utf-8')
-(paper / 'styles.css').write_text('main { max-width: 1040px; }\nfigure embed { width: 100%; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
+(paper / 'styles.css').write_text('main { max-width: 1040px; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
 full_source = normalize_labels(expand_inputs(source))
 original_labels = set(re.findall(r'\\label\{([^}]+)\}', full_source))
 generated = '\n'.join(converted)

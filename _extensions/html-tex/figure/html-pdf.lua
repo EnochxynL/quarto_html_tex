@@ -1,82 +1,64 @@
--- html-pdf.lua — HTML 端：.pdf 源图 → embed + 自动比例（读 MediaBox 算 aspect-ratio）
---
--- 背景：浏览器 <img> 不支持 PDF，pandoc 对 .pdf 图输出裸 <embed>（无尺寸），
--- 浏览器 PDF viewer 嵌入不可控：宽度不撑满（img-fluid 的 max-width 只设上限）、
--- 强制 width 后高度又不按原图比例。转 PNG 会损失矢量（且需预处理）。
---
--- 方案：Lua 直接读 PDF 文件头部的 /MediaBox（明文，如 [0 0 612 792]），
--- 算 aspect-ratio = W/H，输出 <embed style="width:100%; aspect-ratio:W/H">——
--- 现代浏览器按 width + aspect-ratio 自动计算高度，比例与原图一致，且保留 PDF 矢量。
--- 多页 PDF 取第一页（页面对象通常未压缩，MediaBox 明文可读）。
---
--- 降级：MediaBox 读不到（对象流压缩等）→ 返回原 Image（quarto 默认 embed + img-fluid，
--- styles.css 的 embed[src$=".pdf"] { width:100% } 兜底宽度）。
---
--- 注意（踩坑记录）：
---   本 pandoc 版本的函数 filter 不可靠（README 踩坑 1），用 Pandoc(doc) 回调 +
---   手写递归遍历 Image；Image attr 的 style 键被 pandoc 丢弃（实测），只能 RawInline。
-if FORMAT ~= "html" and FORMAT ~= "html5" then
-  return {}
+-- Local PDF images -> Cairo SVG, keeping native Image attributes and captions.
+-- Run post-quarto so format-hidden images are removed before opening files.
+if not quarto.format.is_html_output() then return {} end
+
+-- Keep this helper identical in html-pdf.lua and html-tikz.lua. Deliberately
+-- self-contained: no module loading or filter-relative path resolution.
+local function pdf_to_svg(pdf_path, svg_path, page)
+  os.remove(svg_path .. ".log")
+  local function command(program, args)
+    local ok, output = pcall(pandoc.pipe, program, args, "")
+    local log = assert(io.open(svg_path .. ".log", "ab"))
+    log:write(program .. "\n" .. tostring(output) .. "\n")
+    log:close()
+    assert(ok, "html-tex: " .. program .. " failed for " .. pdf_path
+      .. "; see " .. svg_path .. ".log\n" .. tostring(output))
+    return output
+  end
+  local info = command("pdfinfo", {pdf_path})
+  local pages = assert(tonumber(info:match("Pages:%s*(%d+)")),
+    "html-tex: could not read PDF page count: " .. pdf_path)
+  if page == nil then
+    assert(pages == 1, "html-tex: " .. pdf_path .. " has " .. pages
+      .. " pages; explicitly select an image page with {page=N}")
+    page = 1
+  end
+  page = tonumber(page)
+  assert(page and page >= 1 and page <= pages and page == math.floor(page),
+    "html-tex: invalid PDF image page for " .. pdf_path .. " (1.." .. pages .. ")")
+  command("pdftocairo", {"-svg", "-noshrink", "-f", tostring(page), "-l", tostring(page), pdf_path, svg_path})
+  local file = assert(io.open(svg_path, "rb"), "html-tex: missing converted SVG " .. svg_path)
+  local svg = file:read("*a")
+  file:close()
+  assert(svg:find("<svg", 1, true), "html-tex: invalid converted SVG " .. svg_path)
+  return svg
 end
 
--- 读 PDF MediaBox 计算宽高比（第一页）
-local function pdf_aspect(src)
-  local f = io.open(src, "rb")
-  if not f then return nil end
-  local content = f:read("*a")
-  f:close()
-  local w, h = content:match("/MediaBox%s*%[%s*[%d%.]+%s+[%d%.]+%s+([%d%.]+)%s+([%d%.]+)%s*%]")
-  if w and h then
-    local hh = tonumber(h)
-    if hh and hh > 0 then
-      return string.format("%.3f", tonumber(w) / hh)
-    end
-  end
-  return nil
-end
-
--- 递归替换 inlines 里的 PDF Image → RawInline embed
-local function walk_inlines(inlines)
-  local out = {}
-  for _, il in ipairs(inlines) do
-    if il.t == "Image" and il.src:match("%.pdf$") then
-      local ratio = pdf_aspect(il.src)
-      if ratio then
-        -- #toolbar=0&navpanes=0：隐藏 Chrome/Edge PDF viewer 的工具栏与侧栏
-        -- #view=FitH：强制 fit width（viewer 默认缩放会留白，FitH 让页面水平占满框，
-        -- 框 aspect-ratio=页面比例 → 高度自然吻合）。fragment 不随请求发送
-        out[#out + 1] = pandoc.RawInline("html",
-          '<embed src="' .. il.src .. '#toolbar=0&navpanes=0&view=FitH" style="width:100%; aspect-ratio:' .. ratio .. '">')
-      else
-        out[#out + 1] = il
-      end
-    elseif il.content then
-      il.content = pandoc.List(walk_inlines(il.content))
-      out[#out + 1] = il
-    else
-      out[#out + 1] = il
-    end
-  end
-  return out
-end
-
-local function process_blocks(blocks)
-  local out = {}
-  for _, b in ipairs(blocks) do
-    if b.t == "Para" or b.t == "Plain" then
-      b.content = pandoc.List(walk_inlines(b.content))
-      out[#out + 1] = b
-    elseif b.t == "Div" or b.t == "BlockQuote" or b.t == "Figure" then
-      b.content = pandoc.List(process_blocks(b.content))
-      out[#out + 1] = b
-    else
-      out[#out + 1] = b
-    end
-  end
-  return out
+local function decode_path(path)
+  return path:gsub("%%(%x%x)", function(hex) return string.char(tonumber(hex, 16)) end)
 end
 
 function Pandoc(doc)
-  doc.blocks = pandoc.List(process_blocks(doc.blocks))
-  return doc
+  local converted = {}
+  local count = 0
+  return doc:walk({Image = function(image)
+    local path, suffix = image.src:match("^([^?#]+)(.*)$")
+    if not path then return nil end
+    path = decode_path(path)
+    if not path:lower():match("%.pdf$") then return nil end
+    -- URL resources remain native images; this filter does not download files.
+    if path:match("^%a[%w+.-]*:") and not path:match("^%a:[/\\]") then return nil end
+    local page = image.attributes.page or suffix:match("[#&]page=([^&]+)")
+    local key = path .. "\0" .. (page or "")
+    if converted[key] == nil then
+      count = count + 1
+      local cache = ".quarto/pdf-images"
+      pandoc.system.make_directory(cache, true)
+      local svg_path = cache .. "/image-" .. count .. ".svg"
+      local svg = pdf_to_svg(path, svg_path, page)
+      converted[key] = "data:image/svg+xml;base64," .. quarto.base64.encode(svg)
+    end
+    image.src = converted[key]
+    return image
+  end})
 end
