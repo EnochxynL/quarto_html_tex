@@ -1,5 +1,5 @@
 ---
-# HTML 入口使用 html-tex；PDF 入口 main.qmd 使用原生 LaTeX。
+# HTML 入口使用 html-tex；PDF 入口 paper.qmd 使用原生 LaTeX。
 # 术语由独立 term 扩展处理，按目标格式选择表示。
 terms:
   skillopt:
@@ -21,7 +21,7 @@ format:
     html-tex:
       # HTML 端表格 caption 前缀（英文论文 "Table "；默认中文 "表 "）。
       # PDF 端 LaTeX 自动加 "Table N:"——两端一致。
-      # latex 块独立编译所需宏包（lwarp 通道；与 PDF 端 main.qmd 的
+      # latex 块独立编译所需宏包（lwarp 通道；与 PDF 端 paper.qmd 的
       # include-in-header 平行声明——块编译脱离文档层，包不从内容猜，
       # 此处显式声明）
       latex-packages:

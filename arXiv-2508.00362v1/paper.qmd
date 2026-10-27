@@ -4,7 +4,7 @@ format:
   pdf:
     output-file: paper.pdf
     pdf-engine: pdflatex
-    template: quarto-template.tex
+    template: example.tex
     keep-tex: true
     latex-clean: false
     number-sections: true

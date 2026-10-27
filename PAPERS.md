@@ -5,14 +5,14 @@ content under `sections/` (or Agentopia's `Sections/`). Five papers load their
 publisher or report styles from the root `styles/` directory; see
 [the style mapping](styles/README.md). Their unused original TeX manuscripts,
 submission metadata, and duplicate style files have been removed. Generated
-`main.tex` and `paper.tex` are build artifacts, not editable source documents.
+`paper.tex` are build artifacts, not editable source documents.
 
 | Paper | HTML | PDF | PDF entry |
 | --- | --- | --- | --- |
 | TD-MPC (2203.04955v2) | [Preview](build/arXiv-2203.04955v2/index.html) | [PDF](build/arXiv-2203.04955v2/paper.pdf) | `paper.qmd` |
 | Whole-body motion imitation (2508.00362v1) | [Preview](build/arXiv-2508.00362v1/index.html) | [PDF](build/arXiv-2508.00362v1/paper.pdf) | `paper.qmd` |
-| Agent-native research artifacts (2604.24658v3) | [Preview](build/arXiv-2604.24658v3/index.html) | [PDF](build/arXiv-2604.24658v3/main.pdf) | `main.qmd` |
-| SkillOpt (2605.23904v2) | [Preview](build/arXiv-2605.23904v2/index.html) | [PDF](build/arXiv-2605.23904v2/main.pdf) | `main.qmd` |
+| Agent-native research artifacts (2604.24658v3) | [Preview](build/arXiv-2604.24658v3/index.html) | [PDF](build/arXiv-2604.24658v3/paper.pdf) | `paper.qmd` |
+| SkillOpt (2605.23904v2) | [Preview](build/arXiv-2605.23904v2/index.html) | [PDF](build/arXiv-2605.23904v2/paper.pdf) | `paper.qmd` |
 | Agentopia (2606.07513v1) | [Preview](build/arXiv-2606.07513v1/index.html) | [PDF](build/arXiv-2606.07513v1/paper.pdf) | `paper.qmd` |
 | SuperMimic (2610.28480v1) | [Preview](build/arXiv-2610.28480v1/index.html) | [PDF](build/arXiv-2610.28480v1/paper.pdf) | `paper.qmd` |
 

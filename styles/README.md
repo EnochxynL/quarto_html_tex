@@ -2,7 +2,7 @@
 
 The downloaded template directories are kept unchanged. Paper-specific metadata,
 macros, and Quarto compatibility adjustments belong in each paper's QMD or
-`quarto-template.tex`, not in these upstream files.
+`example.tex`, not in these upstream files.
 
 | Paper | Shared style | Source |
 | --- | --- | --- |
