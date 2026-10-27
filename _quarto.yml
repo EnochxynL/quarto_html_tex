@@ -1,5 +1,8 @@
 project:
   type: default
+  output-dir: build
+  post-render:
+    - scripts/collect-build.js
   render:
     - arXiv-2203.04955v2/index.qmd
     - arXiv-2203.04955v2/paper.qmd

@@ -9,18 +9,26 @@ submission metadata, and duplicate style files have been removed. Generated
 
 | Paper | HTML | PDF | PDF entry |
 | --- | --- | --- | --- |
-| TD-MPC (2203.04955v2) | [Preview](arXiv-2203.04955v2/index.html) | [PDF](arXiv-2203.04955v2/paper.pdf) | `paper.qmd` |
-| Whole-body motion imitation (2508.00362v1) | [Preview](arXiv-2508.00362v1/index.html) | [PDF](arXiv-2508.00362v1/paper.pdf) | `paper.qmd` |
-| Agent-native research artifacts (2604.24658v3) | [Preview](arXiv-2604.24658v3/index.html) | [PDF](arXiv-2604.24658v3/main.pdf) | `main.qmd` |
-| SkillOpt (2605.23904v2) | [Preview](arXiv-2605.23904v2/index.html) | [PDF](arXiv-2605.23904v2/main.pdf) | `main.qmd` |
-| Agentopia (2606.07513v1) | [Preview](arXiv-2606.07513v1/index.html) | [PDF](arXiv-2606.07513v1/paper.pdf) | `paper.qmd` |
-| SuperMimic (2610.28480v1) | [Preview](arXiv-2610.28480v1/index.html) | [PDF](arXiv-2610.28480v1/paper.pdf) | `paper.qmd` |
+| TD-MPC (2203.04955v2) | [Preview](build/arXiv-2203.04955v2/index.html) | [PDF](build/arXiv-2203.04955v2/paper.pdf) | `paper.qmd` |
+| Whole-body motion imitation (2508.00362v1) | [Preview](build/arXiv-2508.00362v1/index.html) | [PDF](build/arXiv-2508.00362v1/paper.pdf) | `paper.qmd` |
+| Agent-native research artifacts (2604.24658v3) | [Preview](build/arXiv-2604.24658v3/index.html) | [PDF](build/arXiv-2604.24658v3/main.pdf) | `main.qmd` |
+| SkillOpt (2605.23904v2) | [Preview](build/arXiv-2605.23904v2/index.html) | [PDF](build/arXiv-2605.23904v2/main.pdf) | `main.qmd` |
+| Agentopia (2606.07513v1) | [Preview](build/arXiv-2606.07513v1/index.html) | [PDF](build/arXiv-2606.07513v1/paper.pdf) | `paper.qmd` |
+| SuperMimic (2610.28480v1) | [Preview](build/arXiv-2610.28480v1/index.html) | [PDF](build/arXiv-2610.28480v1/paper.pdf) | `paper.qmd` |
 
 From the workspace root, run `quarto render` to render all twelve outputs.
 Quarto, a TeX distribution, and the external tools documented in
 `_extensions/html-tex/README.md` must be available. Python is not required.
 To render one entry, use `quarto render arXiv-2610.28480v1/index.qmd --to html`
 or `quarto render arXiv-2610.28480v1/paper.qmd --to pdf`.
+Outputs are collected under `build/arXiv-*/`. Quarto places HTML, PDF, and their
+web resources there. The post-render script `scripts/collect-build.js` archives
+retained TeX, auxiliary files, and html-tex's lwarp/TikZ/PDF-image diagnostics
+under the same paper directory after compilation. Compilation still runs with
+the source paper directory as its working directory, preserving relative paths
+to figures and shared styles. Quarto's own root `.quarto/` project state stays
+in place. The build directory is ignored by Git.
+
 The existing `render-report.json` records earlier development validation;
 normal Quarto rendering does not update it.
 
