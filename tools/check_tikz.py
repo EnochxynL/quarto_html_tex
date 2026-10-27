@@ -2,6 +2,7 @@
 from pathlib import Path
 import atexit
 import base64
+import json
 import os
 import re
 import subprocess
@@ -80,4 +81,33 @@ assert "html-tikz" in render(bad_tex, "html", "bad-tex", success=False)
 bad_ref = fixture.replace(r"Equation \ref{eq-target}", r"Equation \ref{not-a-real-target}")
 assert "unresolved drawing references" in render(bad_ref, "html", "bad-reference", success=False)
 render(fixture, "html", "final")
-print("PASS: native SVG, PDF passthrough, forward numbers, nested CSV, visibility, data changes and failure diagnostics")
+(data / "references.json").write_text(json.dumps([
+    {"id": key, "type": "article-journal", "title": key,
+     "author": [{"family": key}], "issued": {"date-parts": [[2025]]}}
+    for key in ("Alpha", "Beta", "Gamma")
+]), encoding="utf-8")
+(data / "numeric.csl").write_text('''<?xml version="1.0" encoding="utf-8"?>
+<style xmlns="http://purl.org/net/xbiblio/csl" version="1.0" class="in-text">
+<info><title>TikZ test</title><id>https://example.org/tikz-test</id><updated>2026-10-27T00:00:00Z</updated></info>
+<citation><layout prefix="[" suffix="]" delimiter=", "><group delimiter=", ">
+<text variable="citation-number"/><text variable="locator" prefix="p. "/>
+</group></layout></citation>
+<bibliography><layout><text variable="title"/></layout></bibliography>
+</style>''', encoding="utf-8")
+cited = fixture.replace("number-sections: true", "number-sections: true\n"
+    "bibliography: .quarto/tikz-fixture/references.json\n"
+    "csl: .quarto/tikz-fixture/numeric.csl")
+cited = cited.replace("Forward:", "First citation [@Alpha].\n\nForward:")
+cited = cited.replace(r"Equation \ref{eq-target}",
+    r"Equation \ref{eq-target}; Source \cite[see][p.~7]{Gamma}")
+cited += "\nLater citation [@Beta]. Repeat drawing source [@Gamma].\n"
+render(cited, "html", "citations")
+drawing_text = subprocess.check_output(["pdftotext", str(cache / "figure-1/figure.pdf"), "-"], env=env).decode("utf-8")
+assert "[see 2, p. 7]" in " ".join(drawing_text.split()), drawing_text
+cited_html = stem.with_suffix(".html").read_text(encoding="utf-8")
+assert 'data-html-tex-tikz-citation' not in cited_html
+assert re.search(r'href="#ref-Gamma"[^>]*>2</a>', cited_html), "Drawing and body must share citation 2"
+assert re.search(r'href="#ref-Beta"[^>]*>3</a>', cited_html), "Drawing citation must participate in parent order"
+assert "unresolved drawing citation" in render(cited.replace("{Gamma}", "{MissingCitation}"), "html", "bad-citation", success=False)
+render(fixture, "html", "final")
+print("PASS: native SVG, PDF passthrough, forward numbers, shared citation order/CSL, nested CSV, visibility, data changes and failure diagnostics")

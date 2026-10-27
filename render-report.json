@@ -74,16 +74,18 @@
     "unresolved_placeholders": []
   },
   {
-    "paper": "arXiv-2610.28480v1",
-    "exit_code": 1,
-    "seconds": 198.3,
-    "format": "html"
-  },
-  {
     "paper": "arXiv-2606.07513v1",
     "exit_code": 0,
     "seconds": 751.5,
     "format": "html",
+    "latex_failures": 0,
+    "unresolved_placeholders": []
+  },
+  {
+    "paper": "arXiv-2610.28480v1",
+    "format": "html",
+    "exit_code": 0,
+    "seconds": 221.0,
     "latex_failures": 0,
     "unresolved_placeholders": []
   }
