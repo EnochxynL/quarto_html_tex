@@ -26,6 +26,7 @@ with (logs / 'lwarp-tables.log').open('w', encoding='utf-8') as log:
 html = stem.with_suffix('.html').read_text(encoding='utf-8')
 assert '[html-latex-lwarp]' not in (logs / 'lwarp-tables.log').read_text(encoding='utf-8')
 assert 'class="lwarp-failed"' not in html
+assert 'href="#??"' not in html, 'local references need another HTML compilation pass'
 assert '"bm": ["\\\\boldsymbol{#1}", 1]' in html, 'native Math nodes did not register bm'
 assert re.search(r'colspan="2"[^>]*>\s*Grouped methods', html)
 for text in ['Colored text', 'First line', 'Second line', 'Macro value', 'Panel A', 'Panel B', 'Final panel']:

@@ -18,6 +18,11 @@ From the workspace root, run `python tools/render_papers.py` to render all twelv
 outputs sequentially. Quarto, MiKTeX, and Python must be available; the script
 also finds their standard per-user Windows installation locations. Per-format
 logs are saved in each paper directory; `render-report.json` records exit codes.
+After rendering HTML, `python tools/check_html_refs.py` checks fragment links,
+unresolved placeholders, and reference numbers against native headings/captions
+and Quarto references. `python _regression/crossref-query/run.py` covers the
+unified reference consumer, including custom categories, subreferences, math,
+literal code/comments, and missing-target diagnostics.
 
 The newly converted PDF entries retain their original publication templates.
 TD-MPC's algorithm syntax is migrated from `algorithmic` to `algpseudocode` in the

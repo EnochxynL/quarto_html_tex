@@ -616,6 +616,22 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     io.stderr:write("[html-latex-lwarp] lualatex (html) failed\n")
     return nil
   end
+  -- Fresh auxiliary files can leave references to local labels unresolved on
+  -- the first HTML pass, including a float referencing its own caption label.
+  -- Honor TeX's rerun request instead of depending on a previous render's aux.
+  local log = io.open(CACHE .. "/block_html.log", "r")
+  local needs_refs = false
+  if log then
+    needs_refs = log:read("*a"):find("There were undefined references", 1, true) ~= nil
+    log:close()
+  end
+  if needs_refs then
+    ok = os.execute("cd " .. CACHE .. " && lualatex -interaction=nonstopmode block_html.tex >nul 2>&1")
+    if not ok then
+      io.stderr:write("[html-latex-lwarp] lualatex (references) failed\n")
+      return nil
+    end
+  end
   local images, ready = read_lateximages(CACHE)
   -- The first HTML pass records page zero until image locations reach the aux
   -- file. Only blocks containing images need these additional passes.
@@ -691,39 +707,11 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
   return '<div class="' .. BLOCK_PREFIX .. ' ' .. scope .. '"><style>' .. css .. "</style>" .. inner .. "</div>"
 end
 
--- 正文引用：\ref{alg-X} → <a href="#alg-X">N</a>（照搬旧 filter 协议；
--- N 来自 html-latex-counters.lua 的 label→编号表）
-local function walk_inlines(inlines, refs)
-  local out = pandoc.List({})
-  for _, inl in ipairs(inlines) do
-    local handled = false
-    if (inl.t == "RawInline" and inl.format == "tex") or inl.t == "Math" then
-      local ref = inl.text:match("\\ref{([^}]+)}")
-      if ref and refs[ref] then
-        out:insert(pandoc.RawInline("html",
-          '<a href="#' .. ref:gsub(":", "-") .. '">' .. refs[ref] .. "</a>"))
-        handled = true
-      end
-    elseif inl.t == "Link" and inl.attr and inl.attr.attributes
-      and inl.attr.attributes["reference-type"] == "ref" then
-      local target = inl.attr.attributes["reference"]
-      if target and refs[target] then
-        out:insert(pandoc.RawInline("html",
-          '<a href="#' .. target:gsub(":", "-") .. '">' .. refs[target] .. "</a>"))
-        handled = true
-      end
-    end
-    if not handled then out:insert(inl) end
-  end
-  return out
-end
-
--- 从 doc.meta 读 html-latex-counters.lua 的输出：
--- blocks（每 tex 非表格块的 {counter, start}）+ refs（label→编号）
+-- Read only block compilation context; reference lookup belongs to html-ref.
 local function read_counters(meta)
   local c = meta["html-helper-lwarp-counters"]
-  local blocks, refs = {}, {}
-  if c == nil then return blocks, refs end
+  local blocks = {}
+  if c == nil then return blocks end
   local bl = c["blocks"]
   if bl and pandoc.utils.type(bl) == "List" then
     for _, item in ipairs(bl) do
@@ -732,13 +720,7 @@ local function read_counters(meta)
       blocks[#blocks + 1] = { counter = counter, start = tonumber(start) or 0 }
     end
   end
-  local rf = c["refs"]
-  if rf ~= nil then
-    for k, v in pairs(rf) do
-      refs[k] = pandoc.utils.stringify(v)
-    end
-  end
-  return blocks, refs
+  return blocks
 end
 
 return {
@@ -767,7 +749,7 @@ return {
           return pandoc.write(citation, "latex"):gsub("%s+$", "")
         end)
       end
-      local counter_blocks, refs = read_counters(doc.meta)
+      local counter_blocks = read_counters(doc.meta)
       local k = 0 -- 编译候选序（与 counters.lua 的 blocks 列表对齐）
       local function process_blocks(blocks)
         for i = 1, #blocks do
@@ -805,21 +787,7 @@ return {
         return blocks
       end
       doc.blocks = process_blocks(doc.blocks)
-      -- Resolve parent references recursively, including nested table blocks.
-      doc = doc:walk({
-        Inlines = function(inlines) return walk_inlines(inlines, refs) end,
-        RawBlock = function(block)
-          if block.format ~= "html" then return end
-          local function number(ref)
-            -- pdftotext may wrap a long placeholder at a hyphen.
-            ref = ref:gsub("%s+", "")
-            return refs[ref] or ("[" .. ref .. "]")
-          end
-          block.text = block.text:gsub("@@REF:{([^@]+)}@@", number)
-          block.text = block.text:gsub("@@REF:([^@]+)@@", number)
-          return block
-        end,
-      })
+      -- References are resolved uniformly by ref/html-ref.lua at post-quarto.
       return doc
     end,
   },

@@ -8,6 +8,5 @@ contributes:
     - html-pdf-embed.lua
     - latex/html-latex-counters.lua
     - latex/html-latex-lwarp.lua
-    - ref/html-ref-tbl.lua
-    - ref/html-ref-sec.lua
-    - ref/html-ref-fig.lua
+    - at: post-quarto
+      path: ref/html-ref.lua

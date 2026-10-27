@@ -59,5 +59,6 @@ The fixtures check seven reference categories, forward queries, custom number
 styles, chapter offsets, subreferences, detached results, and deferred book
 numbering. Generated native reference text is checked independently. These
 tests do not claim compatibility with every Quarto version or output format.
-The project's existing reference filters and Python postprocessors have not
-yet been switched to this module.
+The project's `html-helper/ref/html-ref.lua` is a consumer of this module.
+It resolves LaTeX reference syntax and lwarp placeholders after Quarto indexing;
+the old per-category filters and Python reference postprocessors are retired.

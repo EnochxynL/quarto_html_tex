@@ -34,6 +34,7 @@ Task & A & B & C \\
 \midrule
 Example & \textcolor{CustomRed}{Colored text} & \Checkmark & \XSolidBrush \\
 Nested & \begin{tabular}{l}First line\\Second line\end{tabular} & \coloredvalue{Macro value} & 3 \\
+Self reference & \ref{tab-regression-grouped} & local aux & 1 \\
 Images & \ding{51} & \ding{55} & \ding{51} \\
 \bottomrule
 \end{tabular}}

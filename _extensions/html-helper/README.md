@@ -27,8 +27,17 @@ Markdown 原生表格继续由 Quarto 处理。
    用 pdftotext 提取 HTML，并嵌入主页面。每块 CSS 和内部锚点单独隔离。
    遇到 lateximage（例如 pifont 符号）时，额外编译以确定图片页码，按 lwarp
    的转换顺序生成 SVG，并以 data URI 嵌入，不依赖临时目录中的图片路径。
-4. ref/html-ref-*.lua 及项目级 figref.py、tblref.py、eqref.py：
-   衔接现有引用。lwarp 表格的标题和编号由 lwarp 输出，旧表格引用模块不再重写。
+4. ref/html-ref.lua：在 post-quarto 阶段统一处理 LaTeX 引用和 lwarp 占位符。
+   通过同级 crossref-query 扩展查询 Quarto 已登记目标，不按 sec/fig/tbl 前缀分派，
+   也不重新计数或抓取最终 HTML。未登记目标再查 lwarp 计数桥提供的编号。
+   lwarp 表格的标题和编号仍由 lwarp 输出。
+
+html-helper 需要同时安装同一工作区内的 `_extensions/crossref-query`。
+`\ref` 输出编号，`\eqref` 输出带括号的编号；Figure、Table、§ 等前缀由正文提供，
+显式的 `\S` 保留为 §。原生 `@...` 引用仍由 Quarto 处理。
+未找到的目标保留可见占位并输出 `[html-ref] unresolved targets` 诊断。
+已登记但编号延迟到项目阶段的目标不会回退到 lwarp，也不会自行推算编号；
+本插件暂不为这些目标生成最终跨文件链接。
 
 正文和标题里的 LaTeX 文献引用由父文档的 citeproc 数据解析，再交给 TeX；
 表格结构仍完全由 lwarp 处理。当前引用桥支持无可选参数的 \cite、
@@ -67,8 +76,10 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 ~~~text
 python tools/check_lwarp_tables.py
 python tools/check_table_term_regression.py
+python _regression/crossref-query/run.py
 python tools/render_papers.py
+python tools/check_html_refs.py
 ~~~
 
 _regression/lwarp-tables.qmd 覆盖跨列表头、嵌套单元格、颜色和符号、组合面板、
-同块多标题、嵌套文档块及前后向引用。四篇论文提供真实内容回归。
+同块多标题、嵌套文档块及前后向引用。六篇论文提供真实内容回归。
