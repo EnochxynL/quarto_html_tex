@@ -1,5 +1,4 @@
 ---
-filters: [pdf-helper]
 bibliography: references.json
 number-depth: 3
 format:

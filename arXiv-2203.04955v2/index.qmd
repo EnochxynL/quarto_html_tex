@@ -10,8 +10,6 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
-      caption-prefix: "Table "
-      caption-sep: ": "
       latex-packages:
         - amsmath
         - amssymb

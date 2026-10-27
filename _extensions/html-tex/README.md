@@ -18,21 +18,23 @@ format:
 在 `{=latex}` 块中保留完整的 table / table*、tabular、标题及标签。
 宏包和自定义命令必须显式声明；插件不根据表格内容猜测依赖。
 Markdown 原生表格继续由 Quarto 处理。
+本扩展不修复 PDF 双栏下的 Markdown 表格限制；六篇论文的共享表格使用原生 LaTeX。
 
 ## 转换链
 
-1. html-css.lua、html-pdf-embed.lua：默认样式和 PDF 源图嵌入。
+1. html-css.lua、figure/html-pdf.lua：默认样式和 PDF 源图嵌入。
 2. latex/html-latex-counters.lua：为独立编译块准备全文计数上下文。
 3. latex/html-latex-lwarp.lua：生成 TeX，运行 LuaLaTeX 打印版和 HTML 版，
    用 pdftotext 提取 HTML，并嵌入主页面。每块 CSS 和内部锚点单独隔离。
    遇到 lateximage（例如 pifont 符号）时，额外编译以确定图片页码，按 lwarp
    的转换顺序生成 SVG，并以 data URI 嵌入，不依赖临时目录中的图片路径。
-4. html-latex-ref.lua：在 post-quarto 阶段统一处理 LaTeX 引用和 lwarp 占位符。
-   通过同级 crossref-query 扩展查询 Quarto 已登记目标，不按 sec/fig/tbl 前缀分派，
+4. latex/html-latex-ref.lua：在 post-quarto 阶段统一处理 LaTeX 引用和 lwarp 占位符。
+   内置查询辅助函数读取 Quarto 已登记目标，不按 sec/fig/tbl 前缀分派，
    也不重新计数或抓取最终 HTML。未登记目标再查 lwarp 计数桥提供的编号。
    lwarp 表格的标题和编号仍由 lwarp 输出。
 
-html-tex 需要同时安装同一工作区内的 `_extensions/crossref-query`。
+html-tex 可独立安装，不依赖其他引用扩展。查询辅助函数暂时访问 Quarto 内部状态，
+将来可按上游实际 API 替换；当前不预设正式 API 的名称。
 `\ref` 输出编号，`\eqref` 输出带括号的编号；Figure、Table、§ 等前缀由正文提供，
 显式的 `\S` 保留为 §。原生 `@...` 引用仍由 Quarto 处理。
 未找到的目标保留可见占位并输出 `[html-ref] unresolved targets` 诊断。
@@ -60,9 +62,14 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 - 当前 lwarp 的 resizebox 参数不接受段落。组合表格在其参数内分隔源码时，
   使用仅含百分号的注释行代替空行，避免产生段落标记。
 - 块内多个表格按 caption 数量推进计数，多个面板共享一个 caption 时只占一个编号。
-  这不是完整的 TeX 计数器解释器：任意计数器重置、可选或不编号 caption，
+  支持 `\caption[短标题]{完整标题}`；可选短标题不额外占用编号。
+  这不是完整的 TeX 计数器解释器：任意计数器重置、不编号 caption，
   以及同一块混用不同计数器尚不保证正确。与原生表格混排仍存在两套编号来源，
   需要后续统一引用架构。
+- 当前 Quarto 会尝试拆取带 `tbl-*` 标签的原始 LaTeX 表格，且其简单的 caption
+  匹配可能截断含宏的标题。Ara 的五张迁移表使用标准的
+  `\caption[短标题]{完整标题}`，保持原始标签名和完整可见标题，直接交由 LaTeX
+  编译，不依靠改标签前缀规避这一问题。
 - 保留的是网页中的内容与结构，不保证复现 PDF 的精确尺寸或分页。
   不支持的宏包、语法或缺失依赖会显示 lwarp-failed 警告及原始代码。
 - 每次渲染重新编译，尚无结果缓存。每块源文件和编译日志保存在
@@ -76,7 +83,7 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 ~~~text
 python tools/check_lwarp_tables.py
 python tools/check_table_term_regression.py
-python _regression/crossref-query/run.py
+python _regression/html-refs/run.py
 python tools/render_papers.py
 python tools/check_html_refs.py
 ~~~

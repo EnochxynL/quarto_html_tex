@@ -1,14 +1,11 @@
 ---
-# PDF 端主文档（html 端见 index.qmd——两插件分工：main.qmd 走 pdf-helper、
-# index.qmd 走 html-tex，sections/ 共享；渲染：quarto render main.qmd）
+# PDF 入口使用原生 LaTeX；与 HTML 入口 index.qmd 共享 sections/。
 # 术语表（{{< term X >}} 跨格式调用——term 插件自动注册；pdf 字段引用
 # include-in-header 宏（PDF 端宏单一来源）、html 字段手写片段——样式自由）
 terms:
   ara:
     pdf: '\ara{}'
     html: '<span class="ara">Ara</span>'
-filters:
-  - pdf-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
 # 原始论文 secnumdepth 默认 3，paragraph 标题无自动编号）
 number-depth: 3
@@ -25,12 +22,6 @@ format:
     # 代码块走 listings 包（\lstset 样式，与原始论文一致；quarto 1.9+ 用
     # syntax-highlighting: idiomatic 替代已失效的 listings: true，默认是 fancyvrb Shaded）
     syntax-highlighting: idiomatic
-    html-tex:
-      md-table-env: table*
-      md-table-pos: htbp
-      table-caption-pos: bottom
-      html-table-env: table
-      html-table-pos: htbp
     # 图浮动体顶到页面顶端（原始论文 [!t] 风格；值会字面塞进 \begin{figure}[...]，
     # 须用 LaTeX 位置参数语法且加引号——! 开头会被 YAML 当 tag）
     fig-pos: "!t"

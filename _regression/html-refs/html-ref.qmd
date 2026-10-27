@@ -12,7 +12,7 @@ crossref:
       latex-list-of-file-extension: lod
 filters:
   - at: post-quarto
-    path: ../../_extensions/html-tex/html-latex-ref.lua
+    path: ../../_extensions/html-tex/latex/html-latex-ref.lua
 html-tex-lwarp-counters:
   refs:
     external-custom: '7'

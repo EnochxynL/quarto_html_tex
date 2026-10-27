@@ -1,9 +1,6 @@
 ---
-# HTML 端主文档（pdf 端见 main.qmd——两插件分工：index.qmd 走 html-tex、
-# main.qmd 走 pdf-helper，sections/ 共享；渲染：quarto render index.qmd）
-# 术语表（{{< term X >}} 跨格式调用——html-tex/html-md-shortcode 出
-# html、pdf-helper/pdf-md-shortcode 出 latex（引用 include-in-header 宏——
-# PDF 端宏定义单一来源在 main.qmd header））
+# HTML 入口使用 html-tex；PDF 入口 main.qmd 使用原生 LaTeX。
+# 术语由独立 term 扩展处理，按目标格式选择表示。
 terms:
   skillopt:
     pdf: '\ourmethod{}'
@@ -24,8 +21,6 @@ format:
     html-tex:
       # HTML 端表格 caption 前缀（英文论文 "Table "；默认中文 "表 "）。
       # PDF 端 LaTeX 自动加 "Table N:"——两端一致。
-      caption-prefix: "Table "
-      caption-sep: ": "
       # latex 块独立编译所需宏包（lwarp 通道；与 PDF 端 main.qmd 的
       # include-in-header 平行声明——块编译脱离文档层，包不从内容猜，
       # 此处显式声明）

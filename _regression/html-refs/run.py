@@ -2,6 +2,7 @@
 from pathlib import Path
 import shutil
 import subprocess
+import re
 from html.parser import HTMLParser
 
 
@@ -20,9 +21,7 @@ assert quarto, "Put Quarto on PATH before running this regression"
 for document in ("basic.qmd", "numbering.qmd", "example.qmd", "html-ref.qmd", "book"):
     subprocess.run([quarto, "render", document, "--to", "html"], cwd=root, check=True)
 
-# Lua assertions in lookup.lua verify exact numbers, unknown targets, argument
-# validation, forward lookup, subreferences and detached return values.
-# Also verify that the independently rendered native references agree.
+# Check resolved LaTeX references independently against native references.
 for name, expected in (
     ("basic", "1, I, 1.1, 1, 2 (a), 1, 1."),
     ("numbering", "3, 3.x, 3.y (i)."),
@@ -31,6 +30,18 @@ for name, expected in (
     parser.feed((root / (name + ".html")).read_text(encoding="utf-8"))
     text = " ".join("".join(parser.parts).split())
     assert "Native references: " + expected in text, name + ": native numbers differ"
+
+for name, values in (
+    ("basic", {"api-fig": "1", "api-table": "I", "api-section": "1.1", "api-equation": "1", "api-child": "2 (a)", "api-custom": "1", "api-theorem": "1"}),
+    ("numbering", {"api-offset": "3", "api-alpha": "3.x", "api-parent": "3.y (i)"}),
+):
+    html = (root / (name + ".html")).read_text(encoding="utf-8")
+    for identifier, expected in values.items():
+        match = re.search(r'<span id="' + identifier + r'">(.*?)</span>', html, re.S)
+        assert match, identifier
+        text = Text()
+        text.feed(match[1])
+        assert "".join(text.parts) == expected, (identifier, text.parts, expected)
 
 example = (root / "example.html").read_text(encoding="utf-8")
 assert 'href="#fig-example">1</a>' in example
@@ -61,4 +72,4 @@ missing = subprocess.run([quarto, "render", "missing.qmd", "--to", "html"],
 assert "[html-ref] unresolved targets: another-missing, unregistered-target" in missing.stderr
 assert missing.stderr.count("[html-ref] unresolved targets:") == 1
 assert 'class="unresolved-ref"' in (root / "missing.html").read_text(encoding="utf-8")
-print("Crossref Query: all regression checks passed")
+print("HTML references: all regression checks passed")

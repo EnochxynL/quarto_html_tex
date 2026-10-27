@@ -1,5 +1,4 @@
 ---
-filters: [pdf-helper]
 bibliography: main.bib
 format:
   pdf:

@@ -773,34 +773,44 @@ AI原生研究模糊了人类洞察与机器执行之间的界限。
 
 表 \ref{tbl-corpus}列出了理解和复现评估中使用的23篇PaperBench论文。请注意，PaperBench自身的协议禁止使用作者代码；我们在基线中放宽了这一点，使之拥有最强的立足点（PDF + 配套GitHub仓库），使得"仓库可用性"成为我们实验框架的属性而非PaperBench的属性。在23篇论文中，15篇纳入复现实验；其余8篇被排除，因为忠实的端到端复现超出了我们每个任务的计算预算，或者需要不在我们评估框架范围内的专门基础设施（例如多天CLIP对抗微调、Isaac Gym RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。这8篇论文仅参与理解评估。
 
-| **简称** | **领域** | **复现** |
-|:---|:---|:---:|
-| adaptive-pruning | Efficiency | Yes |
-| all-in-one | Multi-task | Yes |
-| bam | LLM alignment | Yes |
-| bbox | Black-box LLM | Yes |
-| bridging-data-gaps | Data | No |
-| fre | RL | Yes |
-| ftrl | Online learning | Yes |
-| lbcs | Calibration | No |
-| lca-on-the-line | Prediction | No |
-| mechanistic-understanding | Interpretability | Yes |
-| pinn | Scientific ML | Yes |
-| rice | Retrieval | Yes |
-| robust-clip | Robustness | No |
-| sample-specific-masks | Data augmentation | Yes |
-| sapg | Optimization | No |
-| self-composing-policies | Continual RL | Yes |
-| self-expansion | Self-training | Yes |
-| semantic-self-consistency | Evaluation | No |
-| seq.-neural-score-est. | Score estimation | Yes |
-| stay-on-topic-w/-CFG | Generation | No |
-| stochastic-interpolants | Generative | Yes |
-| test-time-model-adapt. | Adaptation | Yes |
-| what-will-my-model-forget | Continual learning | No |
-| **总计：23** | | 15 |
-
-: 测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。"复现"列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。 {#tbl-corpus}
+```{=latex}
+\begin{table*}[htbp]
+\centering
+\small
+\begin{tabular}{llc}
+\toprule
+\textbf{简称} & \textbf{领域} & \textbf{复现} \\
+\midrule
+adaptive-pruning & Efficiency & Yes \\
+all-in-one & Multi-task & Yes \\
+bam & LLM alignment & Yes \\
+bbox & Black-box LLM & Yes \\
+bridging-data-gaps & Data & No \\
+fre & RL & Yes \\
+ftrl & Online learning & Yes \\
+lbcs & Calibration & No \\
+lca-on-the-line & Prediction & No \\
+mechanistic-understanding & Interpretability & Yes \\
+pinn & Scientific ML & Yes \\
+rice & Retrieval & Yes \\
+robust-clip & Robustness & No \\
+sample-specific-masks & Data augmentation & Yes \\
+sapg & Optimization & No \\
+self-composing-policies & Continual RL & Yes \\
+self-expansion & Self-training & Yes \\
+semantic-self-consistency & Evaluation & No \\
+seq.-neural-score-est. & Score estimation & Yes \\
+stay-on-topic-w/-CFG & Generation & No \\
+stochastic-interpolants & Generative & Yes \\
+test-time-model-adapt. & Adaptation & Yes \\
+what-will-my-model-forget & Continual learning & No \\
+\textbf{总计：23} &  & 15 \\
+\bottomrule
+\end{tabular}
+\caption[PaperBench 测试语料库]{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。``复现''列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
+\label{tbl-corpus}
+\end{table*}
+```
 
 #### 语料库多样性。
 
@@ -861,14 +871,24 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 
 表 \ref{tbl-info-gap}将8,921个需求按PaperBench任务类别划分。中位数论文显示45.3\%充分和47.9\%部分，证实了这一缺口是系统性的而非由异常值驱动。
 
-| **任务类别** | **需求数** | **充分** | **部分** | **缺失** |
-|:---|---:|:---:|:---:|:---:|
-| Code Development | 3,942 | 37.3\% | 54.9\% | 7.8\% |
-| Code Execution | 4,355 | 50.5\% | 47.9\% | 1.6\% |
-| Result Analysis | 624 | 60.6\% | 36.9\% | 2.6\% |
-| **总计** | **8,921** | **45.4\%** | **50.2\%** | **4.4\%** |
-
-: 23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。 {#tbl-info-gap}
+```{=latex}
+\begin{table*}[htbp]
+\centering
+\small
+\begin{tabular}{lrccc}
+\toprule
+\textbf{任务类别} & \textbf{需求数} & \textbf{充分} & \textbf{部分} & \textbf{缺失} \\
+\midrule
+Code Development & 3,942 & 37.3\% & 54.9\% & 7.8\% \\
+Code Execution & 4,355 & 50.5\% & 47.9\% & 1.6\% \\
+Result Analysis & 624 & 60.6\% & 36.9\% & 2.6\% \\
+\textbf{总计} & \textbf{8,921} & \textbf{45.4\%} & \textbf{50.2\%} & \textbf{4.4\%} \\
+\bottomrule
+\end{tabular}
+\caption[复现信息缺口]{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
+\label{tbl-info-gap}
+\end{table*}
+```
 
 #### 缺口类型细分。
 
@@ -877,19 +897,29 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 在细粒度层面，数据集获取仅达到5.4\%的充分覆盖率（25.5\%完全缺失）——语料库中没有一篇论文一致地提供了下载URL、预处理脚本或数据格式规范。
 评估、指标与基准测试为30.0\%：论文通常声明了使用*哪些*指标，但未说明*如何*计算它们（分箱策略、置信区间、统计检验）。
 
-| **缺口类型** | **数量** | **占缺口百分比** |
-|:---|---:|:---:|
-| Missing hyperparameter | 2,558 | 26.2\% |
-| Vague description | 2,141 | 21.9\% |
-| Cross-reference only | 1,313 | 13.4\% |
-| Missing code detail | 1,064 | 10.9\% |
-| Missing baseline detail | 1,054 | 10.8\% |
-| Missing URL | 538 | 5.5\% |
-| Figure only | 499 | 5.1\% |
-| Ambiguous specification | 399 | 4.1\% |
-| Implicit assumption | 150 | 1.5\% |
-
-: 8,921个需求中信息缺口类型的分布。三个最大类别——缺失超参数、描述模糊和交叉引用——恰恰是结构化格式在设计上处理的缺口。 {#tbl-gap-types}
+```{=latex}
+\begin{table*}[htbp]
+\centering
+\small
+\begin{tabular}{lrc}
+\toprule
+\textbf{缺口类型} & \textbf{数量} & \textbf{占缺口百分比} \\
+\midrule
+Missing hyperparameter & 2,558 & 26.2\% \\
+Vague description & 2,141 & 21.9\% \\
+Cross-reference only & 1,313 & 13.4\% \\
+Missing code detail & 1,064 & 10.9\% \\
+Missing baseline detail & 1,054 & 10.8\% \\
+Missing URL & 538 & 5.5\% \\
+Figure only & 499 & 5.1\% \\
+Ambiguous specification & 399 & 4.1\% \\
+Implicit assumption & 150 & 1.5\% \\
+\bottomrule
+\end{tabular}
+\caption[信息缺口类型的分布]{8,921个需求中信息缺口类型的分布。三个最大类别------缺失超参数、描述模糊和交叉引用------恰恰是结构化格式在设计上处理的缺口。}
+\label{tbl-gap-types}
+\end{table*}
+```
 
 ## 探索成本详细分解 {#sec-app-exploration-tax}
 
@@ -1393,20 +1423,3 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 ### 级别3：执行可复现性 {#sec-app-seal-eval-l3}
 
 级别3有效性等同于复现评估（\S\ref{sec-eval-reproduction}, 附录 \ref{sec-app-reproduction-eval}）：一个编码智能体读取{{< term ara >}}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表 \ref{tab-repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录 \ref{sec-app-reproduction-eval}了解任务设计、评分和按论文分析。
-
-#### {=html} 直写表格的 PDF 端转换测试
-
-以下表格以 {=html} 直写（非 LaTeX、非管道表），用于验证 paper-tables 扩展的 HTML raw → LaTeX 兜底转换（PDF 端经 pandoc.read 解析为 Table AST 后按 booktabs 三线表输出）：
-
-```{=html}
-<table id="tab-html-raw-test">
-<caption>HTML 直写表格的 PDF 端转换测试</caption>
-<thead>
-<tr><th>方法</th><th>Q&A 准确率</th><th>复现成功率</th></tr>
-</thead>
-<tbody>
-<tr><td>ARA</td><td>93.7%</td><td>64.4%</td></tr>
-<tr><td>基线</td><td>72.4%</td><td>57.4%</td></tr>
-</tbody>
-</table>
-```

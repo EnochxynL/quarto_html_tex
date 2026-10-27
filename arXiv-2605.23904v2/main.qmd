@@ -1,15 +1,10 @@
 ---
-# PDF 端主文档（html 端见 index.qmd——两插件分工：main.qmd 走 pdf-helper、
-# index.qmd 走 html-tex，sections/ 共享；渲染：quarto render main.qmd）
-# 术语表（{{< term X >}} 跨格式调用——html-tex/html-md-shortcode 出
-# html、pdf-helper/pdf-md-shortcode 出 latex（引用 include-in-header 宏——
-# PDF 端宏定义单一来源在 main.qmd header））
+# PDF 入口使用原生 LaTeX；与 HTML 入口 index.qmd 共享 sections/。
+# 术语由独立 term 扩展处理；PDF 宏定义位于本文件导言区。
 terms:
   skillopt:
     pdf: '\ourmethod{}'
     html: '<span class="smallcaps">SkillOpt</span>'
-filters:
-  - pdf-helper
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
 # 原始论文 article 默认 secnumdepth 3，paragraph 标题无自动编号）
 number-depth: 3

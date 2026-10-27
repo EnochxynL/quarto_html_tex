@@ -1,4 +1,4 @@
--- html-pdf-embed.lua — HTML 端：.pdf 源图 → embed + 自动比例（读 MediaBox 算 aspect-ratio）
+-- html-pdf.lua — HTML 端：.pdf 源图 → embed + 自动比例（读 MediaBox 算 aspect-ratio）
 --
 -- 背景：浏览器 <img> 不支持 PDF，pandoc 对 .pdf 图输出裸 <embed>（无尺寸），
 -- 浏览器 PDF viewer 嵌入不可控：宽度不撑满（img-fluid 的 max-width 只设上限）、

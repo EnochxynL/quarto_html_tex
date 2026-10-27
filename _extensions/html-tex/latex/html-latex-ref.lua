@@ -3,14 +3,14 @@
 -- targets use the counter bridge's existing label map; this filter never counts.
 if not quarto.format.is_html_output() then return {} end
 
--- Transitional adapter. This is the ONLY file that reads private Quarto globals.
+-- Transitional adapter: private Quarto globals are accessed only here.
 -- Call from a post-quarto (or later) document callback: older Quarto versions
 -- have no reliable public flag indicating that indexing has finished.
 -- Can be removed when official API finished.
 local function quarto_backend()
   local function internal(name)
     local value = rawget(_G, name)
-    assert(value ~= nil, "crossref-query: incompatible Quarto internals: " .. name)
+    assert(value ~= nil, "html-latex-ref: incompatible Quarto internals: " .. name)
     return value
   end
   local param = internal("param")
@@ -20,7 +20,7 @@ local function quarto_backend()
     entry = function(identifier)
       local state = internal("crossref")
       assert(state.index and state.index.entries,
-        "crossref-query requires a post-quarto or later filter")
+        "html-latex-ref requires a post-quarto or later filter")
       return state.index.entries[identifier]
     end,
     ref_type = internal("refType"),

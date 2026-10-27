@@ -181,8 +181,6 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
-      caption-prefix: "Table "
-      caption-sep: ": "
       latex-packages: [amsmath, amssymb, bm, graphicx, xcolor, colortbl, booktabs, array, siunitx, pifont, algorithm, algpseudocode]
       latex-macros: |
 ''' + ''.join('        ' + line + '\n' for line in macros.splitlines()) + '---\n\n'
@@ -211,7 +209,6 @@ for directive in ('for(header-includes)', 'header-includes', 'endfor', 'body'):
     template = template.replace('$$' + directive + '$$', '$' + directive + '$')
 (paper / 'quarto-template.tex').write_text('\n'.join(line.rstrip() for line in template.splitlines()) + '\n', encoding='utf-8')
 pdf = r'''---
-filters: [pdf-helper]
 bibliography: references.json
 number-depth: 3
 format:

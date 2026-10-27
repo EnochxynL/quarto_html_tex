@@ -7,16 +7,16 @@ crossref:
   subref-labels: roman i
 filters:
   - at: post-render
-    path: lookup.lua
+    path: ../../_extensions/html-tex/latex/html-latex-ref.lua
 ---
 
 # Third chapter {#sec-chapter}
 
-[]{#api-offset .api-number target="sec-chapter" kind="sec" expected="3"}
+[\ref{sec-chapter}]{#api-offset}
 
 ![First figure](image.svg){#fig-first}
 
-[]{#api-alpha .api-number target="fig-first" kind="fig" expected="3.x"}
+[\ref{fig-first}]{#api-alpha}
 
 ::: {#fig-panel layout-ncol=2}
 
@@ -27,6 +27,6 @@ filters:
 Panel caption
 :::
 
-[]{#api-parent .api-number target="fig-left" kind="fig" parent="fig-panel" expected="3.y (i)"}
+[\ref{fig-left}]{#api-parent}
 
 Native references: [-@sec-chapter], [-@fig-first], [-@fig-left].

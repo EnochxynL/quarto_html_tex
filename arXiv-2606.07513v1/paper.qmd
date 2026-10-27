@@ -1,5 +1,5 @@
 ---
-filters: [pdf-helper, pdf-layout.lua]
+filters: [pdf-layout.lua]
 bibliography: main.bib
 format:
   pdf:

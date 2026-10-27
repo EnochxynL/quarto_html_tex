@@ -18,9 +18,12 @@ From the workspace root, run `python tools/render_papers.py` to render all twelv
 outputs sequentially. Quarto, MiKTeX, and Python must be available; the script
 also finds their standard per-user Windows installation locations. Per-format
 logs are saved in each paper directory; `render-report.json` records exit codes.
+The root project's render list contains only these twelve entries. Historical
+experiments under `_h2test/` and `_tbltest/` retain their old extension snapshots
+and are excluded from normal paper rendering.
 After rendering HTML, `python tools/check_html_refs.py` checks fragment links,
 unresolved placeholders, and reference numbers against native headings/captions
-and Quarto references. `python _regression/crossref-query/run.py` covers the
+and Quarto references. `python _regression/html-refs/run.py` covers the
 unified reference consumer, including custom categories, subreferences, math,
 literal code/comments, and missing-target diagnostics.
 
@@ -31,9 +34,13 @@ and local style files are preserved. The humanoid paper's supplied bibliography
 is preserved as `bibliography.tex` for PDF and as CSL records in `references.json`
 for HTML; no missing bibliographic metadata is invented.
 
-The Ara Markdown-table labels are preserved by the PDF filters, and its inline
-terms remain inline in HTML. Run `python tools/check_table_term_regression.py`
-to check table ownership, labels, captions, and shortcode output in both formats.
+Paper tables use raw LaTeX shared between the original PDF templates and the
+`html-tex` lwarp path. PDF entries do not require a table-conversion extension;
+Agentopia retains its paper-local `pdf-layout.lua` for sizing. Ara's five former
+Markdown tables retain their content, captions and exact labels as LaTeX tables, and
+the appended HTML-conversion demonstration has been removed from the paper.
+Run `python tools/check_table_term_regression.py` to check raw table environments,
+labels, caption placement and inline shortcode output in both formats.
 
 `tools/convert_papers.py` regenerates the two new entries and bodies from their
 original sources. It overwrites its generated QMD, Markdown, template, and CSS

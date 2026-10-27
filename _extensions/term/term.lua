@@ -12,10 +12,8 @@
 -- quarto 正文跨格式内联唯一桥。
 --
 -- 挂载：本扩展放 _extensions/ 即自动注册（官方实证——无需 yaml 声明）。
--- 曾并入 html-tex/pdf-helper（html-md-shortcode/pdf-md-shortcode）——
--- 两版 fn 完全等价（quarto 项目级注册所有扩展 shortcode，需 isFormat 分派
--- 兜底）——伪分工——独立成 term 插件，配置字段 pdf/html 由用户手写片段
--- （样式是术语自定义的一部分）。
+-- 独立于 HTML 渲染扩展与 PDF 模板；配置字段 pdf/html 由用户提供，
+-- 样式是术语自定义的一部分。
 --
 -- 保真取回（实证坑）：yaml 值含 latex 命令/html 标签会被 pandoc 读成
 -- MetaInlines（stringify 丢内容：RawInline→空、Span→纯文本）——按类型

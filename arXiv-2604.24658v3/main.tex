@@ -709,6 +709,7 @@ Figure~\ref{fig-lrm-overview}）。
 
 \begin{table*}[htbp]
 \centering
+\small
 \begin{tabular}{llll}
 \toprule
 \textbf{事件类型} & \textbf{结构化载荷} & \textbf{事件类型} & \textbf{结构化载荷} \\
@@ -719,7 +720,7 @@ Figure~\ref{fig-lrm-overview}）。
 \texttt{转向} & 触发因素、理由 &  &  \\
 \bottomrule
 \end{tabular}
-\caption{研究事件类型及其结构化载荷。}
+\caption[研究事件类型及其结构化载荷]{研究事件类型及其结构化载荷。}
 \label{tbl-event-types}
 \end{table*}
 
@@ -1347,6 +1348,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 
 \begin{table*}[htbp]
 \centering
+\small
 \begin{tabular}{lcrr}
 \toprule
 \textbf{注入类型} & \textbf{预期严重性} & \textbf{\(n\)} & \textbf{已检测} \\
@@ -1359,7 +1361,7 @@ vs.~\(1.03\)。较弱的基础模型缺乏能力去发明如\passthrough{\lstinl
 \textbf{总计} &  & \textbf{115} & \textbf{95 (82.6\%)} \\
 \bottomrule
 \end{tabular}
-\caption{严谨性审计器在变异基准测试上的有效性（23个\ara{} \(\times\) 5类注入）。审计器捕获所有高严重性结构异常，但在孤立实验上表现出系统性盲区。}
+\caption[严谨性审计器在变异基准测试上的有效性]{严谨性审计器在变异基准测试上的有效性（23个\ara{} \(\times\) 5类注入）。审计器捕获所有高严重性结构异常，但在孤立实验上表现出系统性盲区。}
 \label{tbl-seal-l2}
 \end{table*}
 
@@ -2446,6 +2448,7 @@ RL、完整ImageNet核心集扫描、大规模多模型基准测试套件）。�
 
 \begin{table*}[htbp]
 \centering
+\small
 \begin{tabular}{llc}
 \toprule
 \textbf{简称} & \textbf{领域} & \textbf{复现} \\
@@ -2476,7 +2479,7 @@ what-will-my-model-forget & Continual learning & No \\
 \textbf{总计：23} &  & 15 \\
 \bottomrule
 \end{tabular}
-\caption{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。``复现''列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
+\caption[PaperBench 测试语料库]{测试语料库：来自ICML 2024的23篇PaperBench论文，涵盖多样化的ML子领域。``复现''列指示是否纳入复现实验（需要配套代码）。所有23篇论文均参与理解评估。}
 \label{tbl-corpus}
 \end{table*}
 
@@ -2570,6 +2573,7 @@ PaperBench为每篇论文编写的专家复现评分标准枚举了智能体复�
 
 \begin{table*}[htbp]
 \centering
+\small
 \begin{tabular}{lrccc}
 \toprule
 \textbf{任务类别} & \textbf{需求数} & \textbf{充分} & \textbf{部分} & \textbf{缺失} \\
@@ -2580,7 +2584,7 @@ Result Analysis & 624 & 60.6\% & 36.9\% & 2.6\% \\
 \textbf{总计} & \textbf{8,921} & \textbf{45.4\%} & \textbf{50.2\%} & \textbf{4.4\%} \\
 \bottomrule
 \end{tabular}
-\caption{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
+\caption[复现信息缺口]{23篇PaperBench论文（8,921个需求）的复现信息缺口。PDF系统性地未充分指定复现所需信息，最大的缺口出现在代码开发和数据集获取领域。}
 \label{tbl-info-gap}
 \end{table*}
 
@@ -2593,6 +2597,7 @@ Result Analysis & 624 & 60.6\% & 36.9\% & 2.6\% \\
 
 \begin{table*}[htbp]
 \centering
+\small
 \begin{tabular}{lrc}
 \toprule
 \textbf{缺口类型} & \textbf{数量} & \textbf{占缺口百分比} \\
@@ -2608,7 +2613,7 @@ Ambiguous specification & 399 & 4.1\% \\
 Implicit assumption & 150 & 1.5\% \\
 \bottomrule
 \end{tabular}
-\caption{8,921个需求中信息缺口类型的分布。三个最大类别------缺失超参数、描述模糊和交叉引用------恰恰是结构化格式在设计上处理的缺口。}
+\caption[信息缺口类型的分布]{8,921个需求中信息缺口类型的分布。三个最大类别------缺失超参数、描述模糊和交叉引用------恰恰是结构化格式在设计上处理的缺口。}
 \label{tbl-gap-types}
 \end{table*}
 
@@ -3294,27 +3299,6 @@ what-will-my-model-forget                  & \cmark & \cmark & \xmark & \cmark &
 \ref{sec-app-reproduction-eval}）：一个编码智能体读取\ara{}并尝试使用代码内核复现论断，通过LLM生成的测试用例进行方向性验证。我们将表
 \ref{tab-repro-per-difficulty}中报告的按论文难度加权复现分数作为级别3信号，并请读者参考附录
 \ref{sec-app-reproduction-eval}了解任务设计、评分和按论文分析。
-
-\paragraph{\{=html\} 直写表格的 PDF
-端转换测试}\label{html-ux76f4ux5199ux8868ux683cux7684-pdf-ux7aefux8f6cux6362ux6d4bux8bd5}
-
-以下表格以 \{=html\} 直写（非 LaTeX、非管道表），用于验证 paper-tables
-扩展的 HTML raw → LaTeX 兜底转换（PDF 端经 pandoc.read 解析为 Table AST
-后按 booktabs 三线表输出）：
-
-\begin{table}[htbp]
-\centering
-\begin{tabular}{lll}
-\toprule
-方法 & Q\&A 准确率 & 复现成功率 \\
-\midrule
-ARA & 93.7\% & 64.4\% \\
-基线 & 72.4\% & 57.4\% \\
-\bottomrule
-\end{tabular}
-\caption{HTML 直写表格的 PDF 端转换测试}
-\label{tab-html-raw-test}
-\end{table}
 
 
 

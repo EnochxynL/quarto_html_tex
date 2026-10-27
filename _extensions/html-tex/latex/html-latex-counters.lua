@@ -117,7 +117,11 @@ return {
               -- A source block may contain several table captions, or several
               -- tabular panels sharing one caption. Count captions, not panels.
               local captions = 0
-              for command, arg in text:gmatch("\\([%a]+)%s*(%b{})") do
+              -- A short caption changes only the list-of-tables entry, not the
+              -- counter advance. Normalize its optional argument in this scan;
+              -- leave the actual LaTeX source for lwarp unchanged.
+              local numbered_text = text:gsub("\\caption%s*%b[]%s*(%b{})", "\\caption%1")
+              for command, arg in numbered_text:gmatch("\\([%a]+)%s*(%b{})") do
                 if command == "caption" then
                   captions = captions + 1
                 elseif command == "label" then

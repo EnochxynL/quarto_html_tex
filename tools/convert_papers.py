@@ -191,13 +191,13 @@ def convert(name, title, authors, icml=False):
     macros = '\\definecolor{CadetBlue}{rgb}{0.37,0.62,0.63}\n\\definecolor{BrickRed}{rgb}{0.8,0.25,0.33}\n\\definecolor{MidnightBlue}{rgb}{0.1,0.1,0.44}\n\\definecolor{YellowGreen}{rgb}{0.6,0.8,0.2}\n\\newcommand{\\colorcell}{\\cellcolor{CadetBlue!8}}\n\\newcommand{\\hcolorcell}{\\cellcolor{YellowGreen!10}}' if icml else ''
     if icml:
         macros += '\n\\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}\n\\definecolor{YellowOrange}{cmyk}{0,0.42,1,0}'
-    html = '---\ntitle: ' + json.dumps(title) + '\nauthor: ' + json.dumps(authors) + '\nfilters: [html-tex]\nbibliography: ' + bibliography + '\nformat:\n  html:\n    theme: cosmo\n    toc: true\n    number-sections: true\n    css: styles.css\n    html-tex:\n      caption-prefix: "Table "\n      caption-sep: ": "\n      latex-packages:\n' + ''.join('        - ' + p + '\n' for p in packages)
+    html = '---\ntitle: ' + json.dumps(title) + '\nauthor: ' + json.dumps(authors) + '\nfilters: [html-tex]\nbibliography: ' + bibliography + '\nformat:\n  html:\n    theme: cosmo\n    toc: true\n    number-sections: true\n    css: styles.css\n    html-tex:\n      latex-packages:\n' + ''.join('        - ' + p + '\n' for p in packages)
     if macros: html += '      latex-macros: |\n' + ''.join('        ' + line + '\n' for line in macros.splitlines())
     if not icml:
         html += 'csl: source-numeric.csl\n'
     html += '---\n\n::: {.callout-note appearance="simple" icon="false"}\n## Abstract\n\n{{< include sections/abstract.md >}}\n\n:::\n\n{{< include sections/body.md >}}\n'
     (directory / 'index.qmd').write_text(html, encoding='utf-8')
-    pdf = '---\nfilters: [pdf-helper]\nbibliography: ' + bibliography + '\nformat:\n  pdf:\n    output-file: quarto.pdf\n    pdf-engine: pdflatex\n    template: quarto-template.tex\n    keep-tex: true\n    latex-clean: false\n    number-sections: true\n    cite-method: natbib\n    citeproc: false\n    syntax-highlighting: none\n---\n\n{{< include sections/body.md >}}\n'
+    pdf = '---\nbibliography: ' + bibliography + '\nformat:\n  pdf:\n    output-file: quarto.pdf\n    pdf-engine: pdflatex\n    template: quarto-template.tex\n    keep-tex: true\n    latex-clean: false\n    number-sections: true\n    cite-method: natbib\n    citeproc: false\n    syntax-highlighting: none\n---\n\n{{< include sections/body.md >}}\n'
     if not icml:
         pdf = pdf.replace('    syntax-highlighting: none\n',
                           '    syntax-highlighting: none\n    include-in-header:\n      - text: |\n          \\providecommand{\\mrowcell}{}\n')

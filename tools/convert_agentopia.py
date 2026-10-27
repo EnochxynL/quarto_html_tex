@@ -179,8 +179,6 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
-      caption-prefix: "Table "
-      caption-sep: ": "
       latex-packages: [amsmath, amssymb, graphicx, xcolor, booktabs, colortbl, pifont, multirow, makecell, tabularx, arydshln, xspace]
       latex-macros: |
 ''' + ''.join('        ' + line + '\n' for line in macros.splitlines()) + '---\n\n'
@@ -210,7 +208,7 @@ $body$
 template = template.replace('$', '$$').replace('$$for(header-includes)$$', '$for(header-includes)$').replace('$$header-includes$$', '$header-includes$').replace('$$endfor$$', '$endfor$').replace('$$body$$', '$body$')
 (paper / 'quarto-template.tex').write_text(template, encoding='utf-8')
 pdf = '''---
-filters: [pdf-helper, pdf-layout.lua]
+filters: [pdf-layout.lua]
 bibliography: main.bib
 format:
   pdf:

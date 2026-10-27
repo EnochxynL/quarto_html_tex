@@ -1,13 +1,10 @@
 project:
   type: book
 book:
-  title: Lookup API
+  title: HTML reference regression
   chapters:
     - index.qmd
     - chapter.qmd
   appendices:
     - appendix.qmd
 format: html
-filters:
-  - at: post-quarto
-    path: lookup.lua

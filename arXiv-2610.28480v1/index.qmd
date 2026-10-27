@@ -12,8 +12,6 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
-      caption-prefix: "Table "
-      caption-sep: ": "
       latex-packages: [amsmath, amssymb, bm, graphicx, xcolor, colortbl, booktabs, array, siunitx, pifont, algorithm, algpseudocode]
       latex-macros: |
         \sisetup{group-separator={,},group-minimum-digits=5,range-phrase={--},range-units=single,per-mode=symbol,separate-uncertainty=true,separate-uncertainty-units=single}

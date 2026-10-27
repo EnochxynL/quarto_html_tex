@@ -1,14 +1,16 @@
 ---
-title: Table labels and inline terms
-filters:
-  - html-tex
-  - pdf-helper
+title: Raw LaTeX tables and inline terms
+filters: [html-tex]
 terms:
   ara:
     pdf: '\ara{}'
     html: '<span class="ara">Ara</span>'
 format:
-  html: default
+  html:
+    html-tex:
+      latex-packages: [booktabs]
+      latex-macros: |
+        \newcommand{\ara}{\textsc{Ara}}
   pdf:
     pdf-engine: pdflatex
     classoption: twocolumn
@@ -18,10 +20,6 @@ format:
       text: |
         \usepackage{booktabs}
         \newcommand{\ara}{\textsc{Ara}}
-    html-tex:
-      md-table-env: table*
-      html-table-env: table
-      table-caption-pos: bottom
 ---
 
 Before **bold ({{< term ara >}})** after.
@@ -30,32 +28,53 @@ Before **bold ({{< term ara >}})** after.
 
 Table \ref{tbl-regression-native} and Table \ref{tbl-regression-html}.
 
-| Term | Value |
-|---|---|
-| {{< term ara >}} | 1 |
-
-: Native table with {{< term ara >}}. {#tbl-regression-native}
+```{=latex}
+\begin{table*}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+Term & Value \\
+\midrule
+\ara{} & 1 \\
+\bottomrule
+\end{tabular}
+\caption[Wide table]{Wide table with \ara{}.}
+\label{tbl-regression-native}
+\end{table*}
+```
 
 ::: {.keep-content}
 Text before the nested table must survive.
 
-| Nested | Value |
-|---|---|
-| {{< term ara >}} | 3 |
-
-: Nested Markdown table. {#tbl-regression-nested}
+```{=latex}
+\begin{table*}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+Nested & Value \\
+\midrule
+\ara{} & 3 \\
+\bottomrule
+\end{tabular}
+\caption[Nested table]{Nested raw LaTeX table.}
+\label{tbl-regression-nested}
+\end{table*}
+```
 
 Text after the nested table must survive.
 :::
 
-```{=html}
-<table id="tbl-regression-html">
-<caption>HTML table caption</caption>
-<tr><th>Name</th><th>Value</th></tr>
-<tr><td>HTML</td><td>2</td></tr>
-</table>
-```
-
-```{=html}
-<table><tr><td>Uncaptioned HTML table</td></tr></table>
+```{=latex}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+Name & Value \\
+\midrule
+Raw & 2 \\
+\bottomrule
+\end{tabular}
+\caption[Single-column table]{Single-column raw LaTeX table.}
+\label{tbl-regression-html}
+\end{table}
 ```
