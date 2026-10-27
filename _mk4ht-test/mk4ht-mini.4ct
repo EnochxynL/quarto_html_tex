@@ -1,3 +1,0 @@
-\expandafter\ifx\csname doTocEntry\endcsname\relax \expandafter\endinput\fi 
-\doTocEntry\tocloa{1}{\csname a:TocLink\endcsname{1}{x1-2r1}{}{\ignorespaces Minimal algo}}{algorithm}\relax 
-\par 

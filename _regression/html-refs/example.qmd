@@ -1,9 +1,0 @@
----
-filters:
-  - at: post-quarto
-    path: ../../_extensions/html-tex/latex/html-latex-ref.lua
----
-
-Forward number-only link: \ref{fig-example}.
-
-![Example](image.svg){#fig-example}

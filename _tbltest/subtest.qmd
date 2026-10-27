@@ -1,7 +1,0 @@
----
-title: Subdir Test
-filters:
-  - html-tex
-format: html
----
-hello

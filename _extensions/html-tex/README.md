@@ -156,17 +156,7 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
   Ghostscript。转换错误会显示失败块，详细日志在各块的 image-tools.log。
   Windows 下插件会尝试向转换子进程提供 Git 自带的 Perl，不修改系统环境。
 
-## 验证
+## 论文示例
 
-~~~text
-python tools/check_lwarp_tables.py
-python tools/check_tikz.py
-python tools/check_pdf_images.py
-python tools/check_table_term_regression.py
-python _regression/html-refs/run.py
-python tools/render_papers.py
-python tools/check_html_refs.py
-~~~
-
-_regression/lwarp-tables.qmd 覆盖跨列表头、嵌套单元格、颜色和符号、组合面板、
-同块多标题、嵌套文档块及前后向引用。六篇论文提供真实内容回归。
+仓库中的六篇论文包含 HTML 和 PDF 入口，详见根目录的 `PAPERS.md`。
+在仓库根目录运行 `quarto render` 即可编译全部示例，无需 Python 辅助脚本。

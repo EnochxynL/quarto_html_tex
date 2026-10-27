@@ -1,9 +1,0 @@
-# Chapter {#sec-chapter}
-
-| Value |
-|------:|
-| 1 |
-
-: Chapter table {#tbl-chapter}
-
-See @tbl-appendix.
