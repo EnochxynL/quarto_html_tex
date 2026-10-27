@@ -26,6 +26,14 @@ local function quarto_backend()
     ref_type = internal("refType"),
     number = internal("refNumberOption"),
     subnumber = internal("subrefNumber"),
+    identifiers = function()
+      local identifiers = {}
+      local index = internal("crossref").index
+      for identifier in pairs(index and index.entries or {}) do
+        identifiers[#identifiers + 1] = identifier
+      end
+      return identifiers
+    end,
   }
 end
 
@@ -66,7 +74,8 @@ local function query_logic(backend)
 end
 
 function Pandoc(doc)
-  local query = query_logic(quarto_backend())
+  local backend = quarto_backend()
+  local query = query_logic(backend)
   -- There might be official API in the future, this is just an example.
   -- if quarto.doc and quarto.doc.crossref and
   --     type(quarto.doc.crossref.lookup) == "function" then
@@ -75,6 +84,24 @@ function Pandoc(doc)
   local counters = doc.meta["html-tex-lwarp-counters"] or {}
   local lwarp_refs = counters.refs or {}
   local missing = {}
+
+  -- TeX must resolve references inside drawings before Cairo turns text into
+  -- SVG paths. Export formatted numbers without duplicating private access in
+  -- the drawing compiler or reading a previous PDF render's aux file.
+  if doc.meta["html-tex-tikz-pending"] and #doc.meta["html-tex-tikz-pending"] > 0 then
+    local references = pandoc.MetaMap({})
+    for identifier, number in pairs(lwarp_refs) do
+      references[identifier] = pandoc.MetaString(pandoc.utils.stringify(number))
+    end
+    for _, identifier in ipairs(backend.identifiers()) do
+      local ref = query.lookup(identifier)
+      if ref and ref.number then
+        references[identifier] = pandoc.MetaString(pandoc.write(
+          pandoc.Pandoc({pandoc.Plain(ref.number)}), "latex"):gsub("%s+$", ""))
+      end
+    end
+    doc.meta["html-tex-tikz-references"] = references
+  end
 
   local function resolve(identifier)
     local ref = query.lookup(identifier)

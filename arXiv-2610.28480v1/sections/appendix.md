@@ -374,8 +374,51 @@ total (\num{129514}) & 179 & 25 & 0 \\
 \end{table}
 ```
 
-![**Failed motions during training on the filtered BONES-SEED training-set benchmark.** Checkpoints are scored every 4000 iterations, for the runs of Figure \ref{fig-compute}(a). SONIC: released checkpoint.](figures/quarto/fig-failed-motions.pdf){#fig-failed-motions width="100%" fig-pos="H"}
+::: {#fig-failed-motions width="100%" fig-pos="H"}
 
+```{=latex}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[font=\scriptsize]
+\begin{axis}[
+    smplot, width=\plotfull, height=\plottall,
+    title={Failed motions},
+    xlabel={Wall-clock time (h)},
+    xmin=0, xmax=10, ymin=0, ymax=500,
+    legend pos=north east,
+]
+\addplot[theirs, densely dashed, forget plot] coordinates {(0,179) (10,179)} node[pos=1, left, fill=white, inner sep=2pt] {SONIC checkpoint, 179};
+\addplot[ours, very thick] coordinates {
+      (0.12,1554) (0.24,646) (0.36,455) (0.47,393) (0.59,216) (0.71,172) (0.82,159) (0.94,148) (1.06,105)
+      (1.18,88) (1.29,103) (1.41,83) (1.53,61) (1.64,89) (1.76,75) (1.88,49) (2.00,49) (2.11,48) (2.23,47)
+      (2.35,68) (2.46,30) (2.58,37) (2.70,28) (2.81,28) (2.93,27) (3.05,31) (3.16,30) (3.28,24) (3.40,24)
+      (3.51,16) (3.63,18) (3.75,28) (3.87,21) (3.98,23) (4.10,18) (4.22,14) (4.33,14) (4.45,12) (4.57,15)
+      (4.68,22) (4.80,14) (4.92,9) (5.04,13) (5.15,10) (5.27,7) (5.39,8) (5.50,6) (5.62,13) (5.74,7)
+      (5.85,9) (5.97,8) (6.09,5) (6.21,9) (6.32,9) (6.44,9) (6.56,9) (6.67,9) (6.79,11) (6.91,6)
+      (7.02,9) (7.14,7) (7.26,8) (7.38,7) (7.49,2) (7.61,5) (7.73,8) (7.84,7) (7.96,8) (8.08,4)
+      (8.20,4) (8.31,8) (8.43,4) (8.55,4) (8.66,5) (8.78,5) (8.90,5) (9.02,3) (9.13,7) (9.25,3)
+      (9.37,6)
+    };
+\addlegendentry{SuperMimic, 1 H100 GPU}
+\addplot[ours!50, very thick] coordinates {
+      (0.13,899) (0.25,273) (0.37,143) (0.49,162) (0.61,93) (0.74,84) (0.86,55) (0.98,74) (1.10,46)
+      (1.23,55) (1.35,45) (1.47,48) (1.59,59) (1.72,51) (1.84,42) (1.96,42) (2.08,25) (2.21,28) (2.33,25)
+      (2.45,26) (2.57,33) (2.69,29) (2.82,28) (2.94,21) (3.06,18) (3.18,16) (3.31,14) (3.43,11) (3.55,14)
+      (3.67,14) (3.79,8) (3.92,8) (4.04,8) (4.16,5) (4.28,6) (4.41,8) (4.53,5) (4.65,2) (4.77,4)
+      (4.90,3) (5.02,6) (5.14,2) (5.26,4) (5.39,1) (5.51,2) (5.63,2) (5.75,1) (5.87,4) (6.00,1)
+      (6.12,0) (6.24,0) (6.36,1) (6.49,0) (6.61,0) (6.73,0) (6.85,0) (6.98,0) (7.10,0) (7.22,0)
+      (7.34,0) (7.47,0) (7.59,1) (7.71,0) (7.83,0) (7.96,0) (8.08,1) (8.20,0) (8.32,0) (8.45,0)
+      (8.57,0) (8.69,0) (8.81,0) (8.93,0) (9.06,0) (9.18,0) (9.30,0) (9.42,0) (9.55,0) (9.67,0)
+      (9.79,0)
+    };
+\addlegendentry{SuperMimic, 2 H100 GPUs}
+\end{axis}
+\end{tikzpicture}
+}
+```
+
+**Failed motions during training on the filtered BONES-SEED training-set benchmark.** Checkpoints are scored every 4000 iterations, for the runs of Figure \ref{fig-compute}(a). SONIC: released checkpoint.
+
+:::
 ## Experiment protocols
 
 #### Figure \ref{fig-compute}.

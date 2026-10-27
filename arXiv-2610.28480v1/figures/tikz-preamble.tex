@@ -1,0 +1,87 @@
+
+
+\usepackage{algorithm}
+\usepackage[final]{corl_2026}
+
+\usepackage{amsmath,amssymb,bm}
+\usepackage{siunitx}
+\sisetup{group-separator={,}, group-minimum-digits=5, range-phrase={--}, range-units=single, per-mode=symbol, separate-uncertainty=true, separate-uncertainty-units=single}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, fit, fadings, calc}
+\tikzfading[name=wmrfade, left color=transparent!30, right color=transparent!80]
+\tikzset{separator/.style={gray!55, dashed, semithick}}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\newcommand{\plotequal}{0.415\textwidth}
+\newcommand{\plotgap}{0.09\textwidth}
+\newcommand{\plotfull}{\dimexpr\plotequal+\plotgap+\plotequal\relax}
+\newcommand{\plotthirdgap}{7mm}
+\newcommand{\plotlegendcol}{21mm}
+\newcommand{\plotthird}{\dimexpr(\plotfull-\plotthirdgap-\plotthirdgap-\plotlegendcol)/3\relax}
+\newcommand{\plottall}{26mm}
+\newcommand{\plotshort}{18.5mm}
+\newcommand{\plotsep}{6.5mm}
+\newcommand{\plothalf}{\dimexpr(\plottall-\plotsep)/2\relax}
+\pgfplotsset{
+  smplot/.style={
+    scale only axis, axis lines*=left,
+    axis line style=context, tick style=context, tick align=outside,
+    label style={font=\footnotesize},
+    tick label style={font=\footnotesize, /pgf/number format/assume math mode=true},
+    title style={font=\footnotesize, at={(0,1)}, anchor=south west, inner xsep=0pt, execute at begin node=\strut}, every axis title shift=0pt,
+    every axis plot/.append style={mark size=1.3pt, line join=round},
+    legend style={draw=none, fill=none}, legend cell align=left,
+    table/col sep=comma,
+  },
+  log number format basis/.code 2 args={#1\textsuperscript{\pgfmathprintnumber{#2}}},
+  return axis/.style={ymin=0, ymax=0.9, ytick={0,0.4,0.8}},
+}
+\usepackage{algorithmicx,algpseudocode}
+\definecolor{mydarkblue}{rgb}{0,0.08,0.45}
+\usepackage{pifont}
+\newcommand{\cmarkg}{\textcolor{green!55!black}{\checkmark}}
+\newcommand{\xmarkr}{\textcolor{red!75!black}{\ding{55}}}
+
+\definecolor{BerkeleyBlue}{HTML}{003262}
+\definecolor{retcol}{RGB}{49,109,180}
+\definecolor{AnaFill}{RGB}{217,240,211}
+
+\definecolor{ours}{HTML}{084FA3}
+\definecolor{theirs}{HTML}{BC5A29}
+\definecolor{theirslight}{HTML}{D37F40}
+\definecolor{theirsdark}{HTML}{9B411E}
+\definecolor{context}{HTML}{595959}
+\definecolor{track}{HTML}{D0D0D0}
+\definecolor{region}{HTML}{F2F2F2}
+\definecolor{highlight}{HTML}{DCE6F2}
+\definecolor{shade}{HTML}{7CC79A}
+
+\newcommand{\frozenicon}[1][0.35cm]{\raisebox{-0.15ex}{\includegraphics[height=#1]{icon_snow.png}}}
+\newcommand{\trainicon}[1][0.35cm]{\raisebox{-0.15ex}{\includegraphics[height=#1]{icon_fire.png}}}
+
+\setlength{\textfloatsep}{11pt plus 2pt minus 3pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\parskip}{4.5pt}
+\makeatletter
+\setlength{\@nipsabovecaptionskip}{5pt}
+\setlength{\abovecaptionskip}{\@nipsabovecaptionskip}
+\renewcommand{\section}{
+  \@startsection{section}{1}{\z@}
+                {-1.5ex \@plus -0.4ex \@minus -0.2ex}
+                { 1.0ex \@plus  0.2ex \@minus  0.2ex}
+                {\large\bf\raggedright}
+}
+\renewcommand{\subsection}{
+  \@startsection{subsection}{2}{\z@}
+                {-1.3ex \@plus -0.4ex \@minus -0.2ex}
+                { 0.6ex \@plus  0.2ex}
+                {\normalsize\bf\raggedright}
+}
+\makeatother

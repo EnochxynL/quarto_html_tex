@@ -1,7 +1,72 @@
 # Method {#sec-method}
 
-![**SuperMimic training loop.** (1) The current policy $\pi_\theta$ collects transitions in simulation into a fixed-size replay buffer $\mathcal{B}$, where new transitions replace the oldest. (2) The differentiable world model is fit to $k$-step windows sampled from $\mathcal{B}$ (§\ref{sec-wm}). (3) The policy is improved by backpropagation-through-time through the frozen world model over $H$ imagined steps; a critic $V_\psi$, trained in the same phase, bootstraps the return beyond $H$ (§\ref{sec-policy}). Dashed arrows are gradients;  = frozen,  = trained. Symbols: goal $\bm{g}_t$ (e.g., reference motion), action $\bm{a}_t$, action noise $\bm{\epsilon}_t$, observation $\bm{o}_t$, state $\bm{s}$ and predicted state $\hat{\bm{s}}$, and sim context $\bm{\xi}$ (domain-randomization parameters). $\mathcal{L}_{\text{WM}}$ is the world-model loss, $\hat{\bar{\bm{o}}}_t$ the predicted noise-free observation, $\bm{\eta}_t$ the sensor noise, $\hat{r}_{t+1}$ the predicted reward, and $\hat{J}(\theta)$ the policy objective.](figures/quarto/fig-pipeline.pdf){#fig-pipeline width="100%" fig-pos="H"}
+::: {#fig-pipeline width="100%" fig-pos="H"}
 
+```{=latex}
+\centering
+\def\panelgap{2.5mm}
+\def\gutter{5mm}
+\def\lane{1.2mm}
+\def\iconh{2.4mm}
+\def\eqtag#1{{\scriptsize(Eq.~\ref{#1})}}
+\begin{tikzpicture}[
+  font=\footnotesize, semithick, >={Latex[length=1.6mm]},
+  node distance=8mm and 5mm,
+  module/.style={draw=context, fill=region, rounded corners=1.5pt, minimum width=12mm, minimum height=5.5mm},
+  trained/.style={draw=ours, fill=highlight},
+  buffer/.style={draw=context, fill=region, minimum width=\textwidth-\pgflinewidth, minimum height=5mm},
+  panel/.style={draw=track, rounded corners=2pt, minimum width=(\textwidth-\panelgap*2)/3-\pgflinewidth, minimum height=30mm, label={[anchor=north west]north west:#1}},
+  grad/.style={->, ours, densely dashed},
+  lane/.style={transform canvas={shift={(#1:\lane)}}},
+]
+\node[panel={\textbf{(1)} Collect data}] (P1) {};
+\node[panel={\textbf{(2)} Fit world model}, right=\panelgap of P1] (P2) {};
+\node[panel={\textbf{(3)} Improve policy}, right=\panelgap of P2] (P3) {};
+\node[buffer, below=\gutter of P2] (buf) {Replay buffer $\mathcal{B}$};
+
+\node[module, above=\gutter of P1.south] (sim) {Sim};
+\node[module, above=of sim] (pi1) {$\pi_\theta$\,\frozenicon[\iconh]};
+\node[left=of pi1] (g1) {$\bm{g}_t$};
+\coordinate[right=of sim] (o1);
+\draw[->] (g1) -- (pi1);
+\draw[->] (pi1) -- node[right]{$\bm{a}_t{+}\bm{\epsilon}_t$} (sim);
+\draw[->] (sim) -- (o1) -- node[right]{$\bm{o}_{t+1}$} (o1 |- pi1) -- (pi1);
+\draw[->] (sim) -- (sim |- P1.south) -- node[right]{$(\bm{s}_t,\bm{a}_t{+}\bm{\epsilon}_t,\bm{\xi})$} (sim |- buf.north);
+
+\node[module, trained, above=\gutter of P2.south] (wm2) {$f_\omega$\,\trainicon[\iconh]};
+\node[ours] (loss) at (wm2 |- pi1) {$\mathcal{L}_{\text{WM}}$ \eqtag{eq-wm-loss}};
+\node[right=of wm2] (sh2) {$\hat{\bm{s}}_j$};
+\coordinate[left=of loss] (in2);
+\draw[->] (in2 |- buf.north) -- node[right]{$\bm{s}_j$} (in2 |- P2.south) -- (in2) -- (loss);
+\draw[->] (sh2) -- (sh2 |- loss) -- (loss);
+\draw[grad] (loss) -- node[right]{$\nabla_\omega$} (wm2);
+\draw[->, lane=90] (wm2) -- (sh2);
+\draw[->, lane=-90] (sh2) -- (wm2);
+\draw[->] (wm2 |- buf.north) -- node[right]{$(\bm{s}_0,\bm{a}_{0:k-1},\bm{\xi})$} (wm2 |- P2.south) -- (wm2);
+
+\node[module, above=\gutter of P3.south] (wm3) {$f_\omega$\,\frozenicon[\iconh]};
+\node[module, trained, above=of wm3] (pi3) {$\pi_\theta$\,\trainicon[\iconh]};
+\node[left=of pi3] (g3) {$\bm{g}_t$};
+\node[ours, left=of wm3, label={[ours, inner sep=0pt]below:\eqtag{eq-policy-obj}}] (J) {$\hat{J}(\theta)$};
+\node[right=of wm3] (sh3) {$\hat{\bm{s}}_t$};
+\draw[->] (g3) -- (pi3);
+\draw[->, lane=0] (pi3) -- node[right]{$\bm{a}_t$} (wm3);
+\draw[->] (sh3) -- (sh3 |- pi3) -- node[above, pos=0.0]{$\hat{\bar{\bm{o}}}_t{+}\bm{\eta}_t$} (pi3);
+\draw[->, lane=90] (wm3) -- (sh3);
+\draw[->, lane=-90] (sh3) -- (wm3);
+\draw[->, lane=90] (wm3) -- node[above]{$\hat{r}_{t+1}$} (J);
+\draw[grad, lane=-90] (J) -- (wm3);
+\draw[grad, lane=180] (wm3) -- node[left]{$\nabla_\theta$} (pi3);
+\draw[->] (wm3 |- buf.north) -- node[right]{$(\bm{s}_0,\bm{\xi})$} (wm3 |- P3.south) -- (wm3);
+
+\coordinate[above=\panelgap of P3.north] (next);
+\draw[->, context, rounded corners=2pt] (P3) -- (next) -- node[fill=white, font=\scriptsize]{next iteration} (next -| P1) -- (P1);
+\end{tikzpicture}
+```
+
+**SuperMimic training loop.** (1) The current policy $\pi_\theta$ collects transitions in simulation into a fixed-size replay buffer $\mathcal{B}$, where new transitions replace the oldest. (2) The differentiable world model is fit to $k$-step windows sampled from $\mathcal{B}$ (§\ref{sec-wm}). (3) The policy is improved by backpropagation-through-time through the frozen world model over $H$ imagined steps; a critic $V_\psi$, trained in the same phase, bootstraps the return beyond $H$ (§\ref{sec-policy}). Dashed arrows are gradients;  = frozen,  = trained. Symbols: goal $\bm{g}_t$ (e.g., reference motion), action $\bm{a}_t$, action noise $\bm{\epsilon}_t$, observation $\bm{o}_t$, state $\bm{s}$ and predicted state $\hat{\bm{s}}$, and sim context $\bm{\xi}$ (domain-randomization parameters). $\mathcal{L}_{\text{WM}}$ is the world-model loss, $\hat{\bar{\bm{o}}}_t$ the predicted noise-free observation, $\bm{\eta}_t$ the sensor noise, $\hat{r}_{t+1}$ the predicted reward, and $\hat{J}(\theta)$ the policy objective.
+
+:::
 ## SuperMimic training loop {#sec-problem}
 
 SuperMimic trains one goal-conditioned whole-body controller across a multi-skill motion library and supports multiple goal interfaces. It captures the shared humanoid dynamics in a differentiable world model and improves the policy through short imagined rollouts. Training alternates between three phases in one loop (Figure \ref{fig-pipeline}). First, the current policy collects simulator transitions into a replay buffer. Second, we fit the differentiable world model to short replay windows. Third, the policy is improved by backpropagating an imagined return through the frozen world model, with each rollout seeded from a replay-buffer state in the Dyna style [@sutton1991dyna; @janner2019trust]. The buffer, model, and policy are updated throughout training, so dynamics learning and control improve together rather than in separate stages (Algorithm \ref{alg-train}, Appendix \ref{sec-algorithm}). Transitions from earlier policies remain valid for fitting the world model, because the dynamics do not depend on the policy that collected them.

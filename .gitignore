@@ -34,3 +34,4 @@ _build/
 _mk4ht-test/
 **/.quarto/
 /_table-term-regression.*
+/_tikz-regression.*

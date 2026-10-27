@@ -12,6 +12,9 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
+      tikz:
+        engine: pdflatex
+        preamble-file: figures/tikz-preamble.tex
       latex-packages: [amsmath, amssymb, bm, graphicx, xcolor, colortbl, booktabs, array, siunitx, pifont, algorithm, algpseudocode]
       latex-macros: |
         \sisetup{group-separator={,},group-minimum-digits=5,range-phrase={--},range-units=single,per-mode=symbol,separate-uncertainty=true,separate-uncertainty-units=single}

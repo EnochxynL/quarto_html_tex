@@ -58,16 +58,23 @@ The PDF entry uses XeLaTeX with Chinese fonts; its abstract is read from the sam
 `python tools/convert_agentopia.py` explicitly regenerates this paper's entries,
 template, stylesheet, and Markdown from the original sources.
 
-SuperMimic uses `paper.qmd` with the original CoRL template. TikZ/PGFPlots figures
-are built from their original code and CSV data into `figures/quarto/*.pdf`,
-shared by native Quarto figures in HTML and PDF. Tables and the algorithm retain
-their LaTeX source. Appendix objects use continuous numbering across both outputs,
+SuperMimic uses `paper.qmd` with the original CoRL template. Its eight TikZ/PGFPlots
+figures now retain drawing source in shared Markdown, with native Quarto figure
+IDs and captions. `html-tex/figure/html-tikz.lua` builds PDF then Cairo SVG during
+HTML rendering; PDF compiles the raw drawing using the original template.
+`figures/tikz-preamble.tex` declares the independent HTML build's drawing context.
+Tables and the algorithm retain their LaTeX source. Appendix objects use continuous numbering across both outputs,
 instead of the original document's local `A.` counter resets. The supplied
 `root.bbl` is preserved as `bibliography.tex` and complete reference text in CSL
 records; no unavailable bibliographic metadata is invented.
-`python tools/convert_supermimic.py --build-figures` explicitly regenerates this
-paper's Markdown, entries, template, bibliography records, and vector figures.
+`python tools/convert_supermimic.py` explicitly regenerates this paper's Markdown,
+entries, template, bibliography records and drawing preamble. It no longer runs
+a figure compiler. No prebuilt `figures/quarto/` assets are required.
 It overwrites generated files; do not run it when only rebuilding edited Markdown.
 Use `python tools/render_papers.py --papers arXiv-2610.28480v1` for normal renders,
 then `python tools/check_supermimic.py` to check labels, links, math compatibility,
 vector assets, and PDF warnings.
+
+`python tools/check_tikz.py` verifies native SVG generation, PDF passthrough,
+forward references inside diagrams, nested plots, changed CSV inputs, and
+compiler/missing-reference diagnostics.

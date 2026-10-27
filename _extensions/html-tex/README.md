@@ -20,9 +20,60 @@ format:
 Markdown 原生表格继续由 Quarto 处理。
 本扩展不修复 PDF 双栏下的 Markdown 表格限制；六篇论文的共享表格使用原生 LaTeX。
 
+## TikZ / PGFPlots
+
+图体直接写在原始 LaTeX 块中；外层使用 Quarto 原生 figure Div，标题保持 Markdown：
+
+~~~~markdown
+::: {#fig-example}
+
+```{=latex}
+\begin{tikzpicture}
+\node[draw] (a) at (0,0) {Input};
+\node[draw] (b) at (3,0) {Output};
+\draw[->] (a) -- (b);
+\end{tikzpicture}
+```
+
+Example diagram.
+:::
+~~~~
+
+HTML 端由 `figure/html-tikz.lua` 独立编译 PDF，再调用 `pdftocairo -svg`，
+将 SVG 以 data URI 嵌入原生图形对象；不经 lwarp。PDF 端保留原始图体，
+由文档自身的 LaTeX 引擎、模板编译。无编号的裸 TikZ 块也可使用。
+不要将外层 `figure`、caption 和 label 一起放入绘图块。
+
+复杂图形可显式声明构图依赖：
+
+~~~yaml
+format:
+  html:
+    html-tex:
+      tikz:
+        engine: pdflatex
+        preamble-file: figures/tikz-preamble.tex
+~~~
+
+`preamble-file` 相对当前文档目录，内容为宏包、字体、样式、尺寸和宏定义，
+不包含 `\documentclass` 或文档正文。默认使用 article 类及 tikz 包；可选引擎为
+pdflatex、lualatex、xelatex。PDF 模板或 `include-in-header` 需自行提供相应依赖，
+HTML 配置不会自动改写 PDF 模板。CSV、图片和 `\input` 的路径相对当前文档目录。
+
+插件先登记绘图位置，再在 Quarto 索引完成后编译，从统一引用桥取得当前文档
+的编号，支持前向引用及将 `\ref` 封装在宏中的用法；不读取历史 PDF 的 aux 文件。
+图内编号在 SVG 生成前解析；它们成为图形内容，不会自动获得正文链接的悬停预览。
+跨文件书籍的最终编号尚未确定时，依赖这些编号的绘图会报告未解析引用。
+
+每次 HTML 渲染都会重新编译，以观察外部数据和图片的改动。中间 TeX、PDF、SVG
+及诊断保存在 `.quarto/tikz/figure-N/`。缺失依赖、未解析引用、缺失字形和转换错误
+会使渲染明确失败。独立图体内的文献引用不自动运行父文档的 bibliography 流程。
+
 ## 转换链
 
-1. html-css.lua、figure/html-pdf.lua：默认样式和 PDF 源图嵌入。
+1. html-css.lua、figure/html-pdf.lua：默认样式和现有 PDF 源图嵌入。
+   figure/html-tikz.lua 在 pre-quarto 准备绘图对象，在引用桥之后的 post-quarto
+   编译 TikZ → PDF → SVG；figure caption 和编号仍由 Quarto 管理。
 2. latex/html-latex-counters.lua：为独立编译块准备全文计数上下文。
 3. latex/html-latex-lwarp.lua：生成 TeX，运行 LuaLaTeX 打印版和 HTML 版，
    用 pdftotext 提取 HTML，并嵌入主页面。每块 CSS 和内部锚点单独隔离。
@@ -82,6 +133,7 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 
 ~~~text
 python tools/check_lwarp_tables.py
+python tools/check_tikz.py
 python tools/check_table_term_regression.py
 python _regression/html-refs/run.py
 python tools/render_papers.py

@@ -6,7 +6,11 @@ contributes:
   filters:
     - html-css.lua
     - figure/html-pdf.lua
+    - at: pre-quarto
+      path: figure/html-tikz.lua
     - latex/html-latex-counters.lua
     - latex/html-latex-lwarp.lua
     - at: post-quarto
       path: latex/html-latex-ref.lua
+    - at: post-quarto
+      path: figure/html-tikz.lua

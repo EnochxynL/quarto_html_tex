@@ -2,32 +2,30 @@
 from pathlib import Path
 import argparse
 import json
-import os
 import re
-import subprocess
 
 from convert_papers import argument, markdown, uncomment
 
 root = Path(__file__).resolve().parents[1]
 paper = root / 'arXiv-2610.28480v1'
-parser = argparse.ArgumentParser()
-parser.add_argument('--build-figures', action='store_true')
-args = parser.parse_args()
+argparse.ArgumentParser(description=__doc__).parse_args()
 original = uncomment((paper / 'root.tex').read_text(encoding='utf-8'))
 preamble, document = original.split(r'\begin{document}', 1)
 document = document.split(r'\end{document}')[0]
 plot_preamble = preamble.split(r'\title{')[0]
-figure_dir = paper / 'figures/quarto'
-figure_dir.mkdir(exist_ok=True)
-build = paper / '.quarto/figure-build'
-build.mkdir(parents=True, exist_ok=True)
 figures, table_count, equation_count = [], 0, 0
+source_labels = set(re.findall(r'\\label\{([^}]+)\}', original + '\n' + '\n'.join(
+    uncomment(path.read_text(encoding='utf-8')) for path in (paper / 'sections').glob('*.tex'))))
 
 
 def normalize(text):
     def label(value):
         value = value.replace(':', '-').replace('_', '-')
         return 'sec-' + value[4:] if value.startswith('app-') else value
+    # Macro arguments such as \eqtag{eq:wm-loss} must refer to the same existing
+    # QMD identifiers as ordinary \ref arguments; TeX expands them at draw time.
+    for identifier in source_labels:
+        tex = tex.replace('{' + identifier + '}', '{' + label(identifier) + '}')
     text = re.sub(r'\\(label|ref\*?|eqref|[cC]ref)\{([^}]+)\}',
                   lambda m: '\\' + m[1].rstrip('*') + '{' + label(m[2]) + '}', text)
     # The source's nested hyperref/ref points to the same section; retain the
@@ -88,10 +86,15 @@ def convert(tex):
         body = re.sub(r'\\label\{[^}]+\}', '', body)
         body = re.sub(r'^\\begin\{figure\}(?:\[[^]]*\])?', '', body.strip())
         body = re.sub(r'\\end\{figure\}\s*$', '', body)
+        # This plot's bounding box slightly exceeds the text width. The old
+        # width=100% image fitted it; preserve that paper-specific layout in TeX.
+        if label == 'fig-failed-motions':
+            body = re.sub(r'^\s*\\centering\s*', '', body).strip()
+            body = '\\resizebox{\\linewidth}{!}{%\n' + body + '\n}'
         figures.append((label, body))
-        # Native figures keep Quarto's caption, numbering and reference support;
-        # TikZ/PGFPlots supplies the vector artwork independently of HTML.
-        return protect(f'![{prose(caption)}](figures/quarto/{label}.pdf){{#{label} width="100%" fig-pos="H"}}')
+        # Keep the drawing source shared by HTML and PDF. html-tikz.lua compiles
+        # HTML assets during normal rendering; PDF uses its publication template.
+        return protect(f'::: {{#{label} fig-pos="H"}}\n\n```{{=latex}}\n{body.strip()}\n```\n\n{prose(caption)}\n\n:::')
 
     tex = re.sub(r'\\begin\{figure\}(?:\[[^]]*\])?[\s\S]*?\\end\{figure\}', figure, tex)
     tex = math_units(tex)
@@ -181,6 +184,9 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
+      tikz:
+        engine: pdflatex
+        preamble-file: figures/tikz-preamble.tex
       latex-packages: [amsmath, amssymb, bm, graphicx, xcolor, colortbl, booktabs, array, siunitx, pifont, algorithm, algpseudocode]
       latex-macros: |
 ''' + ''.join('        ' + line + '\n' for line in macros.splitlines()) + '---\n\n'
@@ -245,17 +251,6 @@ pdf += '\n\n```{=latex}\n\\clearpage\n\\input{bibliography.tex}\n\\clearpage\n\\
 (paper / 'paper.qmd').write_text(pdf, encoding='utf-8')
 (paper / 'styles.css').write_text('main { max-width: 1040px; }\nfigure embed { width: 100%; }\n.quarto-float { margin: 1.75rem 0; }\npre { overflow-x: auto; }\n', encoding='utf-8')
 
-for label, body in figures:
-    tex = plot_preamble + '\n\\usepackage[active,tightpage]{preview}\n\\setlength{\\PreviewBorder}{2pt}\n\\begin{document}\n\\begin{preview}\n\\begin{minipage}{\\textwidth}\n' + body + '\n\\end{minipage}\n\\end{preview}\n\\input{bibliography.tex}\n\\end{document}\n'
-    (build / (label + '.tex')).write_text(tex, encoding='utf-8')
-    if args.build_figures:
-        env = os.environ.copy()
-        env['PATH'] = str(Path.home() / 'AppData/Local/Programs/MiKTeX/miktex/bin/x64') + ';' + env['PATH']
-        for run in range(2):
-            with (build / (label + f'-{run}.log')).open('w', encoding='utf-8') as log:
-                subprocess.run(['pdflatex', '-interaction=nonstopmode', '-halt-on-error',
-                                '-jobname=' + label, '-output-directory=' + str(build), str(build / (label + '.tex'))],
-                               cwd=paper, env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
-        (figure_dir / (label + '.pdf')).write_bytes((build / (label + '.pdf')).read_bytes())
-        print('Built', label, flush=True)
+(paper / 'figures/tikz-preamble.tex').write_text(
+    re.sub(r'\\documentclass(?:\[[^]]*\])?\{[^}]+\}', '', plot_preamble).strip() + '\n', encoding='utf-8')
 print('SuperMimic:', len(figures), 'figures,', table_count, 'tables,', equation_count, 'equations,', len(records), 'references')

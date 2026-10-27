@@ -36,7 +36,13 @@ assert not re.search(r'\[(?:fig|tab|eq|alg|sec)-[^\]<]+\]', html)
 # Ignore lwarp's hidden macro declarations, and inspect actual displayed math.
 body = re.sub(r'<div[^>]*data-nosnippet[^>]*>.*?</div>', '', html, flags=re.S)
 assert not re.search(r'\\(?:num|qty)\b', body), 'siunitx command escaped into MathJax'
-assert len(list((paper / 'figures/quarto').glob('*.pdf'))) == 8
+source = '\n'.join(p.read_text(encoding='utf-8') for p in (paper / 'sections').glob('*.md'))
+assert source.count('```{=latex}\n') >= 8
+assert 'figures/quarto/' not in source and 'figures/quarto/' not in html
+for index in range(1, 9):
+    svg = paper / '.quarto/tikz' / ('figure-' + str(index)) / 'figure.svg'
+    assert svg.exists() and '<svg' in svg.read_text(encoding='utf-8'), svg
+assert len(re.findall(r'src="data:image/svg\+xml;base64,', html)) >= 8
 assert len(json.loads((paper / 'references.json').read_text(encoding='utf-8'))) == 28
 log = (paper / 'paper.log').read_text(encoding='utf-8', errors='replace')
 assert not re.search(r'(?:Reference|Citation) `[^\n]*undefined', log)
@@ -45,5 +51,5 @@ assert 'Overfull' not in log
 assert 'Missing character:' not in log
 aux = (paper / 'paper.aux').read_text(encoding='utf-8')
 assert labels <= set(re.findall(r'\\newlabel\{([^}]+)\}', aux))
-print(f'PASS: {len(labels)} original labels in HTML/PDF, all fragment links resolve, 8 vector figures, 28 references')
+print(f'PASS: {len(labels)} original labels in HTML/PDF, all fragment links resolve, 8 plugin-built SVG figures, 28 references')
 print(re.findall(r'Output written on[^\n]*', log)[-1])
