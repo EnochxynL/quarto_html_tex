@@ -1,0 +1,13 @@
+project:
+  type: book
+book:
+  title: Lookup API
+  chapters:
+    - index.qmd
+    - chapter.qmd
+  appendices:
+    - appendix.qmd
+format: html
+filters:
+  - at: post-quarto
+    path: lookup.lua

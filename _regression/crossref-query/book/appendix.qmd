@@ -1,0 +1,11 @@
+# Appendix {#sec-appendix}
+
+| Value |
+|------:|
+| 2 |
+
+: Appendix table {#tbl-appendix}
+
+See @tbl-chapter.
+
+[]{.api-book-target target="tbl-appendix"}

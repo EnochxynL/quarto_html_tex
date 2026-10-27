@@ -1,0 +1,11 @@
+# Chapter {#sec-chapter}
+
+| Value |
+|------:|
+| 1 |
+
+: Chapter table {#tbl-chapter}
+
+See @tbl-appendix.
+
+[]{.api-book-target target="tbl-chapter"}
