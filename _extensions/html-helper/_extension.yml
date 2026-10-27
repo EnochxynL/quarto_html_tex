@@ -5,8 +5,8 @@ quarto-required: ">=1.4.0"
 contributes:
   filters:
     - html-css.lua
-    - html-pdf-embed.lua
+    - figure/html-pdf.lua
     - latex/html-latex-counters.lua
     - latex/html-latex-lwarp.lua
     - at: post-quarto
-      path: html-latex-ref.lua
+      path: latex/html-latex-ref.lua
