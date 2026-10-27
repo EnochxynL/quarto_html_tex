@@ -1,5 +1,3 @@
-把tex4ht、algorithm文件删掉；
-
 最终各个包的职责：
 
 - html：让任意quarto项目（qmd + latex block + sty/cls template）能输出流畅的html格式

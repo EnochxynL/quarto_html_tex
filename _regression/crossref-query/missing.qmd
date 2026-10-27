@@ -1,7 +1,7 @@
 ---
 filters:
   - at: post-quarto
-    path: ../../_extensions/html-helper/ref/html-latex-ref.lua
+    path: ../../_extensions/html-helper/html-latex-ref.lua
 ---
 
 Missing \ref{unregistered-target}; repeated \ref{unregistered-target}.

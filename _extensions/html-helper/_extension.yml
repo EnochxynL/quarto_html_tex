@@ -9,4 +9,4 @@ contributes:
     - latex/html-latex-counters.lua
     - latex/html-latex-lwarp.lua
     - at: post-quarto
-      path: ref/html-latex-ref.lua
+      path: html-latex-ref.lua
