@@ -1,0 +1,59 @@
+---
+title: lwarp 品牌页构造探针
+filters:
+  - html-helper
+format:
+  html:
+    html-helper:
+      latex-packages:
+        - xcolor
+        - graphicx
+        - tcolorbox
+---
+
+品牌页构造 lwarp 支持矩阵：
+
+**A. minipage 并排**（SkillOpt 品牌页形态）：
+```{=latex}
+\begin{minipage}[c]{0.5\linewidth}
+\raggedright
+{\fontsize{14}{17}\selectfont SkillOpt Test}
+\end{minipage}%
+\begin{minipage}[c]{0.49\linewidth}
+\raggedleft
+{\small May 2026}
+\end{minipage}\par
+\vspace{0.35em}
+\noindent{\color{blue}\rule{\linewidth}{0.8pt}\par}
+\vspace{1.0em}
+\begin{center}
+{\fontsize{21}{25}\selectfont\bfseries
+Main Title\par}
+\end{center}
+```
+
+**B. tcolorbox 面板**（ARL headerpanel 形态）：
+```{=latex}
+\setmainfont{SimSun}
+\newtcolorbox{probeheaderpanel}{%
+  colback=gray!10, colframe=gray!10, arc=8pt,
+  width=\textwidth,
+}
+\begin{probeheaderpanel}
+\raggedright
+{\bfseries\fontsize{19}{23}\selectfont 面板标题\par}
+面板内容行。
+\end{probeheaderpanel}
+```
+
+**C. twocolumn 包装**（ARL ICML 品牌页形态）：
+```{=latex}
+\twocolumn[
+\thispagestyle{plain}
+\begin{center}
+{\bfseries\fontsize{19}{23}\selectfont 双栏头部\par}
+作者行
+\end{center}
+]
+正文段落。
+```

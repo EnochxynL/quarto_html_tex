@@ -787,7 +787,7 @@ return {
         return blocks
       end
       doc.blocks = process_blocks(doc.blocks)
-      -- References are resolved uniformly by ref/html-ref.lua at post-quarto.
+      -- References are resolved uniformly by ref/html-latex-ref.lua at post-quarto.
       return doc
     end,
   },

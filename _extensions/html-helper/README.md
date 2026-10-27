@@ -27,7 +27,7 @@ Markdown 原生表格继续由 Quarto 处理。
    用 pdftotext 提取 HTML，并嵌入主页面。每块 CSS 和内部锚点单独隔离。
    遇到 lateximage（例如 pifont 符号）时，额外编译以确定图片页码，按 lwarp
    的转换顺序生成 SVG，并以 data URI 嵌入，不依赖临时目录中的图片路径。
-4. ref/html-ref.lua：在 post-quarto 阶段统一处理 LaTeX 引用和 lwarp 占位符。
+4. ref/html-latex-ref.lua：在 post-quarto 阶段统一处理 LaTeX 引用和 lwarp 占位符。
    通过同级 crossref-query 扩展查询 Quarto 已登记目标，不按 sec/fig/tbl 前缀分派，
    也不重新计数或抓取最终 HTML。未登记目标再查 lwarp 计数桥提供的编号。
    lwarp 表格的标题和编号仍由 lwarp 输出。
