@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{microsoft-tech-report}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=microsoftblue,
+  citecolor=microsoftblue,
+  urlcolor=microsoftblue,
+  pdftitle={A Technical Report Template},
+  pdfauthor={First Author, Second Author},
+  pdfsubject={Technical report},
+  pdfkeywords={technical report, latex template}
+}
+
+\techreportlabel{Technical Report}
+\techreportshorttitle{Technical Report Template}
+\techreportlogoheight{0.75cm}
+
+\newcommand{\reportkeywords}{technical report, latex template, reproducible research}
+
+\begin{document}
+\thispagestyle{empty}
+\enlargethispage{1.0cm}
+
+\techreportlogos{%
+  \techreportlogo{figures/microsoft.pdf}
+}%
+\techreportdate{\techreportmonthyear}
+\techreporttoprule
+
+\techreporttitle{A Technical Report Template}
+\techreportauthors{%
+  First Author$^{1,*}$ \hspace{0.7em}
+  Second Author$^{2,\ddagger}$ \hspace{0.7em}
+  Third Author$^{1,\ddagger}$%
+}{%
+  $^{1}$ Institution One \quad
+  $^{2}$ Institution Two%
+}
+
+\begin{center}
+\begin{minipage}{\textwidth}
+  \centering
+  \techreportplaceholder{Replace this box with a teaser figure.}
+  {\captionsetup{font=scriptsize,aboveskip=0pt,belowskip=0pt}
+  \captionof{figure}{A concise teaser caption that summarizes the main idea,
+  result, or system described by the report.}
+  \label{fig:teaser}}
+\end{minipage}
+\end{center}
+
+\vspace{-0.2em}
+\begin{microsofttitlebox}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.02cm}
+\raggedright
+\nohyphens
+
+\input{sections/00_abstract}
+
+\vspace{0.08cm}
+{\setlength{\parskip}{0.1cm}\scriptsize
+\techreportmeta{Project Page}{\href{https://github.com/lhmd/microsoft-tech-report}{github.com/lhmd/microsoft-tech-report}}
+\techreportmeta{Correspondence}{%
+\href{mailto:second.author@example.com,third.author@example.com}{\{second.author, third.author\}@example.com}}
+\techreportmeta{Code}{\href{https://github.com/lhmd/microsoft-tech-report}{github.com/lhmd/microsoft-tech-report}}
+\techreportmeta{Keywords}{\reportkeywords}
+\techreportmeta{Date}{\techreportmonthyear}
+}
+\vspace{0.08cm}
+{\footnotesize\rmfamily\itshape\color{microsoftgray}
+$^*$ Equal contribution. \quad
+$^{\ddagger}$ Corresponding authors.\par
+}
+\end{microsofttitlebox}
+
+\clearpage
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_experiments}
+\input{sections/05_conclusion}
+
+\clearpage
+\bibliographystyle{unsrtnat}
+\bibliography{reference}
+
+\clearpage
+\appendix
+\input{sections/07_appendix}
+
+\end{document}

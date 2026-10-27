@@ -1,0 +1,16 @@
+.DS_Store
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+main.pdf
+!microsoft-tech-report.pdf
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+_minted-*/

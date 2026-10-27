@@ -1,0 +1,29 @@
+Microsoft Tech Report LaTeX Template
+Repository: https://github.com/lhmd/microsoft-tech-report
+
+Copyright (C) 2026 Weijie Wang <http://lhmd.top>
+
+This work is distributed under the LaTeX Project Public License, version 1.3c
+or later.
+
+The Current Maintainer of this work is Weijie Wang.
+
+This work consists of:
+- microsoft-tech-report.sty
+- main.tex
+- reference.bib
+- sections/*.tex
+- microsoft-tech-report.pdf
+- README.md
+- NOTICE
+- LICENSE
+
+Microsoft names and logos are trademarks of Microsoft. The file
+figures/microsoft.pdf contains the Microsoft logo and is included as a logo
+asset for the template; it is not licensed under the LPPL grant above. Use it
+only if your use is authorized or otherwise consistent with Microsoft's
+trademark and brand guidelines.
+
+The repository does not vendor third-party LaTeX package sources. Required
+packages such as fancyhdr, tcolorbox, natbib, and titlesec should be provided by
+the user's TeX distribution.
