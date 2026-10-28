@@ -18,6 +18,7 @@
 Project Sid 的数据来自其论文第 4.2 节。
 }
 \label{tab-simulation-comparison}
+\begin{tablebody}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccc}
 \toprule
@@ -38,6 +39,7 @@ Project Sid 的数据来自其论文第 4.2 节。
 \bottomrule
 \end{tabular}
 }
+\end{tablebody}
 \end{table*}
 ```
 

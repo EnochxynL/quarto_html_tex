@@ -2,6 +2,7 @@
 title: "Agentopia: Long-Term Life Simulation and Learning in Agent Societies"
 author: "Xintao Wang, Sirui Zheng, Hongqiu Wu, Weiyuan Li, Jen-tse Huang, Minghao Zhu, Can Zu, Qi Deng, Jiawei Wang, Qianyu He, Heng Wang, Xiaojian Wu, Yunzhe Tao"
 filters: [html-tex]
+metadata-files: [abstract.yml]
 bibliography: main.bib
 format:
   html:
@@ -12,6 +13,7 @@ format:
     html-tex:
       include-in-header:
         text: |
+          \newenvironment{tablebody}{}{}
           \usepackage{amsmath}
           \usepackage{amssymb}
           \usepackage{graphicx}
@@ -49,7 +51,7 @@ format:
 ::: {.callout-note appearance="simple" icon="false"}
 ## Abstract
 
-{{< include Sections/0_abstract.md >}}
+{{< meta abstract >}}
 
 :::
 

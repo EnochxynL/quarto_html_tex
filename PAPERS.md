@@ -40,7 +40,7 @@ for HTML; no missing bibliographic metadata is invented.
 
 Paper tables use raw LaTeX shared between the original PDF templates and the
 `html-tex` lwarp path. PDF entries do not require a table-conversion extension;
-Agentopia retains its paper-local `pdf-layout.lua` for sizing. Ara's five former
+Agentopia defines its table sizing in `example.tex`. Ara's five former
 Markdown tables retain their content, captions and exact labels as LaTeX tables, and
 the appended HTML-conversion demonstration has been removed from the paper.
 Agentopia retains `berkeley.cls`, its original TeX sources, bibliography, and
@@ -48,10 +48,12 @@ figure assets. Shared Markdown sits alongside the source files in `Sections/`;
 the full case studies and prompts are included in `Sections/appendix.md`.
 Its 45 raw LaTeX tables use the existing lwarp HTML path. Multirow continuation
 markers are added only to the generated Markdown and are inert in PDF.
-The paper-local `pdf-layout.lua` constrains table bodies to the available width
-and 80% of the text height, leaving room for captions on page-sized prompt tables.
-The PDF entry uses XeLaTeX with Chinese fonts; its abstract is read from the same
-`Sections/0_abstract.md` as HTML, so translated Markdown is used in both outputs.
+The shared tables mark their bodies with `tablebody`. The PDF template defines
+this environment using `adjustbox`, constraining bodies to the available width
+and 80% of the text height while leaving captions outside. HTML defines the same
+environment as a transparent wrapper. No paper-local Lua filter is required.
+The PDF entry uses XeLaTeX with Chinese fonts. Both entries load `abstract.yml`;
+PDF uses its native abstract metadata, and HTML inserts it with the meta shortcode.
 SuperMimic uses `paper.qmd` with the shared CoRL style. Its eight TikZ/PGFPlots
 figures now retain drawing source in shared Markdown, with native Quarto figure
 IDs and captions. `html-tex/figure/html-tikz.lua` builds PDF then Cairo SVG during

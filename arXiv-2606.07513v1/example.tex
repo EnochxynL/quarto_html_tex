@@ -130,6 +130,11 @@
 
 
 \usepackage[export]{adjustbox}
+% Keep captions outside the fitted table body, leaving room for their height.
+\newenvironment{tablebody}
+  {\begin{adjustbox}{max totalsize={\linewidth}{0.8\textheight}}}
+  {\end{adjustbox}}
+
 
 
 \newcommand\pythonstyle{\lstset{

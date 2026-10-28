@@ -1,5 +1,5 @@
 ---
-filters: [pdf-layout.lua]
+metadata-files: [abstract.yml]
 bibliography: main.bib
 format:
   pdf:

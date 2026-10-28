@@ -256,7 +256,8 @@ persona/Cecilia Fairmont/
   \caption{主要每周阶段中智能体LLM调用的上下文组成。角色扮演提示词跨阶段共享，并包含近期历史以保持阶段间连续性。各阶段附加自身的阶段提示词。消息历史在阶段内多轮交互中积累，阶段切换时清空。其他阶段见表~\ref{tab-additional-stages}。}
   \label{tab-context-management}
   \small
-  \begin{tabular}{p{2.0cm} p{3.0cm} p{8.0cm}}
+  \begin{tablebody}
+\begin{tabular}{p{2.0cm} p{3.0cm} p{8.0cm}}
     \toprule
     \textbf{阶段} & \textbf{组件} & \textbf{提供的信息} \\
     \midrule
@@ -307,6 +308,7 @@ persona/Cecilia Fairmont/
       & 压缩推理 & 对开源模型：在最终答案前附加$\sim$200词的推理过程摘要 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -316,7 +318,8 @@ persona/Cecilia Fairmont/
   \caption{其他智能体LLM调用阶段的提示词组成。所有调用共享同一角色扮演提示词（表~\ref{tab-context-management}），作为系统消息。进入活动和退出活动参见\S~\ref{sec-appendix-activity}。}
   \label{tab-additional-stages}
   \small
-  \begin{tabular}{p{2.8cm} p{3.0cm} p{7.2cm}}
+  \begin{tablebody}
+\begin{tabular}{p{2.8cm} p{3.0cm} p{7.2cm}}
     \toprule
     \textbf{阶段} & \textbf{组件} & \textbf{提供的信息} \\
     \midrule
@@ -354,6 +357,7 @@ persona/Cecilia Fairmont/
       \mrowcell & 丢弃指令 & 持有物品超过容量限制时，选择要丢弃的物品 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -367,7 +371,8 @@ persona/Cecilia Fairmont/
   \caption{用于回复过滤的角色扮演原则。模拟期间环境模型根据这些原则评价智能体的每条回复。}
   \label{tab-principles}
   \small
-  \begin{tabular}{p{3.8cm} p{9.5cm}}
+  \begin{tablebody}
+\begin{tabular}{p{3.8cm} p{9.5cm}}
     \toprule
     \textbf{原则} & \textbf{说明} \\
     \midrule
@@ -389,6 +394,7 @@ persona/Cecilia Fairmont/
     第一人称视角 & 言语、行动和思想应使用第一人称；行动描述可以省略主语。 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -517,6 +523,7 @@ $$ {#eq-agentopia-4}
 \centering
 \caption{模拟中使用的关键配置参数。}
 \label{tab-config-params}
+\begin{tablebody}
 \resizebox{0.8\linewidth}{!}{
 \small
 \begin{tabular}{p{4.2cm} p{1.8cm} p{7.2cm}}
@@ -580,6 +587,7 @@ $$ {#eq-agentopia-4}
 \texttt{sft\_top\_fraction} & 0.25 & 选择用于SFT训练的智能体比例上限 \\
 \bottomrule
 \end{tabular}}
+\end{tablebody}
 \end{table}
 ```
 
@@ -689,7 +697,8 @@ $$ {#eq-agentopia-5}
   }
   \label{tab-corr-social}
   \small
-  \begin{tabular}{clcccc}
+  \begin{tablebody}
+\begin{tabular}{clcccc}
     \toprule
     \# & 指标 & Pearson $r$ & \apartment{} & \academy{} & \campus{} \\
     \midrule
@@ -705,6 +714,7 @@ $$ {#eq-agentopia-5}
     10 & n\_respects              & $+$0.14 & $+$0.10 & $+$0.06 & $+$0.27 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -720,7 +730,8 @@ $$ {#eq-agentopia-5}
   }
   \label{tab-corr-subjective}
   \small
-  \begin{tabular}{clcccc}
+  \begin{tablebody}
+\begin{tabular}{clcccc}
     \toprule
     \# & 指标 & Pearson $r$ & \apartment{} & \academy{} & \campus{} \\
     \midrule
@@ -736,6 +747,7 @@ $$ {#eq-agentopia-5}
     10 & n\_likes                 & $+$0.39 & $+$0.46 & $+$0.34 & $+$0.38 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -751,7 +763,8 @@ $$ {#eq-agentopia-5}
   }
   \label{tab-corr-economy}
   \small
-  \begin{tabular}{clcccc}
+  \begin{tablebody}
+\begin{tabular}{clcccc}
     \toprule
     \# & 指标 & Pearson $r$ & \apartment{} & \academy{} & \campus{} \\
     \midrule
@@ -767,6 +780,7 @@ $$ {#eq-agentopia-5}
     10 & fulfillment\_social      & $-$0.14 & $-$0.14 & $-$0.26 & $-$0.00 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -846,7 +860,8 @@ $$ {#eq-agentopia-5}
   }
   \label{tab-success-top-metrics}
   \small
-  \begin{tabular}{clcclcclc}
+  \begin{tablebody}
+\begin{tabular}{clcclcclc}
     \toprule
     \multicolumn{3}{c}{社会} & \multicolumn{3}{c}{主观} & \multicolumn{3}{c}{经济} \\
     \cmidrule(lr){1-3} \cmidrule(lr){4-6} \cmidrule(lr){7-9}
@@ -860,6 +875,7 @@ $$ {#eq-agentopia-5}
     6 & total\_skills      & 0.16 & 6 & total\_spending      & 0.46 & 6 & public\_partic.      & 0.14 \\
     \bottomrule
   \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -938,6 +954,7 @@ $$ {#eq-agentopia-5}
 社会($\Delta$)表示扣除模拟前基准值的社会奖励。
 \textbf{粗体} = 每列最高，\underline{下划线} = 每列最低。}
 \label{tab-model-reward-fulfillment}
+\begin{tablebody}
 \begin{tabular}{l c c c c | c c c c}
 \toprule
 & \multicolumn{4}{c}{\textbf{奖励（z分数）}}
@@ -952,6 +969,7 @@ Gemini-3-Flash   & \textbf{+0.10} & \textbf{+0.31} & $-$0.20 & +0.03 & $-$0.23 &
 GPT-5-mini       & +0.06 & $-$0.17 & \textbf{+0.29} & \underline{$-$0.10} & \underline{$-$0.44} & \underline{$-$0.62} & $-$0.06 & $-$0.05 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -961,6 +979,7 @@ GPT-5-mini       & +0.06 & $-$0.17 & \textbf{+0.29} & \underline{$-$0.10} & \und
 \caption{模型比较：活动与经济指标。
 \textbf{粗体} = 每列最高，\underline{下划线} = 每列最低。}
 \label{tab-model-activity-economy}
+\begin{tablebody}
 \begin{tabular}{l c c c c c c}
 \toprule
 \textbf{模型} & 共同提议 & 共同参与 & 公共参与 & 个人活动 & 存款 & 技能$\Delta$ \\
@@ -972,6 +991,7 @@ Gemini-3-Flash   & \textbf{+0.88} & \textbf{+0.37} & \underline{$-$0.96} & +0.19
 GPT-5-mini       & +0.32 & \underline{$-$0.32} & $-$0.22 & \textbf{+0.34} & \textbf{+0.38} & \textbf{+0.71} \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -982,6 +1002,7 @@ GPT-5-mini       & +0.32 & \underline{$-$0.32} & $-$0.22 & \textbf{+0.34} & \tex
 初始=模拟前基准；平均=4年平均。社会($\Delta$)=平均$-$初始。
 \textbf{粗体} = 每列最高，\underline{下划线} = 每列最低。}
 \label{tab-social-trajectory}
+\begin{tablebody}
 \begin{tabular}{l c c c c c c c}
 \toprule
 \textbf{模型} & 初始 & 第1年 & 第2年 & 第3年 & 第4年 & 平均 & 社会($\Delta$) \\
@@ -993,6 +1014,7 @@ Gemini-3-Flash   & +0.02 & $-$0.10 & +0.01 & \textbf{+0.15} & +0.15 & +0.05 & +0
 GPT-5-mini       & \textbf{+0.27} & +0.11 & \textbf{+0.15} & +0.13 & \textbf{+0.21} & \textbf{+0.16} & \underline{$-$0.10} \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1023,6 +1045,7 @@ GPT-5-mini       & \textbf{+0.27} & +0.11 & \textbf{+0.15} & +0.13 & \textbf{+0.
 所有数值均在该世界内部标准化为z分数。
 \textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-campus-reward}
+\begin{tablebody}
 \begin{tabular}{l c c c c | c c c c}
 \toprule
 & \multicolumn{4}{c}{\textbf{奖励（z分数）}}
@@ -1037,6 +1060,7 @@ Gemini-3-Flash   & +0.01 & \textbf{+0.27} & \underline{$-$0.46} & \underline{$-$
 GPT-5-mini       & \textbf{+0.19} & +0.05 & +0.26 & $-$0.09 & $-$0.15 & \underline{$-$0.48} & +0.40 & +0.12 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1047,6 +1071,7 @@ GPT-5-mini       & \textbf{+0.19} & +0.05 & +0.26 & $-$0.09 & $-$0.15 & \underli
 所有数值均在该世界内部标准化为z分数。
 \textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-campus-activity}
+\begin{tablebody}
 \begin{tabular}{l c c c c c c}
 \toprule
 \textbf{模型} & 共同提议 & 共同参与 & 公共参与 & 个人活动 & 存款 & 技能$\Delta$ \\
@@ -1058,6 +1083,7 @@ Gemini-3-Flash   & \textbf{+0.85} & \textbf{+0.46} & \underline{$-$0.92} & +0.14
 GPT-5-mini       & +0.39 & $-$0.03 & $-$0.21 & \textbf{+0.18} & \textbf{+0.57} & \textbf{+0.52} \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1068,6 +1094,7 @@ GPT-5-mini       & +0.39 & $-$0.03 & $-$0.21 & \textbf{+0.18} & \textbf{+0.57} &
 所有数值均在该世界内部标准化为z分数。
 \textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-academy-reward}
+\begin{tablebody}
 \begin{tabular}{l c c c c | c c c c}
 \toprule
 & \multicolumn{4}{c}{\textbf{奖励（z分数）}}
@@ -1082,6 +1109,7 @@ Gemini-3-Flash   & \textbf{+0.19} & \textbf{+0.35} & +0.05 & +0.16 & $-$0.16 & +
 GPT-5-mini       & $-$0.08 & \underline{$-$0.38} & \textbf{+0.32} & \underline{$-$0.12} & \underline{$-$0.73} & \underline{$-$0.77} & \underline{$-$0.52} & $-$0.22 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1092,6 +1120,7 @@ GPT-5-mini       & $-$0.08 & \underline{$-$0.38} & \textbf{+0.32} & \underline{$
 所有数值均在该世界内部标准化为z分数。
 \textbf{粗体} = 最高，\underline{下划线} = 最低。}
 \label{tab-model-academy-activity}
+\begin{tablebody}
 \begin{tabular}{l c c c c c c}
 \toprule
 \textbf{模型} & 共同提议 & 共同参与 & 公共参与 & 个人活动 & 存款 & 技能$\Delta$ \\
@@ -1103,6 +1132,7 @@ Gemini-3-Flash   & \textbf{+0.90} & \textbf{+0.29} & \underline{$-$0.99} & +0.23
 GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.19 & \textbf{+0.91} \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1117,6 +1147,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 （单位：百万Token）。}
 \label{tab-cost-god-rp}
 \small
+\begin{tablebody}
 \begin{tabular}{l rrr rrr}
 \toprule
 & \multicolumn{3}{c}{\textbf{输入（百万）}} & \multicolumn{3}{c}{\textbf{输出（百万）}} \\
@@ -1130,6 +1161,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \textbf{平均} & 665 & 12,683 & 13,347 & 24 & 328 & 352 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1138,6 +1170,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \centering
 \caption{三种世界中环境模型按功能划分的Token消耗（单位：百万Token）。}
 \label{tab-cost-god-feature}
+\begin{tablebody}
 \resizebox{\linewidth}{!}{
 \small
 \begin{tabular}{l r r r r r r r r r}
@@ -1156,6 +1189,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \textbf{总计} & 730.55 & 31.49 & 153,460 & 661.87 & 20.43 & 167,193 & 601.07 & 19.47 & 171,906 \\
 \bottomrule
 \end{tabular}}
+\end{tablebody}
 \end{table}
 ```
 
@@ -1181,7 +1215,8 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \small
   \caption{代表性的规划行为。每个智能体根据自身状态、技能、关系和财务状况自主生成周计划。W = 模拟周，D = 周内的某一天。}
   \label{tab-planning}
-  \begin{tabular}{p{0.8in}p{4.3in}}
+  \begin{tablebody}
+\begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
   \multicolumn{2}{c}{\textbf{规划阶段的涌现行为}} \\
   \midrule
@@ -1228,6 +1263,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \\
   \bottomrule
   \end{tabular}
+\end{tablebody}
   \end{table*}
 ```
 
@@ -1241,7 +1277,8 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \small
   \caption{代表性的联系行为。智能体每周通过多个通信时段交换消息，随着时间建立并维系关系。W = 模拟周。}
   \label{tab-contact}
-  \begin{tabular}{p{0.8in}p{4.3in}}
+  \begin{tablebody}
+\begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
   \multicolumn{2}{c}{\textbf{联系阶段的涌现行为}} \\
   \midrule
@@ -1288,6 +1325,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \\
   \bottomrule
   \end{tabular}
+\end{tablebody}
   \end{table*}
 ```
 
@@ -1301,7 +1339,8 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \small
   \caption{代表性的活动提议行为。智能体指定活动名称、邀请对象、时间、地点和个性化消息，主动发起联合活动。W = 模拟周，D = 周内某一天。}
   \label{tab-proposals}
-  \begin{tabular}{p{0.8in}p{4.3in}}
+  \begin{tablebody}
+\begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
   \multicolumn{2}{c}{\textbf{提出活动时的涌现行为}} \\
   \midrule
@@ -1348,6 +1387,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \\
   \bottomrule
   \end{tabular}
+\end{tablebody}
   \end{table*}
 ```
 
@@ -1361,7 +1401,8 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \small
   \caption{代表性的活动邀请回应。智能体根据日程、关系、身体状态和经济压力接受或拒绝邀请。W = 模拟周，D = 周内某一天。}
   \label{tab-responses}
-  \begin{tabular}{p{0.8in}p{4.3in}}
+  \begin{tablebody}
+\begin{tabular}{p{0.8in}p{4.3in}}
   \toprule
   \multicolumn{2}{c}{\textbf{回应活动提议时的涌现行为}} \\
   \midrule
@@ -1424,6 +1465,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
   \\
   \bottomrule
   \end{tabular}
+\end{tablebody}
   \end{table*}
 ```
 
@@ -1437,6 +1479,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的单人活动行为。每个智能体独立选择并开展个人活动——技能练习、创作、消费或休息——结果受自身状态、财务状况和身份影响。W = 模拟周，D = 周内某一天。}
 \label{tab-solo}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{单人活动中的涌现行为}} \\
@@ -1484,6 +1527,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1497,6 +1541,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的联合活动行为。两个或更多智能体在预定活动中进行多轮对话，产生学术协作、创意交流、导师指导与冲突。W = 模拟周，D = 周内某一天。}
 \label{tab-joint}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{联合活动中的涌现行为}} \\
@@ -1544,6 +1589,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1557,6 +1603,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的每周回顾行为。每周结束时，智能体反思经历、识别个人突破或失败，并制定下周意向。W = 模拟周。}
 \label{tab-review}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{每周回顾中的涌现行为}} \\
@@ -1588,6 +1635,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1601,6 +1649,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的社会评价行为。智能体定期独立地对所有联系人在喜爱和尊重两个维度（0--100）上评分，通过 PageRank 聚合为社会地位分数。W = 模拟周。}
 \label{tab-social-eval}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{社会评价中的涌现行为}} \\
@@ -1640,6 +1689,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1653,6 +1703,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的职业转变行为。每个年度节点，智能体评估可申请职位，依据人格、技能与生活状况选择角色——即使面对相同选项，也呈现不同价值体系。W = 模拟周。}
 \label{tab-career}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{职业转变中的涌现行为}} \\
@@ -1692,6 +1743,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1705,6 +1757,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的经济决策行为。智能体根据收入、储蓄、身份和文化价值观选择生活标准并决定购买。W = 模拟周。}
 \label{tab-economic}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{经济决策中的涌现行为}} \\
@@ -1744,6 +1797,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1757,6 +1811,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的活动管理行为。智能体根据优先事项和社交意识的变化，动态调整日程——取消、退出或重新安排活动。W = 模拟周。}
 \label{tab-activity-mgmt}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{活动管理中的涌现行为}} \\
@@ -1780,6 +1835,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1793,6 +1849,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{代表性的记忆行为。智能体通过联系人笔记和个人反思维持持久记忆，从而支持跨周引用、印象演化及依据记忆决策。W = 模拟周。}
 \label{tab-memory}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{与记忆有关的涌现行为}} \\
@@ -1840,6 +1897,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1853,6 +1911,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \small
 \caption{没有显式设计也会出现的代表性涌现现象。这些行为完全源自智能体在长期模拟中的自主决策。W = 模拟周。}
 \label{tab-emergent}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{涌现现象}} \\
@@ -1900,6 +1959,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -1922,6 +1982,7 @@ GPT-5-mini       & +0.25 & \underline{$-$0.62} & $-$0.24 & \textbf{+0.49} & +0.1
 \centering\small
 \caption{代表性涌现案例（1--3）：个人成长与转变。Y\,=\,模拟年份，W\,=\,模拟周。}
 \label{tab-cases-1-3}
+\begin{tablebody}
 \begin{tabular}{p{0.97\linewidth}}
 \toprule
 
@@ -2020,6 +2081,7 @@ Sebastian克制消费六年，直到活力与储蓄证明新生活
 
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -2032,6 +2094,7 @@ Sebastian克制消费六年，直到活力与储蓄证明新生活
 \centering\small
 \caption{代表性涌现案例（4--6）：关系演变与社会指标。Y\,=\,模拟年份，W\,=\,模拟周。}
 \label{tab-cases-4-6}
+\begin{tablebody}
 \begin{tabular}{p{0.97\linewidth}}
 \toprule
 
@@ -2128,6 +2191,7 @@ Leo将注意力分散得过于稀薄：
 
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -2140,6 +2204,7 @@ Leo将注意力分散得过于稀薄：
 \centering\small
 \caption{代表性涌现案例（7--9）：经济行为与资源管理。Y\,=\,模拟年份，W\,=\,模拟周。}
 \label{tab-cases-7-9}
+\begin{tablebody}
 \begin{tabular}{p{0.97\linewidth}}
 \toprule
 
@@ -2238,6 +2303,7 @@ $\to$活动进一步减少。
 
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -2250,6 +2316,7 @@ $\to$活动进一步减少。
 \centering
 \caption{智能体基础提示词：人物设定模板和世界观说明。世界观提示词为缩略版；完整版还描述活动子阶段与结算细节。}
 \label{tab-prompts-agent-foundation}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{智能体基础提示词}} \\
@@ -2299,6 +2366,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2307,6 +2375,7 @@ $\to$活动进一步减少。
 \centering
 \caption{智能体角色扮演原则及记忆系统提示词。在提示词中，我们将记忆文件称为\emph{scratchpads（便笺板）}，这是角色扮演智能体更容易理解的通俗说法。角色扮演原则为缩略版；完整版包含14条原则，涉及动机一致性、状态一致性、情绪连续性和有实质内容的对话。}
 \label{tab-prompts-roleplay-memory}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{角色扮演原则与记忆系统}} \\
@@ -2352,6 +2421,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2360,6 +2430,7 @@ $\to$活动进一步减少。
 \centering
 \caption{智能体在计划与社交联络阶段使用的提示词。联络阶段提示词为缩略版；完整版还包含各类角色动作的详细规则。}
 \label{tab-prompts-plan-contact}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{计划与联络提示词}} \\
@@ -2404,6 +2475,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2412,6 +2484,7 @@ $\to$活动进一步减少。
 \centering
 \caption{智能体在共同活动和个人活动阶段使用的提示词。}
 \label{tab-prompts-activity}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{活动提示词}} \\
@@ -2452,6 +2525,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2460,6 +2534,7 @@ $\to$活动进一步减少。
 \centering
 \caption{智能体用于每周回顾和社会评价的提示词。}
 \label{tab-prompts-review-social}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{回顾与社会评价提示词}} \\
@@ -2512,6 +2587,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2520,6 +2596,7 @@ $\to$活动进一步减少。
 \centering
 \caption{环境模型用于管理共同活动的提示词：环境建模、下一位发言者预测与回复校验（过滤）。}
 \label{tab-prompts-god-joint}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{环境模型：共同活动世界模型}} \\
@@ -2569,6 +2646,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2577,6 +2655,7 @@ $\to$活动进一步减少。
 \centering
 \caption{环境模型用于评价活动结果并确定状态变化的提示词。此为缩略版，完整版包含详细的变化量范围和满足度维度定义。}
 \label{tab-prompts-god-eval}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{环境模型：活动结果评价}} \\
@@ -2622,6 +2701,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 
@@ -2630,6 +2710,7 @@ $\to$活动进一步减少。
 \centering
 \caption{环境模型用于世界管理的提示词：生成偶遇活动与年度档案更新。此为缩略版，完整版还包含JSON输出格式规范。}
 \label{tab-prompts-god-world}
+\begin{tablebody}
 \begin{tabular}{p{0.8in}p{4.3in}}
 \toprule
 \multicolumn{2}{c}{\textbf{环境模型：世界管理}} \\
@@ -2684,6 +2765,7 @@ $\to$活动进一步减少。
 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table*}
 ```
 

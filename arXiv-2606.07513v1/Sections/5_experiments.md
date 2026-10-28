@@ -61,6 +61,7 @@ Delta 表示四年平均值从 Qwen3.5-397B 到 Qwen3.5-397B-Agentopia 的百分
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
+\begin{tablebody}
 \begin{tabular}{l rrrr rrrr rrr}
 \toprule
 & \multicolumn{2}{c}{第1年} & \multicolumn{2}{c}{第2年} & \multicolumn{2}{c}{第3年} & \multicolumn{2}{c}{第4年} & \multicolumn{3}{c}{平均} \\
@@ -91,6 +92,7 @@ Delta 表示四年平均值从 Qwen3.5-397B 到 Qwen3.5-397B-Agentopia 的百分
 技能进步次数 & 11.9 & 11.3 & 11.3 & 9.2 & 14.7 & 8.2 & 15.1 & 8.6 & 13.3 & 9.3 & $\downarrow$\,$-$29.6\% \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -119,6 +121,7 @@ Delta 表示四年平均值从 Qwen3.5-397B 到 Qwen3.5-397B-Agentopia 的百分
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
+\begin{tablebody}
 \begin{tabular}{l ccccccc}
 \toprule
 & \makecell{Claude\\4.5-Opus} & \makecell{Gemini\\3-Pro} & \makecell{Qwen3.5\\397B-Agentopia} & \makecell{Claude\\4.5-Sonnet} & \makecell{Qwen3.5\\397B} & \makecell{CoSER\\70B} & \makecell{GPT-5\\Mini} \\
@@ -131,6 +134,7 @@ Delta 表示四年平均值从 Qwen3.5-397B 到 Qwen3.5-397B-Agentopia 的百分
 平均值               & 62.43 & 61.80 & 49.16 & 45.21 & 42.51 & 35.95 & 32.97 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
@@ -144,6 +148,7 @@ Delta 表示四年平均值从 Qwen3.5-397B 到 Qwen3.5-397B-Agentopia 的百分
 M = 百万 token，K = 千次调用，h = 实际经过的小时数。}
 \label{tab-cost-overall}
 \small
+\begin{tablebody}
 \begin{tabular}{l rrrrr}
 \toprule
 \textbf{世界} & 输入（M） & 输出（M） & Token（M） & 调用（K） & 时间（h） \\
@@ -155,6 +160,7 @@ M = 百万 token，K = 千次调用，h = 实际经过的小时数。}
 \textbf{平均值} & 13,347 & 352 & 13,700 & 567 & 186.2 \\
 \bottomrule
 \end{tabular}
+\end{tablebody}
 \end{table}
 ```
 
