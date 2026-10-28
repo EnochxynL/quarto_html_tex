@@ -1,11 +1,5 @@
 ---
 # HTML 入口使用 html-tex；PDF 入口 paper.qmd 使用原生 LaTeX。
-# 术语表（{{< term X >}} 跨格式调用——term 插件自动注册；pdf 字段引用
-# include-in-header 宏（PDF 端宏单一来源）、html 字段手写片段——样式自由）
-terms:
-  ara:
-    pdf: '\ara{}'
-    html: '<span class="ara">Ara</span>'
 filters:
   - html-tex
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；

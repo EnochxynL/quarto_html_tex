@@ -4,9 +4,9 @@
 
 #### 现有工具的维度差距。
 
-一个自然的质疑是，{{< term ara >}} 仅仅是将文档、版本控制和实验追踪——研究者已经在使用的三种工具——组合在一起。
+一个自然的质疑是，`\ara{}`{=latex} 仅仅是将文档、版本控制和实验追踪——研究者已经在使用的三种工具——组合在一起。
 表 \ref{tab-dimension-gap} 说明了为什么即使*同时*使用 PDF、GitHub 和追踪器（MLflow [@zaharia2018mlflow]，Weights \& Biases [@biewald2020wandb]），知识仍然被孤岛式地分割在三种彼此无关联的格式中——论断、检验论断的代码、产生的证据以及选择证据的决策之间缺乏交叉引用。
-{{< term ara >}} 并非通过替代这些工具，而是通过提供缺失的结构层来弥合这一差距：一个可执行的认识论图谱，其跨层绑定使这些连接显式化且可被机器遍历。
+`\ara{}`{=latex} 并非通过替代这些工具，而是通过提供缺失的结构层来弥合这一差距：一个可执行的认识论图谱，其跨层绑定使这些连接显式化且可被机器遍历。
 
 ```{=latex}
 \begin{table}[t]
@@ -33,23 +33,23 @@
 
 越来越多的研究认为，科学知识应在研究过程中以机器可读的形式创作，而非事后还原：FAIR 原则 [@wilkinson2016fair] 标准化了数据元数据，W3C PROV 本体 [@lebo2013provo] 形式化了科学产出的来源追溯，@canini2026stopwriting 将论文重新定义为一种"面向人类读者的压缩格式"，应该让位于结构化知识对象，而 @stocker2025machinereadable; @booeshaghi2026machinereadable 则倡导将创作时的机器可读性作为首要原则。
 具体的格式部分实现了这一愿景——纳米出版物 [@groth2010nanopub] 将论断与来源追溯原子化，开放研究知识图谱 [@jaradeh2019orkg] 跨论文策展结构化贡献，RO-Crate [@soilandreyes2022rocrate] 捆绑研究对象，Whole Tale [@brinckman2019wholetale] 封装计算环境，Discovery Engine [@baulin2025discoveryengine] 将出版物提炼为概念张量——但它们都不提供执行语义，也不捕获决策历史。
-与这些格式不同，{{< term ara >}} 将科学逻辑、最小化可执行代码和决策历史共同绑定到一个单一协议中，并具有机器可验证的可复现性。
+与这些格式不同，`\ara{}`{=latex} 将科学逻辑、最小化可执行代码和决策历史共同绑定到一个单一协议中，并具有机器可验证的可复现性。
 
 #### 可复现性基础设施。
 
 机器学习领域的可复现性危机 [@baker2016reproducibility; @pineau2021reproducibility] 催生了代码共享标准 [@stodden2016enhancing]、科学工作流引擎 [@koster2012snakemake; @ditommaso2017nextflow; @crusoe2022cwl] 和计算笔记本 [@knuth1984literate; @rule2018exploration]；然而，工作流编码的是缺乏论断语义的流水线，笔记本本质上仍是具有隐藏状态的文档，而最近的基准测试 [@starace2025paperbench; @liu2026scireasoning; @kon2025expbench] 共同表明，前沿智能体无法恢复 PDF 隐含的知识——EXP-Bench 报告的端到端实验成功率仅为 0.5\%，尽管组件精度达到 20--35\%。
 在验证方面，大语言模型检测到的论文与代码不一致之处不到 46\% [@baumgartner2026scicoqa]，这延续了更广泛的科学论断验证 [@wadden2020scifact] 和基于归因的落地验证 [@gao2023rarr] 的工作，并推动了涵盖来源追溯、可靠性、论断分解和密码学谱系的形式化审计标准 [@rasheed2026aar; @huang2025decmetrics; @radanliev2026aibom]。
-与之前仅针对单一维度的审计方案不同，{{< term ara >}} 的认证证书将所有维度在一个可强制执行的机制中落地。
+与之前仅针对单一维度的审计方案不同，`\ara{}`{=latex} 的认证证书将所有维度在一个可强制执行的机制中落地。
 
 #### 负向知识与失败轨迹。
 
 最近的研究表明，失败轨迹只有在标注了根因结构之后才变得可操作 [@zhu2025agenterrorbench; @zhang2025agentracer]，然而原始轨迹转储 [@yang2024sweagent] 仍然难以利用。
 大规模实验日志 [@pinedaarango2021hpob; @ying2019nasbench; @gijsbers2019automl] 保留了比其对应论文所报告的多 >99.99% 的搜索历史，而过程层面的研究 [@wijk2025rebench; @yamada2025aiscientistv2] 证实，人类专家和智能体科学家都会探索大量从未出现在书面报告中的死胡同。
-与原始轨迹档案不同，{{< term ara >}} 的探索图谱将死胡同提升为一等的 `dead\_end` 节点，具有结构化的失败模式和论断交叉引用，使负向知识可被机器查询，而非因叙事筛选而丢失。
+与原始轨迹档案不同，`\ara{}`{=latex} 的探索图谱将死胡同提升为一等的 `dead\_end` 节点，具有结构化的失败模式和论断交叉引用，使负向知识可被机器查询，而非因叙事筛选而丢失。
 
 #### 面向智能体的文档与工具。
 
 一系列趋同的研究表明，相较于扁平语料库 [@lo2020s2orc; @priem2022openalex]，智能体受益于结构化、分层的表示 [@openai2025agentsmd; @vasilopoulos2026codifiedcontext]，而且即使是最强的大语言模型也只能正确实现不到 40\% 的新贡献，其中*语义*错位是最主要的失败模式 [@jimenez2024swebench; @chen2025scienceagentbench; @hua2025researchcodebench]。
 最近的系统从三个方向针对这一差距：流水线方法，事后将论文转换为可执行代码 [@seo2025papercoder] 或交互式 AI 智能体 [@miao2025paper2agent]，或通过图谱分析和调试恢复隐性知识 [@li2026tacit]；知识图谱方法，从背景文献中挖掘技术--代码链接 [@liu2026knowledgegraphs; @luo2025xkg]——最多带来 10.9\% 的 PaperBench 提升，但未建模目标贡献的决策历史和认知结构；以及端到端进行实验的自主研究智能体 [@boiko2023coscientist; @bran2024chemcrow; @schmidgall2025agentlab; @baek2025researchagent]，其非结构化的轨迹日志在论文完成之后就被丢弃。
 多智能体框架 [@wu2024autogen]、技能库标准 [@wang2023voyager; @agentskills2025] 以及基于构件的智能体协调 [@wang2026scienceclaw] 进一步表明，结构化构件而非自然语言论文，是复合智能体能力的自然交换单元——我们的实时研究管理器（\S\ref{sec-live-pm}）正是这一前提的具体实现。
-与事后还原流水线和背景知识图谱不同，{{< term ara >}} 在创作时将论断、证据、启发式规则及其可执行绑定编码，完全消除了事后还原步骤。
+与事后还原流水线和背景知识图谱不同，`\ara{}`{=latex} 在创作时将论断、证据、启发式规则及其可执行绑定编码，完全消除了事后还原步骤。

@@ -50,8 +50,8 @@
   padding-top: 0.8em;
 }
 
-/* 专名 small-caps 标记（\ara 宏 / {{< skillopt >}} 短代码输出） */
-:where(.ara, .smallcaps) {
+/* Generic small-caps text. */
+:where(.smallcaps) {
   font-variant: small-caps;
   letter-spacing: 0.02em;
 }

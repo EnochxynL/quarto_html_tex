@@ -26,6 +26,27 @@ The TeX header supplies lwarp, counter declarations and MathJax macro discovery.
 Markdown 原生表格继续由 Quarto 处理。
 本扩展不修复 PDF 双栏下的 Markdown 表格限制；六篇论文的共享表格使用原生 LaTeX。
 
+## Inline LaTeX
+
+Write inline TeX explicitly so Pandoc preserves it in the document:
+
+~~~markdown
+We introduce `\ourmethod{}`{=latex}.
+~~~
+
+Declare `\newcommand{\ourmethod}{\textsc{OurMethod}}` in
+`html-tex.include-in-header`. HTML output uses lwarp's text and scoped CSS;
+PDF output passes the same inline TeX to LaTeX. No separate HTML term definition
+or shortcode extension is needed. Arguments and nested text formatting are supported.
+
+All inline occurrences are compiled in one batch, in document order, without
+string deduplication. Diagnostics are retained in `.quarto/lwarp/block-inline/`.
+An inline fragment must produce inline content; use a raw LaTeX block for a
+paragraph, table, or other block environment. Inline compilation has its own TeX
+context: it does not inherit temporary declarations or counter changes from
+surrounding Markdown or independently compiled blocks. Keep document-wide
+numbering in the existing reference/counter pipeline.
+
 ## PDF 源图
 
 本地 PDF 图片在 HTML 端使用 `pdfinfo` 检查页数，再由 `pdftocairo -svg` 转为

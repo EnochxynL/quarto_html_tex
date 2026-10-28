@@ -1,10 +1,5 @@
 ---
 # PDF 入口使用原生 LaTeX；与 HTML 入口 index.qmd 共享 sections/。
-# 术语由独立 term 扩展处理；PDF 宏定义位于本文件导言区。
-terms:
-  skillopt:
-    pdf: '\ourmethod{}'
-    html: '<span class="smallcaps">SkillOpt</span>'
 # 编号深度止于 subsubsection（#### → \paragraph 不编号，与原始论文一致；
 # 原始论文 article 默认 secnumdepth 3，paragraph 标题无自动编号）
 number-depth: 3

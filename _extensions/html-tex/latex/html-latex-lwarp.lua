@@ -307,6 +307,12 @@ local function extract_mathjax_macros(doc)
         collect_user_defs(blk.text, defs)
       end
     end,
+    RawInline = function(node)
+      if node.format == "tex" or node.format == "latex" then
+        collect_math_cmds(node.text, cmds)
+        collect_user_defs(node.text, defs)
+      end
+    end,
   })
   -- bm implements TeX font machinery rather than a portable macro definition.
   -- Use MathJax's boldsymbol for the declared package, preserving user overrides.
@@ -586,7 +592,7 @@ local function embed_lateximages(html, cache)
   end)
 end
 
-local function compile_block(body, counter_name, counter_start, macros, labels, index)
+local function compile_block(body, counter_name, counter_start, macros, labels, index, inline)
   -- Isolate auxiliary files and retain diagnostics for each source block.
   local CACHE = CACHE .. "/block-" .. tostring(index)
   local scope = BLOCK_PREFIX .. "-" .. tostring(index)
@@ -716,6 +722,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
 
   -- 容器：lwarp 原生 <a id="label"> 锚点已输出（探针实证），容器
   -- div 不再重复 id——块内 \ref 的 href="#label" 指向原生锚点
+  if inline then return { html = inner, css = css, scope = scope } end
   return '<div class="' .. BLOCK_PREFIX .. ' ' .. scope .. '"><style>' .. css .. "</style>" .. inner .. "</div>"
 end
 
@@ -759,6 +766,53 @@ return {
           citation = pandoc.utils.citeproc(citation)
           return pandoc.write(citation, "latex"):gsub("%s+$", "")
         end)
+      end
+      -- Compile every inline occurrence once, in source order, in one document.
+      -- Do not deduplicate: counters and other TeX side effects may be observable.
+      local fragments = {}
+      doc:walk({RawInline = function(node)
+        if node.format == "latex" or node.format == "tex" then
+          fragments[#fragments + 1] = node.text
+        end
+      end})
+      if #fragments > 0 then
+        local body = {}
+        for index, text in ipairs(fragments) do
+          body[#body + 1] = "\\begingroup\\InlineClass{html-tex-fragment-" .. index
+              .. "}{" .. resolve_citations(text) .. "}\\endgroup\\par"
+        end
+        local result = assert(compile_block(table.concat(body, "\n"), "", 0,
+            macros, extract_labels(table.concat(fragments, "\n")), "inline", true),
+            "lwarp inline compilation failed; see .quarto/lwarp/block-inline/")
+        local rendered = {}
+        for index in ipairs(fragments) do
+          local _, first = result.html:find('<span class="html%-tex%-fragment%-' .. index .. '">')
+          assert(first, "lwarp did not emit inline fragment " .. index)
+          local position, depth = first + 1, 1
+          while depth > 0 do
+            local open, close, slash = result.html:find("<(/?)span[%s>]", position)
+            assert(open, "unbalanced lwarp inline fragment " .. index)
+            depth = depth + (slash == "/" and -1 or 1)
+            if depth == 0 then
+              rendered[index] = result.html:sub(first + 1, open - 1)
+            end
+            position = close + 1
+          end
+          -- A RawInline cannot safely carry a paragraph or block environment.
+          assert(not rendered[index]:match("</?p[%s>]")
+              and not rendered[index]:match("</?div[%s>]")
+              and not rendered[index]:match("</?table[%s>]"),
+              "block content in inline LaTeX fragment " .. index .. "; use a raw LaTeX block")
+        end
+        local index = 0
+        doc = doc:walk({RawInline = function(node)
+          if node.format == "latex" or node.format == "tex" then
+            index = index + 1
+            return pandoc.RawInline("html", '<span class="lwarp-inline ' .. result.scope
+                .. '">' .. rendered[index] .. '</span>')
+          end
+        end})
+        table.insert(doc.blocks, 1, pandoc.RawBlock("html", "<style>" .. result.css .. "</style>"))
       end
       local counter_blocks = read_counters(doc.meta)
       local k = 0 -- 编译候选序（与 counters.lua 的 blocks 列表对齐）

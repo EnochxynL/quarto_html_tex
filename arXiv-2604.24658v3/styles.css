@@ -35,12 +35,6 @@
   padding-top: 0.8em;
 }
 
-/* Ara 小写大写（正文里由短代码生成 <span class="ara">） */
-.ara {
-  font-variant: small-caps;
-  letter-spacing: 0.02em;
-}
-
 /* 复杂表（HTML 侧由转换脚本生成，class 与管道表一致 bootstrap .table） */
 /* caption 统一在表格下方（与 PDF 端 table-caption-pos: bottom 一致，ARA 原版惯例） */
 table caption {
