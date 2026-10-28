@@ -1,6 +1,0 @@
-/* SkillOpt 论文特有样式
- *
- * 共性样式（header-panel/smallcaps/复现标记/PDF图/算法框/组合表）已移入
- * html-tex 插件默认样式（_extensions/html-tex/format/html-tex.css，
- * :where() 零特异性，此处正常规则可覆盖）。
- */
