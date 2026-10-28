@@ -3,7 +3,7 @@
 -- Lua only prepares the document, joins parent citations/references, and embeds
 -- the generated HTML/CSS. No table-to-Pandoc conversion or syntax stripping.
 --
--- Requires explicitly declared html-tex.latex-packages / latex-macros.
+-- Requires explicitly declared html-tex.include-in-header.
 -- Each block retains its TeX and logs in .quarto/lwarp/block-N/.
 -- The parent counter pass supplies starting values; lwarp emits captions and
 -- source label anchors. Bibliographic commands use the parent's citeproc data.
@@ -35,47 +35,42 @@ local function extract_labels(text)
   return labels
 end
 
--- 宏包声明：从 doc.meta 读取 latex-packages（html-tex: latex-packages:
--- [pkg1, pkg2]——块独立编译所需宏包由文档层声明，不从块内容猜；
--- 与 latex-macros 平行）。pandoc 3 MetaList → 字符串数组
-local function read_packages(meta)
-  local pt = meta["html-tex"] or {}
-  local v = pt["latex-packages"]
-  if v == nil then return {} end
-  local typ = pandoc.utils.type(v)
-  if typ == "List" or typ == "MetaList" then
-    local out = {}
-    for _, item in ipairs(v) do
-      out[#out + 1] = pandoc.utils.stringify(item)
-    end
-    return out
-  end
-  return { pandoc.utils.stringify(v) }
-end
-
--- 从 doc.meta 读取 latex-macros（嵌套优先、平铺回退，模式同 html-latex-tables；
--- pandoc 3 块标量 → MetaBlocks，手动提取 RawBlock 文本）
-local function read_config(meta)
-  local pt = meta["html-tex"] or {}
-  local v = pt["latex-macros"]
-  if v == nil then return "" end
+-- Read ordered file/text entries; bare strings are filenames.
+local function header_text(v)
   local typ = pandoc.utils.type(v)
   if typ == "Blocks" or typ == "MetaBlocks" then
     local parts = {}
     for _, b in ipairs(v) do
-      if b.t == "RawBlock" and (b.format == "latex" or b.format == "tex") then
-        parts[#parts + 1] = b.text
-      elseif b.t == "Para" or b.t == "Plain" then
-        parts[#parts + 1] = pandoc.utils.stringify(b)
-      end
+      parts[#parts + 1] = b.t == "RawBlock" and b.text or pandoc.utils.stringify(b)
     end
     return table.concat(parts, "\n")
   end
   return pandoc.utils.stringify(v)
 end
+local function read_header(meta)
+  local config, parts = meta["html-tex"] or {}, {}
+  local function append(v)
+    local typ = pandoc.utils.type(v)
+    if typ == "List" or typ == "MetaList" then
+      for _, item in ipairs(v) do append(item) end
+    elseif type(v) == "table" and (v.file ~= nil or v.text ~= nil) then
+      if v.file ~= nil and v.text == nil then append(v.file)
+      elseif v.text ~= nil and v.file == nil then parts[#parts + 1] = header_text(v.text)
+      else assert(false, "html-tex.include-in-header: specify exactly one of file or text") end
+    else
+      local file, message = io.open(header_text(v), "rb")
+      assert(file, "html-tex.include-in-header: " .. tostring(message))
+      parts[#parts + 1] = file:read("*a")
+      file:close()
+    end
+  end
+  if config["include-in-header"] ~= nil then append(config["include-in-header"]) end
+  return table.concat(parts, "\n")
+end
 
--- 平衡花括号提取（深度计数，支持嵌套——\Call 的 args 里可能嵌
+
 -- D_\text{sel} 等含花括号的数学；[^}]* 单层匹配会截断，实证括号错乱）
+-- Extract balanced braces, including nested macro arguments.
 local function balanced_brace(s)
   local depth = 0
   for i = 1, #s do
@@ -120,8 +115,8 @@ end
 -- 用户拍板 2026-09-02）：
 -- 背景：\Call 等文本命令被写进数学时，lwarp 数学文本 detokenize 原样
 -- 给 MathJax——不认识红字。方案：扫描全文 RawBlock 数学内容（$...$）
--- 收集 \CMD——对每个命令在"用户定义源"（块内/latex-macros 的
--- \newcommand/\def）与"latex-packages 声明包的源"查定义——找到则翻译
+-- 收集 \CMD——对每个命令在"用户定义源"（块内/include-in-header 的
+-- \newcommand/\def）与"include-in-header 声明包的源"查定义——找到则翻译
 -- 成 MathJax tex.macros 注入。
 -- 定义驱动过滤：MathJax 内建命令（\mathrm/\gets/\mathcal…）在定义源
 -- 找不到 → 自动跳过——无需 MathJax 命令白名单。
@@ -290,9 +285,16 @@ end
 local function extract_mathjax_macros(doc)
   local cmds, defs = {}, {}
   local packages = {}
-  for _, p in ipairs(read_packages(doc.meta)) do packages[p] = true end
-  -- latex-macros（用户宏定义区）
-  local macros_tex = read_config(doc.meta)
+  -- Only discover package names for MathJax; TeX executes the full header.
+  local header = read_header(doc.meta):gsub("%%[^\n]*", "")
+  for names in header:gmatch("\\usepackage%s*%b[]%s*{([^}]+)}") do
+    for name in names:gmatch("[^,%s]+") do packages[name] = true end
+  end
+  for names in header:gmatch("\\usepackage%s*{([^}]+)}") do
+    for name in names:gmatch("[^,%s]+") do packages[name] = true end
+  end
+  -- include-in-header（用户宏定义区）
+  local macros_tex = read_header(doc.meta)
   collect_user_defs(macros_tex, defs)
   -- 全文 RawBlock
   doc:walk({
@@ -316,7 +318,7 @@ local function extract_mathjax_macros(doc)
   for cmd in pairs(cmds) do
     if not defs[cmd] then need[cmd] = true end
   end
-  -- 包源补定义（latex-packages 声明驱动）
+  -- 包源补定义（include-in-header 声明驱动）
   if next(need) then
     for pkg in pairs(packages) do
       collect_pkg_defs(pkg, need, defs)
@@ -399,11 +401,11 @@ end
 -- 组装独立 .tex：lwarp 必须最先加载（\LWR@ProvidesPackagePass 包装
 -- 机制需要先于目标包）；中文字体无条件注入（用户拍板 2026-09-02——
 -- 不必检测 CJK：fontspec 无副作用，块内中文需要字体、英文块加载无害，
--- 检测是多余的智能）；latex-packages（文档层声明）随后；计数器注入
+-- 检测是多余的智能）；include-in-header（文档层声明）随后；计数器注入
 -- = 全文编号对齐（值来自 html-latex-counters.lua——本文件不持有任何
 -- 环境/计数器知识）；\@ifundefined 保护：计数器实际不存在（float 惯例
 -- 误判，如裸 algorithmic）则跳过注入——块从 1 编号，不崩
-local function build_tex(body, counter_name, counter_start, macros, ref_out, packages)
+local function build_tex(body, counter_name, counter_start, macros, ref_out)
   local t = { "\\documentclass{article}", "\\usepackage[mathjax]{lwarp}" }
   -- 中文块字体支持（实证 2026-09-02）：块编译默认无 CJK 字体——中文字形
   -- 缺失 → pdftotext 提取层乱码。fontspec + 倒序平铺探测（\IfFontExistsTF
@@ -414,11 +416,22 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out, pac
   t[#t + 1] = "\\IfFontExistsTF{Microsoft YaHei}{\\setmainfont{Microsoft YaHei}}{}"
   t[#t + 1] = "\\IfFontExistsTF{SimSun}{\\setmainfont{SimSun}}{}"
   t[#t + 1] = "\\IfFontExistsTF{Noto Serif CJK SC}{\\setmainfont{Noto Serif CJK SC}}{}"
-  for _, p in ipairs(packages or {}) do
-    t[#t + 1] = "\\usepackage{" .. p .. "}"
-  end
   t[#t + 1] = "\\providecommand{\\citeproc}[2]{\\hyperlink{#1}{#2}}"
   if macros and macros ~= "" then
+    -- Load declared packages before lwarp changes tabular-definition catcodes.
+    -- Retain the original declarations/options; the full header below executes
+    -- again with already-loaded packages, preserving declaration order and macros.
+    local declarations = macros:gsub("%%[^\n]*", "")
+    local commands = {}
+    for _, pattern in ipairs({"()\\usepackage%s*%b[]%s*%b{}", "()\\usepackage%s*%b{}"}) do
+      for position in declarations:gmatch(pattern) do
+        local command = declarations:match("^\\usepackage%s*%b[]%s*%b{}", position)
+            or declarations:match("^\\usepackage%s*%b{}", position)
+        commands[#commands + 1] = { position = position, text = command }
+      end
+    end
+    table.sort(commands, function(a, b) return a.position < b.position end)
+    for _, command in ipairs(commands) do t[#t + 1] = command.text end
     t[#t + 1] = "\\StartDefiningTabulars"
     t[#t + 1] = macros
     t[#t + 1] = "\\StopDefiningTabulars"
@@ -514,7 +527,6 @@ end
 
 -- 编译块 → 子页面 HTML；失败返回 nil（调用方走可见警告块）
 -- labels：本块全部 label（块内 \ref 解析用——lwarp 原生锚点已输出）
--- packages：文档层声明的宏包（latex-packages）
 -- counter_name/counter_start：计数器注入（html-latex-counters.lua 提供）
 -- lateximage resources are separate pages in block_html.pdf. Follow lwarp's
 -- manifest and conversion sequence synchronously before embedding the HTML.
@@ -574,7 +586,7 @@ local function embed_lateximages(html, cache)
   end)
 end
 
-local function compile_block(body, counter_name, counter_start, macros, labels, packages, index)
+local function compile_block(body, counter_name, counter_start, macros, labels, index)
   -- Isolate auxiliary files and retain diagnostics for each source block.
   local CACHE = CACHE .. "/block-" .. tostring(index)
   local scope = BLOCK_PREFIX .. "-" .. tostring(index)
@@ -597,7 +609,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     for _, lab in ipairs(labels) do labelset[lab] = true end
   end
   local body_pp, ref_out = math_preprocess(body, labelset)
-  f:write(build_tex(body_pp, counter_name, counter_start, macros, ref_out, packages))
+  f:write(build_tex(body_pp, counter_name, counter_start, macros, ref_out))
   f:close()
 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
@@ -727,14 +739,13 @@ return {
   {
     Pandoc = function(doc)
       -- MathJax 宏注入（主页面级——扫描全文自动发现数学里的文本命令，
-      -- 定义来自用户/latex-packages 包源——body 开头同步 script 设
+      -- 定义来自用户/include-in-header 包源——body 开头同步 script 设
       -- window.MathJax tex.macros；零显式配置）
       local mj_macros = extract_mathjax_macros(doc)
       if mj_macros ~= "" then
         table.insert(doc.blocks, 1, pandoc.RawBlock("html", mj_macros))
       end
-      local macros = read_config(doc.meta)
-      local packages = read_packages(doc.meta)
+      local macros = read_header(doc.meta)
       -- Resolve bibliographic commands against the parent document. Only the
       -- citation is parsed; table structure and macros are executed by TeX.
       local function resolve_citations(text)
@@ -761,17 +772,17 @@ return {
               local cinfo = counter_blocks[k] or { counter = "", start = 0 }
               local labels = extract_labels(text)
               local ok, html = pcall(compile_block, resolve_citations(text),
-                cinfo.counter, cinfo.start, macros, labels, packages, k)
+                cinfo.counter, cinfo.start, macros, labels, k)
               if ok and html then
                 -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
                 blocks[i] = pandoc.RawBlock("html", html)
               else
                 if not ok then io.stderr:write("[html-latex-lwarp] " .. tostring(html) .. "\n") end
                 -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
-                -- 失败原因归项目层（latex-packages 声明与 lwarp 能力冲突等
+                -- 失败原因归项目层（include-in-header 声明与 lwarp 能力冲突等
                 -- ——如老式 algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
                 blocks[i] = pandoc.RawBlock("html",
-                  '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 latex-packages 声明或块内容）">'
+                  '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 include-in-header 声明或块内容）">'
                   .. '<pre>' .. text:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</pre></div>")
               end
             else

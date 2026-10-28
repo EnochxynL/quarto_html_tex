@@ -10,17 +10,18 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
-      latex-packages:
-        - amsmath
-        - amssymb
-        - bm
-        - mathrsfs
-        - graphicx
-        - xcolor
-        - booktabs
-        - colortbl
-        - multirow
-        - threeparttable
+      include-in-header:
+        text: |
+          \usepackage{amsmath}
+          \usepackage{amssymb}
+          \usepackage{bm}
+          \usepackage{mathrsfs}
+          \usepackage{graphicx}
+          \usepackage{xcolor}
+          \usepackage{booktabs}
+          \usepackage{colortbl}
+          \usepackage{multirow}
+          \usepackage{threeparttable}
 csl: source-numeric.csl
 ---
 

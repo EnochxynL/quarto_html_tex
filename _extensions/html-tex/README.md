@@ -10,10 +10,16 @@ filters: [html-tex]
 format:
   html:
     html-tex:
-      latex-packages: [graphicx, xcolor, booktabs, colortbl, multirow]
-      latex-macros: |
-        \newcommand{\ourmethod}{\textsc{OurMethod}}
+      include-in-header:
+        text: |
+          \usepackage{graphicx,xcolor,booktabs,colortbl,multirow}
+          \newcommand{\ourmethod}{\textsc{OurMethod}}
 ~~~
+
+`html-tex.include-in-header` also accepts `file: preamble.tex`, a bare filename,
+or an ordered list of file/text entries. Paths are relative to the input document.
+The TeX header supplies lwarp, counter declarations and MathJax macro discovery.
+
 
 在 `{=latex}` 块中保留完整的 table / table*、tabular、标题及标签。
 宏包和自定义命令必须显式声明；插件不根据表格内容猜测依赖。

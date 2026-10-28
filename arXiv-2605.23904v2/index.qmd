@@ -19,32 +19,27 @@ format:
     bibliography: references.bib
     title: "SkillOpt: Executive Strategy for Self-Evolving Agent Skills"
     html-tex:
-      # HTML 端表格 caption 前缀（英文论文 "Table "；默认中文 "表 "）。
-      # PDF 端 LaTeX 自动加 "Table N:"——两端一致。
-      # latex 块独立编译所需宏包（lwarp 通道；与 PDF 端 paper.qmd 的
-      # include-in-header 平行声明——块编译脱离文档层，包不从内容猜，
-      # 此处显式声明）
-      latex-packages:
-        - algorithm
-        - algpseudocode
-        - amsmath
-        - amssymb
-        - graphicx
-        - xcolor
-        - colortbl
-        - booktabs
-        - multirow
-      # lwarp executes the table macros, colors and layout commands.
-      latex-macros: |
-        \newcommand{\ourmethod}{\textsc{SkillOpt}}
-        \newcommand{\na}{--}
-        \definecolor{deltapos}{HTML}{0E8A4A}
-        \definecolor{deltaneg}{HTML}{B91C1C}
-        \newcommand{\dvalp}[2]{\hphantom{\textsubscript{+#2}}#1\textsubscript{\textcolor{deltapos}{+#2}}}
-        \newcommand{\dvaln}[2]{\hphantom{\textsubscript{$-$#2}}#1\textsubscript{\textcolor{deltaneg}{$-$#2}}}
-        \newcommand{\harnessrow}[1]{\rowcolor{black!7}\multicolumn{8}{l}{\textbf{#1}}}
-        \newcommand{\methodcell}[1]{\cellcolor{blue!8}#1}
-        \newcommand{\ablationbenchmarkheader}{\textbf{Setting} & \textbf{SearchQA} & \textbf{Spreadsheet} & \textbf{LiveMath} \\}
+      include-in-header:
+        text: |
+          \usepackage{algorithm}
+          \usepackage{algpseudocode}
+          \usepackage{amsmath}
+          \usepackage{amssymb}
+          \usepackage{graphicx}
+          \usepackage{xcolor}
+          \usepackage{colortbl}
+          \usepackage{booktabs}
+          \usepackage{multirow}
+
+          \newcommand{\ourmethod}{\textsc{SkillOpt}}
+          \newcommand{\na}{--}
+          \definecolor{deltapos}{HTML}{0E8A4A}
+          \definecolor{deltaneg}{HTML}{B91C1C}
+          \newcommand{\dvalp}[2]{\hphantom{\textsubscript{+#2}}#1\textsubscript{\textcolor{deltapos}{+#2}}}
+          \newcommand{\dvaln}[2]{\hphantom{\textsubscript{$-$#2}}#1\textsubscript{\textcolor{deltaneg}{$-$#2}}}
+          \newcommand{\harnessrow}[1]{\rowcolor{black!7}\multicolumn{8}{l}{\textbf{#1}}}
+          \newcommand{\methodcell}[1]{\cellcolor{blue!8}#1}
+          \newcommand{\ablationbenchmarkheader}{\textbf{Setting} & \textbf{SearchQA} & \textbf{Spreadsheet} & \textbf{LiveMath} \\}
 ---
 
 ::: {.content-visible when-format="html"}

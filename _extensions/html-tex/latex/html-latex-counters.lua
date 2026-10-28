@@ -26,29 +26,40 @@ local function extract_labels(text)
   return labels
 end
 
--- 从 latex-macros 读取（与 html-latex-lwarp 的 read_config 同逻辑——块状
--- MetaBlocks 手动提取 RawBlock 文本；注册区可能含 \newtheorem 等定义）
-local function read_macros(meta)
-  local pt = meta["html-tex"] or {}
-  local v = pt["latex-macros"]
-  if v == nil then return "" end
+-- Read ordered file/text entries; bare strings are filenames.
+local function header_text(v)
   local typ = pandoc.utils.type(v)
   if typ == "Blocks" or typ == "MetaBlocks" then
     local parts = {}
     for _, b in ipairs(v) do
-      if b.t == "RawBlock" and (b.format == "latex" or b.format == "tex") then
-        parts[#parts + 1] = b.text
-      elseif b.t == "Para" or b.t == "Plain" then
-        parts[#parts + 1] = pandoc.utils.stringify(b)
-      end
+      parts[#parts + 1] = b.t == "RawBlock" and b.text or pandoc.utils.stringify(b)
     end
     return table.concat(parts, "\n")
   end
   return pandoc.utils.stringify(v)
 end
+local function read_header(meta)
+  local config, parts = meta["html-tex"] or {}, {}
+  local function append(v)
+    local typ = pandoc.utils.type(v)
+    if typ == "List" or typ == "MetaList" then
+      for _, item in ipairs(v) do append(item) end
+    elseif type(v) == "table" and (v.file ~= nil or v.text ~= nil) then
+      if v.file ~= nil and v.text == nil then append(v.file)
+      elseif v.text ~= nil and v.file == nil then parts[#parts + 1] = header_text(v.text)
+      else assert(false, "html-tex.include-in-header: specify exactly one of file or text") end
+    else
+      local file, message = io.open(header_text(v), "rb")
+      assert(file, "html-tex.include-in-header: " .. tostring(message))
+      parts[#parts + 1] = file:read("*a")
+      file:close()
+    end
+  end
+  if config["include-in-header"] ~= nil then append(config["include-in-header"]) end
+  return table.concat(parts, "\n")
+end
 
--- 收集注册：共享表 shared_of（\newtheorem{X}[Y] → X 用 Y 计数器）+
--- 同名注册集 regs（\newfloat{X}/\newtheorem{X}/\newcounter{X}——计数器
+
 -- 与 X 同名，惯例即可覆盖；regs 仅作语义记录）
 local function collect_registrations(src, shared_of)
   for name, shared in src:gmatch("\\newtheorem{([^}]+)}%[([^%]]+)%]") do
@@ -70,7 +81,7 @@ end
 return {
   {
     Pandoc = function(doc)
-      local macros = read_macros(doc.meta)
+      local macros = read_header(doc.meta)
       local shared_of = {}
       collect_registrations(macros, shared_of)
 

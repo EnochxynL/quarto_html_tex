@@ -10,27 +10,40 @@ format:
     number-sections: true
     css: styles.css
     html-tex:
-      latex-packages: [amsmath, amssymb, graphicx, xcolor, booktabs, colortbl, pifont, multirow, makecell, tabularx, arydshln, xspace]
-      latex-macros: |
-        \newcommand{\method}{Agentopia\xspace}
-        \newcommand{\eg}{\textit{e.g.}}
-        \newcommand{\etc}{\textit{e.t.c.}}
-        \newcommand{\ie}{\textit{i.e.}}
-        \newcommand{\vs}{\textit{v.s.}}
-        \newcommand{\wo}{\textit{w/o}}
-        \newcommand{\dq}[1]{``#1''}
-        \newcommand{\sq}[1]{`#1'}
-        \newcommand{\apartment}{\textbf{The Apartment}\xspace}
-        \newcommand{\campus}{\textbf{The Campus}\xspace}
-        \newcommand{\academy}{\textbf{Arcane Academy}\xspace}
-        \newcommand{\cmark}{\ding{51}}
-        \newcommand{\xmark}{\ding{55}}
-        \definecolor{mygray}{RGB}{226,226,226}
-        \definecolor{myred}{RGB}{252,142,142}
-        \definecolor{mygreen}{RGB}{147,255,143}
-        \definecolor{myblue}{RGB}{144,155,255}
-        \definecolor{myyellow}{RGB}{253,253,143}
-        \definecolor{mypurple}{RGB}{255,142,250}
+      include-in-header:
+        text: |
+          \usepackage{amsmath}
+          \usepackage{amssymb}
+          \usepackage{graphicx}
+          \usepackage{xcolor}
+          \usepackage{booktabs}
+          \usepackage{colortbl}
+          \usepackage{pifont}
+          \usepackage{multirow}
+          \usepackage{makecell}
+          \usepackage{tabularx}
+          \usepackage{arydshln}
+          \usepackage{xspace}
+
+          \newcommand{\method}{Agentopia\xspace}
+          \newcommand{\eg}{\textit{e.g.}}
+          \newcommand{\etc}{\textit{e.t.c.}}
+          \newcommand{\ie}{\textit{i.e.}}
+          \newcommand{\vs}{\textit{v.s.}}
+          \newcommand{\wo}{\textit{w/o}}
+          \newcommand{\dq}[1]{``#1''}
+          \newcommand{\sq}[1]{`#1'}
+          \newcommand{\apartment}{\textbf{The Apartment}\xspace}
+          \newcommand{\campus}{\textbf{The Campus}\xspace}
+          \newcommand{\academy}{\textbf{Arcane Academy}\xspace}
+          \newcommand{\cmark}{\ding{51}}
+          \newcommand{\xmark}{\ding{55}}
+          \definecolor{mygray}{RGB}{226,226,226}
+          \definecolor{myred}{RGB}{252,142,142}
+          \definecolor{mygreen}{RGB}{147,255,143}
+          \definecolor{myblue}{RGB}{144,155,255}
+          \definecolor{myyellow}{RGB}{253,253,143}
+          \definecolor{mypurple}{RGB}{255,142,250}
 ---
 
 ::: {.callout-note appearance="simple" icon="false"}

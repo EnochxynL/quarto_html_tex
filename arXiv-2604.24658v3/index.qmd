@@ -21,12 +21,17 @@ format:
     title: "最后一篇人类撰写的论文：智能体原生研究构件"
     subtitle: "The Last Human-Written Paper: Agent-Native Research Artifacts"
     html-tex:
-      latex-packages: [graphicx, xcolor, booktabs, amsmath, pifont]
-      # lwarp executes these macros with xcolor and pifont.
-      latex-macros: |
-        \newcommand{\ara}{\textsc{Ara}}
-        \newcommand{\cmark}{\textcolor{green!50!black}{\ding{51}}}
-        \newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
+      include-in-header:
+        text: |
+          \usepackage{graphicx}
+          \usepackage{xcolor}
+          \usepackage{booktabs}
+          \usepackage{amsmath}
+          \usepackage{pifont}
+
+          \newcommand{\ara}{\textsc{Ara}}
+          \newcommand{\cmark}{\textcolor{green!50!black}{\ding{51}}}
+          \newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
 ---
 
 ```{=html}
