@@ -70,7 +70,6 @@ format:
 </div>
 ```
 
-:::
 
 
 {{< include sections/introduction.md >}}
