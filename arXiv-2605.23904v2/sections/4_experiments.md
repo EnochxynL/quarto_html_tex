@@ -154,10 +154,9 @@ The training-token column quantifies the cost of operating the loop. Two regimes
 
 Figure \ref{fig-skill-excerpts} reproduces one representative learned rule per benchmark, taken verbatim from the final `best\_skill.md` of each case study in Table \ref{tab-skill-cost-case}. Three observations stand out. First, the rules are *procedural* rather than *instance-specific*: none of them name a specific question, file, or entity. Second, they consistently encode the discipline that frontier models lack zero-shot: answer-format constraints (OfficeQA, LiveMathematicianBench), evidence binding to a specific visual region (DocVQA), workbook-structure-first reasoning (SpreadsheetBench), search-frontier discipline (ALFWorld), and canonical-entity choice (SearchQA). Third, they read like rules a thoughtful human practitioner would write after a day with the benchmark---except they are produced automatically by the optimizer and validated edit-by-edit on held-out data.
 
-::: {.content-visible when-format="pdf"}
+::: {#fig-skill-excerpts fig-pos="t"}
+
 ```{=latex}
-\begin{figure}[t]
-\centering
 \fbox{\begin{minipage}{0.96\linewidth}\footnotesize
 \textbf{SearchQA.} ``Infer the expected answer type from clue wording, then choose the shortest canonical entity supported by co-occurring distinctive evidence.''
 
@@ -176,32 +175,10 @@ Figure \ref{fig-skill-excerpts} reproduces one representative learned rule per b
 \smallskip
 \textbf{ALFWorld.} ``Keep a horizon-aware visited/frontier ledger, diversify search after repeated same-type failures, and avoid revisiting the destination until holding the target.''
 \end{minipage}}
-\caption{Representative learned rules, one per benchmark, extracted from the final \texttt{best\_skill.md} of the GPT--5.5 / GPT--5.5 runs in Table~\ref{tab-skill-cost-case}. Each rule is verbatim from the deployed skill. Notably, every rule is procedural rather than instance-specific, and several encode forms of discipline (answer formatting, evidence binding, search-frontier management) that frontier models do not apply zero-shot.}
-\label{fig-skill-excerpts}
-\end{figure}
 ```
-:::
 
-::: {.content-visible when-format="html"}
-::: {#fig-skill-excerpts}
-::: {.figcaption}
-Representative learned rules, one per benchmark, extracted from the final `best\_skill.md` of the GPT--5.5 / GPT--5.5 runs in Table \ref{tab-skill-cost-case}. Each rule is verbatim from the deployed skill. Notably, every rule is procedural rather than instance-specific, and several encode forms of discipline (answer formatting, evidence binding, search-frontier management) that frontier models do not apply zero-shot.
-:::
+Representative learned rules, one per benchmark, extracted from the final `best_skill.md` of the GPT--5.5 / GPT--5.5 runs in Table \ref{tab-skill-cost-case}. Each rule is verbatim from the deployed skill. Notably, every rule is procedural rather than instance-specific, and several encode forms of discipline (answer formatting, evidence binding, search-frontier management) that frontier models do not apply zero-shot.
 
-<div class="skill-excerpts">
-**SearchQA.** "Infer the expected answer type from clue wording, then choose the shortest canonical entity supported by co-occurring distinctive evidence."
-
-**SpreadsheetBench.** "Inspect workbook structure and formulas, then write evaluated static values across the full requested target range instead of relying on Excel recalculation."
-
-**OfficeQA.** "Treat oracle parsed pages as primary evidence, lock table/date/unit context, and output exactly the requested rounded value without extra labels."
-
-**DocVQA.** "For tables, forms, charts, and legends, first bind the question to the exact visual row/header/field, then copy only the aligned answer span."
-
-**LiveMathematicianBench.** "In strongest-statement MCQs, rank choices by theorem strength and prefer a justified stronger-result option over true but weaker corollaries."
-
-**ALFWorld.** "Keep a horizon-aware visited/frontier ledger, diversify search after repeated same-type failures, and avoid revisiting the destination until holding the target."
-</div>
-:::
 :::
 
 #### Implications.
