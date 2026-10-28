@@ -1,6 +1,12 @@
 \PassOptionsToPackage{inline,shortlabels}{enumitem}
 \ifdefined\pdfoutput\pdfoutput=1\fi
 \documentclass[11pt, letterpaper, shortlabels, inline]{../styles/berkeley/berkeley}
+\usepackage{etoolbox}
+% The class prints full-width authors/rules inside a 24pt narrower title box.
+\patchcmd{\maketitle}{\begin{adjustwidth}{0pt}{24pt}}
+  {\begin{adjustwidth}{0pt}{0pt}}{}
+  {\PackageError{agentopia-layout}{Berkeley title layout changed}{Review the title adapter.}}
+
 
 
 
@@ -76,7 +82,7 @@
 \newenvironment{inparaenum}[1][]
   {\begin{enumerate*}[#1]}
   {\end{enumerate*}}
-\usepackage{ulem}
+\usepackage[normalem]{ulem}
 \usepackage{arydshln}
 \setlength\parindent{0pt}
 
@@ -132,8 +138,7 @@
 \usepackage[export]{adjustbox}
 % Keep captions outside the fitted table body, leaving room for their height.
 \newenvironment{tablebody}
-  {\sloppy\setlength{\emergencystretch}{2em}% allow prompt paragraphs to wrap within cells
-   \begin{adjustbox}{max totalsize={\linewidth}{0.8\textheight}}}
+  {\begin{adjustbox}{max totalsize={\linewidth}{0.8\textheight}}}
   {\end{adjustbox}}
 
 
@@ -234,13 +239,16 @@ showstringspaces=false
 $for(header-includes)$
 $header-includes$
 $endfor$
-\makeatletter
-\lst@AddToHook{TextStyle}{\def\lst@basicstyle{\ttfamily}}
-\makeatother
-\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,
-  keepspaces=true,breaklines=true,breakatwhitespace=false,
-  showstringspaces=false,numbers=none,upquote=true,
-  aboveskip=0.6\baselineskip,belowskip=0.6\baselineskip}
+% A plain-text schema needs wrapping, not an inline listings lexer.
+\usepackage{fvextra}
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{fontsize=\footnotesize,
+  breaklines=true,breakanywhere=true}
+% Emergency line breaking is used only when normal justification fails.
+\setlength{\emergencystretch}{3em}
+% Break at existing code hyphens, without inserting new hyphens in identifiers.
+\DeclareTextFontCommand{\texttt}{\ttfamily\hyphenchar\font=45\relax
+  \hyphenpenalty=10000\exhyphenpenalty=50}
+
 \begin{document}
 \maketitle
 $body$

@@ -13,9 +13,8 @@ format:
     cite-method: natbib
     biblio-style: ../styles/icml2026/icml2026
     latex-clean: false
-    # 代码块走 listings 包（\lstset 样式，与原始论文一致；quarto 1.9+ 用
-    # syntax-highlighting: idiomatic 替代已失效的 listings: true，默认是 fancyvrb Shaded）
-    syntax-highlighting: idiomatic
+    # Plain-text schemas use wrapped verbatim; inline code stays native texttt.
+    syntax-highlighting: none
     # 图浮动体顶到页面顶端（原始论文 [!t] 风格；值会字面塞进 \begin{figure}[...]，
     # 须用 LaTeX 位置参数语法且加引号——! 开头会被 YAML 当 tag）
     fig-pos: "!t"
@@ -37,10 +36,7 @@ format:
           \usepackage{amsthm}
           \usepackage{nicefrac}
           \usepackage{xcolor}
-          \usepackage{listings}
-          \makeatletter
-          \lst@AddToHook{TextStyle}{\def\lst@basicstyle{\ttfamily}}
-          \makeatother
+          \usepackage{fvextra}
           \usepackage{algorithm}
           \usepackage{algorithmic}
           \usepackage{enumitem}
@@ -73,20 +69,9 @@ format:
           \newcommand{\cmd}[1]{\texttt{ara~#1}}
           \newcommand{\storytax}{\emph{Storytelling Tax}}
           \newcommand{\engtax}{\emph{Engineering Tax}}
-          \lstset{
-            basicstyle=\ttfamily\scriptsize,
-            breaklines=true,
-            keepspaces=true,
-            showstringspaces=false,
-            breakatwhitespace=false,
-            frame=single,
-            framesep=3pt,
-            columns=fullflexible,
-            backgroundcolor=\color{gray!5},
-            keywordstyle=\color{blue!70!black},
-            commentstyle=\color{green!50!black},
-            stringstyle=\color{red!60!black},
-          }
+          \RecustomVerbatimEnvironment{verbatim}{Verbatim}{fontsize=\scriptsize,
+            breaklines=true,breakanywhere=true,frame=single,framesep=3pt,
+            rulecolor=\color{gray!50},fillcolor=\color{gray!5}}
           % Use Unicode font families explicitly; legacy times cannot select TU fonts.
           \setmainfont{Times New Roman}
           \setsansfont{Arial}

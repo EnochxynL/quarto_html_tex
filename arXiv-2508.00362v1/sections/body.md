@@ -206,8 +206,8 @@ To thoroughly evaluate the performance of our approach, we compare the trajector
     \setlength{\belowcaptionskip}{-0.2cm}
     \caption{QUANTITATIVE COMPARISON OF DIFFERENT METHODS}\label{tab-compare}
     \centering
-    \begin{threeparttable}
     \resizebox{0.47\textwidth}{!}{
+    \begin{threeparttable}
         \begin{tabular}{cccccc}
             \hline
             \multirow{2}{*}{\textbf{Motion}} & 
@@ -241,14 +241,13 @@ To thoroughly evaluate the performance of our approach, we compare the trajector
             \begin{tabular}[c]{@{}c@{}c@{}}\textbf{0.0359}\\ 0.0405\\ -\end{tabular} \\ 
             \hline
         \end{tabular}
-    }
     \begin{tablenotes}[flushleft]
         \footnotesize
         \item[*] LMPC+WBC \cite{c17} denotes that Linear MPC combined with WBC.
         \item[-] means it failed to complete motion 
     \end{tablenotes}
-    
     \end{threeparttable}
+    }
     \vspace{-10pt}
 \end{table}
 ```

@@ -12,7 +12,7 @@ format:
     number-sections: true
     cite-method: natbib
     citeproc: false
-    syntax-highlighting: idiomatic
+    syntax-highlighting: none
     include-in-header:
       - text: |
           \usepackage{xeCJK}

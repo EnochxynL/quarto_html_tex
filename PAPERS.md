@@ -83,7 +83,9 @@ selects Unicode Latin, Chinese and monospaced fonts and keeps CTeX from replacin
 the document's font size. These adjustments belong to the paper adapters; the
 shared publisher style files are unchanged.
 
-Code blocks use the listings backend with bounded widths and line wrapping.
+Highlighted code blocks use the listings backend with bounded widths and line
+wrapping. Ara and Agentopia's plain-text schemas use wrapped fancyvrb/fvextra
+output, retaining native `\texttt` for prose code and CJK boundary handling.
 Inline listings inherit the surrounding font size instead of the smaller code-block
 size. Font sizes and page counts can differ between English originals and Chinese
 translations; the PDFs under `assets/` provide visual references, not page-count
