@@ -1,7 +1,7 @@
 # Paper previews
 
 Each paper has an HTML entry (`index.qmd`) and a PDF entry sharing Markdown
-content under `sections/` (or Agentopia's `Sections/`). Five papers load their
+content under `sections/` (or Agentopia's `Sections/`). All six papers load their
 publisher or report styles from the root `styles/` directory; see
 [the style mapping](styles/README.md). Their unused original TeX manuscripts,
 submission metadata, and duplicate style files have been removed. Generated
@@ -43,8 +43,9 @@ Paper tables use raw LaTeX shared between the original PDF templates and the
 Agentopia defines its table sizing in `example.tex`. Ara's five former
 Markdown tables retain their content, captions and exact labels as LaTeX tables, and
 the appended HTML-conversion demonstration has been removed from the paper.
-Agentopia retains `berkeley.cls`, its original TeX sources, bibliography, and
-figure assets. Shared Markdown sits alongside the source files in `Sections/`;
+Agentopia loads the paper-supplied class from `styles/berkeley/`. Its original
+TeX manuscript and local resources are archived there as an example; the active
+paper retains its bibliography and figures. Shared Markdown is kept in `Sections/`;
 the full case studies and prompts are included in `Sections/appendix.md`.
 Its 45 raw LaTeX tables use the existing lwarp HTML path. Multirow continuation
 markers are added only to the generated Markdown and are inert in PDF.
