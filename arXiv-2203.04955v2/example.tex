@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage[T1]{fontenc}
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{caption}
@@ -10,6 +11,7 @@
 \usepackage{amsfonts}
 \usepackage{nicefrac}
 \usepackage{float}
+\usepackage{placeins}
 \usepackage{booktabs}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{colortbl}
@@ -34,7 +36,9 @@
     breakatwhitespace=false,         
     breaklines=true,                 
     captionpos=b,                    
-    keepspaces=true,                 
+    keepspaces=true,
+    columns=fullflexible,
+    upquote=true,
     numbers=left,                    
     numbersep=4pt,                  
     showspaces=false,                
@@ -56,9 +60,17 @@
 \@namedef{ver@algorithmic.sty}{2026/10/19}
 \makeatother
 \usepackage[accepted]{../styles/icml2022/icml2022}
+\bibliographystyle{../styles/icml2022/icml2022}
 \definecolor{citecolor}{HTML}{0071bc}
 
 \icmltitlerunning{TD-Learning for MPC}
+% Modern fancyhdr keeps assignments inside the title group local.
+\fancyhead[C]{\small\bfseries TD-Learning for MPC}
+\usepackage{etoolbox}
+\AtBeginEnvironment{algorithmic}{\footnotesize}
+\algrenewcommand{\algorithmicindent}{1em}
+\algrenewcommand{\algorithmiccomment}[1]{\hfill\(\triangleright\) {\color{CadetBlue}\itshape #1}}
+
 
 
 \providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -66,20 +78,28 @@
 $for(header-includes)$
 $header-includes$
 $endfor$
+\makeatletter
+\lst@AddToHook{TextStyle}{\def\lst@basicstyle{\ttfamily}}
+\makeatother
 \usepackage{graphicx}
 \makeatletter
 \newsavebox\pandoc@box
 \newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \unskip% trim leading glue from the panel raisebox
   \sbox\pandoc@box{#1}%
   \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
-  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \Gscale@div\@tempb{0.95\linewidth}{\wd\pandoc@box}%
   \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
   \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
   \else\usebox{\pandoc@box}%
   \fi%
+  \ignorespaces% trim trailing glue from the panel raisebox
 }
 % Set default figure placement to htbp
-\def\fps@figure{htbp}
+\def\fps@figure{!t}
+\setlength{\@fptop}{0pt}
+\setlength{\@dblfptop}{0pt}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
 \makeatother
 \begin{document}
 
@@ -113,6 +133,4 @@ Data-driven model predictive control has two key advantages over model-free meth
 
 \end{abstract}
 $body$
-\bibliographystyle{../styles/icml2022/icml2022}
-\bibliography{main}
 \end{document}

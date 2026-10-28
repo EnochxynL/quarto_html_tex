@@ -68,14 +68,14 @@ $$ {#eq-mppi-return-norm}
 where $\Omega_{i} = e^{\tau (\phi_{\Gamma,i}^{\star})}$, $\tau$ is a temperature parameter controlling the "sharpness\" of the weighting, and $\Gamma_{i}^{\star}$ denotes the $i$th top-$k$ trajectory corresponding to return estimate $\phi_{\Gamma}^{\star}$. After a fixed number of iterations $J$, the planning procedure is terminated and a trajectory is sampled from the final return-normalized distribution over action sequences. We plan at each decision step $t$ and execute only the first action, i.e., we employ *receding-horizon* MPC to produce a feedback policy. To reduce the number of iterations required for convergence, we "warm start\" trajectory optimization at each step $t$ by reusing the 1-step shifted mean $\mu$ obtained at the previous step [@Argenson2021ModelBasedOP], but always use a large initial variance to avoid local minima.
 
 ```{=latex}
-\begin{algorithm}[H]
+\begin{algorithm}[t]
 \caption{~~TD-MPC {\color{CadetBlue}(\emph{inference})}}
 \label{alg-inference}
 \begin{algorithmic}[1]
-\Require $\theta:$ learned network parameters\\
-~~~~~~~~~~$\mu^{0}, \sigma^{0}$: initial parameters for $\mathcal{N}$\\
-~~~~~~~~~~$N, N_{\pi}$: num sample/policy trajectories\\
-~~~~~~~~~~$\mathbf{s}_{t}, H$: current state, rollout horizon
+\Require \parbox[t]{0.82\linewidth}{$\theta$: learned network parameters;\\
+$\mu^{0},\sigma^{0}$: initial parameters for $\mathcal{N}$;\\
+$N,N_{\pi}$: num sample/policy trajectories;\\
+$\mathbf{s}_{t},H$: current state, rollout horizon}
 \State Encode state $\mathbf{z}_{t} \leftarrow h_{\theta}(\mathbf{s}_{t})$~~~~~~~$\vartriangleleft$ {\color{CadetBlue}\emph{Assuming TOLD model}}
 \For{each iteration $j=1..J$}
 \State Sample $N$ traj. of len. $H$ from $\mathcal{N}(\mu^{j-1}, (\sigma^{j-1})^{2} \mathrm{I})$
@@ -83,10 +83,10 @@ where $\Omega_{i} = e^{\tau (\phi_{\Gamma,i}^{\star})}$, $\tau$ is a temperature
 \For{all $N+N_{\pi}$ trajectories $(\mathbf{a}_{t}, \mathbf{a}_{t+1},\dots, \mathbf{a}_{t+H})$}
 \color{BrickRed}
 \For{step $t=0..H-1$}
-\State $\phi_{\Gamma} = \phi_{\Gamma} + \gamma^{t} R_{\theta}(\mathbf{z}_{t}, \mathbf{a}_{t})$~~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Reward}}
-\State $\mathbf{z}_{t+1} \leftarrow d_{\theta}(\mathbf{z}_{t}, \mathbf{a}_{t})$~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Latent transition}}
+\State $\phi_{\Gamma} = \phi_{\Gamma} + \gamma^{t} R_{\theta}(\mathbf{z}_{t}, \mathbf{a}_{t})$\Comment{Reward}
+\State $\mathbf{z}_{t+1} \leftarrow d_{\theta}(\mathbf{z}_{t}, \mathbf{a}_{t})$\Comment{Latent transition}
 \EndFor
-\State $\phi_{\Gamma} = \phi_{\Gamma} + \gamma^{H} Q_{\theta}(\mathbf{z}_{H}, \mathbf{a}_{H})$~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Terminal value}}\color{black}
+\State $\phi_{\Gamma} = \phi_{\Gamma} + \gamma^{H} Q_{\theta}(\mathbf{z}_{H}, \mathbf{a}_{H})$\Comment{Terminal value}\color{black}
 \EndFor
 {\color{CadetBlue} \emph{// Update parameters $\mu,\sigma$ for next iteration:}}
 \State $\mu^{j}, \sigma^{j} =$ Equation \ref{eq-mppi-return-norm} (and Equation \ref{eq-mppi-exploration})
@@ -165,33 +165,33 @@ which is a temporally weighted adaptation of the policy objective commonly used 
 **Latent state consistency.** To provide a rich learning signal for model learning, prior work on model-based RL commonly learn to directly predict future states or pixels [@ha2018worldmodels; @Janner2019WhenTT; @Lowrey2019PlanOL; @Kaiser2020ModelBasedRL; @Sikchi2020LearningOW]. However, learning to predict future observations is an extremely hard problem as it forces the network to model everything in the environment, including task-irrelevant quantities and details such as shading. Instead, we propose to regularize TOLD with a *latent state consistency loss* (shown in Equation [-@eq-consistency-loss]) that forces a future latent state prediction $\mathbf{z}_{t+1} = d_{\theta}(\mathbf{z}_{t}, \mathbf{a}_{t})$ at time $t+1$ to be similar to the latent representation of the corresponding ground-truth observation $h_{\theta^{-}}(\mathbf{s}_{t+1})$, circumventing prediction of observations altogether. Additionally, this design choice effectively makes model learning agnostic to the observation modality. The training procedure is shown in Algorithm \ref{alg-training}; see Appendix \ref{sec-appendix-implementation-details} for pseudo-code.
 
 ```{=latex}
-\begin{algorithm}[H]
+\begin{algorithm}[t]
 \caption{~~TOLD {\color{CadetBlue}(\emph{training})}}
 \label{alg-training}
 \begin{algorithmic}[1]
-\Require $\theta, \theta^{-}$: randomly initialized network parameters\\
-~~~~~~~~~~$\eta, \tau, \lambda, \mathcal{B}$: learning rate, coefficients, buffer
+\Require \parbox[t]{0.82\linewidth}{$\theta,\theta^{-}$: randomly initialized network parameters;\\
+$\eta,\tau,\lambda,\mathcal{B}$: learning rate, coefficients, buffer}
 \While{not tired}
 \State {\color{CadetBlue} \emph{// Collect episode with TD-MPC from $\mathbf{s}_{0} \sim p_{0}$:}}
 \For{step $t=0...T$}
-\State $\mathbf{a}_{t} \sim \Pi_{\theta}(\cdot | h_{\theta}(\mathbf{s}_{t}))$~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Sample with TD-MPC}}
-\State $(\mathbf{s}_{t+1},~r_{t}) \sim \mathcal{T}(\cdot | \mathbf{s}_{t}, \mathbf{a}_{t}),~ \mathcal{R}(\cdot | \mathbf{s}_{t}, \mathbf{a}_{t})$~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Step env.}}
-\State $\mathcal{B} \leftarrow \mathcal{B} \cup (\mathbf{s}_{t}, \mathbf{a}_{t}, r_{t}, \mathbf{s}_{t+1})$~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Add to buffer}}
+\State $\mathbf{a}_{t} \sim \Pi_{\theta}(\cdot | h_{\theta}(\mathbf{s}_{t}))$\Comment{Sample with TD-MPC}
+\State $(\mathbf{s}_{t+1},~r_{t}) \sim \mathcal{T}(\cdot | \mathbf{s}_{t}, \mathbf{a}_{t}),~ \mathcal{R}(\cdot | \mathbf{s}_{t}, \mathbf{a}_{t})$\Comment{Step env.}
+\State $\mathcal{B} \leftarrow \mathcal{B} \cup (\mathbf{s}_{t}, \mathbf{a}_{t}, r_{t}, \mathbf{s}_{t+1})$\Comment{Add to buffer}
 \EndFor
 \State {\color{CadetBlue} \emph{// Update TOLD using collected data in $\mathcal{B}$:}}
 \For{num updates per episode}
-\State $\{ \mathbf{s}_{t}, \mathbf{a}_{t}, r_{t}, \mathbf{s}_{t+1} \}_{t:t+H} \sim \mathcal{B}$~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Sample traj.}}
-\State $\mathbf{z}_{t} = h_{\theta}(\mathbf{s}_{t})$~~~~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Encode first observation}}
-\State $J = 0$~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Initialize $J$ for loss accumulation}}
+\State $\{ \mathbf{s}_{t}, \mathbf{a}_{t}, r_{t}, \mathbf{s}_{t+1} \}_{t:t+H} \sim \mathcal{B}$\Comment{Sample traj.}
+\State $\mathbf{z}_{t} = h_{\theta}(\mathbf{s}_{t})$\Comment{Encode first observation}
+\State $J = 0$\Comment{Initialize $J$ for loss accumulation}
 \For{$i = t...t+H$}
-\State $\hat{r}_{i} = R_{\theta}(\mathbf{z}_{i}, \mathbf{a}_{i})$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Equation \ref{eq-reward-loss}}}
-\State $\hat{q}_{i} = Q_{\theta}(\mathbf{z}_{i}, \mathbf{a}_{i})$~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Equation \ref{eq-value-loss}}}
-\State $\mathbf{z}_{i+1} = d_{\theta}(\mathbf{z}_{i}, \mathbf{a}_{i})$~~~~~~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Equation \ref{eq-consistency-loss}}}
-\State $\hat{a}_{i} = \pi_{\theta}(\mathbf{z}_{i})$~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Equation \ref{eq-policy-objective}}}
-\State $J \leftarrow J + \lambda^{i-t} \mathcal{L}(\mathbf{z}_{i+1}, \hat{r}_{i}, \hat{q}_{i}, \hat{\mathbf{a}}_{i})$~~{\color{CadetBlue}$\vartriangleleft$ \emph{Equation \ref{eq-objective}}}
+\State $\hat{r}_{i} = R_{\theta}(\mathbf{z}_{i}, \mathbf{a}_{i})$\Comment{Equation \ref{eq-reward-loss}}
+\State $\hat{q}_{i} = Q_{\theta}(\mathbf{z}_{i}, \mathbf{a}_{i})$\Comment{Equation \ref{eq-value-loss}}
+\State $\mathbf{z}_{i+1} = d_{\theta}(\mathbf{z}_{i}, \mathbf{a}_{i})$\Comment{Equation \ref{eq-consistency-loss}}
+\State $\hat{a}_{i} = \pi_{\theta}(\mathbf{z}_{i})$\Comment{Equation \ref{eq-policy-objective}}
+\State $J \leftarrow J + \lambda^{i-t} \mathcal{L}(\mathbf{z}_{i+1}, \hat{r}_{i}, \hat{q}_{i}, \hat{\mathbf{a}}_{i})$\Comment{Equation \ref{eq-objective}}
 \EndFor
-\State $\theta \leftarrow \theta - \frac{1}{H} \eta \nabla_{\theta} J$~~~~~~~~~~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Update online network}}
-\State $\theta^{-} \leftarrow (1 - \tau) \theta^{-} + \tau \theta$~~~~~{\color{CadetBlue}$\vartriangleleft$ \emph{Update target network}}
+\State $\theta \leftarrow \theta - \frac{1}{H} \eta \nabla_{\theta} J$\Comment{Update online network}
+\State $\theta^{-} \leftarrow (1 - \tau) \theta^{-} + \tau \theta$\Comment{Update target network}
 \EndFor
 \EndWhile
 \end{algorithmic}
@@ -322,6 +322,20 @@ This project is supported, in part, by grants from NSF CCF-2112665 (TILOS), and 
 The authors would like to thank Yueh-Hua Wu, Ruihan Yang, Sander Tonkens, Tongzhou Mu, and Yuzhe Qin for helpful discussions.
 
 ```{=latex}
+\FloatBarrier
+```
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+```{=latex}
+\appendix
+```
+
+
+```{=latex}
 \begin{table*}[t]
 \caption{\textbf{Comparison to prior work.} We compare key components of \textbf{TD-MPC} to prior model-based and model-free approaches. \textit{Model objective} describes which objective is used to learn a (latent) dynamics model, \textit{value} denotes whether a value function is learned, \textit{inference} provides a simplified view of action selection at inference time, \textit{continuous} denotes whether an algorithm supports continuous action spaces, and \textit{compute} is a holistic estimate of the relative computational cost of methods during training and inference. We use \textit{policy w/ CEM} to indicate inference based primarily on a learned policy, and vice-versa.}\label{tab-related-work}
 
@@ -350,7 +364,7 @@ EfficientZero     & \textcolor{OliveGreen}{Reward/value pred. + contrast.}      
 
 ![**Model generalization.** Return of our method under three different settings: *(Rand. init)* TD-MPC trained from scratch on the two *Run* tasks; *(Finetune)* TD-MPC initially trained on *Walk* tasks and then finetuned online on *Run* tasks without any weights frozen; *(Finetune, freeze $h_{\theta}$)* same setting as before, but with the encoder $h_{\theta}$ frozen; and *(Finetune, freeze $h_{\theta}, d_{\theta}$)* both encoder $h_{\theta}$ and latent dynamics predictor $d_{\theta}$ frozen. Mean of 5 runs; shaded areas are $95\%$ confidence intervals.](figures/transfer.pdf){#fig-appendix-transfer width="100%"}
 
-::: {#fig-appendix-computational-budget layout-ncol="1" fig-env="figure*"}
+::: {#fig-appendix-computational-budget layout-ncol="2" fig-env="figure*"}
 
 ![](figures/cem-quadruped-run.pdf){width="100%"}
 
@@ -708,9 +722,9 @@ Figure \ref{fig-appendix-visualizations} provides visualizations of successful t
 
 **Additional material on the following pages $\downarrow$**
 
-![**Individual Meta-World tasks.** Success rate of our method (TD-MPC) and SAC on diverse manipulation tasks from Meta-World [@yu2019meta]. We use the goal-conditioned version of Meta-World, which is considered harder than the fixed-goal version. Due to the large number of tasks (50), we choose to visualize only the first 24 tasks (sorted alphabetically). Mean of 5 runs; shaded areas are $95\%$ confidence intervals. Our method is capable of solving complex tasks (e.g., *Basketball*) where SAC achieves a relatively small success rate. Note that we use Meta-World *v2* and performances are therefore not comparable to previous work using *v1*.](figures/metaworld-indv.pdf){#fig-meta-all width="100%" fig-env="figure*"}
+![**Individual Meta-World tasks.** Success rate of our method (TD-MPC) and SAC on diverse manipulation tasks from Meta-World [@yu2019meta]. We use the goal-conditioned version of Meta-World, which is considered harder than the fixed-goal version. Due to the large number of tasks (50), we choose to visualize only the first 24 tasks (sorted alphabetically). Mean of 5 runs; shaded areas are $95\%$ confidence intervals. Our method is capable of solving complex tasks (e.g., *Basketball*) where SAC achieves a relatively small success rate. Note that we use Meta-World *v2* and performances are therefore not comparable to previous work using *v1*.](figures/metaworld-indv.pdf){#fig-meta-all width="90%" fig-env="figure*"}
 
-::: {#fig-appendix-visualizations layout-ncol="6" fig-env="figure*"}
+::: {#fig-appendix-visualizations layout='[[-2,16,16,16,16,16,16,-2]]' fig-env="figure*"}
 
 ![](visualizations/dog_0.png){width="100%"}
 

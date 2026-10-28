@@ -6,11 +6,12 @@ format:
     pdf-engine: pdflatex
     template: example.tex
     keep-tex: true
+    fig-pos: "!t"
     latex-clean: false
     number-sections: true
     cite-method: natbib
     citeproc: false
-    syntax-highlighting: none
+    syntax-highlighting: idiomatic
 ---
 
 {{< include sections/body.md >}}

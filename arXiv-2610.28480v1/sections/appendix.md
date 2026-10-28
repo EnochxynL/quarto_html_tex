@@ -207,7 +207,7 @@ Simulator episodes reset to points of the motion library, favoring those where t
 Table \ref{tab-hyperparams} lists the hyperparameters. Where they differ, values are given for the one-GPU and the two-GPU run of Table \ref{tab-failed-motion-stats}.
 
 ```{=latex}
-\begin{table}[p]
+\begin{table}[!tbp]
 \small
 \centering
 \begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{0.42\linewidth}@{}}
@@ -258,7 +258,7 @@ Multi-GPU & & data parallel; gradients averaged across GPUs \\
 ```
 
 ```{=latex}
-\begin{table}[p]
+\begin{table}[!tbp]
 \vspace{1.2em}
 \centering
 \begin{tabular}{llc}

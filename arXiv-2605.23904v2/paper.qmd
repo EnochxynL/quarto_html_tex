@@ -9,6 +9,7 @@ format:
     # 实测其与 \textsubscript/\textbf 等字体切换冲突——切换后数学符号
     # （−/→/τ/∑ 等）全部丢失（Missing character 167 个）——pdflatex 无此问题
     pdf-engine: pdflatex
+    fontsize: 11pt
     keep-tex: true
     documentclass: article
     number-sections: true
@@ -28,6 +29,15 @@ format:
       - text: |
           % --- Core packages (original main.tex) ---
           \usepackage{microtype}
+          \usepackage{listings}
+          \makeatletter
+          \lst@AddToHook{TextStyle}{\def\lst@basicstyle{\ttfamily}}
+          \makeatother
+          \lstset{basicstyle=\ttfamily\scriptsize,columns=fullflexible,
+            keepspaces=true,breaklines=true,breakatwhitespace=false,
+            showstringspaces=false,numbers=none,upquote=true,
+            aboveskip=0.6\baselineskip,belowskip=0.6\baselineskip}
+
           \usepackage{graphicx}
           \usepackage{subcaption}
           \usepackage{booktabs}

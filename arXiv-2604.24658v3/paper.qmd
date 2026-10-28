@@ -22,7 +22,7 @@ format:
     include-in-header:
       - text: |
           % 中文支持（需 xelatex 编译）
-          \usepackage{ctex}
+          \usepackage[zihao=false,linespread=1.1]{ctex}
           \usepackage{microtype}
           \usepackage{graphicx}
           \usepackage{subcaption}
@@ -38,6 +38,9 @@ format:
           \usepackage{nicefrac}
           \usepackage{xcolor}
           \usepackage{listings}
+          \makeatletter
+          \lst@AddToHook{TextStyle}{\def\lst@basicstyle{\ttfamily}}
+          \makeatother
           \usepackage{algorithm}
           \usepackage{algorithmic}
           \usepackage{enumitem}
@@ -73,6 +76,9 @@ format:
           \lstset{
             basicstyle=\ttfamily\scriptsize,
             breaklines=true,
+            keepspaces=true,
+            showstringspaces=false,
+            breakatwhitespace=false,
             frame=single,
             framesep=3pt,
             columns=fullflexible,
@@ -81,6 +87,12 @@ format:
             commentstyle=\color{green!50!black},
             stringstyle=\color{red!60!black},
           }
+          % Use Unicode font families explicitly; legacy times cannot select TU fonts.
+          \setmainfont{Times New Roman}
+          \setsansfont{Arial}
+          \setmonofont{lmmono10-regular.otf}[Scale=MatchLowercase]
+          \setCJKmainfont{SimSun}[AutoFakeBold=true]
+          \setCJKmonofont{SimSun}[AutoFakeBold=true]
           \icmltitlerunning{The Last Human-Written Paper: Agent-Native Research Artifacts}
 ---
 
@@ -96,7 +108,7 @@ format:
     }
     \vskip 12pt
     % 作者列表
-    {\sffamily\bfseries\normalsize
+    {\sffamily\bfseries\footnotesize
       Jiachen Liu\textsuperscript{1,\,*},\ %
       Jiaxin Pei\textsuperscript{2},\ %
       Jintao Huang\textsuperscript{3},\ %
@@ -179,6 +191,7 @@ format:
     $\vcenter{\hbox{\sffamily\bfseries\small ARA Commons}}\,\vcenter{\hbox{\includegraphics[height=30pt]{figures/brace-a_mark.png}}}$
   \end{headerpanel}
 ]
+\suppressfloats[t]
 ```
 
 ```{=latex}

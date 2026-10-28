@@ -58,7 +58,7 @@ Rejected updates are still useful. The optimizer records an epoch-local buffer c
 \centering
 \scriptsize
 \setlength{\tabcolsep}{1.5pt}
-\renewcommand{\arraystretch}{1.0}
+\renewcommand{\arraystretch}{0.94}
 \begin{tabular}{l l c c c c c c}
 \toprule
 \textbf{Model} & \textbf{Skill source} & \textbf{SearchQA} & \textbf{Spreadsheet} & \textbf{OfficeQA} & \textbf{DocVQA} & \textbf{LiveMath} & \textbf{ALFWorld} \\

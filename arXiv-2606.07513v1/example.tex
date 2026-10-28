@@ -132,7 +132,8 @@
 \usepackage[export]{adjustbox}
 % Keep captions outside the fitted table body, leaving room for their height.
 \newenvironment{tablebody}
-  {\begin{adjustbox}{max totalsize={\linewidth}{0.8\textheight}}}
+  {\sloppy\setlength{\emergencystretch}{2em}% allow prompt paragraphs to wrap within cells
+   \begin{adjustbox}{max totalsize={\linewidth}{0.8\textheight}}}
   {\end{adjustbox}}
 
 
@@ -233,6 +234,13 @@ showstringspaces=false
 $for(header-includes)$
 $header-includes$
 $endfor$
+\makeatletter
+\lst@AddToHook{TextStyle}{\def\lst@basicstyle{\ttfamily}}
+\makeatother
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,
+  keepspaces=true,breaklines=true,breakatwhitespace=false,
+  showstringspaces=false,numbers=none,upquote=true,
+  aboveskip=0.6\baselineskip,belowskip=0.6\baselineskip}
 \begin{document}
 \maketitle
 $body$

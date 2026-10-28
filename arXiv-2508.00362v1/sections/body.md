@@ -6,7 +6,9 @@ Different attempts have been made to endow humanoid robots with anthropomorphic 
 
 The first challenge of this combined method is how to deal with the different kinematics and dynamics structures between humans and humanoid robots. Inverse kinematics based on morphing parameter models can improve the accuracy of motions and achieve more natural behaviors, although this may cause the robot to violate its own constraints [@c5; @c6; @c8]. To address this issue, an optimization-based strategy has been introduced, which solves an optimization problem to find the optimal solution while avoiding that the robot approaches its physical constraints limits [@c2; @c7]. However, these methods required significant time to optimize each motion and may trap in local minimum. Another common strategy is data-driven motion retargeting with the benefits of deep latent variable modeling to overcome these problems [@c31], but it performs inadequately with unfamiliar actions and results in inaccurate movements.
 
-![The Screenshot of origin human data, and the motion retargeting result of simulation and robot in real world. The motion retargeting considers the physical constraints of robots and remaps the whole-body motion to humanoid robot.](figures/surface.pdf){#fig-surface width="100%"}
+![The Screenshot of origin human data, and the motion retargeting result of simulation and robot in real world. The motion retargeting considers the physical constraints of robots and remaps the whole-body motion to humanoid robot.](figures/surface.pdf){#fig-surface width="90%"}
+
+![The overall architecture. We first perform whole-body motion retargeting from human motion data to obtain the online reference trajectory at the next moment($x_{next},u_{next}$) with contact data or the whole offline reference trajectory($x_{ref},u_{ref}$) with the contact schedule. Then, non-linear centroidal model predictive control (NMPC) computes the optimal robot state $x^*$ and the optimal control input $u^*$ while robustly resisting disturbances. Finally, the whole-body controller computes the desired torques $\tau^*$, which are executed by the real full-size humanoid robot.](figures/control-framework.pdf){#fig-framework width="100%" fig-env="figure*"}
 
 When performing anthropomorphic motion imitation, the other significant challenge that the combined method faces: ensuring dynamic balance while imitating the human-like motion. Model-based optimization methods have made trade-offs between model complexity and real-time computation. On one hand, offline optimization considers multi rigid body dynamics to achieve the most accurate model, but it sacrifices real-time computation, making it impossible for real-time robot control [@c13; @c16]. On the other hand, the simplified model method has been used effectively and is computationally efficient for real-time imitation [@c3; @c14; @c15]. However, if the predetermined assumptions are violated, these methods can fail, resulting in unpredictable motion. Model Predictive Control (MPC) instead [@c17; @c18], can improve the ability to respond to sudden reactive events and enhance the expressiveness of motions at the same time, which effectively balances the above two algorithms very well.
 
@@ -19,8 +21,6 @@ Therefore, in this paper, we propose a whole-body motion imitation framework for
 - extend non-linear model predictive control (NMPC)[@c37] to whole-body humanoid robot to ensure real-time motion tracking accuracy and maintain balance robustly.
 
 - our method is tested on a real-world full-size humanoid robot that can perform real-time motion imitation of a wide range of whole-body motions, including upper-body movement, one-legged standing, and other quasi-static motions.
-
-![The overall architecture. We first perform whole-body motion retargeting from human motion data to obtain the online reference trajectory at the next moment($x_{next},u_{next}$) with contact data or the whole offline reference trajectory($x_{ref},u_{ref}$) with the contact schedule. Then, non-linear centroidal model predictive control (NMPC) computes the optimal robot state $x^*$ and the optimal control input $u^*$ while robustly resisting disturbances. Finally, the whole-body controller computes the desired torques $\tau^*$, which are executed by the real full-size humanoid robot.](figures/control-framework.pdf){#fig-framework width="100%" fig-env="figure*"}
 
 # RELATED WORKS
 
@@ -242,7 +242,8 @@ To thoroughly evaluate the performance of our approach, we compare the trajector
             \hline
         \end{tabular}
     }
-    \begin{tablenotes}
+    \begin{tablenotes}[flushleft]
+        \footnotesize
         \item[*] LMPC+WBC \cite{c17} denotes that Linear MPC combined with WBC.
         \item[-] means it failed to complete motion 
     \end{tablenotes}

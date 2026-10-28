@@ -68,3 +68,23 @@ No prebuilt `figures/quarto/` assets are required.
 
 Local PDF-source images are converted to Cairo SVG by `html-pdf.lua` for HTML;
 the PDF output retains its original images. No embedded-reader CSS is needed.
+
+## PDF layout adapters
+
+PDF figures prefer the top of the page or column; grouped figures keep explicit
+row/column layouts. TD-MPC uses a two-column grid for the four computational-budget
+panels, an explicit six-frame layout for visualizations, and a running head set
+outside the title's local group. Its shared manuscript places `#refs` before the
+LaTeX appendix switch, preserving the original references-before-appendix order.
+
+IEEE caption and bibliography fonts are restored after Quarto/natbib configuration.
+SkillOpt uses the report template example's 11pt document size. Ara explicitly
+selects Unicode Latin, Chinese and monospaced fonts and keeps CTeX from replacing
+the document's font size. These adjustments belong to the paper adapters; the
+shared publisher style files are unchanged.
+
+Code blocks use the listings backend with bounded widths and line wrapping.
+Inline listings inherit the surrounding font size instead of the smaller code-block
+size. Font sizes and page counts can differ between English originals and Chinese
+translations; the PDFs under `assets/` provide visual references, not page-count
+targets.

@@ -69,6 +69,7 @@
 \setlength{\floatsep}{8pt plus 2pt minus 2pt}
 \setlength{\intextsep}{8pt plus 2pt minus 2pt}
 \setlength{\parskip}{4.5pt}
+\setlist[itemize]{itemsep=2pt,parsep=0pt,topsep=3pt,partopsep=0pt}
 \makeatletter
 \setlength{\@nipsabovecaptionskip}{5pt}
 \setlength{\abovecaptionskip}{\@nipsabovecaptionskip}
@@ -118,6 +119,11 @@
 $for(header-includes)$
 $header-includes$
 $endfor$
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
 \begin{document}
 \maketitle
 {\makeatletter\let\@footnotetext\H@@footnotetext\makeatother\renewcommand{\thefootnote}{*}\footnotetext{Equal contribution. \quad $$^{\dagger}$$Equal advising.}}
