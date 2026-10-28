@@ -74,8 +74,18 @@ the PDF output retains its original images. No embedded-reader CSS is needed.
 PDF figures prefer the top of the page or column; grouped figures keep explicit
 row/column layouts. TD-MPC uses a two-column grid for the four computational-budget
 panels, an explicit six-frame layout for visualizations, and a running head set
-outside the title's local group. Its shared manuscript places `#refs` before the
-LaTeX appendix switch, preserving the original references-before-appendix order.
+outside the title's local group.
+
+TD-MPC explicitly places `# References {.unnumbered}` and a `#refs` Div in
+`sections/body.md`, inside a `.content-visible` block with `when-format="pdf"`.
+This locates the PDF bibliography before the appendix; the explicit heading supplies
+its title because this insertion path does not generate one automatically. HTML
+excludes this block and places its bibliography at the end, after all appendices.
+Other papers do not need an explicit Markdown `# References` heading: their PDF
+bibliography titles come from the LaTeX bibliography commands in their templates
+or supplied bibliography text. This is a difference in our paper adapters, not a
+requirement specific to TD-MPC; its insertion could later be moved to the PDF
+template to keep bibliography placement out of the shared manuscript.
 
 IEEE caption and bibliography fonts are restored after Quarto/natbib configuration.
 SkillOpt uses the report template example's 11pt document size. Ara explicitly
