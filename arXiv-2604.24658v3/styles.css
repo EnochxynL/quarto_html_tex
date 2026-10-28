@@ -34,20 +34,3 @@
   border-top: 1px solid #d6e0ee;
   padding-top: 0.8em;
 }
-
-/* 复杂表（HTML 侧由转换脚本生成，class 与管道表一致 bootstrap .table） */
-/* caption 统一在表格下方（与 PDF 端 table-caption-pos: bottom 一致，ARA 原版惯例） */
-table caption {
-  caption-side: bottom;
-  padding-top: 6px;
-}
-p.table-caption {
-  text-align: center;
-  font-size: 0.9em;
-  color: #333;
-  margin: 0.3em auto 1.4em;
-  max-width: 92%;
-}
-span.ok { color: #1a7f37; font-weight: 700; }
-span.bad { color: #c62828; font-weight: 700; }
-span.part { color: #b26a00; font-weight: 700; }

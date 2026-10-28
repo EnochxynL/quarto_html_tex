@@ -1,98 +1,11 @@
-/* html-tex.css — 插件默认样式（自动注入，零配置生效）
- *
- * 覆盖规则：所有规则用 :where() 包裹（零特异性 0,0,0）——项目 styles.css 的
- * 正常规则（特异性 ≥ 0,1,0）天然压过默认，无需 !important、无需调整加载顺序。
- * 论文想改观感：styles.css 里写同选择器规则即可覆盖。
- *
- * 来源：ARL + SkillOpt 两论文 styles.css 的共性部分（2026-08-31 提取）。
- * 论文特有样式（如 .skill-excerpts）留在各项目 styles.css。
+/* Shared support for HTML emitted by html-tex.
+ * Keep manuscript presentation in each paper's stylesheet.
+ * :where() lets document styles override these defaults.
  */
 
-/* 论文头部面板（index.qmd 手动 <div class="header-panel">，论文可覆盖配色） */
-:where(.header-panel) {
-  background: #EEF3F9;
-  border-radius: 8px;
-  padding: 22px 24px;
-  margin-bottom: 2em;
-}
-:where(.header-panel .hp-title) {
-  font-size: 1.6em;
-  font-weight: 700;
-  line-height: 1.3;
-}
-:where(.header-panel .hp-subtitle) {
-  color: #555;
-  margin: 0.4em 0 1em;
-}
-:where(.header-panel .hp-date) {
-  color: #666;
-  font-size: 0.9em;
-  margin: 0.3em 0 1em;
-}
-:where(.header-panel .hp-authors) {
-  font-weight: 600;
-  line-height: 1.6;
-  margin-bottom: 0.4em;
-}
-:where(.header-panel .hp-affiliations) {
-  font-size: 0.85em;
-  color: #444;
-  line-height: 1.6;
-  margin-bottom: 1.2em;
-}
-:where(.header-panel .hp-abstract) {
-  line-height: 1.7;
-  margin-bottom: 1em;
-}
-:where(.header-panel .hp-footer) {
-  font-size: 0.9em;
-  border-top: 1px solid #d6e0ee;
-  padding-top: 0.8em;
-}
-
-/* Generic small-caps text. */
-:where(.smallcaps) {
-  font-variant: small-caps;
-  letter-spacing: 0.02em;
-}
-
-/* 复现状态标记（✓/✗/△） */
-:where(span.ok) {
-  color: #1a7f37;
-  font-weight: 700;
-}
-:where(span.bad) {
-  color: #c62828;
-  font-weight: 700;
-}
-:where(span.part) {
-  color: #b26a00;
-  font-weight: 700;
-}
-
-/* 算法框（html-latex.lua 输出 <div class="algorithm-box">，对应 PDF 端 algorithm
-   浮动体；行号/缩进由 HTML <ol> 原生处理） */
-:where(.algorithm-box) {
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 16px 20px;
-  margin: 1.2em 0;
-  background: #fafbfc;
-  font-size: 0.92em;
-  line-height: 1.55;
-}
-:where(.algorithm-box ol) {
-  padding-left: 1.6em;
-}
-:where(.algorithm-box li) {
-  margin: 0.25em 0;
-}
-:where(.algorithm-box ul) {
-  margin: 0.15em 0;
-}
-
-/* Keep wide TeX tables readable without applying Bootstrap table styling to
-   nested tabulars. Layout and borders come from lwarp's scoped stylesheet. */
+/* Wide TeX blocks scroll instead of widening the page. Their internal
+ * layout and borders come from lwarp's scoped stylesheet.
+ */
 :where(.lwarp-block) {
   overflow-x: auto;
 }
