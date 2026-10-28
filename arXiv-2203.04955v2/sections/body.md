@@ -325,10 +325,14 @@ The authors would like to thank Yueh-Hua Wu, Ruihan Yang, Sander Tonkens, Tongzh
 \FloatBarrier
 ```
 
+:::: {.content-visible when-format="pdf"}
+
 # References {.unnumbered}
 
 ::: {#refs}
 :::
+
+::::
 
 ```{=latex}
 \appendix
