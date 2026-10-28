@@ -9,7 +9,6 @@ format:
     theme: cosmo
     toc: true
     number-sections: true
-    css: styles.css
     html-tex:
       include-in-header:
         text: |
