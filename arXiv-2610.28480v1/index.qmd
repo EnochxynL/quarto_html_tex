@@ -7,7 +7,7 @@ csl: source-numeric.csl
 number-depth: 3
 format:
   html:
-    theme: cosmo
+    theme: darkly
     toc: true
     number-sections: true
     html-tex:

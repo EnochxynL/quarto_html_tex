@@ -7,7 +7,7 @@ filters:
 number-depth: 3
 format:
   html:
-    theme: cosmo
+    theme: default
     toc: true
     number-sections: true
     css: styles.css

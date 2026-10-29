@@ -6,7 +6,7 @@ metadata-files: [abstract.yml]
 bibliography: main.bib
 format:
   html:
-    theme: cosmo
+    theme: cerulean
     toc: true
     number-sections: true
     html-tex:
