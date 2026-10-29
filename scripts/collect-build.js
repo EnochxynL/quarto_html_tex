@@ -8,6 +8,21 @@ const output = join(root, "build");
 const fileList = Deno.env.get("QUARTO_USE_FILE_FOR_PROJECT_OUTPUT_FILES");
 const rendered = fileList ? await Deno.readTextFile(fileList)
   : Deno.env.get("QUARTO_PROJECT_OUTPUT_FILES") || "";
+// DOCX output is finalized only when its docx-tex manifest exists.
+for (const file of rendered.split(/\r?\n/).filter(Boolean)) {
+  if (!file.toLowerCase().endsWith(".docx")) continue;
+  const document = resolve(root, file);
+  const sourceDirectory = relative(output, dirname(document));
+  if (sourceDirectory.startsWith("..")) throw new Error(`DOCX output escapes build directory: ${document}`);
+  const manifest = join(root, sourceDirectory, ".quarto", "docx-tex", "finalize.json");
+  try { await Deno.stat(manifest); }
+  catch (error) { if (error instanceof Deno.errors.NotFound) continue; throw error; }
+  const process = new Deno.Command("uv", {args: ["run", "--locked", "--script",
+    join(root, "_extensions", "docx-tex", "docx-finalize.py"), document, manifest],
+    stdout: "inherit", stderr: "inherit"});
+  const result = await process.output();
+  if (!result.success) throw new Error(`DOCX finalization failed: ${document}`);
+}
 const selected = new Map();
 for (const file of rendered.split(/\r?\n/).filter(Boolean)) {
   const path = relative(output, resolve(root, file));

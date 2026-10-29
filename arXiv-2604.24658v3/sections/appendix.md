@@ -1142,7 +1142,7 @@ ARA优势最大的论文——`fre`（$+21.3\%$）、`mechanistic-understanding`
 
 ## 测试框架工程 {#sec-app-extension-harness}
 
-扩展测试框架将Claude Agent SDK [@claudecodesdk2025]包装在一个SLURM启动的单智能体循环中，工具界面为$\{`Bash`, `Read`, `Edit`, `Write`, `Glob`, `Grep`\}$。网络访问（`WebFetch`, `WebSearch`）和在批处理模式下实际暂停会话的SDK内置功能（`ScheduleWakeup`, `EnterPlanMode`, `EnterWorktree`）被禁用。除了`reference/`外，智能体的工作目录在两个臂之间是相同的。
+扩展测试框架将Claude Agent SDK [@claudecodesdk2025]包装在一个SLURM启动的单智能体循环中，工具界面为$\{\texttt{Bash}, \texttt{Read}, \texttt{Edit}, \texttt{Write}, \texttt{Glob}, \texttt{Grep}\}$。网络访问（`WebFetch`, `WebSearch`）和在批处理模式下实际暂停会话的SDK内置功能（`ScheduleWakeup`, `EnterPlanMode`, `EnterWorktree`）被禁用。除了`reference/`外，智能体的工作目录在两个臂之间是相同的。
 
 需要三类工程修复来获得稳定的8小时轨迹。表 \ref{tab-harness-fixes}列举了每种观察到的失败模式、根本原因和已发布的修复。
 
@@ -1207,7 +1207,7 @@ SLURM作业被OOM杀死；内核的cgroup OOM处理程序向最大的用户空�
 
 #### Sonnet 4.5：轨迹条件下的自动调优扫描。
 
-论文臂智能体用$`NUM_STAGES` \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为*"极端流水线——性能最高者"*在内嵌注释中，从未测试$\{4, 8\}$范围。`\ara{}`{=latex}臂智能体相反选择了$`NUM_STAGES` \in \{4, 8\}$，在$t = 4.3$分钟时在`ThinkingBlock`中逐字引用了启发式规则H01（*"网格大小对H100固定为128（拥有132个SM）…"*），这是在读取`evidence/tables/malt_attempts.md`和`src/configs/autotune.md`之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生`\ara{}`{=latex}智能体在图 [@fig-extension-triton-45]中$\sim 0.27$ vs. 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
+论文臂智能体用$\texttt{NUM\_STAGES} \in \{1, 24, 32, 48, 64, 96\}$填充其自动调优网格，将最深流水线标记为*"极端流水线——性能最高者"*在内嵌注释中，从未测试$\{4, 8\}$范围。`\ara{}`{=latex}臂智能体相反选择了$\texttt{NUM\_STAGES} \in \{4, 8\}$，在$t = 4.3$分钟时在`ThinkingBlock`中逐字引用了启发式规则H01（*"网格大小对H100固定为128（拥有132个SM）…"*），这是在读取`evidence/tables/malt_attempts.md`和`src/configs/autotune.md`之后。那个保守的网格是自动调优器在运行时从中选择的，也是产生`\ara{}`{=latex}智能体在图 [@fig-extension-triton-45]中$\sim 0.27$ vs. 论文臂智能体的平坦$\sim 0.64$的原因。论文臂智能体没有等效的先验测量，采取了方向性直观但经验上错误的"更多流水线更好"的设置。
 
 #### Sonnet 4.6：早期领先，后期论文智能体反超。
 

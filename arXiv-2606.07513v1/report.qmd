@@ -1,0 +1,102 @@
+---
+title: 'Agentopia: Long-Term Life Simulation and Learning in Agent Societies'
+author: Xintao Wang, Sirui Zheng, Hongqiu Wu, Weiyuan Li, Jen-tse Huang, Minghao Zhu,
+  Can Zu, Qi Deng, Jiawei Wang, Qianyu He, Heng Wang, Xiaojian Wu, Yunzhe Tao
+metadata-files:
+- abstract.yml
+bibliography: main.bib
+filters:
+- docx-tex
+docx-tex:
+  page-header: title
+  page-footer: ''
+  include-in-header:
+    text: '\newenvironment{tablebody}{}{}
+
+      \usepackage{amsmath}
+
+      \usepackage{amssymb}
+
+      \usepackage{graphicx}
+
+      \usepackage{xcolor}
+
+      \usepackage{booktabs}
+
+      \usepackage{colortbl}
+
+      \usepackage{pifont}
+
+      \usepackage{multirow}
+
+      \usepackage{makecell}
+
+      \usepackage{tabularx}
+
+      \usepackage{arydshln}
+
+      \usepackage{xspace}
+
+
+      \newcommand{\method}{Agentopia\xspace}
+
+      \newcommand{\eg}{\textit{e.g.}}
+
+      \newcommand{\etc}{\textit{e.t.c.}}
+
+      \newcommand{\ie}{\textit{i.e.}}
+
+      \newcommand{\vs}{\textit{v.s.}}
+
+      \newcommand{\wo}{\textit{w/o}}
+
+      \newcommand{\dq}[1]{``#1''''}
+
+      \newcommand{\sq}[1]{`#1''}
+
+      \newcommand{\apartment}{\textbf{The Apartment}\xspace}
+
+      \newcommand{\campus}{\textbf{The Campus}\xspace}
+
+      \newcommand{\academy}{\textbf{Arcane Academy}\xspace}
+
+      \newcommand{\cmark}{\ding{51}}
+
+      \newcommand{\xmark}{\ding{55}}
+
+      \definecolor{mygray}{RGB}{226,226,226}
+
+      \definecolor{myred}{RGB}{252,142,142}
+
+      \definecolor{mygreen}{RGB}{147,255,143}
+
+      \definecolor{myblue}{RGB}{144,155,255}
+
+      \definecolor{myyellow}{RGB}{253,253,143}
+
+      \definecolor{mypurple}{RGB}{255,142,250}
+
+      '
+format:
+  docx:
+    reference-doc: ../styles/word/report-modern/reference-xml.docx
+    output-file: report.docx
+    toc: false
+    number-sections: true
+---
+
+
+
+{{< include Sections/1_intro.md >}}
+
+{{< include Sections/2_related.md >}}
+
+{{< include Sections/3_framework.md >}}
+
+{{< include Sections/4_method.md >}}
+
+{{< include Sections/5_experiments.md >}}
+
+{{< include Sections/6_conclusion.md >}}
+
+{{< include Sections/appendix.md >}}

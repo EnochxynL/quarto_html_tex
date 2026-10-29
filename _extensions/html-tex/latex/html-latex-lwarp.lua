@@ -483,9 +483,11 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out, pac
   -- Linux/TeX Live 与 Windows 双覆盖）；不用 ctex（ctexhook 与 lwarp
   -- hook 机制冲突——全篇 lwarp 方案实证）
   t[#t + 1] = "\\usepackage{fontspec}"
-  t[#t + 1] = "\\IfFontExistsTF{Microsoft YaHei}{\\setmainfont{Microsoft YaHei}}{}"
-  t[#t + 1] = "\\IfFontExistsTF{SimSun}{\\setmainfont{SimSun}}{}"
-  t[#t + 1] = "\\IfFontExistsTF{Noto Serif CJK SC}{\\setmainfont{Noto Serif CJK SC}}{}"
+  -- All text families need Unicode coverage: texttt/textsf in a Chinese cell
+  -- otherwise falls back to Latin-only fonts and loses the source characters.
+  t[#t + 1] = "\\IfFontExistsTF{Microsoft YaHei}{\\setmainfont{Microsoft YaHei}\\setsansfont{Microsoft YaHei}\\setmonofont{Microsoft YaHei}}{}"
+  t[#t + 1] = "\\IfFontExistsTF{SimSun}{\\setmainfont{SimSun}\\setsansfont{SimSun}\\setmonofont{SimSun}}{}"
+  t[#t + 1] = "\\IfFontExistsTF{Noto Serif CJK SC}{\\setmainfont{Noto Serif CJK SC}\\setsansfont{Noto Serif CJK SC}\\setmonofont{Noto Serif CJK SC}}{}"
   -- TikZ builds a fading mask in an internal hbox. lwarp's pgfpicture hook
   -- must not start a new HTML image/page in that box (or in the preamble).
   -- Treat only the mask construction as nested; normal drawings still use
@@ -553,6 +555,10 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out, pac
     t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp}{{" .. lab .. "}{1}{block}{}{}}"
     t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp@image}{{0}{0}{}{}{}}"
   end
+  -- The HTML transport is extracted from PDF text. A declared legacy fontenc
+  -- must not replace fontspec's Unicode encoding and turn ligatures into C0
+  -- control bytes. Native standalone drawings use their separate compiler.
+  t[#t + 1] = "\\AtBeginDocument{\\renewcommand\\encodingdefault{TU}\\fontencoding{TU}\\selectfont}"
   t[#t + 1] = "\\begin{document}"
   t[#t + 1] = "\\StartDefiningTabulars"
   t[#t + 1] = body

@@ -1,0 +1,104 @@
+---
+number-depth: 3
+title: 'SkillOpt: Executive Strategy for Self-Evolving Agent Skills'
+bibliography: references.bib
+filters:
+- docx-tex
+docx-tex:
+  page-header: title
+  page-footer: ''
+  include-in-header:
+    text: '\usepackage{algorithm}
+
+      \usepackage{algpseudocode}
+
+      \usepackage{amsmath}
+
+      \usepackage{amssymb}
+
+      \usepackage{graphicx}
+
+      \usepackage{xcolor}
+
+      \usepackage{colortbl}
+
+      \usepackage{booktabs}
+
+      \usepackage{multirow}
+
+
+      \newcommand{\ourmethod}{\textsc{SkillOpt}}
+
+      \newcommand{\na}{--}
+
+      \definecolor{deltapos}{HTML}{0E8A4A}
+
+      \definecolor{deltaneg}{HTML}{B91C1C}
+
+      \newcommand{\dvalp}[2]{\hphantom{\textsubscript{+#2}}#1\textsubscript{\textcolor{deltapos}{+#2}}}
+
+      \newcommand{\dvaln}[2]{\hphantom{\textsubscript{$-$#2}}#1\textsubscript{\textcolor{deltaneg}{$-$#2}}}
+
+      \newcommand{\harnessrow}[1]{\rowcolor{black!7}\multicolumn{8}{l}{\textbf{#1}}}
+
+      \newcommand{\methodcell}[1]{\cellcolor{blue!8}#1}
+
+      \newcommand{\ablationbenchmarkheader}{\textbf{Setting} & \textbf{SearchQA} &
+      \textbf{Spreadsheet} & \textbf{LiveMath} \\}
+
+      '
+format:
+  docx:
+    reference-doc: ../styles/word/report-modern/reference-xml.docx
+    output-file: report.docx
+    toc: false
+    number-sections: true
+author: Yifan Yang^1,\*,‡^   Ziyang Gong^2,\*^   Weiquan Huang^3,\*^   Qihao Yang^2,\*^
+    Ziwei Zhou^4,\*^   Zisu Huang^4,\*^   Yan Li^2^   Xuemei Gao^1^   Qi Dai^1^  
+  Bei Liu^1^   Kai Qiu^1^   Yuqing Yang^1^   Dongdong Chen^1^   Xue Yang^2,‡^   Chong
+  Luo^1^
+---
+
+::: {.content-visible when-format="docx"}
+
+```{=html}
+<div class="hp-affiliations">
+  <sup>1</sup>Microsoft   <sup>2</sup>Shanghai Jiao Tong University   <sup>3</sup>Tongji University   <sup>4</sup>Fudan University
+</div>
+
+```
+
+
+## Abstract {.unnumbered}
+
+
+```{=html}
+<div class="hp-abstract">
+Agent skills today are hand-crafted, generated one-shot, or evolved through loosely controlled self-revision---none of which behaves like a deep-learning optimizer for the skill, and none of which reliably improves over its starting point under feedback. We argue the skill should instead be <em>trained</em> as the external state of a frozen agent, with the same discipline that makes weight-space optimization reproducible. SkillOpt is, to our knowledge, the first systematic <em>controllable</em> text-space optimizer for agent skills: a separate optimizer model turns scored rollouts into bounded add/delete/replace edits on a single skill document, and an edit is accepted only when it strictly improves a held-out validation score. A textual learning-rate budget, rejected-edit buffer, and epoch-wise slow/meta update make skill training stable while adding zero inference-time model calls at deployment. Across six benchmarks, seven target models, and three execution harnesses (direct chat, Codex, Claude Code), SkillOpt is best or tied on <strong>all 52 evaluated (model, benchmark, harness) cells</strong> and beats every per-cell competitor among human, one-shot LLM, Trace2Skill, TextGrad, GEPA, and EvoSkill skills. On GPT--5.5 it lifts the average no-skill accuracy by <strong>+23.5</strong> points in direct chat, by <strong>+24.8</strong> inside the Codex agentic loop, and by <strong>+19.1</strong> inside Claude Code. Transfer experiments further show that optimized skill artifacts retain value when moved across model scales, between Codex and Claude Code execution environments, and to a nearby math benchmark without further optimization.
+</div>
+
+```
+
+
+```{=html}
+<div class="hp-footer">
+  <strong>Code:</strong> <a href="https://aka.ms/SkillOpt">https://aka.ms/SkillOpt</a>  · 
+  <strong>Correspondence:</strong> <a href="mailto:yifanyang@microsoft.com">yifanyang@microsoft.com</a>, <a href="mailto:yangxue2019-sjtu@sjtu.edu.cn">yangxue2019-sjtu@sjtu.edu.cn</a><br>
+  <sup>*</sup> Equal contribution   <sup>‡</sup> Corresponding authors
+</div>
+```
+
+
+:::
+
+{{< include sections/1_introduction.md >}}
+
+{{< include sections/2_related_work.md >}}
+
+{{< include sections/3_methods.md >}}
+
+{{< include sections/4_experiments.md >}}
+
+{{< include sections/conclusion.md >}}
+
+{{< include sections/A_appendix.md >}}

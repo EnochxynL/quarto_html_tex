@@ -53,10 +53,12 @@ def main():
         'Bibliography':101}
     for name,index in roles.items():
         promote(source,seed,name,source.paragraphs[index])
+    lookup(seed,'Table Caption').paragraph_format.keep_with_next=True
     compact=lookup(seed,'Compact')
     compact.paragraph_format.first_line_indent=Pt(0)
     compact.paragraph_format.left_indent=Pt(0)
     compact.paragraph_format.right_indent=Pt(0)
+    compact.element.find(qn('w:pPr')).find(qn('w:ind')).set(qn('w:firstLineChars'),'0')
     table=lookup(seed,'Table')
     table_props=table.element.find(qn('w:tblPr'))
     if table_props is None:

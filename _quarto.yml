@@ -6,13 +6,22 @@ project:
   render:
     - arXiv-2203.04955v2/index.qmd
     - arXiv-2203.04955v2/paper.qmd
+    - arXiv-2203.04955v2/report.qmd
     - arXiv-2508.00362v1/index.qmd
     - arXiv-2508.00362v1/paper.qmd
+    - arXiv-2508.00362v1/report.qmd
+    - arXiv-2508.00362v1/report-bachelor.qmd
+    - arXiv-2508.00362v1/report-classic.qmd
+    - arXiv-2508.00362v1/report-modern.qmd
     - arXiv-2604.24658v3/index.qmd
     - arXiv-2604.24658v3/paper.qmd
+    - arXiv-2604.24658v3/report.qmd
     - arXiv-2605.23904v2/index.qmd
     - arXiv-2605.23904v2/paper.qmd
+    - arXiv-2605.23904v2/report.qmd
     - arXiv-2606.07513v1/index.qmd
     - arXiv-2606.07513v1/paper.qmd
+    - arXiv-2606.07513v1/report.qmd
     - arXiv-2610.28480v1/index.qmd
     - arXiv-2610.28480v1/paper.qmd
+    - arXiv-2610.28480v1/report.qmd

@@ -1,0 +1,33 @@
+title: A Whole-Body Motion Imitation Framework from Human Data for Full-Size Humanoid
+  Robot
+author: Zhenghan Chen, Haodong Zhang, Dongqi Wang, Jiyu Yu, Haocheng Xu, Yue Wang,
+  Rong Xiong
+bibliography: references.json
+csl: source-numeric.csl
+lang: en
+reference-section-title: References
+docx-tex:
+  page-header: title
+  page-footer: ''
+  include-in-header:
+    text: '\usepackage{amsmath}
+
+      \usepackage{amssymb}
+
+      \usepackage{bm}
+
+      \usepackage{mathrsfs}
+
+      \usepackage{graphicx}
+
+      \usepackage{xcolor}
+
+      \usepackage{booktabs}
+
+      \usepackage{colortbl}
+
+      \usepackage{multirow}
+
+      \usepackage{threeparttable}
+
+      '

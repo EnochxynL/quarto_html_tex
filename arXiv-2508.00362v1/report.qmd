@@ -1,0 +1,15 @@
+---
+metadata-files:
+- report-metadata.yml
+filters:
+- docx-tex
+format:
+  docx:
+    reference-doc: ../styles/word/neu-journal/reference-xml.docx
+    output-file: report.docx
+    toc: false
+    number-sections: true
+    number-depth: 2
+---
+
+{{< include report-content.qmd >}}

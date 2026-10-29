@@ -1,0 +1,13 @@
+---
+metadata-files:
+- fixture-metadata.yml
+filters:
+- html-tex
+format:
+  html:
+    html-tex:
+      include-in-header:
+        file: fixture-preamble.tex
+---
+
+{{< include fixture-content.md >}}

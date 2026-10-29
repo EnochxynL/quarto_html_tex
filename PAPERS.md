@@ -7,24 +7,40 @@ publisher or report styles from the root `styles/` directory; see
 submission metadata, and duplicate style files have been removed. Generated
 `paper.tex` are build artifacts, not editable source documents.
 
-| Paper | HTML | PDF | PDF entry |
+| Paper | HTML | PDF | Word experiment |
 | --- | --- | --- | --- |
-| TD-MPC (2203.04955v2) | [Preview](build/arXiv-2203.04955v2/index.html) | [PDF](build/arXiv-2203.04955v2/paper.pdf) | `paper.qmd` |
-| Whole-body motion imitation (2508.00362v1) | [Preview](build/arXiv-2508.00362v1/index.html) | [PDF](build/arXiv-2508.00362v1/paper.pdf) | `paper.qmd` |
-| Agent-native research artifacts (2604.24658v3) | [Preview](build/arXiv-2604.24658v3/index.html) | [PDF](build/arXiv-2604.24658v3/paper.pdf) | `paper.qmd` |
-| SkillOpt (2605.23904v2) | [Preview](build/arXiv-2605.23904v2/index.html) | [PDF](build/arXiv-2605.23904v2/paper.pdf) | `paper.qmd` |
-| Agentopia (2606.07513v1) | [Preview](build/arXiv-2606.07513v1/index.html) | [PDF](build/arXiv-2606.07513v1/paper.pdf) | `paper.qmd` |
-| SuperMimic (2610.28480v1) | [Preview](build/arXiv-2610.28480v1/index.html) | [PDF](build/arXiv-2610.28480v1/paper.pdf) | `paper.qmd` |
+| TD-MPC (2203.04955v2) | [Preview](build/arXiv-2203.04955v2/index.html) | [PDF](build/arXiv-2203.04955v2/paper.pdf) | [DOCX](build/arXiv-2203.04955v2/report.docx) |
+| Whole-body motion imitation (2508.00362v1) | [Preview](build/arXiv-2508.00362v1/index.html) | [PDF](build/arXiv-2508.00362v1/paper.pdf) | [DOCX](build/arXiv-2508.00362v1/report.docx) |
+| Agent-native research artifacts (2604.24658v3) | [Preview](build/arXiv-2604.24658v3/index.html) | [PDF](build/arXiv-2604.24658v3/paper.pdf) | [DOCX](build/arXiv-2604.24658v3/report.docx) |
+| SkillOpt (2605.23904v2) | [Preview](build/arXiv-2605.23904v2/index.html) | [PDF](build/arXiv-2605.23904v2/paper.pdf) | [DOCX](build/arXiv-2605.23904v2/report.docx) |
+| Agentopia (2606.07513v1) | [Preview](build/arXiv-2606.07513v1/index.html) | [PDF](build/arXiv-2606.07513v1/paper.pdf) | [DOCX](build/arXiv-2606.07513v1/report.docx) |
+| SuperMimic (2610.28480v1) | [Preview](build/arXiv-2610.28480v1/index.html) | [PDF](build/arXiv-2610.28480v1/paper.pdf) | [DOCX](build/arXiv-2610.28480v1/report.docx) |
 
-From the workspace root, run `quarto render` to render the twelve HTML/PDF outputs
-and the experimental Word report for the whole-body motion imitation paper.
+From the workspace root, run `quarto render` to render twelve HTML/PDF outputs,
+six experimental Word reports, and three additional Word template comparisons.
 Quarto, a TeX distribution, and the external tools documented in
-`_extensions/html-tex/README.md` must be available. Python is not required.
+`_extensions/html-tex/README.md` must be available. HTML/PDF do not require Python.
+Word additionally uses uv and locked Python helpers; see
+[`docx-tex`](_extensions/docx-tex/README.md).
 To render one entry, use `quarto render arXiv-2610.28480v1/index.qmd --to html`
 or `quarto render arXiv-2610.28480v1/paper.qmd --to pdf`.
 For the Word experiment, use `quarto render arXiv-2508.00362v1/report.qmd --to docx`.
 It uses the NEU journal reference DOCX, native OMML equations, editable tables,
-and rasterized PDF figures; see `arXiv-2508.00362v1/report-word.md` for scope.
+and rasterized PDF/SVG figures. The same content and metadata also generate
+`report-modern.docx`, `report-classic.docx`, and `report-bachelor.docx`; see
+[`report-word.md`](arXiv-2508.00362v1/report-word.md) for scope.
+The Word extension carries byte-identical copies of the HTML TeX backend;
+HTML5/CSS normalization and Pandoc's HTML reader adapt its output for DOCX.
+Word uses reference styles, not the HTML stylesheet, and complete thesis
+front-matter assembly and journal multi-column sections are not implemented.
+
+Run `quarto render tests/docx-tex/fixture.qmd --to docx --profile word-test`
+for the block-only citation/algorithm/nested-table regression. After the Word
+matrix is built, `uv run --no-project python scripts/check_docx_tex.py` records
+structural validation under `build/word-validation.json`. On Windows,
+`scripts/export-word-previews.ps1` exports read-only Word PDF previews.
+The implementation, checks, visual scope and remaining limits are recorded in
+[`docs/word-experiment.md`](docs/word-experiment.md).
 Outputs are collected under `build/arXiv-*/`. Quarto places HTML, PDF, and their
 web resources there. The post-render script `scripts/collect-build.js` archives
 retained TeX, auxiliary files, and html-tex's lwarp/TikZ/PDF-image diagnostics

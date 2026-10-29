@@ -1,0 +1,4 @@
+project:
+  render:
+    - tests/docx-tex/fixture.qmd
+    - tests/docx-tex/fixture-html.qmd

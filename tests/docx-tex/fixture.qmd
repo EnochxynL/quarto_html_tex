@@ -1,0 +1,17 @@
+---
+metadata-files:
+- fixture-metadata.yml
+filters:
+- docx-tex
+format:
+  docx:
+    reference-doc: ../../styles/word/report-modern/reference-xml.docx
+    output-file: fixture.docx
+docx-tex:
+  page-header: title
+  page-footer: ''
+  include-in-header:
+    file: fixture-preamble.tex
+---
+
+{{< include fixture-content.md >}}

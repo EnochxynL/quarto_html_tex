@@ -1,0 +1,48 @@
+---
+title: 'SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable World
+  Model'
+author: Qiayuan Liao, Yiyang Shao, Junfeng Long, Kevin Zakka, Roberto Horowitz, Pieter
+  Abbeel, Koushil Sreenath
+bibliography: references.json
+csl: source-numeric.csl
+number-depth: 3
+filters:
+- docx-tex
+docx-tex:
+  page-header: title
+  page-footer: ''
+  include-in-header:
+  - file: preamble.tex
+  - text: '\usepackage{array,colortbl}
+
+      '
+format:
+  docx:
+    reference-doc: ../styles/word/report-modern/reference-xml.docx
+    output-file: report.docx
+    toc: false
+    number-sections: true
+---
+
+{{< include sections/teaser.md >}}
+
+::: {.callout-note appearance="simple" icon="false"}
+## Abstract
+
+{{< include sections/abstract.md >}}
+
+:::
+
+{{< include sections/introduction.md >}}
+
+{{< include sections/related-work.md >}}
+
+{{< include sections/method.md >}}
+
+{{< include sections/results.md >}}
+
+{{< include sections/conclusion.md >}}
+
+{{< include sections/acknowledgments.md >}}
+
+{{< include sections/appendix.md >}}

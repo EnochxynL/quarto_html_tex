@@ -1,0 +1,110 @@
+---
+number-depth: 3
+title: 最后一篇人类撰写的论文：智能体原生研究构件
+subtitle: 'The Last Human-Written Paper: Agent-Native Research Artifacts'
+bibliography: references.bib
+filters:
+- docx-tex
+docx-tex:
+  page-header: title
+  page-footer: ''
+  include-in-header:
+    text: '\usepackage{graphicx}
+
+      \usepackage{xcolor}
+
+      \usepackage{booktabs}
+
+      \usepackage{amsmath}
+
+      \usepackage{pifont}
+
+
+      \newcommand{\ara}{\textsc{Ara}}
+
+      \newcommand{\cmark}{\textcolor{green!50!black}{\ding{51}}}
+
+      \newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
+
+      '
+format:
+  docx:
+    reference-doc: ../styles/word/report-modern/reference-xml.docx
+    output-file: report.docx
+    toc: false
+    number-sections: true
+author: Jiachen Liu^1,\*^, Jiaxin Pei^2^, Jintao Huang^3^, Chenglei Si^2^, Ao Qu^4^,
+  Xiangru Tang^5^, Runyu Lu^1^, Lichang Chen^6^, Xiaoyan Bai^7^, Haizhong Zheng^8^,
+  Carl Chen^9^, Zhiyang Chen^10^, Haojie Ye^11^, Yujuan Fu^12^, Zexue He^2^, Zijian
+  Jin^13^, Zhenyu Zhang^2^, Shangquan Sun^14^, Maestro Harmon^15^, Dianzhuo Wang^16^,
+  Qian-ze Zhu^16^, Jianqiao Zeng, Jiachen Sun^17^, Mingyuan Wu^18^, Baoyu Zhou^19^,
+  Chenyu You^20^, Shijian Lu^14^, Yiming Qiu^21^, Fan Lai^18^, Yuan Yuan^22^, Yao
+  Li^23^, Junyuan Hong^24^, Ruihao Zhu^25^, Beidi Chen^8^, Alex Pentland^2^, Ang Chen^1^,
+  Mosharaf Chowdhury^1^, Zechen Zhang^16,15^
+---
+
+```{=html}
+<div class="hp-affiliations">
+    <sup>1</sup>University of Michigan, <sup>2</sup>Stanford University, <sup>3</sup>Ohio State University,
+    <sup>4</sup>MIT, <sup>5</sup>Yale University, <sup>6</sup>Meta Superintelligence Labs,
+    <sup>7</sup>University of Chicago, <sup>8</sup>Carnegie Mellon University, <sup>9</sup>University of Washington,
+    <sup>10</sup>University of Toronto, <sup>11</sup>NVIDIA, <sup>12</sup>Meta, <sup>13</sup>New York University,
+    <sup>14</sup>Nanyang Technological University, <sup>15</sup>Orchestra Research, <sup>16</sup>Harvard University,
+    <sup>17</sup>LinkedIn, <sup>18</sup>UIUC, <sup>19</sup>Arizona State University, <sup>20</sup>Stony Brook University,
+    <sup>21</sup>University of Hong Kong, <sup>22</sup>Boston College, <sup>23</sup>Portland State University,
+    <sup>24</sup>National University of Singapore, <sup>25</sup>Cornell University
+  </div>
+
+```
+
+
+## Abstract {.unnumbered}
+
+
+```{=html}
+<div class="hp-abstract">
+    科学出版将分支式、迭代式的研究过程压缩为线性叙事，抛弃了探索过程中发现的大部分内容。这种编纂方式带来了两种结构性成本：一是<strong>叙事税</strong>，即失败的实验、被拒绝的假设以及分支探索过程被抛弃以适应线性叙事；二是<strong>工程税</strong>，即满足审稿人需求的叙述与满足智能体需求的规范之间的鸿沟导致关键的实现细节未被书写。这些成本对人类读者而言尚可容忍，但当 AI 智能体需要对已发表的工作进行理解、复现和扩展时，它们便成为关键障碍。我们提出<strong>智能体原生研究构件（Ara）</strong>，这是一种以可被智能体执行的研究包替代叙事性论文的协议。在 PaperBench 和 RE-Bench 上，Ara 将问答准确率从 72.4% 提升至 93.7%，将复现成功率从 57.4% 提升至 64.4%。
+  </div>
+
+```
+
+
+```{=html}
+<div class="hp-footer">
+    <strong>通讯作者：</strong>Jiachen Liu (<a href="mailto:amberljc@umich.edu">amberljc@umich.edu</a>)
+     ·  <strong>代码：</strong><a href="https://github.com/AmberLJC/Agent-Native-Research-Artifact">github.com/AmberLJC/Agent-Native-Research-Artifact</a>
+  </div>
+
+```
+
+
+
+
+{{< include sections/introduction.md >}}
+
+{{< include sections/protocol.md >}}
+
+
+{{< include sections/live_pm.md >}}
+
+{{< include sections/ingestor.md >}}
+
+
+{{< include sections/review_system.md >}}
+
+{{< include sections/network.md >}}
+
+
+{{< include sections/evaluation.md >}}
+
+
+{{< include sections/related_work.md >}}
+
+{{< include sections/discussion.md >}}
+
+{{< include sections/limitations.md >}}
+
+{{< include sections/conclusion.md >}}
+
+
+{{< include sections/appendix.md >}}

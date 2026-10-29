@@ -50,7 +50,7 @@ To imitate the human whole-body motion and preserve accurate foot contact, the o
 
 $$
 L = \alpha L_{vec} + \beta L_{foot} + \gamma L_{smo} + \eta L_{col}
-$$ {#Eq:retarget}
+$$ {#eq-retarget}
 
 The vector similarity loss $L_{vec}$ maintains motion similarity by aligning normalized vectors of key joints between the human and robot. Let $V$ denote the vector set that includes vectors from hips to knees, from knees to ankles, from shoulders to elbows, and from elbows to wrists.
 

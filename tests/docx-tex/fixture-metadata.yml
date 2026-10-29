@@ -1,0 +1,24 @@
+title: DOCX conversion regression specimen
+csl: ../../arXiv-2508.00362v1/source-numeric.csl
+references:
+- id: parent-first
+  type: article-journal
+  title: Parent First Reference
+  author:
+  - family: Alpha
+  issued:
+    year: 2020
+- id: block-only
+  type: article-journal
+  title: Block Only Reference
+  author:
+  - family: Beta
+  issued:
+    year: 2021
+- id: parent-last
+  type: article-journal
+  title: Parent Last Reference
+  author:
+  - family: Gamma
+  issued:
+    year: 2022
