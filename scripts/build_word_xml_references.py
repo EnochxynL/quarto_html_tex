@@ -32,13 +32,16 @@ def remap(root, mapping):
         if tag.namespace == W and tag.localname in REFS and node.get(VAL) in mapping:
             node.set(VAL, mapping[node.get(VAL)])
 
-def build(key, source):
+def build(key, source, *, seed=None, specimen=None):
     target = OUT/key/'reference-xml.docx'
+    target.parent.mkdir(parents=True, exist_ok=True)
+    seed = Path(seed) if seed else OUT/key/'style-seed.docx'
+    specimen = Path(specimen) if specimen else OUT/'specimen.md'
     original_hash = digest(source.read_bytes())
     with zipfile.ZipFile(source) as archive:
         parts = {n: archive.read(n) for n in archive.namelist()}
         infos = archive.infolist()
-    with zipfile.ZipFile(OUT/key/'style-seed.docx') as archive:
+    with zipfile.ZipFile(seed) as archive:
         additions = xml(archive.read('word/styles.xml'))
     styles = xml(parts['word/styles.xml'])
     source_styles = styles.findall('w:style', NS)
@@ -135,8 +138,8 @@ def build(key, source):
     work = ROOT/'build/word-xml-review'/key
     work.mkdir(parents=True, exist_ok=True)
     probe = work/'pandoc-probe.docx'
-    subprocess.run(['quarto','pandoc',str(OUT/'specimen.md'),
-        '--resource-path='+str(OUT), '--reference-doc='+str(target),
+    subprocess.run(['quarto','pandoc',str(specimen),
+        '--resource-path='+str(specimen.parent), '--reference-doc='+str(target),
         '--output='+str(probe)],check=True)
     with zipfile.ZipFile(probe) as archive:
         probe_doc = xml(archive.read('word/document.xml'))
