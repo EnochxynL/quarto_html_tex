@@ -1,7 +1,6 @@
-
-
+% Drawing dependencies only; publication page styles belong to the PDF template.
 \usepackage{algorithm}
-\usepackage[final]{../styles/corl_2026_template_cameraready/corl_2026}
+
 
 \usepackage{amsmath,amssymb,bm}
 \usepackage{siunitx}
@@ -11,7 +10,7 @@
 \usepackage{xurl}
 \usepackage{graphicx}
 \graphicspath{{figures/}}
-\usepackage[table]{xcolor}
+\usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, fit, fadings, calc}
 \tikzfading[name=wmrfade, left color=transparent!30, right color=transparent!80]
@@ -65,23 +64,13 @@
 \newcommand{\frozenicon}[1][0.35cm]{\raisebox{-0.15ex}{\includegraphics[height=#1]{icon_snow.png}}}
 \newcommand{\trainicon}[1][0.35cm]{\raisebox{-0.15ex}{\includegraphics[height=#1]{icon_fire.png}}}
 
-\setlength{\textfloatsep}{11pt plus 2pt minus 3pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\parskip}{4.5pt}
+% Preserve the publication drawing metrics in standalone image compilation.
+% HTML text formatting remains under lwarp's control.
 \makeatletter
-\setlength{\@nipsabovecaptionskip}{5pt}
-\setlength{\abovecaptionskip}{\@nipsabovecaptionskip}
-\renewcommand{\section}{
-  \@startsection{section}{1}{\z@}
-                {-1.5ex \@plus -0.4ex \@minus -0.2ex}
-                { 1.0ex \@plus  0.2ex \@minus  0.2ex}
-                {\large\bf\raggedright}
-}
-\renewcommand{\subsection}{
-  \@startsection{subsection}{2}{\z@}
-                {-1.3ex \@plus -0.4ex \@minus -0.2ex}
-                { 0.6ex \@plus  0.2ex}
-                {\normalsize\bf\raggedright}
+\@ifpackageloaded{lwarp}{}{%
+  \usepackage[T1]{fontenc}%
+  \setlength{\textwidth}{5.5in}%
+  \renewcommand{\rmdefault}{ptm}%
+  \renewcommand{\footnotesize}{\fontsize{9}{10}\selectfont}%
 }
 \makeatother

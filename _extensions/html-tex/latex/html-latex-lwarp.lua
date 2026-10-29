@@ -8,7 +8,7 @@
 -- The parent counter pass supplies starting values; lwarp emits captions and
 -- source label anchors. Bibliographic commands use the parent's citeproc data.
 -- Table macros/boxed tables use lwarp's StartDefiningTabulars mechanism.
--- Failed blocks remain visible as lwarp-failed; PDF input is untouched.
+-- Failed blocks stop rendering with retained diagnostics; PDF input is untouched.
 --
 -- Limitations: no compilation cache; multirow continuations require mrowcell;
 -- declaration-style color may need textcolor in the source for HTML output.
@@ -16,12 +16,74 @@ if FORMAT ~= "html" and FORMAT ~= "html5" then
   return {}
 end
 
+local state_key = "html-tex-lwarp-pending"
+local marker = "data-html-tex-lwarp"
+local citation_marker = "data-html-tex-lwarp-citation"
+local placeholder = "data:image/svg+xml;base64," .. quarto.base64.encode(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"></svg>')
+
+-- Expose block citations to the parent's normal citeproc pass at the block's
+-- position. Keep the TeX block intact apart from numbered substitution slots;
+-- do not run a separate bibliography processor with a different citation order.
+local function prepare_citations(source, citations)
+  local result, position = {}, 1
+  while position <= #source do
+    local char = source:sub(position, position)
+    if char == "%" then
+      local last = source:find("\n", position, true) or #source
+      result[#result + 1] = source:sub(position, last)
+      position = last + 1
+    elseif char == "\\" then
+      local command = source:match("^(\\cite%a*%*?)", position)
+      local last = command and position + #command or position
+      if command then
+        local function skip_space()
+          local space = source:match("^%s*", last)
+          last = last + #space
+        end
+        skip_space()
+        while source:sub(last, last) == "[" do
+          local option = source:match("^%b[]", last)
+          if not option then break end
+          last = last + #option
+          skip_space()
+        end
+        local argument = source:match("^%b{}", last)
+        if argument then
+          last = last + #argument
+          local parsed = pandoc.read(source:sub(position, last - 1), "latex")
+          local found = false
+          parsed:walk({Cite = function() found = true end})
+          if found then
+            local inlines = pandoc.Inlines({})
+            for _, block in ipairs(parsed.blocks) do inlines:extend(block.content) end
+            local index = tostring(#citations + 1)
+            citations:insert(pandoc.Span(inlines, pandoc.Attr("", {}, {[citation_marker] = index})))
+            result[#result + 1] = "\\htmltexcitation{" .. index .. "}"
+            position = last
+          else command = nil end
+        else command = nil end
+      end
+      if not command then
+        -- Copy escaped percent signs/backslashes together so they cannot start
+        -- comments or citation commands on the next iteration.
+        result[#result + 1] = source:sub(position, position + 1)
+        position = position + 2
+      end
+    else
+      result[#result + 1] = char
+      position = position + 1
+    end
+  end
+  return table.concat(result)
+end
+
 local CACHE = ".quarto/lwarp"
 local BLOCK_PREFIX = "lwarp-block"
 
 -- Compile environment blocks, including tables; skip PDF control fragments.
 local function is_compile_candidate(text)
-  return text:find("\\begin{", 1, true) ~= nil
+  return text:match("\\begin%s*{") ~= nil or text:match("\\tikz%f[^%a]") ~= nil
 end
 
 -- 提取全部 label（复合块可含多 label——lwarp 原生为每个 \label 输出
@@ -360,7 +422,7 @@ end
 -- 供 build_tex 注入（探针实证：三条目 LaTeX 层/@lwarp/@lwarp@image）
 local function refs_outside(seg, labelset, ref_out)
   return seg:gsub("%\\ref%s*{([^}]+)}", function(ref)
-    if not (labelset and labelset[ref]) then
+    if not (labelset and labelset[ref]) and not ref:find("#", 1, true) then
       ref_out[ref] = true -- 块外 label：注入假条目（去重）
     end
     return "\\ref{" .. ref .. "}" -- 原样保留（块内外都走 lwarp 原生）
@@ -372,8 +434,10 @@ end
 -- \ref {alg-test2} 原样进数学文本 → MathJax 红字）；数学文本里
 -- { } 保留（无分组吞），第二遍按带花括号形态解析。数学内不能放
 -- HTML 链接（MathJax 不渲染 <a>），第二遍输出纯文本编号
-local function refs_inside(seg)
-  return seg:gsub("%\\ref%s*{([^}]+)}", "@@REF:{%1}@@")
+local function refs_inside(seg, references)
+  return seg:gsub("%\\ref%s*{([^}]+)}", function(ref)
+    return references and references[ref] and pandoc.utils.stringify(references[ref]) or "@@REF:{" .. ref .. "}@@"
+  end)
 end
 
 -- 数学预处理（只作用于 lwarp 编译副本 block.tex——qmd 源不动、PDF 端不动）：
@@ -381,7 +445,7 @@ end
 --   一律 @@REF:{X}@@（MathJax 不执行 \ref）——返回 (body, ref_out)
 -- 文本命令进数学（\Call 等）不再预处理展开——MathJax 宏注入
 -- （extract_mathjax_macros，主页面级）让 MathJax 侧认识命令
-local function math_preprocess(body, labelset)
+local function math_preprocess(body, labelset, references)
   local ref_out = {}
   -- $...$ 数学段切分（算法块实证用行内数学；\\(...\\) 形态后续扩展）
   local out = {}
@@ -398,7 +462,7 @@ local function math_preprocess(body, labelset)
       out[#out + 1] = body:sub(d1)
       break
     end
-    out[#out + 1] = refs_inside(body:sub(d1, d2))
+    out[#out + 1] = refs_inside(body:sub(d1, d2), references)
     pos = d2 + 1
   end
   return table.concat(out), ref_out
@@ -411,7 +475,7 @@ end
 -- = 全文编号对齐（值来自 html-latex-counters.lua——本文件不持有任何
 -- 环境/计数器知识）；\@ifundefined 保护：计数器实际不存在（float 惯例
 -- 误判，如裸 algorithmic）则跳过注入——块从 1 编号，不崩
-local function build_tex(body, counter_name, counter_start, macros, ref_out)
+local function build_tex(body, counter_name, counter_start, macros, ref_out, packages, references, preamble)
   local t = { "\\documentclass{article}", "\\usepackage[mathjax]{lwarp}" }
   -- 中文块字体支持（实证 2026-09-02）：块编译默认无 CJK 字体——中文字形
   -- 缺失 → pdftotext 提取层乱码。fontspec + 倒序平铺探测（\IfFontExistsTF
@@ -422,7 +486,38 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out)
   t[#t + 1] = "\\IfFontExistsTF{Microsoft YaHei}{\\setmainfont{Microsoft YaHei}}{}"
   t[#t + 1] = "\\IfFontExistsTF{SimSun}{\\setmainfont{SimSun}}{}"
   t[#t + 1] = "\\IfFontExistsTF{Noto Serif CJK SC}{\\setmainfont{Noto Serif CJK SC}}{}"
-  t[#t + 1] = "\\providecommand{\\citeproc}[2]{\\hyperlink{#1}{#2}}"
+  -- TikZ builds a fading mask in an internal hbox. lwarp's pgfpicture hook
+  -- must not start a new HTML image/page in that box (or in the preamble).
+  -- Treat only the mask construction as nested; normal drawings still use
+  -- lwarp's regular lateximage backend. Keep this private-package adapter here.
+  t[#t + 1] = [[\AddToHook{package/tikz/after}{%
+\usetikzlibrary{fadings}%
+\ifcsname c@LWR@lateximagedepth\endcsname
+\pretocmd{\tikzfading}{\addtocounter{LWR@lateximagedepth}{1}}{}{\PackageError{html-tex}{Cannot protect fading mask}{}}
+\apptocmd{\tikzfading}{\addtocounter{LWR@lateximagedepth}{-1}}{}{\PackageError{html-tex}{Cannot protect fading mask}{}}
+\fi}]]
+  -- The current lwarp-siunitx quantity formatter drops quantities inside
+  -- lateximages. Save siunitx's native formatter before the HTML adapter is
+  -- applied and restore it only in image groups; ordinary HTML keeps lwarp's
+  -- formatter. This adapter deliberately touches just the affected command.
+  t[#t + 1] = [[\AddToHook{package/siunitx/after}{%
+\ifcsname siunitx_quantity:nn\endcsname
+\expandafter\let\expandafter\HTMLTexQuantity\csname siunitx_quantity:nn\endcsname
+\ifcsname LWR@restoreorigformatting\endcsname
+\expandafter\appto\csname LWR@restoreorigformatting\endcsname{%
+\expandafter\let\csname siunitx_quantity:nn\endcsname\HTMLTexQuantity}
+\fi\fi}]]
+  if preamble and preamble ~= "" then t[#t + 1] = preamble end
+  for _, p in ipairs(packages or {}) do
+    t[#t + 1] = "\\usepackage{" .. p .. "}"
+  end
+  t[#t + 1] = "\\usepackage{hyperref}"
+  -- Bibliography anchors belong to the parent HTML, not this lwarp document.
+  -- A fragment href avoids lwarp's hypertarget/page lookup for local links.
+  t[#t + 1] = [[\DeclareRobustCommand{\citeproc}[2]{%
+\ifcsname c@LWR@lateximagedepth\endcsname
+  \ifnum\value{LWR@lateximagedepth}>0 #2\else\href{\##1}{#2}\fi
+\else #2\fi}]]
   if macros and macros ~= "" then
     -- Load declared packages before lwarp changes tabular-definition catcodes.
     -- Retain the original declarations/options; the full header below executes
@@ -452,8 +547,9 @@ local function build_tex(body, counter_name, counter_start, macros, ref_out)
   -- 实证：fileref 用 label 名时，含数字的 label（alg-test2）会被 lwarp
   -- 的 \LWR@htmlsectionfilename 当文件编号解析（显示 2 而非占位）；
   -- 剥壳时 href 统一改 #label，文件名部分无所谓
+  for lab in pairs(references or {}) do ref_out[lab] = true end
   for lab in pairs(ref_out or {}) do
-    t[#t + 1] = "\\newlabel{" .. lab .. "}{{@@REF:{" .. lab .. "}@@}{1}{}{" .. lab .. "}{}}"
+    t[#t + 1] = "\\newlabel{" .. lab .. "}{{" .. (references and references[lab] and pandoc.utils.stringify(references[lab]) or "@@REF:{" .. lab .. "}@@") .. "}{1}{}{" .. lab .. "}{}}"
     t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp}{{" .. lab .. "}{1}{block}{}{}}"
     t[#t + 1] = "\\newlabel{" .. lab .. "@lwarp@image}{{0}{0}{}{}{}}"
   end
@@ -592,7 +688,7 @@ local function embed_lateximages(html, cache)
   end)
 end
 
-local function compile_block(body, counter_name, counter_start, macros, labels, index, inline)
+local function compile_block(body, counter_name, counter_start, macros, labels, packages, index, references, preamble, inline)
   -- Isolate auxiliary files and retain diagnostics for each source block.
   local CACHE = CACHE .. "/block-" .. tostring(index)
   local scope = BLOCK_PREFIX .. "-" .. tostring(index)
@@ -606,7 +702,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
   os.remove(CACHE .. "/block_html.aux")
 
   local tex_path = CACHE .. "/block.tex"
-  local f = io.open(tex_path, "w")
+  local f = io.open(tex_path, "wb")
   if not f then return nil end
   -- 块内 label 集合（labelset）：数学外引用本块 label 时保留原样走
   -- lwarp 原生（真实 aux），不注入假条目
@@ -614,13 +710,27 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
   if labels then
     for _, lab in ipairs(labels) do labelset[lab] = true end
   end
-  local body_pp, ref_out = math_preprocess(body, labelset)
-  f:write(build_tex(body_pp, counter_name, counter_start, macros, ref_out))
+  local body_pp, ref_out = math_preprocess(body, labelset, references)
+  for lab in pairs(ref_out) do
+    assert(labelset[lab] or references[lab] or lab:find("#", 1, true),
+      "html-latex-lwarp: unresolved block reference: " .. lab)
+  end
+  local external = {}
+  for lab, number in pairs(references or {}) do if not labelset[lab] then external[lab] = number end end
+  f:write(build_tex(body_pp, counter_name, counter_start, macros, ref_out, packages, external, preamble))
   f:close()
 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
   -- lwarpmk.conf）→ HTML 版（写 block_html.html + block_html.css）
-  local ok = os.execute("cd " .. CACHE .. " && lualatex -interaction=nonstopmode block.tex >nul 2>&1")
+  local function latex(name)
+    local ok, output = pandoc.system.with_working_directory(CACHE, function()
+      return pcall(pandoc.pipe, "lualatex", {"-interaction=nonstopmode", "-halt-on-error", name}, "")
+    end)
+    local log = assert(io.open(CACHE .. "/driver-" .. name .. ".log", "wb"))
+    log:write(tostring(output)); log:close()
+    return ok
+  end
+  local ok = latex("block.tex")
   if not ok then
     io.stderr:write("[html-latex-lwarp] lualatex (print) failed\n")
     return nil
@@ -629,7 +739,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     io.stderr:write("[html-latex-lwarp] lualatex (print) produced no _html.tex\n")
     return nil
   end
-  ok = os.execute("cd " .. CACHE .. " && lualatex -interaction=nonstopmode block_html.tex >nul 2>&1")
+  ok = latex("block_html.tex")
   if not ok then
     io.stderr:write("[html-latex-lwarp] lualatex (html) failed\n")
     return nil
@@ -644,7 +754,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     log:close()
   end
   if needs_refs then
-    ok = os.execute("cd " .. CACHE .. " && lualatex -interaction=nonstopmode block_html.tex >nul 2>&1")
+    ok = latex("block_html.tex")
     if not ok then
       io.stderr:write("[html-latex-lwarp] lualatex (references) failed\n")
       return nil
@@ -655,7 +765,7 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
   -- file. Only blocks containing images need these additional passes.
   for pass = 1, 2 do
     if ready then break end
-    if not os.execute("cd " .. CACHE .. " && lualatex -interaction=nonstopmode block_html.tex >nul 2>&1") then
+    if not latex("block_html.tex") then
       assert(false, "lateximage page pass failed: " .. CACHE .. "/block_html.log")
     end
     images, ready = read_lateximages(CACHE)
@@ -685,6 +795,9 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
     or html:match("<main[^>]*>(.*)</main>")
     or html:match("<body>(.*)</body>")
     or html
+  -- Image pages are also copied into HTML comments by pdftotext. They are
+  -- compiler transport, not HTML content, and may contain unmapped math glyphs.
+  inner = inner:gsub('(<span[^>]-class="lateximagesource"[^>]*>)%s*<!%-%-.-%-%->', '%1')
   inner = embed_lateximages(inner, CACHE)
   -- 删 <link>（改内联 css）
   inner = inner:gsub("<link[^>]*>", "")
@@ -742,118 +855,170 @@ local function read_counters(meta)
   return blocks
 end
 
-return {
-  {
-    Pandoc = function(doc)
-      -- MathJax 宏注入（主页面级——扫描全文自动发现数学里的文本命令，
-      -- 定义来自用户/include-in-header 包源——body 开头同步 script 设
-      -- window.MathJax tex.macros；零显式配置）
-      local mj_macros = extract_mathjax_macros(doc)
-      if mj_macros ~= "" then
-        table.insert(doc.blocks, 1, pandoc.RawBlock("html", mj_macros))
+-- One backend for every raw LaTeX environment. Prepare before Quarto, then
+-- render after indexing; the reference bridge runs again on generated HTML.
+function Pandoc(doc)
+  local pending = doc.meta[state_key]
+  if pending == nil then
+    local mj_macros = extract_mathjax_macros(doc)
+    if mj_macros ~= "" then doc.blocks:insert(1, pandoc.RawBlock("html", mj_macros)) end
+    pending = pandoc.MetaList({})
+    local citations = pandoc.Inlines({})
+    doc = doc:walk({RawBlock = function(block)
+      if (block.format ~= "latex" and block.format ~= "tex") or
+          not is_compile_candidate(block.text) then return nil end
+      local first = #citations + 1
+      pending:insert(pandoc.MetaString(prepare_citations(block.text, citations)))
+      local index = tostring(#pending)
+      local blocks
+      if block.text:match("\\begin%s*{tikzpicture}") or block.text:match("\\tikz%f[^%a]") then
+        -- The image is only a layout placeholder; the backend still renders the
+        -- complete block as HTML, including any surrounding text and tables.
+        blocks = {pandoc.Para({pandoc.Image({pandoc.Str("Diagram")}, placeholder, "",
+          pandoc.Attr("", {}, {[marker] = index, width = "100%"}))})}
+      else
+        blocks = {pandoc.Div({}, pandoc.Attr("", {}, {[marker] = index}))}
       end
-      local macros = read_header(doc.meta)
-      -- Resolve bibliographic commands against the parent document. Only the
-      -- citation is parsed; table structure and macros are executed by TeX.
-      local function resolve_citations(text)
-        return text:gsub("\\cite[%a]*%*?%s*%b{}", function(command)
-          local citation = pandoc.read(command, "latex")
-          local meta = pandoc.Meta({})
-          for key, value in pairs(doc.meta) do meta[key] = value end
-          citation.meta = meta
-          citation.meta["link-citations"] = pandoc.MetaBool(true)
-          citation.meta["suppress-bibliography"] = pandoc.MetaBool(true)
-          citation = pandoc.utils.citeproc(citation)
-          return pandoc.write(citation, "latex"):gsub("%s+$", "")
-        end)
+      if #citations >= first then
+        local slots = pandoc.Inlines({})
+        for i = first, #citations do slots:insert(citations[i]) end
+        blocks[#blocks + 1] = pandoc.Plain(slots)
       end
-      -- Compile every inline occurrence once, in source order, in one document.
-      -- Do not deduplicate: counters and other TeX side effects may be observable.
-      local fragments = {}
-      doc:walk({RawInline = function(node)
-        if node.format == "latex" or node.format == "tex" then
-          fragments[#fragments + 1] = node.text
+      return blocks
+    end})
+    local inline_pending = pandoc.MetaList({})
+    doc = doc:walk({traverse = "topdown", Cite = function(node) return node, false end, RawInline = function(node)
+      if node.format ~= "latex" and node.format ~= "tex" then return nil end
+      local first = #citations + 1
+      inline_pending:insert(pandoc.MetaString(prepare_citations(node.text, citations)))
+      local slots = pandoc.Inlines({pandoc.Span({}, pandoc.Attr("", {}, {
+        ["data-html-tex-inline"] = tostring(#inline_pending)}))})
+      for i = first, #citations do slots:insert(citations[i]) end
+      return slots
+    end})
+    doc.meta["html-tex-lwarp-inline"] = inline_pending
+    doc.meta[state_key] = pending
+    return doc
+  end
+  local inline_pending = doc.meta["html-tex-lwarp-inline"] or {}
+  if #pending == 0 and #inline_pending == 0 then
+    doc.meta[state_key] = nil; doc.meta["html-tex-lwarp-inline"] = nil; return doc
+  end
+  local citations = {}
+  local has_citations = false
+  doc:walk({Span = function(span)
+    if span.attributes[citation_marker] then has_citations = true end
+  end})
+  if has_citations then
+    local available = {}
+    for _, reference in ipairs(pandoc.utils.references(doc)) do
+      available[pandoc.utils.stringify(reference.id)] = true
+    end
+    doc:walk({Span = function(span)
+      if not span.attributes[citation_marker] then return nil end
+      span:walk({Cite = function(cite)
+        for _, citation in ipairs(cite.citations) do
+          assert(available[citation.id], "html-latex-lwarp: unresolved block citation: " .. citation.id)
         end
       end})
-      if #fragments > 0 then
-        local body = {}
-        for index, text in ipairs(fragments) do
-          body[#body + 1] = "\\begingroup\\InlineClass{html-tex-fragment-" .. index
-              .. "}{" .. resolve_citations(text) .. "}\\endgroup\\par"
-        end
-        local result = assert(compile_block(table.concat(body, "\n"), "", 0,
-            macros, extract_labels(table.concat(fragments, "\n")), "inline", true),
-            "lwarp inline compilation failed; see .quarto/lwarp/block-inline/")
-        local rendered = {}
-        for index in ipairs(fragments) do
-          local _, first = result.html:find('<span class="html%-tex%-fragment%-' .. index .. '">')
-          assert(first, "lwarp did not emit inline fragment " .. index)
-          local position, depth = first + 1, 1
-          while depth > 0 do
-            local open, close, slash = result.html:find("<(/?)span[%s>]", position)
-            assert(open, "unbalanced lwarp inline fragment " .. index)
-            depth = depth + (slash == "/" and -1 or 1)
-            if depth == 0 then
-              rendered[index] = result.html:sub(first + 1, open - 1)
-            end
-            position = close + 1
-          end
-          -- A RawInline cannot safely carry a paragraph or block environment.
-          assert(not rendered[index]:match("</?p[%s>]")
-              and not rendered[index]:match("</?div[%s>]")
-              and not rendered[index]:match("</?table[%s>]"),
-              "block content in inline LaTeX fragment " .. index .. "; use a raw LaTeX block")
-        end
-        local index = 0
-        doc = doc:walk({RawInline = function(node)
-          if node.format == "latex" or node.format == "tex" then
-            index = index + 1
-            return pandoc.RawInline("html", '<span class="lwarp-inline ' .. result.scope
-                .. '">' .. rendered[index] .. '</span>')
-          end
-        end})
-        table.insert(doc.blocks, 1, pandoc.RawBlock("html", "<style>" .. result.css .. "</style>"))
+    end})
+    -- Use all parent citations, preserving first-use order and disambiguation.
+    local rendered = pandoc.utils.citeproc(doc:clone())
+    rendered:walk({Span = function(span)
+      local index = span.attributes[citation_marker]
+      if index then citations[index] = pandoc.write(pandoc.Pandoc({pandoc.Plain(span.content)}), "latex"):gsub("%s+$", "") end
+    end})
+    doc = doc:walk({Span = function(span)
+      if not span.attributes[citation_marker] then return nil end
+      span.attributes[citation_marker] = nil
+      span.attributes.style = "display:none"
+      span.attributes["aria-hidden"] = "true"
+      return span
+    end})
+  end
+  local macros, packages = read_header(doc.meta), {}
+  local preamble = ""
+  local references = assert(doc.meta["html-tex-lwarp-references"], "html-latex-lwarp: reference bridge must run before rendering")
+  local function resolve_citations(body)
+    return body:gsub("\\htmltexcitation{(%d+)}", function(slot)
+      return assert(citations[slot], "html-latex-lwarp: missing processed citation " .. slot)
+    end)
+  end
+  local fragments = {}
+  for _, body in ipairs(inline_pending) do fragments[#fragments + 1] = pandoc.utils.stringify(body) end
+  local separator = pandoc.system.os == "mingw32" and ";" or ":"
+  local inputs = "." .. separator .. pandoc.system.get_working_directory():gsub("\\", "/")
+    .. "/" .. separator .. (os.getenv("TEXINPUTS") or "")
+  local environment = pandoc.system.environment()
+  environment.TEXINPUTS = inputs
+  doc = pandoc.system.with_environment(environment, function()
+    if #fragments > 0 then
+      local body = {}
+      for index, text in ipairs(fragments) do
+        body[#body + 1] = "\\begingroup\\InlineClass{html-tex-fragment-" .. index
+            .. "}{" .. resolve_citations(text) .. "}\\endgroup\\par"
       end
-      local counter_blocks = read_counters(doc.meta)
-      local k = 0 -- 编译候选序（与 counters.lua 的 blocks 列表对齐）
-      local function process_blocks(blocks)
-        for i = 1, #blocks do
-          local blk = blocks[i]
-          if blk.t == "RawBlock" and (blk.format == "tex" or blk.format == "latex") then
-            local text = blk.text
-            if is_compile_candidate(text) then
-              k = k + 1
-              local cinfo = counter_blocks[k] or { counter = "", start = 0 }
-              local labels = extract_labels(text)
-              local ok, html = pcall(compile_block, resolve_citations(text),
-                cinfo.counter, cinfo.start, macros, labels, k)
-              if ok and html then
-                -- pandoc 3 AST 节点只读（'tag' 不可写）——替换整个节点
-                blocks[i] = pandoc.RawBlock("html", html)
-              else
-                if not ok then io.stderr:write("[html-latex-lwarp] " .. tostring(html) .. "\n") end
-                -- 编译失败不静默消失：原 LaTeX 源码为可见警告块（可诊断）。
-                -- 失败原因归项目层（include-in-header 声明与 lwarp 能力冲突等
-                -- ——如老式 algorithmic 包 lwarp 明确拒绝）——filter 不强行适配
-                blocks[i] = pandoc.RawBlock("html",
-                  '<div class="lwarp-failed" title="lwarp 编译失败，原 LaTeX 块如下（检查 include-in-header 声明或块内容）">'
-                  .. '<pre>' .. text:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</pre></div>")
-              end
-            else
-              -- PDF 控制片段（无 \begin 结构）：跳过——quarto HTML writer
-              -- 丢弃 latex RawBlock——PDF 专用命令在 HTML 端无意义的语义
-            end
-          elseif blk.t == "Div" or blk.t == "BlockQuote" or blk.t == "Figure" then
-            blk.content = process_blocks(blk.content)
-          elseif blk.t == "BulletList" or blk.t == "OrderedList" then
-            for j, item in ipairs(blk.content) do blk.content[j] = process_blocks(item) end
+      local result = assert(compile_block(table.concat(body, "\n"), "", 0,
+          macros, extract_labels(table.concat(fragments, "\n")), packages, "inline", references, preamble, true),
+          "lwarp inline compilation failed; see .quarto/lwarp/block-inline/")
+      local rendered = {}
+      for index in ipairs(fragments) do
+        local _, first = result.html:find('<span class="html%-tex%-fragment%-' .. index .. '">')
+        assert(first, "lwarp did not emit inline fragment " .. index)
+        local position, depth = first + 1, 1
+        while depth > 0 do
+          local open, close, slash = result.html:find("<(/?)span[%s>]", position)
+          assert(open, "unbalanced lwarp inline fragment " .. index)
+          depth = depth + (slash == "/" and -1 or 1)
+          if depth == 0 then
+            rendered[index] = result.html:sub(first + 1, open - 1)
           end
+          position = close + 1
         end
-        return blocks
+        -- A RawInline cannot safely carry a paragraph or block environment.
+        assert(not rendered[index]:match("</?p[%s>]")
+            and not rendered[index]:match("</?div[%s>]")
+            and not rendered[index]:match("</?table[%s>]"),
+            "block content in inline LaTeX fragment " .. index .. "; use a raw LaTeX block")
       end
-      doc.blocks = process_blocks(doc.blocks)
-      -- References are resolved uniformly by html-latex-ref.lua at post-quarto.
-      return doc
-    end,
-  },
-}
+      local index = 0
+      doc = doc:walk({Span = function(node)
+        if node.attributes["data-html-tex-inline"] then
+          index = tonumber(node.attributes["data-html-tex-inline"])
+          return pandoc.RawInline("html", '<span class="lwarp-inline ' .. result.scope
+              .. '">' .. rendered[index] .. '</span>')
+        end
+      end})
+      table.insert(doc.blocks, 1, pandoc.RawBlock("html", "<style>" .. result.css .. "</style>"))
+    end
+    local counters = read_counters(doc.meta)
+    local function render(index)
+      local body = pandoc.utils.stringify(assert(pending[tonumber(index)]))
+      body = body:gsub("\\htmltexcitation{(%d+)}", function(slot)
+        return assert(citations[slot], "html-latex-lwarp: missing processed citation " .. slot)
+      end)
+      local counter = counters[tonumber(index)] or {counter = "", start = 0}
+      local ok, html = pcall(compile_block, body, counter.counter, counter.start, macros,
+        extract_labels(body), packages, tonumber(index), references, preamble)
+      assert(ok and html, "html-latex-lwarp: block " .. index .. " failed; see .quarto/lwarp/block-" .. index .. "/block*.log; " .. tostring(html))
+      return pandoc.RawBlock("html", html)
+    end
+    doc = doc:walk({
+      Div = function(div)
+        local index = div.attributes[marker]
+        if index then return render(index) end
+      end,
+      Para = function(para)
+        if #para.content == 1 and para.content[1].t == "Image" then
+          local index = para.content[1].attributes[marker]
+          if index then return render(index) end
+        end
+      end,
+    })
+    return doc
+  end)
+  doc.meta["html-tex-lwarp-inline"] = nil
+  doc.meta[state_key] = nil
+  doc.meta["html-tex-lwarp-references"] = nil
+  return doc
+end

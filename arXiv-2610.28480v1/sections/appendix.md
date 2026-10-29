@@ -376,7 +376,7 @@ total (\num{129514}) & 179 & 25 & 0 \\
 
 ::: {#fig-failed-motions width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[font=\scriptsize]
 \begin{axis}[

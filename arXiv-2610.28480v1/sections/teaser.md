@@ -1,6 +1,6 @@
 ::: {#fig-teaser width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \begin{minipage}[c]{0.65\textwidth}
   \centering

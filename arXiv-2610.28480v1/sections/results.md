@@ -16,7 +16,7 @@ Figure \ref{fig-compute}(b, c) shows that, for SuperMimic, GPU-hours to the tar
 
 ::: {#fig-compute width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \def\budgetrows{10.5mm}
 \begin{tikzpicture}[font=\scriptsize]
@@ -88,7 +88,7 @@ Figure \ref{fig-compute}(b, c) shows that, for SuperMimic, GPU-hours to the tar
 :::
 ::: {#fig-controlled width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \begin{tikzpicture}[font=\scriptsize]
 \begin{axis}[
@@ -156,7 +156,7 @@ These results rest on three properties of the learned world model $f_\omega$: it
 
 ::: {#fig-wm-efficiency width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \begin{tikzpicture}[font=\scriptsize, speedup/.style={context, |-|, shorten <=1ex, shorten >=1ex}]
 \begin{axis}[
@@ -221,7 +221,7 @@ One general motion tracker deploys on a real Unitree G1 without per-motion tuni
 
 ::: {#fig-acrobatics width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \newcommand{\snaprow}[3]{\begin{tikzpicture}[snaptag/.style={font=\footnotesize, text=white, fill=black, fill opacity=0.6, text opacity=1, inner sep=1.5pt, rounded corners=1pt}]
   \node[inner sep=0pt] (s) {\includegraphics[width=\linewidth]{#1}};
@@ -243,7 +243,7 @@ SuperMimic trains downstream goal encoders jointly with the motion-tracking inte
 
 ::: {#fig-downstream width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \input{figures/data/stepgrid_grid.tex}
 \pgfdeclareplotmark{ring}{

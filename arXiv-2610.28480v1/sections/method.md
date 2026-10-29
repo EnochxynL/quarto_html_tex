@@ -2,7 +2,7 @@
 
 ::: {#fig-pipeline width="100%" fig-pos="H"}
 
-```{=latex}
+```{=tikz}
 \centering
 \def\panelgap{2.5mm}
 \def\gutter{5mm}

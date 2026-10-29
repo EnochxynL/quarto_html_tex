@@ -11,28 +11,10 @@ format:
     toc: true
     number-sections: true
     html-tex:
-      tikz:
-        engine: pdflatex
-        preamble-file: figures/tikz-preamble.tex
       include-in-header:
-        text: |
-          \usepackage{amsmath}
-          \usepackage{amssymb}
-          \usepackage{bm}
-          \usepackage{graphicx}
-          \usepackage{xcolor}
-          \usepackage{colortbl}
-          \usepackage{booktabs}
-          \usepackage{array}
-          \usepackage{siunitx}
-          \usepackage{pifont}
-          \usepackage{algorithm}
-          \usepackage{algpseudocode}
-
-          \sisetup{group-separator={,},group-minimum-digits=5,range-phrase={--},range-units=single,per-mode=symbol,separate-uncertainty=true,separate-uncertainty-units=single}
-          \definecolor{AnaFill}{RGB}{217,240,211}
-          \newcommand{\cmarkg}{\textcolor{green!55!black}{\checkmark}}
-          \newcommand{\xmarkr}{\textcolor{red!75!black}{\ding{55}}}
+        - file: figures/tikz-preamble.tex
+        - text: |
+            \usepackage{array,colortbl}
 ---
 
 {{< include sections/teaser.md >}}

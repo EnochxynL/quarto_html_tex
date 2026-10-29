@@ -1,6 +1,6 @@
 # html-tex
 
-把 Quarto 中保留的原始 LaTeX 环境转换为 HTML。表格、算法等统一交给
+把 Quarto 中保留的原始 LaTeX 环境转换为 HTML。表格、算法、TikZ 等统一交给
 lwarp 执行，不再通过 Lua 拆解表格或经 Pandoc Table 中转。PDF 渲染不受影响。
 
 ## 使用
@@ -76,7 +76,7 @@ HTML 也兼容 PDF 图片 URL 中的 `#page=2`，显式 `page` 属性优先；�
 ~~~~markdown
 ::: {#fig-example}
 
-```{=latex}
+```{=tikz}
 \begin{tikzpicture}
 \node[draw] (a) at (0,0) {Input};
 \node[draw] (b) at (3,0) {Output};
@@ -88,10 +88,12 @@ Example diagram.
 :::
 ~~~~
 
-HTML 端由 `figure/html-tikz.lua` 独立编译 PDF，再调用 `pdftocairo -svg`，
-将 SVG 以 data URI 嵌入原生图形对象；不经 lwarp。PDF 端保留原始图体，
-由文档自身的 LaTeX 引擎、模板编译。无编号的裸 TikZ 块也可使用。
-不要将外层 `figure`、caption 和 label 一起放入绘图块。
+HTML 端统一由 `latex/html-latex-lwarp.lua` 编译。正文和表格输出 HTML 元素，
+TikZ / PGFPlots 使用 lwarp 的 lateximage 机制生成 SVG，以 data URI 嵌入 HTML。
+同一个块可以包含文字、表格和绘图，不会被整个压成一张图片。
+PDF 端保留原始代码，由文档自身的 LaTeX 引擎、模板编译。
+若需要 Quarto 管理图题和编号，使用上例的原生 figure Div；原始 LaTeX figure
+也可以交给 lwarp，其标题和标签由 lwarp 管理。
 
 复杂图形可显式声明构图依赖：
 
@@ -99,41 +101,45 @@ HTML 端由 `figure/html-tikz.lua` 独立编译 PDF，再调用 `pdftocairo -svg
 format:
   html:
     html-tex:
-      tikz:
-        engine: pdflatex
-        preamble-file: figures/tikz-preamble.tex
+      include-in-header:
+        file: figures/tikz-preamble.tex
 ~~~
 
-`preamble-file` 相对当前文档目录，内容为宏包、字体、样式、尺寸和宏定义，
-不包含 `\documentclass` 或文档正文。默认使用 article 类及 tikz 包；可选引擎为
-pdflatex、lualatex、xelatex。PDF 模板或 `include-in-header` 需自行提供相应依赖，
+`include-in-header.file` 相对当前文档目录，内容为宏包、字体、样式、尺寸和宏定义，
+不包含 `\documentclass`、文档正文或出版页面样式。所有块使用 article 和 LuaLaTeX；
+TikZ、PGFPlots 等依赖需在导言文件或 `include-in-header.text` 中声明。
+同一宏不要在文件和 `include-in-header.text` 中重复定义。
+PDF 模板或 `include-in-header` 需自行提供相应依赖，
 HTML 配置不会自动改写 PDF 模板。CSV、图片和 `\input` 的路径相对当前文档目录。
 
-插件先登记绘图位置，再在 Quarto 索引完成后编译，从统一引用桥取得当前文档
+插件先登记 LaTeX 块，再在 Quarto 索引完成后编译，从统一引用桥取得当前文档
 的编号，支持前向引用及将 `\ref` 封装在宏中的用法；不读取历史 PDF 的 aux 文件。
 图内编号在 SVG 生成前解析；它们成为图形内容，不会自动获得正文链接的悬停预览。
 跨文件书籍的最终编号尚未确定时，依赖这些编号的绘图会报告未解析引用。
 
 每次 HTML 渲染都会重新编译，以观察外部数据和图片的改动。中间 TeX、PDF、SVG
-及诊断保存在 `.quarto/tikz/figure-N/`。缺失依赖、未解析引用、缺失字形和转换错误
+及诊断保存在 `.quarto/lwarp/block-N/`。缺失依赖、未解析引用和转换错误
 会使渲染明确失败。图体中的 `\cite`、`\citep`、`\citet` 等 Pandoc 可识别的引用
 参与父文档的 citeproc 流程，使用相同的 bibliography、CSL 样式及引用顺序；
 图内首次出现的文献也会进入正文参考文献表。插件在原位置保留隐藏的引用节点，
 从完整文档的 citeproc 结果取得图内文字，不单独编号，也不读取历史 PDF 的文献数据。
-仅处理图体中显式出现的命令，不执行任意 TeX 宏展开以发现引用；导言区引用不在此范围内。
+仅处理块中显式出现的命令，不执行任意 TeX 宏展开以发现引用；导言区引用不在此范围内。
+
+当前包含两处局部 lwarp 兼容处理：构造 TikZ fading 遮罩时抑制错误的图片分页，
+以及在 lateximage 内恢复 siunitx 的原生 quantity 格式化，避免数值和单位消失。
+它们不改写绘图源码，也不影响普通 HTML 中的 siunitx 输出；回归测试检查实际图像页面。
 
 ## 转换链
 
 1. html-css.lua：默认样式；figure/html-pdf.lua 在 post-quarto 将本地 PDF 图片
    转成 Cairo SVG。无需 embed 专用 CSS，使用原生图片尺寸和响应式布局。
-   figure/html-tikz.lua 在 pre-quarto 准备绘图对象，在引用桥之后的 post-quarto
-   编译 TikZ → PDF → SVG；figure caption 和编号仍由 Quarto 管理。
-2. latex/html-latex-counters.lua：为独立编译块准备全文计数上下文。
-3. latex/html-latex-lwarp.lua：生成 TeX，运行 LuaLaTeX 打印版和 HTML 版，
+2. latex/html-latex-counters.lua：在 pre-quarto 为独立编译块准备全文计数上下文。
+3. latex/html-latex-lwarp.lua：在 pre-quarto 登记块、原生图片占位和文献引用。
+   引用桥在 post-quarto 提供编号后，统一生成 TeX，运行 LuaLaTeX 打印版和 HTML 版，
    用 pdftotext 提取 HTML，并嵌入主页面。每块 CSS 和内部锚点单独隔离。
    遇到 lateximage（例如 pifont 符号）时，额外编译以确定图片页码，按 lwarp
    的转换顺序生成 SVG，并以 data URI 嵌入，不依赖临时目录中的图片路径。
-4. latex/html-latex-ref.lua：在 post-quarto 阶段统一处理 LaTeX 引用和 lwarp 占位符。
+4. latex/html-latex-ref.lua：在渲染前导出编号，在渲染后解析新生成 HTML 中的引用。
    内置查询辅助函数读取 Quarto 已登记目标，不按 sec/fig/tbl 前缀分派，
    也不重新计数或抓取最终 HTML。未登记目标再查 lwarp 计数桥提供的编号。
    lwarp 表格的标题和编号仍由 lwarp 输出。
@@ -147,8 +153,8 @@ html-tex 可独立安装，不依赖其他引用扩展。查询辅助函数暂�
 本插件暂不为这些目标生成最终跨文件链接。
 
 正文和标题里的 LaTeX 文献引用由父文档的 citeproc 数据解析，再交给 TeX；
-表格结构仍完全由 lwarp 处理。当前引用桥支持无可选参数的 \cite、
-\citep、\citet 等命令。文献链接指向主页面的参考文献。
+表格结构仍完全由 lwarp 处理。支持 Pandoc 可识别的 \cite、\citep、\citet
+及其可选参数。图内引用成为 SVG 内容，HTML 文献链接指向主页面的参考文献。
 
 MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公式，包含嵌套内容。
 显式声明 bm 宏包时，为网页端提供 bm → boldsymbol 的兼容映射；用户宏定义优先。
@@ -176,14 +182,19 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
   `\caption[短标题]{完整标题}`，保持原始标签名和完整可见标题，直接交由 LaTeX
   编译，不依靠改标签前缀规避这一问题。
 - 保留的是网页中的内容与结构，不保证复现 PDF 的精确尺寸或分页。
-  不支持的宏包、语法或缺失依赖会显示 lwarp-failed 警告及原始代码。
+  不支持的宏包、语法或缺失依赖会使渲染失败，并保留日志。
 - 每次渲染重新编译，尚无结果缓存。每块源文件和编译日志保存在
   .quarto/lwarp/block-N/，可直接检查失败位置。
 - 图片生成需要 pdfseparate、pdfcrop、pdftocairo；pdfcrop 还需要 Perl 和
-  Ghostscript。转换错误会显示失败块，详细日志在各块的 image-tools.log。
+  Ghostscript。转换错误会使渲染失败，详细日志在各块的 image-tools.log。
   Windows 下插件会尝试向转换子进程提供 Git 自带的 Perl，不修改系统环境。
 
 ## 论文示例
 
 仓库中的六篇论文包含 HTML 和 PDF 入口，详见根目录的 `PAPERS.md`。
 在仓库根目录运行 `quarto render` 即可编译全部示例，无需 Python 辅助脚本。
+
+
+### Explicit rendering routes
+
+Use `{=latex}` for lwarp HTML rendering. Use `{=tikz}` for standalone LaTeX to PDF to Cairo SVG, including tables, algorithms, or mixed content. The marker selects the backend. Both formats become raw LaTeX for PDF output. Standalone blocks share the preamble and document citation/reference numbers; SVG text is outlined.

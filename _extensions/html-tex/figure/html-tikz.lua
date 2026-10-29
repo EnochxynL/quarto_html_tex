@@ -1,7 +1,12 @@
--- Raw TikZ drawing bodies -> PDF -> Cairo SVG for HTML.
+-- Explicit {=tikz} blocks (drawings, tables, algorithms or mixed TeX)
+-- -> standalone LaTeX -> PDF -> Cairo SVG for HTML.
 -- Register twice: prepare native images before Quarto, then compile after the
 -- reference bridge has supplied document numbers. PDF keeps the original TeX.
-if not quarto.format.is_html_output() then return {} end
+if FORMAT ~= "html" and FORMAT ~= "html5" then
+  return {{RawBlock = function(block)
+    if block.format == "tikz" then return pandoc.RawBlock("latex", block.text) end
+  end}}
+end
 
 local state_key = "html-tex-tikz-pending"
 local marker = "data-html-tex-tikz"
@@ -122,21 +127,45 @@ local function pdf_to_svg(pdf_path, svg_path, page)
 end
 
 
+local function header_text(v)
+  local typ = pandoc.utils.type(v)
+  if typ == "Blocks" or typ == "MetaBlocks" then
+    local parts = {}
+    for _, b in ipairs(v) do
+      parts[#parts + 1] = b.t == "RawBlock" and b.text or pandoc.utils.stringify(b)
+    end
+    return table.concat(parts, "\n")
+  end
+  return pandoc.utils.stringify(v)
+end
+local function read_header(meta)
+  local config, parts = meta["html-tex"] or {}, {}
+  local function append(v)
+    local typ = pandoc.utils.type(v)
+    if typ == "List" or typ == "MetaList" then
+      for _, item in ipairs(v) do append(item) end
+    elseif type(v) == "table" and (v.file ~= nil or v.text ~= nil) then
+      if v.file ~= nil and v.text == nil then append(v.file)
+      elseif v.text ~= nil and v.file == nil then parts[#parts + 1] = header_text(v.text)
+      else assert(false, "html-tex.include-in-header: specify exactly one of file or text") end
+    else
+      local file, message = io.open(header_text(v), "rb")
+      assert(file, "html-tex.include-in-header: " .. tostring(message))
+      parts[#parts + 1] = file:read("*a")
+      file:close()
+    end
+  end
+  if config["include-in-header"] ~= nil then append(config["include-in-header"]) end
+  return table.concat(parts, "\n")
+end
+
 function Pandoc(doc)
   local pending = doc.meta[state_key]
   if pending == nil then
     pending = pandoc.MetaList({})
     local citations = pandoc.Inlines({})
     doc = doc:walk({RawBlock = function(block)
-      if block.format ~= "latex" and block.format ~= "tex" then return nil end
-      if not block.text:match("\\begin%s*{tikzpicture}") and
-          not block.text:match("\\tikz%f[^%a]") then return nil end
-      -- A table/algorithm containing a small drawing belongs to the existing
-      -- environment renderer, not to the standalone figure compiler.
-      if block.text:match("\\begin%s*{table%*?}") or
-          block.text:match("\\begin%s*{algorithm%*?}") then return nil end
-      assert(not block.text:match("\\begin%s*{figure%*?}"),
-        "html-tikz: put the drawing body in a raw LaTeX block inside a #fig- Div; keep its caption as Markdown")
+      if block.format ~= "tikz" then return nil end
       local first = #citations + 1
       pending:insert(pandoc.MetaString(prepare_citations(block.text, citations)))
       local blocks = {pandoc.Para({pandoc.Image({pandoc.Str("Diagram")}, placeholder, "",
@@ -154,10 +183,10 @@ function Pandoc(doc)
   if #pending == 0 then return doc end
 
   local config = (doc.meta["html-tex"] or {}).tikz or {}
-  local engine = text(config.engine, "pdflatex")
+  local engine = text(config.engine, "lualatex")
   assert(engine == "pdflatex" or engine == "lualatex" or engine == "xelatex",
     "html-tikz: engine must be pdflatex, lualatex or xelatex")
-  local header = config["preamble-file"] and read(text(config["preamble-file"])) or ""
+  local header = read_header(doc.meta)
   local references = assert(doc.meta["html-tex-tikz-references"],
     "html-tikz: compile after latex/html-latex-ref.lua at post-quarto")
   local definitions = {}
@@ -215,7 +244,7 @@ function Pandoc(doc)
       return assert(citations[slot], "html-tikz: missing processed drawing citation " .. slot)
     end)
     local source = "\\documentclass{article}\n" .. header
-      .. "\n\\usepackage{tikz}\n\\usepackage[active,tightpage]{preview}\n"
+      .. "\n\\usepackage{tikz,float}\n\\makeatletter\\let\\HTMLTexFloat\\@xfloat\\def\\@xfloat#1[#2]{\\HTMLTexFloat{#1}[H]}\\makeatother\n\\usepackage[active,tightpage]{preview}\n"
       .. "\\providecommand{\\citeproc}[2]{#2}\n"
       .. "\\setlength{\\PreviewBorder}{2pt}\n" .. table.concat(definitions, "\n")
       .. "\n\\begin{document}\n\\begin{preview}\n\\begin{minipage}{\\textwidth}\n"

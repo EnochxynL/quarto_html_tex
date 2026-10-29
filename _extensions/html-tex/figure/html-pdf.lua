@@ -2,8 +2,7 @@
 -- Run post-quarto so format-hidden images are removed before opening files.
 if not quarto.format.is_html_output() then return {} end
 
--- Keep this helper identical in html-pdf.lua and html-tikz.lua. Deliberately
--- self-contained: no module loading or filter-relative path resolution.
+-- Existing PDF assets use Cairo directly; raw LaTeX uses the lwarp backend.
 local function pdf_to_svg(pdf_path, svg_path, page)
   os.remove(svg_path .. ".log")
   local function command(program, args)

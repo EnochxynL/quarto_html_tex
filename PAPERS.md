@@ -100,3 +100,7 @@ Inline listings inherit the surrounding font size instead of the smaller code-bl
 size. Font sizes and page counts can differ between English originals and Chinese
 translations; the PDFs under `assets/` provide visual references, not page-count
 targets.
+
+HTML uses explicit routes: `{=latex}` selects lwarp; `{=tikz}` selects standalone LaTeX and Cairo SVG.
+Drawing dependencies use `html-tex.include-in-header`; existing dark themes and
+PDF style mappings are unchanged. SuperMimic uses `figures/tikz-preamble.tex`.

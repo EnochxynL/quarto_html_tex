@@ -88,7 +88,7 @@ function Pandoc(doc)
   -- TeX must resolve references inside drawings before Cairo turns text into
   -- SVG paths. Export formatted numbers without duplicating private access in
   -- the drawing compiler or reading a previous PDF render's aux file.
-  if doc.meta["html-tex-tikz-pending"] and #doc.meta["html-tex-tikz-pending"] > 0 then
+  if #(doc.meta["html-tex-lwarp-pending"] or {}) > 0 or #(doc.meta["html-tex-lwarp-inline"] or {}) > 0 or #(doc.meta["html-tex-tikz-pending"] or {}) > 0 then
     local references = pandoc.MetaMap({})
     for identifier, number in pairs(lwarp_refs) do
       references[identifier] = pandoc.MetaString(pandoc.utils.stringify(number))
@@ -100,6 +100,7 @@ function Pandoc(doc)
           pandoc.Pandoc({pandoc.Plain(ref.number)}), "latex"):gsub("%s+$", ""))
       end
     end
+    doc.meta["html-tex-lwarp-references"] = references
     doc.meta["html-tex-tikz-references"] = references
   end
 

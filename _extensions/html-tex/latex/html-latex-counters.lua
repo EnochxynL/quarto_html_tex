@@ -113,7 +113,8 @@ return {
         if text == false then
           counts.table = (counts.table or 0) + 1
         else
-          local env = text:match("\\begin{([^}]+)}")
+          local env = text:match("\\begin%s*{([^}]+)}")
+          if not env and text:match("\\tikz%f[^%a]") then env = "tikzpicture" end
           if env then
             -- 共享注册优先（\newtheorem{X}[Y]——惯例猜不到）；否则环境名
             --（float 惯例 / 同名注册）

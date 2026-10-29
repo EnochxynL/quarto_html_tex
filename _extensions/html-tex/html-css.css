@@ -9,3 +9,10 @@
 :where(.lwarp-block) {
   overflow-x: auto;
 }
+
+/* lwarp wraps an inline image between minipages in a paragraph. Keep that
+ * connector inline, so the surrounding TeX minipages can remain side by side. */
+:where(.lwarp-block .minipage + p:has(> .lateximagesource):has(+ .minipage)) {
+  display: inline-block;
+  vertical-align: middle;
+}
