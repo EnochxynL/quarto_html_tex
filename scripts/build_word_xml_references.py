@@ -32,7 +32,7 @@ def remap(root, mapping):
         if tag.namespace == W and tag.localname in REFS and node.get(VAL) in mapping:
             node.set(VAL, mapping[node.get(VAL)])
 
-def build(key, source, *, seed=None, specimen=None):
+def build(key, source, *, seed=None, specimen=None, preserve_builtins_by_name=False):
     target = OUT/key/'reference-xml.docx'
     target.parent.mkdir(parents=True, exist_ok=True)
     seed = Path(seed) if seed else OUT/key/'style-seed.docx'
@@ -51,6 +51,15 @@ def build(key, source, *, seed=None, specimen=None):
     # Word resolves these built-ins implicitly (TOC links / table base style).
     # Keep their canonical identity rather than cloning an implicit default.
     preserved = {s.get(SID) for s in source_styles if s.get(SID) in {'Hyperlink','TableNormal'}}
+    preserved_aliases = {}
+    if preserve_builtins_by_name:
+        names = {'hyperlink':'Hyperlink', 'normal table':'TableNormal'}
+        for style in source_styles:
+            name = style.find('w:name',NS)
+            canonical = names.get(name.get(VAL,'').lower()) if name is not None else None
+            if canonical:
+                preserved.add(style.get(SID))
+                preserved_aliases[canonical] = style.get(SID)
     for style in source_styles:
         old = style.get(SID)
         if old in preserved:
@@ -116,9 +125,10 @@ def build(key, source, *, seed=None, specimen=None):
         assert ET.tostring(check,method='c14n') == ET.tostring(original,method='c14n')
     added_count = 0
     for style in additions.findall('w:style', NS):
-        if style.get(SID) in preserved:
+        if style.get(SID) in preserved or style.get(SID) in preserved_aliases:
             continue
         node = deepcopy(style)
+        remap(node,preserved_aliases)
         node.attrib.pop('{'+W+'}default', None)
         # CT_TblStylePr requires pPr/rPr before tblPr/trPr/tcPr.
         for conditional in node.findall('w:tblStylePr', NS):
