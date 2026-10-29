@@ -723,9 +723,13 @@ local function compile_block(body, counter_name, counter_start, macros, labels, 
   -- 双编译：打印版（lwarp 在 \end{document} 写 block_html.tex +
   -- lwarpmk.conf）→ HTML 版（写 block_html.html + block_html.css）
   local function latex(name)
-    local ok, output = pandoc.system.with_working_directory(CACHE, function()
-      return pcall(pandoc.pipe, "lualatex", {"-interaction=nonstopmode", "-halt-on-error", name}, "")
-    end)
+    -- Compile from the parent document directory so relative inputs resolve
+    -- naturally. TeX also searches its output directory for generated inputs.
+    -- Avoid with_environment: Windows drive entries can appear as an empty
+    -- environment name in Pandoc and make unsetEnv fail before compilation.
+    local ok, output = pcall(pandoc.pipe, "lualatex", {
+      "-interaction=nonstopmode", "-halt-on-error",
+      "-output-directory=" .. CACHE, CACHE .. "/" .. name}, "")
     local log = assert(io.open(CACHE .. "/driver-" .. name .. ".log", "wb"))
     log:write(tostring(output)); log:close()
     return ok
@@ -946,12 +950,7 @@ function Pandoc(doc)
   end
   local fragments = {}
   for _, body in ipairs(inline_pending) do fragments[#fragments + 1] = pandoc.utils.stringify(body) end
-  local separator = pandoc.system.os == "mingw32" and ";" or ":"
-  local inputs = "." .. separator .. pandoc.system.get_working_directory():gsub("\\", "/")
-    .. "/" .. separator .. (os.getenv("TEXINPUTS") or "")
-  local environment = pandoc.system.environment()
-  environment.TEXINPUTS = inputs
-  doc = pandoc.system.with_environment(environment, function()
+  do
     if #fragments > 0 then
       local body = {}
       for index, text in ipairs(fragments) do
@@ -1015,8 +1014,7 @@ function Pandoc(doc)
         end
       end,
     })
-    return doc
-  end)
+  end
   doc.meta["html-tex-lwarp-inline"] = nil
   doc.meta[state_key] = nil
   doc.meta["html-tex-lwarp-references"] = nil
