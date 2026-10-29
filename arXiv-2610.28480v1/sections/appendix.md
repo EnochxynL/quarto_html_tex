@@ -376,7 +376,9 @@ total (\num{129514}) & 179 & 25 & 0 \\
 
 ::: {#fig-failed-motions width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[font=\scriptsize]
 \begin{axis}[
@@ -415,6 +417,8 @@ total (\num{129514}) & 179 & 25 & 0 \\
 \end{tikzpicture}
 }
 ```
+
+::::
 
 **Failed motions during training on the filtered BONES-SEED training-set benchmark.** Checkpoints are scored every 4000 iterations, for the runs of Figure \ref{fig-compute}(a). SONIC: released checkpoint.
 

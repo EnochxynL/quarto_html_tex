@@ -2,7 +2,9 @@
 
 ::: {#fig-pipeline width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \def\panelgap{2.5mm}
 \def\gutter{5mm}
@@ -63,6 +65,8 @@
 \draw[->, context, rounded corners=2pt] (P3) -- (next) -- node[fill=white, font=\scriptsize]{next iteration} (next -| P1) -- (P1);
 \end{tikzpicture}
 ```
+
+::::
 
 **SuperMimic training loop.** (1) The current policy $\pi_\theta$ collects transitions in simulation into a fixed-size replay buffer $\mathcal{B}$, where new transitions replace the oldest. (2) The differentiable world model is fit to $k$-step windows sampled from $\mathcal{B}$ (§\ref{sec-wm}). (3) The policy is improved by backpropagation-through-time through the frozen world model over $H$ imagined steps; a critic $V_\psi$, trained in the same phase, bootstraps the return beyond $H$ (§\ref{sec-policy}). Dashed arrows are gradients;  = frozen,  = trained. Symbols: goal $\bm{g}_t$ (e.g., reference motion), action $\bm{a}_t$, action noise $\bm{\epsilon}_t$, observation $\bm{o}_t$, state $\bm{s}$ and predicted state $\hat{\bm{s}}$, and sim context $\bm{\xi}$ (domain-randomization parameters). $\mathcal{L}_{\text{WM}}$ is the world-model loss, $\hat{\bar{\bm{o}}}_t$ the predicted noise-free observation, $\bm{\eta}_t$ the sensor noise, $\hat{r}_{t+1}$ the predicted reward, and $\hat{J}(\theta)$ the policy objective.
 

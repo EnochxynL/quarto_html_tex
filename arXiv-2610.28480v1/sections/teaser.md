@@ -1,6 +1,8 @@
 ::: {#fig-teaser width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \begin{minipage}[c]{0.65\textwidth}
   \centering
@@ -36,6 +38,8 @@
   \end{tikzpicture}
 \end{minipage}
 ```
+
+::::
 
 **A learned differentiable world model trains a humanoid whole-body controller and reduces GPU-hours by more than $1000\times$ versus cluster-scale model-free reinforcement learning (§\ref{sec-scaling}).** Left: the policy improves through imagined rollouts of the world model. Right: 128 L40 GPUs train for 168 h in SONIC [@luo2025sonic], against one H100 for 3 h in this work.
 

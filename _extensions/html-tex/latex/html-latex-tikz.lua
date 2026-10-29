@@ -1,12 +1,8 @@
--- Explicit {=tikz} blocks (drawings, tables, algorithms or mixed TeX)
+-- Raw LaTeX inside .tex-render Divs with render-method="native"
 -- -> standalone LaTeX -> PDF -> Cairo SVG for HTML.
 -- Register twice: prepare native images before Quarto, then compile after the
 -- reference bridge has supplied document numbers. PDF keeps the original TeX.
-if FORMAT ~= "html" and FORMAT ~= "html5" then
-  return {{RawBlock = function(block)
-    if block.format == "tikz" then return pandoc.RawBlock("latex", block.text) end
-  end}}
-end
+if FORMAT ~= "html" and FORMAT ~= "html5" then return {} end
 
 local state_key = "html-tex-tikz-pending"
 local marker = "data-html-tex-tikz"
@@ -164,19 +160,41 @@ function Pandoc(doc)
   if pending == nil then
     pending = pandoc.MetaList({})
     local citations = pandoc.Inlines({})
-    doc = doc:walk({RawBlock = function(block)
-      if block.format ~= "tikz" then return nil end
-      local first = #citations + 1
-      pending:insert(pandoc.MetaString(prepare_citations(block.text, citations)))
-      local blocks = {pandoc.Para({pandoc.Image({pandoc.Str("Diagram")}, placeholder, "",
-        pandoc.Attr("", {"html-tex-tikz"}, {[marker] = tostring(#pending), width = "100%"}))})}
-      if #citations >= first then
-        local slots = pandoc.Inlines({})
-        for i = first, #citations do slots:insert(citations[i]) end
-        blocks[#blocks + 1] = pandoc.Plain(slots)
-      end
-      return blocks
-    end})
+    local function routing(method)
+      return {traverse = "topdown", Div = function(div)
+        local selected = method
+        local wrapper = div.classes:includes("tex-render")
+        if wrapper then
+          selected = div.attributes["render-method"] or "lwarp"
+          assert(selected == "native" or selected == "lwarp",
+            "html-latex-tikz: render-method must be native or lwarp")
+        end
+        div.content = pandoc.Pandoc(div.content):walk(routing(selected)).blocks
+        -- A routing-only wrapper must not hide the image from Quarto's figure
+        -- recognition. Retain wrappers carrying user IDs or presentation data.
+        if wrapper and div.identifier == "" and #div.classes == 1 then
+          local routing_only = true
+          for key in pairs(div.attributes) do
+            if key ~= "render-method" then routing_only = false end
+          end
+          if routing_only then return div.content, false end
+        end
+        return div, false
+      end, RawBlock = function(block)
+        if method ~= "native" or (block.format ~= "latex" and block.format ~= "tex") then return nil end
+        local first = #citations + 1
+        pending:insert(pandoc.MetaString(prepare_citations(block.text, citations)))
+        local blocks = {pandoc.Para({pandoc.Image({pandoc.Str("Diagram")}, placeholder, "",
+          pandoc.Attr("", {"html-tex-tikz"}, {[marker] = tostring(#pending), width = "100%"}))})}
+        if #citations >= first then
+          local slots = pandoc.Inlines({})
+          for i = first, #citations do slots:insert(citations[i]) end
+          blocks[#blocks + 1] = pandoc.Plain(slots)
+        end
+        return blocks
+      end}
+    end
+    doc = doc:walk(routing("lwarp"))
     doc.meta[state_key] = pending
     return doc
   end

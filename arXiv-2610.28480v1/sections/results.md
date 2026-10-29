@@ -16,7 +16,9 @@ Figure \ref{fig-compute}(b, c) shows that, for SuperMimic, GPU-hours to the tar
 
 ::: {#fig-compute width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \def\budgetrows{10.5mm}
 \begin{tikzpicture}[font=\scriptsize]
@@ -83,12 +85,16 @@ Figure \ref{fig-compute}(b, c) shows that, for SuperMimic, GPU-hours to the tar
 \end{tikzpicture}
 ```
 
+::::
+
 **SuperMimic surpasses SONIC's tracking return with far fewer GPU-hours.** (a) SuperMimic on one and two H100 GPUs surpasses the return of the released SONIC checkpoint (dashed), all three scored on the same benchmark of 129514 motions (264 h). Two budget rows compare SuperMimic (dot) with SONIC (diamond): SuperMimic reduces wall-clock time by more than $50\times$ and GPU-hours by more than $1000\times$. (b, c) On a shared dataset-length sweep, GPU-hours to target return (b) grow slowly while the world model's 8-step prediction error (c) stays within 0.007--0.011 as the dataset grows from 1 to 264 h, consistent with one world model amortizing shared body and contact dynamics across motions. The prediction error counts the state only, is normalized by a predefined nominal error, and is measured online on policy rollouts.
 
 :::
 ::: {#fig-controlled width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \begin{tikzpicture}[font=\scriptsize]
 \begin{axis}[
@@ -145,6 +151,8 @@ Figure \ref{fig-compute}(b, c) shows that, for SuperMimic, GPU-hours to the tar
 \end{tikzpicture}
 ```
 
+::::
+
 **In controlled comparisons, SuperMimic reaches a higher return sooner than PPO-Sim, and the critic enables shorter imagination horizons.** All runs use LAFAN1 (40 clips, 2.45 h). (a) SuperMimic backpropagates its imagined return through its world model on one GPU; PPO-Sim runs PPO in the simulator on 1, 4, or 8 GPUs (§\ref{sec-scaling}). Each point on a curve is a saved checkpoint scored on all 40 clips. (b, c) Final training return (b) and wall-clock hours until the training return reaches 0.82 (c) for each imagination horizon $H$, with and without the critic. The dashed line in (a) and (b) marks this target return of 0.82. Training return is the return of training episodes. Their initial states follow return-based reset sampling (Appendix \ref{sec-reset}) and shift during training, so training return differs from the checkpoint scores in (a). In (c), a cross marks a horizon at which return 0.82 is not reached: both variants at $H{=}8$, no critic at $H{=}16$. The shaded band marks the default $H{=}32$.
 
 :::
@@ -156,7 +164,9 @@ These results rest on three properties of the learned world model $f_\omega$: it
 
 ::: {#fig-wm-efficiency width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \begin{tikzpicture}[font=\scriptsize, speedup/.style={context, |-|, shorten <=1ex, shorten >=1ex}]
 \begin{axis}[
@@ -204,6 +214,8 @@ These results rest on three properties of the learned world model $f_\omega$: it
 \end{tikzpicture}
 ```
 
+::::
+
 **Imagined rollouts are fast and differentiable.** (a) On an H100, over the batch sizes used in practice (shaded, 2k--16k parallel environments), the world model runs more than $10\times$ faster than MuJoCo Warp; the gap widens to $62\times$ at 64k, where MuJoCo Warp has flattened. One step is one 50 Hz control step, which MuJoCo Warp computes as four 5 ms substeps; the world model runs at the TF32 precision used in SuperMimic's training. (b) On walk/run/sprint motions from LAFAN1 [@harvey2020robust], SuperMimic, trained with its actor--critic update, reaches the best training return of PPO trained on world-model rollouts (PPO-WM) with about $64\times$ fewer imagined steps. PPO-WM runs at four batch sizes (parallel rollouts $\times$ steps per rollout); 16k$\times$`<!-- -->`{=html}32 is the best. Each curve is a centered moving average over $\pm0.05$ decade of imagined steps.
 
 :::
@@ -221,7 +233,9 @@ One general motion tracker deploys on a real Unitree G1 without per-motion tuni
 
 ::: {#fig-acrobatics width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \newcommand{\snaprow}[3]{\begin{tikzpicture}[snaptag/.style={font=\footnotesize, text=white, fill=black, fill opacity=0.6, text opacity=1, inner sep=1.5pt, rounded corners=1pt}]
   \node[inner sep=0pt] (s) {\includegraphics[width=\linewidth]{#1}};
@@ -234,6 +248,8 @@ One general motion tracker deploys on a real Unitree G1 without per-motion tuni
 \snaprow{snapshot_flip360.jpg}{(d)}{0.2}
 ```
 
+::::
+
 **One general motion tracker, trained through the learned world model, transfers to a real Unitree G1.** (a) Skipping jump, (b) side roll, (c) $90^\circ$ flip, and (d) in-place $360^\circ$ flip.
 
 :::
@@ -243,7 +259,9 @@ SuperMimic trains downstream goal encoders jointly with the motion-tracking inte
 
 ::: {#fig-downstream width="100%" fig-pos="H"}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \centering
 \input{figures/data/stepgrid_grid.tex}
 \pgfdeclareplotmark{ring}{
@@ -304,6 +322,8 @@ SuperMimic trains downstream goal encoders jointly with the motion-tracking inte
 \end{axis}
 \end{tikzpicture}
 ```
+
+::::
 
 **The policy with the RL-trained velocity encoder tracks step commands more accurately than the distillation baseline.** Each panel is a plane of the command space with the third component at zero, and each ring is one command. The outer disc's area is proportional to the larger of the two policies' relative steady-state errors in the step response to that command, and the hole's area to the smaller one; the color marks the better policy. Details in Appendix \ref{sec-velocity}.
 

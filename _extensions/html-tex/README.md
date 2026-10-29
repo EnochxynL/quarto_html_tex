@@ -76,13 +76,17 @@ HTML 也兼容 PDF 图片 URL 中的 `#page=2`，显式 `page` 属性优先；�
 ~~~~markdown
 ::: {#fig-example}
 
-```{=tikz}
+:::: {.tex-render render-method="native"}
+
+```{=latex}
 \begin{tikzpicture}
 \node[draw] (a) at (0,0) {Input};
 \node[draw] (b) at (3,0) {Output};
 \draw[->] (a) -- (b);
 \end{tikzpicture}
 ```
+
+::::
 
 Example diagram.
 :::
@@ -197,4 +201,4 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 
 ### Explicit rendering routes
 
-Use `{=latex}` for lwarp HTML rendering. Use `{=tikz}` for standalone LaTeX to PDF to Cairo SVG, including tables, algorithms, or mixed content. The marker selects the backend. Both formats become raw LaTeX for PDF output. Standalone blocks share the preamble and document citation/reference numbers; SVG text is outlined.
+Use `{=latex}` for lwarp HTML rendering. Use `.tex-render` with `render-method="native"` for standalone LaTeX to PDF to Cairo SVG, including tables, algorithms, or mixed content. The wrapper attribute selects the HTML backend; nested wrappers may override it. All source blocks remain standard `{=latex}`; PDF output needs no extension to interpret them. Standalone blocks share the preamble and document citation/reference numbers; SVG text is outlined.

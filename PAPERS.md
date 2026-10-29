@@ -16,11 +16,15 @@ submission metadata, and duplicate style files have been removed. Generated
 | Agentopia (2606.07513v1) | [Preview](build/arXiv-2606.07513v1/index.html) | [PDF](build/arXiv-2606.07513v1/paper.pdf) | `paper.qmd` |
 | SuperMimic (2610.28480v1) | [Preview](build/arXiv-2610.28480v1/index.html) | [PDF](build/arXiv-2610.28480v1/paper.pdf) | `paper.qmd` |
 
-From the workspace root, run `quarto render` to render all twelve outputs.
+From the workspace root, run `quarto render` to render the twelve HTML/PDF outputs
+and the experimental Word report for the whole-body motion imitation paper.
 Quarto, a TeX distribution, and the external tools documented in
 `_extensions/html-tex/README.md` must be available. Python is not required.
 To render one entry, use `quarto render arXiv-2610.28480v1/index.qmd --to html`
 or `quarto render arXiv-2610.28480v1/paper.qmd --to pdf`.
+For the Word experiment, use `quarto render arXiv-2508.00362v1/report.qmd --to docx`.
+It uses the NEU journal reference DOCX, native OMML equations, editable tables,
+and rasterized PDF figures; see `arXiv-2508.00362v1/report-word.md` for scope.
 Outputs are collected under `build/arXiv-*/`. Quarto places HTML, PDF, and their
 web resources there. The post-render script `scripts/collect-build.js` archives
 retained TeX, auxiliary files, and html-tex's lwarp/TikZ/PDF-image diagnostics
@@ -101,6 +105,6 @@ size. Font sizes and page counts can differ between English originals and Chines
 translations; the PDFs under `assets/` provide visual references, not page-count
 targets.
 
-HTML uses explicit routes: `{=latex}` selects lwarp; `{=tikz}` selects standalone LaTeX and Cairo SVG.
+HTML uses explicit routes: `{=latex}` selects lwarp; `.tex-render` with `render-method="native"` selects standalone LaTeX and Cairo SVG; source remains `{=latex}`.
 Drawing dependencies use `html-tex.include-in-header`; existing dark themes and
 PDF style mappings are unchanged. SuperMimic uses `preamble.tex`.
