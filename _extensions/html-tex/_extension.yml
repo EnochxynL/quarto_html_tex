@@ -8,7 +8,7 @@ contributes:
     - at: post-quarto
       path: figure/html-pdf.lua
     - at: pre-quarto
-      path: figure/html-tikz.lua
+      path: latex/html-latex-tikz.lua
     - at: pre-quarto
       path: latex/html-latex-counters.lua
     - at: pre-quarto
@@ -16,7 +16,7 @@ contributes:
     - at: post-quarto
       path: latex/html-latex-ref.lua
     - at: post-quarto
-      path: figure/html-tikz.lua
+      path: latex/html-latex-tikz.lua
     - at: post-quarto
       path: latex/html-latex-lwarp.lua
     - at: post-quarto

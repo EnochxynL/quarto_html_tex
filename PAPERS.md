@@ -57,7 +57,7 @@ The PDF entry uses XeLaTeX with Chinese fonts. Both entries load `abstract.yml`;
 PDF uses its native abstract metadata, and HTML inserts it with the meta shortcode.
 SuperMimic uses `paper.qmd` with the shared CoRL style. Its eight TikZ/PGFPlots
 figures now retain drawing source in shared Markdown, with native Quarto figure
-IDs and captions. `html-tex/figure/html-tikz.lua` builds PDF then Cairo SVG during
+IDs and captions. `html-tex/latex/html-latex-tikz.lua` builds PDF then Cairo SVG during
 HTML rendering; PDF compiles the raw drawing using the original template.
 `preamble.tex` declares the independent HTML build's drawing context.
 Tables and the algorithm retain their LaTeX source. Appendix objects use continuous numbering across both outputs,

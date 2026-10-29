@@ -76,13 +76,13 @@ local function prepare_citations(source, citations)
 end
 
 local function write(path, value)
-  local file = assert(io.open(path, "wb"), "html-tikz: cannot write " .. path)
+  local file = assert(io.open(path, "wb"), "html-latex-tikz: cannot write " .. path)
   file:write(value)
   file:close()
 end
 
 local function read(path)
-  local file = assert(io.open(path, "rb"), "html-tikz: cannot read " .. path)
+  local file = assert(io.open(path, "rb"), "html-latex-tikz: cannot read " .. path)
   local value = file:read("*a")
   file:close()
   return value
@@ -91,10 +91,10 @@ end
 local function run(program, args, log)
   local ok, output = pcall(pandoc.pipe, program, args, "")
   write(log, tostring(output))
-  assert(ok, "html-tikz: " .. program .. " failed; see " .. log .. "\n" .. tostring(output))
+  assert(ok, "html-latex-tikz: " .. program .. " failed; see " .. log .. "\n" .. tostring(output))
 end
 
--- Keep this helper identical in html-pdf.lua and html-tikz.lua. Deliberately
+-- Keep this helper identical in html-pdf.lua and html-latex-tikz.lua. Deliberately
 -- self-contained: no module loading or filter-relative path resolution.
 local function pdf_to_svg(pdf_path, svg_path, page)
   os.remove(svg_path .. ".log")
@@ -185,10 +185,10 @@ function Pandoc(doc)
   local config = (doc.meta["html-tex"] or {}).tikz or {}
   local engine = text(config.engine, "lualatex")
   assert(engine == "pdflatex" or engine == "lualatex" or engine == "xelatex",
-    "html-tikz: engine must be pdflatex, lualatex or xelatex")
+    "html-latex-tikz: engine must be pdflatex, lualatex or xelatex")
   local header = read_header(doc.meta)
   local references = assert(doc.meta["html-tex-tikz-references"],
-    "html-tikz: compile after latex/html-latex-ref.lua at post-quarto")
+    "html-latex-tikz: compile after latex/html-latex-ref.lua at post-quarto")
   local definitions = {}
   for identifier, number in pairs(references) do
     definitions[#definitions + 1] = "\\newlabel{" .. identifier .. "}{{" .. text(number) .. "}{1}}"
@@ -209,7 +209,7 @@ function Pandoc(doc)
       span:walk({Cite = function(cite)
         for _, citation in ipairs(cite.citations) do
           assert(available[citation.id],
-            "html-tikz: unresolved drawing citation: " .. citation.id)
+            "html-latex-tikz: unresolved drawing citation: " .. citation.id)
         end
       end})
     end})
@@ -235,13 +235,13 @@ function Pandoc(doc)
   doc = doc:walk({Image = function(image)
     local index = image.attributes[marker]
     if not index then return nil end
-    local body = assert(pending[tonumber(index)], "html-tikz: missing drawing " .. index)
+    local body = assert(pending[tonumber(index)], "html-latex-tikz: missing drawing " .. index)
     local cache = ".quarto/tikz/figure-" .. index
     pandoc.system.make_directory(cache, true)
     -- Recompile every render so changes in input CSV files/images are observed.
     os.remove(cache .. "/figure.aux")
     local drawing = text(body):gsub("\\htmltextikzcitation{(%d+)}", function(slot)
-      return assert(citations[slot], "html-tikz: missing processed drawing citation " .. slot)
+      return assert(citations[slot], "html-latex-tikz: missing processed drawing citation " .. slot)
     end)
     local source = "\\documentclass{article}\n" .. header
       .. "\n\\usepackage{tikz,float}\n\\makeatletter\\let\\HTMLTexFloat\\@xfloat\\def\\@xfloat#1[#2]{\\HTMLTexFloat{#1}[H]}\\makeatother\n\\usepackage[active,tightpage]{preview}\n"
@@ -256,11 +256,11 @@ function Pandoc(doc)
     end
     local log = read(cache .. "/figure.log")
     assert(not log:find("There were undefined references", 1, true),
-      "html-tikz: unresolved drawing references; see " .. cache .. "/figure.log")
+      "html-latex-tikz: unresolved drawing references; see " .. cache .. "/figure.log")
     assert(not log:find("There were undefined citations", 1, true) and not log:match("Citation.-undefined"),
-      "html-tikz: unresolved drawing citations; see " .. cache .. "/figure.log")
+      "html-latex-tikz: unresolved drawing citations; see " .. cache .. "/figure.log")
     assert(not log:find("Missing character:", 1, true),
-      "html-tikz: missing drawing glyphs; check fonts in " .. cache .. "/figure.log")
+      "html-latex-tikz: missing drawing glyphs; check fonts in " .. cache .. "/figure.log")
     image.src = "data:image/svg+xml;base64," .. quarto.base64.encode(
       pdf_to_svg(cache .. "/figure.pdf", cache .. "/figure.svg"))
     image.attributes[marker] = nil
