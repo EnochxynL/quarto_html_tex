@@ -1,0 +1,83 @@
+[
+  {
+    "name": "python-experiment",
+    "label": "深度学习实验报告",
+    "source": "D:\\MY_WORK\\Works_Workshop\\AfterStory\\PythonDL\\reports\\实验三&实验四 自动化2303 谢怡诺 补充实验完整版.docx",
+    "source_sha256": "47ed2b42da7e65180e39333fc1c11c596f698ca2b78f7644c5313eff3857b13d",
+    "reference": "styles\\word\\python-experiment\\reference-reviewed.docx",
+    "original_reference_updated": false,
+    "paragraphs": 52,
+    "tables": 1,
+    "equations": 2,
+    "structure": {
+      "sections": 1,
+      "columns": [
+        1
+      ],
+      "tables": 1,
+      "native_equations": 2
+    }
+  },
+  {
+    "name": "cad-report",
+    "label": "控制实验报告",
+    "source": "D:\\MY_WORK\\Works_Workshop\\AfterStory\\Cad\\shou\\New folder\\第5组_正式提交\\案例-5-谢怡诺胡小乐许晋郗杨浩睿.docx",
+    "source_sha256": "81185ee312ff156fdf7bd67277a555db4006d17badee4075b7797a22d5a3ecc7",
+    "reference": "styles\\word\\cad-report\\reference-reviewed.docx",
+    "original_reference_updated": false,
+    "paragraphs": 48,
+    "tables": 2,
+    "equations": 2,
+    "structure": {
+      "sections": 1,
+      "columns": [
+        1
+      ],
+      "tables": 2,
+      "native_equations": 2
+    }
+  },
+  {
+    "name": "course-paper",
+    "label": "课程结课论文",
+    "source": "D:\\MY_WORK\\Works_Workshop\\AfterStory\\CadPpt\\论文\\7组自动化2303论文.docx",
+    "source_sha256": "afc6a6e2c54a7a30d631bfd4a2cecd4b682d999bd836ac9cb796e7f95053ce54",
+    "reference": "styles\\word\\course-paper\\reference-reviewed.docx",
+    "original_reference_updated": true,
+    "paragraphs": 56,
+    "tables": 2,
+    "equations": 2,
+    "structure": {
+      "sections": 4,
+      "columns": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "tables": 2,
+      "native_equations": 2
+    }
+  },
+  {
+    "name": "electronic-senses",
+    "label": "电子感官论文",
+    "source": "D:\\MY_WORK\\contribute\\quarto_html_tex\\styles\\word\\electronic-senses\\source-converted.docx",
+    "source_sha256": "0ad59d3d9d486f892e237b99481be71ec6539fe7b8b3f7ae07520e29ea902eb5",
+    "reference": "styles\\word\\electronic-senses\\reference-reviewed.docx",
+    "original_reference_updated": false,
+    "paragraphs": 47,
+    "tables": 1,
+    "equations": 2,
+    "structure": {
+      "sections": 3,
+      "columns": [
+        1,
+        2,
+        1
+      ],
+      "tables": 1,
+      "native_equations": 2
+    }
+  }
+]

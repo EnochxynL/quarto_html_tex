@@ -1,0 +1,18 @@
+{
+  "title": "数据分析与控制系统研究",
+  "subtitle": "方法、实现与结果分析",
+  "course": "实验研究与工程实践",
+  "institution": "示例大学",
+  "report-kind": "课程实验报告",
+  "paper-kind": "课程结课论文",
+  "group": "示例小组｜示例班级",
+  "author": "示例作者",
+  "author-en": "Example Author",
+  "title-en": "A Study of Data Analysis and Control Systems",
+  "date": "2026年10月",
+  "supervisor": "示例指导教师",
+  "abstract": "本文以数据分析与控制系统为例，展示一种内容在不同Word排版方案下的呈现。研究过程包括问题描述、模型建立、方法实现及结果分析。样张使用共享正文和独立元数据，标题区、段落格式、表格、公式与分节由外部方案决定。所有数值和图形仅用于版式验收，不代表真实实验结果。",
+  "abstract-en": "This specimen illustrates data analysis and control-system reporting using shared content and independent layout definitions. It covers problem formulation, modeling, implementation, and discussion. All values and diagrams are illustrative rather than experimental findings.",
+  "keywords": "共享内容；确定性排版；文档结构；格式验收",
+  "members": [["示例作者", "00000001", "方法设计与程序实现", "50%"], ["协作成员", "00000002", "结果核对与文档整理", "50%"]]
+}
