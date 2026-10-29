@@ -102,7 +102,7 @@ format:
   html:
     html-tex:
       include-in-header:
-        file: figures/tikz-preamble.tex
+        file: preamble.tex
 ~~~
 
 `include-in-header.file` 相对当前文档目录，内容为宏包、字体、样式、尺寸和宏定义，

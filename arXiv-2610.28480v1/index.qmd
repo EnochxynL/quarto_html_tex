@@ -12,7 +12,7 @@ format:
     number-sections: true
     html-tex:
       include-in-header:
-        - file: figures/tikz-preamble.tex
+        - file: preamble.tex
         - text: |
             \usepackage{array,colortbl}
 ---

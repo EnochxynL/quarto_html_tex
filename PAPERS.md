@@ -59,7 +59,7 @@ SuperMimic uses `paper.qmd` with the shared CoRL style. Its eight TikZ/PGFPlots
 figures now retain drawing source in shared Markdown, with native Quarto figure
 IDs and captions. `html-tex/figure/html-tikz.lua` builds PDF then Cairo SVG during
 HTML rendering; PDF compiles the raw drawing using the original template.
-`figures/tikz-preamble.tex` declares the independent HTML build's drawing context.
+`preamble.tex` declares the independent HTML build's drawing context.
 Tables and the algorithm retain their LaTeX source. Appendix objects use continuous numbering across both outputs,
 instead of the original document's local `A.` counter resets. The supplied
 reference list is preserved as `bibliography.tex` and complete reference text in CSL
@@ -103,4 +103,4 @@ targets.
 
 HTML uses explicit routes: `{=latex}` selects lwarp; `{=tikz}` selects standalone LaTeX and Cairo SVG.
 Drawing dependencies use `html-tex.include-in-header`; existing dark themes and
-PDF style mappings are unchanged. SuperMimic uses `figures/tikz-preamble.tex`.
+PDF style mappings are unchanged. SuperMimic uses `preamble.tex`.
