@@ -12,7 +12,7 @@ function Pandoc(doc)
   local snapshot = assert(io.open(".quarto/docx-tex/compiled.json", "wb"))
   snapshot:write(pandoc.write(doc, "json")); snapshot:close()
   doc = native.convert(doc, directory)
-  doc = images.convert(doc, directory)
+  doc = images.convert(doc)
   local config=doc.meta['docx-tex'] or {}
   local manifest=assert(io.open('.quarto/docx-tex/finalize.json','wb'))
   manifest:write(pandoc.json.encode({

@@ -31,12 +31,28 @@ Word端只适配这些工具之间的结构差异：隐藏的浏览器初始化�
 
 1. lwarp文本提取：旧字体编码会把连字输出为控制字符，Latin-only等宽字体还会丢失中文代码字符。在两份相同的编译后端中统一恢复Unicode编码，并为主字体、无衬线和等宽字体提供Unicode覆盖；SuperMimic完整HTML回归和同源中英文代码样本均通过。
 2. 引用：LaTeX块内的引用槽不能在最终citeproc前删除。Word字符隐藏样式保留其引用语义，避免漏掉块内独有文献及改变编号。
-3. SVG尺寸：栅格化提高像素数时必须保留物理尺寸。SVG渲染按物理页面设置PNG分辨率，修复了表格小符号撑满整页的问题。
+3. SVG尺寸：早期栅格化处理曾因物理尺寸丢失而使表格小符号撑满整页。当前直接保留SVG及尺寸属性，交给Pandoc嵌入，已移除SVG栅格化代码。
 4. 分页：不强制所有表格行保持在一页，交给Word处理长行和跨页；只维持表题附近的合理分页关系。
 5. 预览导出：本机Word默认全篇导出模式曾长时间等待。明确计算页数并按完整页码范围导出，可完成同一文档的预览。
 6. XML属性：Quarto的原始OpenXML与Pandoc输出叠加时可能产生重复的段落属性块。统一合并单一属性容器，用python-docx的插入器保持属性顺序，并在结构检查中拒绝重复`pPr`和`rPr`。
 
 独立回归样本验证“正文首次引用→表格独有引用→正文后续引用”的1、2、3顺序，三条文献完整保留；还检查嵌套表、算法无额外圆点、原生OMML及小SVG的物理尺寸。运行命令见`tests/docx-tex/README.md`。
+
+## 2026-10-30：SVG直接嵌入
+
+图片适配层保留SVG，由Pandoc DOCX writer生成`svgBlip`引用。经验证后取消了插件内的SVG转PNG分支、配置、辅助脚本及其锁文件，并移除对应兼容模式测试；PDF图片的处理没有改变。四份复制的编译后端没有修改。
+
+在Pandoc 3.10和本机Word上验证了文件路径、Data URI、显式尺寸以及原生TikZ编译生成的SVG。回归样本包含四个SVG绘图引用，源文件与Data URI字节保持原样；五个OMML对象、三个Word表格和三条参考文献均保留。Word只读打开后导出两页PDF，目检符号与TikZ图均正常。
+
+6pt×9pt的隐式尺寸和12pt×18pt的显式尺寸，在SVG输出中保持精确。Word导出的样本第一页有63条矢量绘图记录、1个栅格图像资源。矢量记录也包含表格边框，不能当作插图数量；结合目检确认SVG图形没有被栅格化替换。
+
+本机未安装`rsvg-convert`。Pandoc自身尝试在SVG旁附带PNG兼容预览时仍会警告，但会保留原生SVG，Word可以显示。插件不吞掉警告，也不自行补写另一套SVG包装XML；旧版阅读器的显示不在本次验证范围。
+
+结构检查结果见`build/word-fixture-validation.json`；Word预览为`build/tests/docx-tex/fixture-preview.pdf`。
+
+真实内容验证使用Ara中文论文：139处绘图中有124处原生SVG引用，243个OMML对象和71条参考文献均保留，全部Word文字及数学内容与原PNG版本逐项一致。Word成功导出71页PDF，自动检查未发现文字超出页面；抽查第25页表5，勾叉符号与表格尺寸正常。本次没有重新生成其余五篇论文及三份额外模板变体。
+
+Quarto完成论文编译后，系统拒绝覆盖原`report.docx`，因此将新产物另存为`build/arXiv-2604.24658v3/report-svg.docx`并调用同一`docx-finalize.py`完成整理；原文件保留。完整Word预览为`report-svg-preview.pdf`，结构、内容对照与页面检查记录分别在`build/svg-probe/ara-svg-validation.json`、`ara-content-comparison.json`和`ara-svg-preview-audit.json`。
 
 ## 视觉检查范围
 

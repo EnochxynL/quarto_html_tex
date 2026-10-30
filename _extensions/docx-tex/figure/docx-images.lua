@@ -1,22 +1,10 @@
--- PDF figures -> PNG. Equations stay native and never enter this path.
+-- Only PDF figures need conversion to PNG. SVG is left to the DOCX writer.
+-- Equations never enter this path.
 local M = {}
-function M.convert(doc, directory)
+function M.convert(doc)
   local converted, count = {}, 0
   return doc:walk({Image=function(image)
     local path = image.src:gsub('%%(%x%x)',function(h) return string.char(tonumber(h,16)) end)
-    if path:match('^data:image/svg%+xml') or path:lower():match('%.svg$') then
-      if not converted[path] then
-        local mime, svg = pandoc.mediabag.fetch(image.src)
-        assert(svg and mime:find('svg'), 'Cannot read SVG: '..image.src:sub(1,100))
-        local png = pandoc.pipe('uv', {'run','--locked','--script',directory .. '/figure/svg-to-png.py'}, svg)
-        count=count+1
-        local name='docx-tex-figure-'..count..'.png'
-        pandoc.mediabag.insert(name,'image/png',png)
-        converted[path]=name
-      end
-      image.src=converted[path]
-      return image
-    end
     if not path:lower():match('%.pdf$') then return end
     local key=path .. '\0' .. (image.attributes.page or '1')
     if not converted[key] then

@@ -24,6 +24,10 @@ Last parent citation [@parent-last]. Table \ref{tab-regression} is editable.
 
 An inline symbol ![small symbol](small.svg) must retain its physical size.
 
+An explicitly sized symbol ![sized symbol](small.svg){width=12pt height=18pt} must retain its requested size.
+
+A data URI symbol ![data symbol](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2cHQiIGhlaWdodD0iOXB0IiB2aWV3Qm94PSIwIDAgNiA5Ij48cGF0aCBmaWxsPSIjYzAwMDAwIiBkPSJNMyAwTDYgNUg0VjlIMlY1SDBaIi8+PC9zdmc+Cg==) must remain a vector too.
+
 ```{=latex}
 \begin{algorithm}
 \caption{Executable source, editable result}
@@ -36,6 +40,18 @@ An inline symbol ![small symbol](small.svg) must retain its physical size.
 \end{algorithmic}
 \end{algorithm}
 ```
+
+::: {.tex-render render-method="native"}
+```{=latex}
+\begin{tikzpicture}
+\draw[fill=blue!10,draw=blue] (0,0) rectangle (2,0.8);
+\node at (1,0.4) {SVG input};
+\draw[->,thick] (2.1,0.4) -- (3,0.4);
+\draw[fill=green!10,draw=green!50!black] (3.1,0) rectangle (5.1,0.8);
+\node at (4.1,0.4) {Word vector};
+\end{tikzpicture}
+```
+:::
 
 $$
 f(x)=\frac{x^2+1}{\sqrt{x+2}}

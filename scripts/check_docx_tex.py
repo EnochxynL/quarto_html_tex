@@ -3,6 +3,8 @@
 Run after scripts/render-word-experiments.ps1 and the word-test profile.
 Uses only the Python standard library; results are written under build/.
 """
+import argparse
+from base64 import b64decode
 import json
 from pathlib import Path
 import re
@@ -12,13 +14,22 @@ from zipfile import ZipFile
 ROOT = Path(__file__).resolve().parents[1]
 NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
       "m": "http://schemas.openxmlformats.org/officeDocument/2006/math",
-      "wp": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"}
+      "wp": "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing",
+      "asvg": "http://schemas.microsoft.com/office/drawing/2016/SVG/main",
+      "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"}
 
 def inspect(path):
     with ZipFile(path) as package:
         assert package.testzip() is None, f"Corrupt ZIP: {path}"
         root = ET.fromstring(package.read("word/document.xml"))
         styles = ET.fromstring(package.read("word/styles.xml"))
+        relationships = ET.fromstring(package.read("word/_rels/document.xml.rels"))
+        targets = {rel.get("Id"): rel.get("Target") for rel in relationships}
+        svg_blips = root.findall(".//asvg:svgBlip", NS)
+        for blip in svg_blips:
+            target = targets[blip.get(f"{{{NS['r']}}}embed")]
+            svg = package.read("word/" + target)
+            assert target.endswith(".svg") and ET.fromstring(svg).tag == "{http://www.w3.org/2000/svg}svg", f"Invalid embedded SVG: {path}"
         texts = "".join(node.text or "" for node in root.findall(".//w:t", NS))
         identity = ""
         for name in package.namelist():
@@ -37,6 +48,7 @@ def inspect(path):
             "display_equations": len(root.findall(".//m:oMathPara", NS)),
             "tables_including_nested_and_layout": len(root.findall(".//w:tbl", NS)),
             "images": len(root.findall(".//w:drawing", NS)),
+            "svg_drawings": len(svg_blips),
             "bibliography_entries": sum(
                 p.find("w:pPr/w:pStyle", NS) is not None and p.find("w:pPr/w:pStyle", NS).get(f"{{{NS['w']}}}val") == "Bibliography"
                 for p in root.findall(".//w:p", NS)),
@@ -52,12 +64,26 @@ def inspect(path):
             assert result["omml"] >= 5, "Native equations were lost"
             assert not root.findall(".//w:numPr", NS), "CSS list-style:none became Word bullets"
             assert result["hidden_style_defined"], "Temporary citation slots have no hidden style"
-            symbols = [drawing for drawing in root.findall(".//wp:inline", NS)
-                       if drawing.find("wp:docPr", NS) is not None
-                       and drawing.find("wp:docPr", NS).get("descr") == "small symbol"]
-            assert len(symbols) == 1, "The inline SVG specimen is missing"
-            extent = symbols[0].find("wp:extent", NS)
-            assert int(extent.get("cx")) < 200000 and int(extent.get("cy")) < 200000, "Inline SVG grew during rasterization"
+            drawings = {drawing.find("wp:docPr", NS).get("descr"): drawing
+                        for drawing in root.findall(".//wp:inline", NS)
+                        if drawing.find("wp:docPr", NS) is not None}
+            for description, size in (("small symbol", (6, 9)), ("sized symbol", (12, 18)), ("data symbol", (6, 9))):
+                assert description in drawings, f"Missing SVG specimen: {description}"
+                extent = drawings[description].find("wp:extent", NS)
+                actual = (int(extent.get("cx")), int(extent.get("cy")))
+                # A point is 12700 EMU; SVG keeps its physical dimensions.
+                assert all(abs(value - points * 12700) < 100 for value, points in zip(actual, size)), f"SVG physical size changed: {description} {actual}"
+            assert "Diagram" in drawings, "Native TikZ drawing was lost"
+            assert len(svg_blips) == 4, "File, data URI, explicit-size and TikZ SVGs must remain vectors"
+            for description in ("small symbol", "data symbol"):
+                blip = drawings[description].find(".//asvg:svgBlip", NS)
+                target = targets[blip.get(f"{{{NS['r']}}}embed")]
+                if description == "data symbol":
+                    source = (ROOT / "tests/docx-tex/fixture-content.md").read_text(encoding="utf-8")
+                    expected = b64decode(re.search(r"data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)", source).group(1))
+                else:
+                    expected = (ROOT / "tests/docx-tex/small.svg").read_bytes()
+                assert package.read("word/" + target) == expected, "Original SVG bytes changed"
         if path.parent.name == "arXiv-2508.00362v1" and path.name in ("report.docx", "report-modern.docx", "report-classic.docx", "report-bachelor.docx"):
             assert result["omml"] == 67 and result["images"] == 7, "Whole-body paper lost math or figures"
             for value in ("0.0103", "0.0535", "0.0089", "0.0170", "0.1086", "0.0154", "0.0472", "0.1299", "0.0359", "11.34", "23.72", "0.5644"):
@@ -65,19 +91,24 @@ def inspect(path):
         return result
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--fixture-only", action="store_true", help="Check regression output without rebuilding the six papers")
+    args = parser.parse_args()
     backend = ROOT / "_extensions/docx-tex/backend/latex"
     backend_files = list(backend.glob("*.lua"))
     assert len(backend_files) == 4, "Expected four self-contained backend files"
     for path in backend_files:
         original = ROOT / "_extensions/html-tex/latex" / path.name
         assert path.read_bytes() == original.read_bytes(), f"Backend copies differ: {path.name}"
-    paths = sorted(ROOT.glob("build/arXiv-*/report.docx"))
-    assert len(paths) == 6, "Expected six paper reports"
-    paths += [ROOT / "build/arXiv-2508.00362v1" / (name + ".docx") for name in ("report-modern", "report-classic", "report-bachelor")]
+    paths = []
+    if not args.fixture_only:
+        paths = sorted(ROOT.glob("build/arXiv-*/report.docx"))
+        assert len(paths) == 6, "Expected six paper reports"
+        paths += [ROOT / "build/arXiv-2508.00362v1" / (name + ".docx") for name in ("report-modern", "report-classic", "report-bachelor")]
     paths += [ROOT / "build/tests/docx-tex/fixture.docx"]
-    assert all(path.exists() for path in paths), "Build all six papers, four templates and the regression specimen first"
+    assert all(path.exists() for path in paths), "Build the selected reports and regression specimens first"
     results = [inspect(path) for path in paths]
-    report = ROOT / "build/word-validation.json"
+    report = ROOT / "build" / ("word-fixture-validation.json" if args.fixture_only else "word-validation.json")
     report.write_text(json.dumps({"backend_copies_identical": True, "artifacts": results}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(results, ensure_ascii=True, indent=2))
     print(f"PASS: {len(results)} artifacts; {report}")
