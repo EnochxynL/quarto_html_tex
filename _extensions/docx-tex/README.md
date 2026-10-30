@@ -24,10 +24,10 @@ docx-tex:
 - `docx-render.lua`：编号后编译、解析引用、装配原生内容。
 - `latex/docx-native.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
 - `latex/normalize-html.py`：HTML5lib解析HTML，tinycss2/cssselect2处理CSS选择器与层叠；统一处理隐藏内容、无圆点列表、顺序浮动容器和空白布局。不解释LaTeX环境，不识别论文名称或表格内容。
-- `figure/docx-images.lua`：仅将PDF图片选页后转PNG。SVG原样交给Pandoc嵌入，图片转换不涉及公式。
+- `figure/docx-images.lua`：PDF图片选页后通过`pdftocairo -svg`转为SVG，已有SVG原样交给Pandoc嵌入。图片转换不涉及公式。
 - `docx-finalize.py`：构建后合并重复的OOXML属性容器，使用python-docx插入器保持属性顺序；整理表题分页和隐藏样式，并按明确配置替换已有页眉页脚文字。保留页码域，不改参考文档。
 
-依赖包括Quarto/Pandoc、LuaLaTeX、lwarp及显式声明的宏包、Poppler和uv。Python辅助程序使用PEP 723脚本依赖和各自的`.lock`文件，`uv run --locked --script`自动准备隔离环境。HTML处理采用HTML5lib、lxml、tinycss2、cssselect2。PDF转PNG时最长边2400像素；公式不栅格化。
+依赖包括Quarto/Pandoc、LuaLaTeX、lwarp及显式声明的宏包、Poppler和uv。Python辅助程序使用PEP 723脚本依赖和各自的`.lock`文件，`uv run --locked --script`自动准备隔离环境。HTML处理采用HTML5lib、lxml、tinycss2、cssselect2。PDF转换沿用HTML/TikZ后端的选页检查和`-noshrink`参数，保留矢量内容与物理尺寸；多页PDF必须指定`{page=N}`。转换产物及日志保存在`.quarto/docx-tex/pdf-images/`。
 
 SVG文件或Data URI及其尺寸属性保持原样，由Pandoc DOCX writer生成Office的`svgBlip`引用，Word使用嵌入的矢量图。
 

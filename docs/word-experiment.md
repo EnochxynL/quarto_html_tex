@@ -54,6 +54,12 @@ Word端只适配这些工具之间的结构差异：隐藏的浏览器初始化�
 
 Quarto完成论文编译后，系统拒绝覆盖原`report.docx`，因此将新产物另存为`build/arXiv-2604.24658v3/report-svg.docx`并调用同一`docx-finalize.py`完成整理；原文件保留。完整Word预览为`report-svg-preview.pdf`，结构、内容对照与页面检查记录分别在`build/svg-probe/ara-svg-validation.json`、`ara-content-comparison.json`和`ara-svg-preview-audit.json`。
 
+## 2026-10-30：PDF图片保留矢量
+
+`docx-images.lua`改用`pdftocairo -svg -noshrink`，转换函数与HTML/TikZ后端保持一致；按PDF路径与页码复用结果，保留源图片属性。Cairo输出的SVG根节点使用无单位宽高，但数值沿用PDF的point单位，因此在装入DOCX前为这两个生成属性补上`pt`，避免Pandoc按像素解释而缩小到75%。已有SVG不经过此处理。
+
+用两页PDF、单页PDF及含空格的路径验证选页、隐式尺寸、显式尺寸和同页复用。多页未选页，以及0、越界、小数、非数字页码均正确拒绝。Word打开样稿并导出PDF后，四处绘图均为矢量，未出现栅格图像资源。测试产物、结构检查和Word预览位于`build/pdf-svg-probe/`；本次未重新构建六篇论文。
+
 ## 视觉检查范围
 
 预览PDF由Word只读打开DOCX后导出，不回写DOCX。四模板首页、论文中的算法、嵌套表、比较表、绘图及中英文内容均有抽样检查。联系图与PDF留在相应`build/arXiv-*/`目录；结构检查不能替代这些视觉检查，也不等同于逐页人工验收。
