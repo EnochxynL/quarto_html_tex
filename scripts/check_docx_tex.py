@@ -63,6 +63,9 @@ def inspect(path):
             assert "\u51b3\u7b56" in texts, "Chinese texttt content was lost"
             assert result["omml"] >= 5, "Native equations were lost"
             assert not root.findall(".//w:numPr", NS), "CSS list-style:none became Word bullets"
+            assert result["tables_including_nested_and_layout"] == 3, "Figure wrappers introduced Word layout tables"
+            assert len(root.findall(".//w:pPr/w:pStyle[@w:val='Caption']", NS)) == 2, "Table/algorithm caption styles were lost"
+            assert "3: \u2002\u2002" in texts, "Algorithm loop-body indentation was lost"
             assert result["hidden_style_defined"], "Temporary citation slots have no hidden style"
             drawings = {drawing.find("wp:docPr", NS).get("descr"): drawing
                         for drawing in root.findall(".//wp:inline", NS)

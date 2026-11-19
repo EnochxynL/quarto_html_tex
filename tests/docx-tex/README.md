@@ -14,4 +14,6 @@ uv run --no-project python scripts/check_docx_tex.py --fixture-only
 
 SVG覆盖文件路径、Data URI、显式尺寸和原生TikZ后端生成的图。Word输出应有四个`svgBlip`引用，文件与Data URI的源字节不变；small.svg隐式尺寸为6pt×9pt，显式尺寸为12pt×18pt。原生Quarto提示块验证重复段落属性容器已被规范化。
 
+HTML规范化规则的实际退化检查还包括：算法第3行保留循环体缩进、两个题注保留Caption样式、表格总数为3，避免figure包装意外生成左右布局表。完整规则审查见`docs/word-html-normalization-audit.md`。
+
 Pandoc 3.10未找到`rsvg-convert`时会报告PNG兼容预览生成失败，但仍保留原生SVG。结构检查需要配合Word导出PDF目检，不能仅凭嵌入的SVG存在就判定显示正确。

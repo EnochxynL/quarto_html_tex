@@ -42,3 +42,5 @@ _mk4ht-test/
 /_table-term-regression.*
 /_tikz-regression.*
 /_pdf-image-regression.*
+
+codex-chats/

@@ -64,7 +64,9 @@ def normalize(source):
         values = computed.get(element, {})
         hidden = ("hidden" in element.attrib or element.get("aria-hidden") == "true"
                   or values.get("display") == "none" or values.get("visibility") == "hidden")
-        if hidden or element.tag in ("script", "style"):
+        # Pandoc's HTML reader already discards script/style elements.
+        # Only prune content hidden through attributes or computed CSS here.
+        if hidden:
             parent = element.getparent()
             if element.tail:
                 previous = element.getprevious()

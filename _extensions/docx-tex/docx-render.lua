@@ -2,7 +2,7 @@ if FORMAT ~= "docx" then return {} end
 local directory = pandoc.path.directory(PANDOC_SCRIPT_FILE)
 local backend = dofile(directory .. "/backend.lua")
 local native = dofile(directory .. "/latex/docx-native.lua")
-local images = dofile(directory .. "/figure/docx-images.lua")
+local images = dofile(directory .. "/figure/docx-pdf.lua")
 function Pandoc(doc)
   doc = backend.run(doc, directory, "html-latex-ref.lua")
   doc = backend.run(doc, directory, "html-latex-tikz.lua")

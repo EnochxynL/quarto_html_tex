@@ -56,9 +56,13 @@ Quarto完成论文编译后，系统拒绝覆盖原`report.docx`，因此将新�
 
 ## 2026-10-30：PDF图片保留矢量
 
-`docx-images.lua`改用`pdftocairo -svg -noshrink`，转换函数与HTML/TikZ后端保持一致；按PDF路径与页码复用结果，保留源图片属性。Cairo输出的SVG根节点使用无单位宽高，但数值沿用PDF的point单位，因此在装入DOCX前为这两个生成属性补上`pt`，避免Pandoc按像素解释而缩小到75%。已有SVG不经过此处理。
+`docx-pdf.lua`改用`pdftocairo -svg -noshrink`，转换函数与HTML/TikZ后端保持一致；按PDF路径与页码复用结果，保留源图片属性。Cairo输出的SVG根节点使用无单位宽高，但数值沿用PDF的point单位，因此在装入DOCX前为这两个生成属性补上`pt`，避免Pandoc按像素解释而缩小到75%。已有SVG不经过此处理。
 
 用两页PDF、单页PDF及含空格的路径验证选页、隐式尺寸、显式尺寸和同页复用。多页未选页，以及0、越界、小数、非数字页码均正确拒绝。Word打开样稿并导出PDF后，四处绘图均为矢量，未出现栅格图像资源。测试产物、结构检查和Word预览位于`build/pdf-svg-probe/`；本次未重新构建六篇论文。
+
+## 2026-10-30：HTML规范化规则审查
+
+对六篇论文及回归样本的351个不同HTML片段逐条停用规范化规则，并生成Word视觉对照。五类规则均发现实际作用：隐藏内部定义、避免左右布局表、保留题注样式、去除额外圆点及保留算法缩进；未整条删除。只移除了Pandoc已能完成的`script`/`style`元素手动删除，351个片段的AST与纯文本均保持一致。实验方法、数据和边界见[HTML规范化规则对照实验](word-html-normalization-audit.md)。
 
 ## 视觉检查范围
 
