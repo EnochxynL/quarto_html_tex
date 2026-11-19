@@ -66,6 +66,30 @@ Quarto完成论文编译后，系统拒绝覆盖原`report.docx`，因此将新�
 
 对六篇论文及回归样本的351个不同HTML片段逐条停用规范化规则，并生成Word视觉对照。五类规则均发现实际作用：隐藏内部定义、避免左右布局表、保留题注样式、去除额外圆点及保留算法缩进；未整条删除。只移除了Pandoc已能完成的`script`/`style`元素手动删除，351个片段的AST与纯文本均保持一致。实验方法、数据和边界见[HTML规范化规则对照实验](word-html-normalization-audit.md)。
 
+## 2026-11-19：LaTeX 中间产物的锚点清理
+
+Quarto 的 LaTeX writer 会给每个交叉引用目标加 `\protect\phantomsection\label{...}`，公式里也一样。LaTeX 忽略这对命令，但直接读 LaTeX 数学的转换器不认识 `\protect`：pandoc 的 LaTeX reader 会把整条公式作为原始 TeX 输出，tex2word 记为未转换的数学。[`normalize-word-latex.py`](../scripts/normalize-word-latex.py) 只删除这两个命令、保留 `\label`，其余字节不变（行尾与编码保持原样），可原地改写或用 `-o` 另存。
+
+同一篇论文（whole body，`paper.tex` 含完整前导）删除锚点前后：
+
+| 输出 | OMML | 图 | 表 | 正文泄漏的原始 TeX |
+| --- | --- | --- | --- | --- |
+| pandoc `-f latex`，修复前 | 71 | 0 | 7 | 44 |
+| pandoc `-f latex`，修复后 | 74 | 0 | 7 | 0 |
+| tex2word，修复前 | 66 | 7（光栅 PNG） | 2 | 41 |
+| tex2word，修复后 | 69 | 7（光栅 PNG） | 2 | 0 |
+| 参考：现有 lwarp+HTML 管线 | 67 | 7（矢量 SVG） | 25 | 0 |
+
+参考行来自 `report.qmd` 的产物，内容目标与前四行的 `paper.qmd` 不同，因此这张表用于判断"修复前后"和"结构缺口"，不作逐项等价比较。
+
+修复只解决数学解析这一段。剩余差距是结构性的：pandoc 的 DOCX writer 不嵌 PDF 图（包内 8 个 media 全部来自参考文档，没有一处引用），所以图数为 0；tex2word 的 `tabular` 支持覆盖不到本文的宏包装，18 个 `tabular` 只落成 2 个表。因此本次只保留这个通用清理脚本，未把两条路线接入构建。
+
+```powershell
+quarto render arXiv-2508.00362v1/report.qmd --to latex
+uv run --no-project python scripts/normalize-word-latex.py build/arXiv-2508.00362v1/paper.tex -o build/arXiv-2508.00362v1/paper-word.tex
+pandoc -f latex -t docx --reference-doc=styles/word/neu-journal/reference-xml.docx -o out.docx build/arXiv-2508.00362v1/paper-word.tex
+```
+
 ## 视觉检查范围
 
 预览PDF由Word只读打开DOCX后导出，不回写DOCX。四模板首页、论文中的算法、嵌套表、比较表、绘图及中英文内容均有抽样检查。联系图与PDF留在相应`build/arXiv-*/`目录；结构检查不能替代这些视觉检查，也不等同于逐页人工验收。
