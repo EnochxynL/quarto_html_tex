@@ -23,6 +23,8 @@
 
 LaTeX交给lwarp，HTML5和CSS交给HTML5lib、tinycss2、cssselect2，Word结构与公式交给Pandoc。`docx-tex/backend/latex/`四份文件与`html-tex/latex/`对应文件逐字节一致；独立安装不需要另一个插件。
 
+过滤器顺序直接写在`_extensions/docx-tex/_extension.yml`里，形状与`html-tex`相同：pre-quarto只登记LaTeX块并记录计数器起点，post-quarto才编译、解析引用、装配原生结构。四个后端文件各自分两段执行，由文档元数据里的状态键区分，中间隔着Quarto自己的编号与citeproc，所以不能合并成一次。
+
 Word端只适配这些工具之间的结构差异：隐藏的浏览器初始化内容、无项目符号列表、顺序排列的浮动内容、原生数学宏展开、图片尺寸和引用上下文。未添加按论文名称、表格数值或LaTeX环境逐项拆解的规则。
 
 源文件中不合法的公式标签和数学区域内的Markdown代码标记，在源文件中修正。Agentopia的Word入口使用元数据中的原生摘要，移除了正文中重复插入的摘要；实验样稿XML也同步清除该重复内容。没有因此增加转换器特判。

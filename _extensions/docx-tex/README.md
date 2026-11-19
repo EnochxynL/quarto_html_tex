@@ -19,13 +19,32 @@ docx-tex:
 ## 文件职责
 
 - `backend/latex/`：`html-tex/latex/`四个文件的原样副本。保持逐字节一致，更新时同步，不依赖安装`html-tex`。
-- `backend.lua`：在隔离的HTML片段上下文中调用副本；主文档仍为DOCX。
-- `docx-prepare.lua`：在Quarto编号前登记块和计数器。
-- `docx-render.lua`：编号后编译、解析引用、装配原生内容。
+- `backend.lua`：在隔离的HTML片段上下文中按路径调用副本；主文档仍为DOCX。
+- `latex/html-latex-*.lua`：四份适配器，只把副本挂到`_extension.yml`的过滤器位置上，不含转换逻辑。
+- `docx-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
+- `docx-postprocess.lua`：Quarto编号后装配原生结构、转换图片并写出整理清单。
 - `latex/docx-native.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
 - `latex/normalize-html.py`：HTML5lib解析HTML，tinycss2/cssselect2处理CSS选择器与层叠；统一处理隐藏内容、无圆点列表、顺序浮动容器和空白布局。不解释LaTeX环境，不识别论文名称或表格内容。
-- `figure/docx-images.lua`：PDF图片选页后通过`pdftocairo -svg`转为SVG，已有SVG原样交给Pandoc嵌入。图片转换不涉及公式。
+- `figure/docx-pdf.lua`：PDF图片选页后通过`pdftocairo -svg`转为SVG，已有SVG原样交给Pandoc嵌入。图片转换不涉及公式。
 - `docx-finalize.py`：构建后合并重复的OOXML属性容器，使用python-docx插入器保持属性顺序；整理表题分页和隐藏样式，并按明确配置替换已有页眉页脚文字。保留页码域，不改参考文档。
+
+## 执行顺序
+
+`_extension.yml`沿用`html-tex`的形式，逐项登记过滤器；文件顺序即执行顺序，不必追踪脚本之间的调用。
+
+| 阶段 | 过滤器 | 该次调用的作用 |
+| --- | --- | --- |
+| pre-quarto | `docx-config.lua` | 把`docx-tex`配置交给副本 |
+| pre-quarto | `html-latex-tikz.lua` | 按`render-method`路由，登记TikZ块 |
+| pre-quarto | `html-latex-counters.lua` | 记录图、表、公式的计数器起点 |
+| pre-quarto | `html-latex-lwarp.lua` | 登记LaTeX块，原位换占位图与引用槽 |
+| post-quarto | `html-latex-ref.lua` | 把编号注入TeX源 |
+| post-quarto | `html-latex-tikz.lua` | 批编译TikZ并回填 |
+| post-quarto | `html-latex-lwarp.lua` | 批编译LaTeX块并回填生成的HTML |
+| post-quarto | `html-latex-ref.lua` | 解析生成HTML里新出现的引用 |
+| post-quarto | `docx-postprocess.lua` | 原生结构、PDF图片、整理清单 |
+
+同一个文件出现两次，不是重复渲染：它按文档元数据里的状态键分两段执行，第一次登记、第二次编译，编译完清除状态键。中间隔着Quarto自己的编号与citeproc，所以两段不能合并——pre-quarto阶段就编译会拿到尚未分配的编号和尚未处理的文献。真正的TeX编译只有`tikz`和`lwarp`在post-quarto各一次批处理。
 
 依赖包括Quarto/Pandoc、LuaLaTeX、lwarp及显式声明的宏包、Poppler和uv。Python辅助程序使用PEP 723脚本依赖和各自的`.lock`文件，`uv run --locked --script`自动准备隔离环境。HTML处理采用HTML5lib、lxml、tinycss2、cssselect2。PDF转换沿用HTML/TikZ后端的选页检查和`-noshrink`参数，保留矢量内容与物理尺寸；多页PDF必须指定`{page=N}`。转换产物及日志保存在`.quarto/docx-tex/pdf-images/`。
 

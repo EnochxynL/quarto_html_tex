@@ -1,10 +1,28 @@
 title: docx-tex
 author: Enoch Xyn
-version: 0.1.0
+version: 0.2.0
 quarto-required: ">=1.4.0"
 contributes:
   filters:
+    # One entry per pass, in the same shape as html-tex/_extension.yml. Each of
+    # the four backend files is a two-stage state machine: the first call
+    # registers blocks and placeholders, the matching post-quarto call compiles
+    # them once Quarto has numbered the document. See README.md for the order.
     - at: pre-quarto
-      path: docx-prepare.lua
+      path: docx-config.lua
+    - at: pre-quarto
+      path: latex/html-latex-tikz.lua
+    - at: pre-quarto
+      path: latex/html-latex-counters.lua
+    - at: pre-quarto
+      path: latex/html-latex-lwarp.lua
     - at: post-quarto
-      path: docx-render.lua
+      path: latex/html-latex-ref.lua
+    - at: post-quarto
+      path: latex/html-latex-tikz.lua
+    - at: post-quarto
+      path: latex/html-latex-lwarp.lua
+    - at: post-quarto
+      path: latex/html-latex-ref.lua
+    - at: post-quarto
+      path: docx-postprocess.lua
