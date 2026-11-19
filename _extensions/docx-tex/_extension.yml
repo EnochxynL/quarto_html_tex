@@ -5,26 +5,26 @@ quarto-required: ">=1.4.0"
 contributes:
   filters:
     # One entry per pass, in the same shape as html-tex/_extension.yml. The
-    # docx-*.lua adapters run the byte-identical html-tex files in latex/ inside
-    # an isolated HTML context, so the parent document stays DOCX. Each of those
-    # files is a two-stage state machine: the first call registers blocks and
-    # placeholders, the matching post-quarto call compiles them once Quarto has
-    # numbered the document. See README.md for the order.
+    # latex/html-latex-*.lua files are html-tex derivatives that also accept
+    # docx, so they run here without a wrapper. Each is a two-stage state
+    # machine: the first call registers blocks and placeholders, the matching
+    # post-quarto call compiles them once Quarto has numbered the document.
+    # See README.md for the order.
     - at: pre-quarto
       path: docx-config.lua
     - at: pre-quarto
-      path: docx-tikz.lua
+      path: latex/html-latex-tikz.lua
     - at: pre-quarto
-      path: docx-counters.lua
+      path: latex/html-latex-counters.lua
     - at: pre-quarto
-      path: docx-lwarp.lua
+      path: latex/html-latex-lwarp.lua
     - at: post-quarto
-      path: docx-ref.lua
+      path: latex/html-latex-ref.lua
     - at: post-quarto
-      path: docx-tikz.lua
+      path: latex/html-latex-tikz.lua
     - at: post-quarto
-      path: docx-lwarp.lua
+      path: latex/html-latex-lwarp.lua
     - at: post-quarto
-      path: docx-ref.lua
+      path: latex/html-latex-ref.lua
     - at: post-quarto
       path: docx-postprocess.lua

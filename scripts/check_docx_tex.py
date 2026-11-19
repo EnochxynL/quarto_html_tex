@@ -97,12 +97,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture-only", action="store_true", help="Check regression output without rebuilding the six papers")
     args = parser.parse_args()
-    backend = ROOT / "_extensions/docx-tex/backend/latex"
-    backend_files = list(backend.glob("*.lua"))
-    assert len(backend_files) == 4, "Expected four self-contained backend files"
-    for path in backend_files:
-        original = ROOT / "_extensions/html-tex/latex" / path.name
-        assert path.read_bytes() == original.read_bytes(), f"Backend copies differ: {path.name}"
+    # The four html-tex latex filters are maintained here as near-copies; only
+    # the output-format gate differs, so they also run for the DOCX writer.
+    derived = [ROOT / "_extensions/docx-tex/latex" / name for name in (
+        "html-latex-tikz.lua", "html-latex-counters.lua",
+        "html-latex-lwarp.lua", "html-latex-ref.lua")]
+    assert all(path.is_file() for path in derived), "Expected four html-tex derived filters"
+    divergent = sorted(path.name for path in derived
+                       if path.read_bytes() != (ROOT / "_extensions/html-tex/latex" / path.name).read_bytes())
     paths = []
     if not args.fixture_only:
         paths = sorted(ROOT.glob("build/arXiv-*/report.docx"))
@@ -112,7 +114,7 @@ def main():
     assert all(path.exists() for path in paths), "Build the selected reports and regression specimens first"
     results = [inspect(path) for path in paths]
     report = ROOT / "build" / ("word-fixture-validation.json" if args.fixture_only else "word-validation.json")
-    report.write_text(json.dumps({"backend_copies_identical": True, "artifacts": results}, ensure_ascii=False, indent=2), encoding="utf-8")
+    report.write_text(json.dumps({"html_tex_divergent": divergent, "artifacts": results}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(results, ensure_ascii=True, indent=2))
     print(f"PASS: {len(results)} artifacts; {report}")
 

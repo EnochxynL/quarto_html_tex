@@ -7,7 +7,8 @@
 -- resets, optional/unnumbered captions and mixed counter families inside one
 -- block are not modeled. Blocks must declare shared custom counters in metadata.
 -- Output: html-tex-lwarp-counters.blocks (counter/start) and .refs (label/number).
-if FORMAT ~= "html" and FORMAT ~= "html5" then
+-- Also runs under docx-tex, which hands the generated HTML to the DOCX writer.
+if FORMAT ~= "html" and FORMAT ~= "html5" and FORMAT ~= "docx" then
   return {}
 end
 

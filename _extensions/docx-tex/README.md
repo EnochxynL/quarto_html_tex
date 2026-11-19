@@ -18,9 +18,7 @@ docx-tex:
 
 ## 文件职责
 
-- `backend/latex/`：`html-tex/latex/`四个文件的原样副本。保持逐字节一致，更新时同步，不依赖安装`html-tex`。
-- `backend.lua`：在隔离的HTML片段上下文中按路径调用副本；主文档仍为DOCX。
-- `latex/html-latex-*.lua`：四份适配器，只把副本挂到`_extension.yml`的过滤器位置上，不含转换逻辑。
+- `latex/html-latex-*.lua`：`html-tex/latex/`四个文件的派生副本。与原件只差输出格式判断多出的`docx`（外加一行说明注释），更新时同步；独立安装不需要另一个插件。
 - `docx-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
 - `docx-postprocess.lua`：Quarto编号后装配原生结构、转换图片并写出整理清单。
 - `latex/docx-native.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。

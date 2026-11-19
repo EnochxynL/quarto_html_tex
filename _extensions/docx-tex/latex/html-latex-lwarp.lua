@@ -12,7 +12,8 @@
 --
 -- Limitations: no compilation cache; multirow continuations require mrowcell;
 -- declaration-style color may need textcolor in the source for HTML output.
-if FORMAT ~= "html" and FORMAT ~= "html5" then
+-- Also runs under docx-tex, which hands the generated HTML to the DOCX writer.
+if FORMAT ~= "html" and FORMAT ~= "html5" and FORMAT ~= "docx" then
   return {}
 end
 

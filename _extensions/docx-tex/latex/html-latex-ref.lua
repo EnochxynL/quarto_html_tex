@@ -1,7 +1,8 @@
 -- Resolve LaTeX references in HTML after Quarto has indexed native targets.
 -- Query every identifier, regardless of its category/prefix. Unindexed lwarp
 -- targets use the counter bridge's existing label map; this filter never counts.
-if not quarto.format.is_html_output() then return {} end
+-- docx-tex resolves the same numbers before converting the generated fragments.
+if not quarto.format.is_html_output() and FORMAT ~= "docx" then return {} end
 
 -- Transitional adapter: private Quarto globals are accessed only here.
 -- Call from a post-quarto (or later) document callback: older Quarto versions

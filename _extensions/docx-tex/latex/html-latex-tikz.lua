@@ -2,7 +2,8 @@
 -- -> standalone LaTeX -> PDF -> Cairo SVG for HTML.
 -- Register twice: prepare native images before Quarto, then compile after the
 -- reference bridge has supplied document numbers. PDF keeps the original TeX.
-if FORMAT ~= "html" and FORMAT ~= "html5" then return {} end
+-- Also runs under docx-tex, which hands the generated HTML to the DOCX writer.
+if FORMAT ~= "html" and FORMAT ~= "html5" and FORMAT ~= "docx" then return {} end
 
 local state_key = "html-tex-tikz-pending"
 local marker = "data-html-tex-tikz"

@@ -21,7 +21,7 @@
 
 ## 转换边界
 
-LaTeX交给lwarp，HTML5和CSS交给HTML5lib、tinycss2、cssselect2，Word结构与公式交给Pandoc。`docx-tex/backend/latex/`四份文件与`html-tex/latex/`对应文件逐字节一致；独立安装不需要另一个插件。
+LaTeX交给lwarp，HTML5和CSS交给HTML5lib、tinycss2、cssselect2，Word结构与公式交给Pandoc。`docx-tex/latex/`中的`html-latex-*.lua`四份文件与`html-tex/latex/`对应文件只差输出格式判断；独立安装不需要另一个插件。
 
 过滤器顺序直接写在`_extensions/docx-tex/_extension.yml`里，形状与`html-tex`相同：pre-quarto只登记LaTeX块并记录计数器起点，post-quarto才编译、解析引用、装配原生结构。四个后端文件各自分两段执行，由文档元数据里的状态键区分，中间隔着Quarto自己的编号与citeproc，所以不能合并成一次。
 
