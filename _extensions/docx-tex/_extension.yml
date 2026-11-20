@@ -11,7 +11,7 @@ contributes:
     # post-quarto call compiles them once Quarto has numbered the document.
     # See README.md for the order.
     - at: pre-quarto
-      path: docx-config.lua
+      path: latex/html-latex-config.lua
     - at: pre-quarto
       path: latex/html-latex-tikz.lua
     - at: pre-quarto

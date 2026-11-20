@@ -19,7 +19,7 @@ docx-tex:
 ## 文件职责
 
 - `latex/html-latex-*.lua`：`html-tex/latex/`四个文件的派生副本。与原件只差输出格式判断多出的`docx`（外加一行说明注释），更新时同步；独立安装不需要另一个插件。
-- `docx-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
+- `html-latex-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
 - `docx-postprocess.lua`：写出`docx-finalize.py`读取的整理清单（题名、页眉页脚配置），不参与内容转换。
 - `html/docx-html-ast.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
 - `html/docx-html-normalize.lua`：用TeX发行版自带的LuaXML（`luaxml`，`kpsewhich`定位）解析HTML并做CSS选择器匹配，自己实现层叠（specificity、顺序、`!important`、继承）与五条规则：隐藏内容、`figure`容器、题注样式、无圆点列表、定宽空白。另含一层修复：lwarp产出的标记依赖浏览器的HTML5错误恢复（未闭合标签、表格内的裸内容、被祖先结束标签打断的格式元素），这里按同样规则补平，否则非浏览器消费方读不了。不解释LaTeX环境，不识别论文名称或表格内容。
@@ -32,7 +32,7 @@ docx-tex:
 
 | 阶段 | 过滤器 | 该次调用的作用 |
 | --- | --- | --- |
-| pre-quarto | `docx-config.lua` | 把`docx-tex`配置交给副本 |
+| pre-quarto | `html-latex-config.lua` | 把`docx-tex`配置交给副本 |
 | pre-quarto | `html-latex-tikz.lua` | 按`render-method`路由，登记TikZ块 |
 | pre-quarto | `html-latex-counters.lua` | 记录图、表、公式的计数器起点 |
 | pre-quarto | `html-latex-lwarp.lua` | 登记LaTeX块，原位换占位图与引用槽 |
