@@ -20,7 +20,7 @@ docx-tex:
 
 - `latex/html-latex-*.lua`：`html-tex/latex/`四个文件的派生副本。与原件只差输出格式判断多出的`docx`（外加一行说明注释），更新时同步；独立安装不需要另一个插件。
 - `docx-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
-- `docx-postprocess.lua`：Quarto编号后装配原生结构、转换图片并写出整理清单。
+- `docx-postprocess.lua`：写出`docx-finalize.py`读取的整理清单（题名、页眉页脚配置），不参与内容转换。
 - `html/docx-html-ast.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
 - `html/docx-html-normalize.lua`：用TeX发行版自带的LuaXML（`luaxml`，`kpsewhich`定位）解析HTML并做CSS选择器匹配，自己实现层叠（specificity、顺序、`!important`、继承）与五条规则：隐藏内容、`figure`容器、题注样式、无圆点列表、定宽空白。另含一层修复：lwarp产出的标记依赖浏览器的HTML5错误恢复（未闭合标签、表格内的裸内容、被祖先结束标签打断的格式元素），这里按同样规则补平，否则非浏览器消费方读不了。不解释LaTeX环境，不识别论文名称或表格内容。
 - `figure/docx-pdf.lua`：PDF图片选页后通过`pdftocairo -svg`转为SVG，已有SVG原样交给Pandoc嵌入。图片转换不涉及公式。
@@ -40,7 +40,9 @@ docx-tex:
 | post-quarto | `html-latex-tikz.lua` | 批编译TikZ并回填 |
 | post-quarto | `html-latex-lwarp.lua` | 批编译LaTeX块并回填生成的HTML |
 | post-quarto | `html-latex-ref.lua` | 解析生成HTML里新出现的引用 |
-| post-quarto | `docx-postprocess.lua` | 原生结构、PDF图片、整理清单 |
+| post-quarto | `html/docx-html-ast.lua` | 快照AST，HTML转Pandoc节点，展开数学宏，归一表宽 |
+| post-quarto | `figure/docx-pdf.lua` | PDF选页转SVG并嵌入 |
+| post-quarto | `docx-postprocess.lua` | 写出`docx-finalize.py`读取的整理清单 |
 
 同一个文件出现两次，不是重复渲染：它按文档元数据里的状态键分两段执行，第一次登记、第二次编译，编译完清除状态键。中间隔着Quarto自己的编号与citeproc，所以两段不能合并——pre-quarto阶段就编译会拿到尚未分配的编号和尚未处理的文献。真正的TeX编译只有`tikz`和`lwarp`在post-quarto各一次批处理。
 

@@ -26,5 +26,11 @@ contributes:
       path: latex/html-latex-lwarp.lua
     - at: post-quarto
       path: latex/html-latex-ref.lua
+    # DOCX-side stages, each independent and in pipeline order: HTML becomes
+    # Pandoc nodes, PDF figures become embedded SVG, then the finalize manifest.
+    - at: post-quarto
+      path: html/docx-html-ast.lua
+    - at: post-quarto
+      path: figure/docx-pdf.lua
     - at: post-quarto
       path: docx-postprocess.lua

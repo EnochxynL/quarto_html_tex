@@ -1,6 +1,6 @@
 -- PDF figures become SVG. Existing SVG is left to the DOCX writer.
--- Equations never enter this path.
-local M = {}
+-- Equations never enter this path. Registered as its own filter.
+if FORMAT ~= "docx" then return {} end
 
 -- Same conversion helper as the independent HTML/TikZ backend.
 local function pdf_to_svg(pdf_path, svg_path, page)
@@ -33,7 +33,7 @@ local function pdf_to_svg(pdf_path, svg_path, page)
   return svg
 end
 
-function M.convert(doc)
+function Pandoc(doc)
   local converted, count = {}, 0
   return doc:walk({Image=function(image)
     local path = image.src:gsub('%%(%x%x)',function(h) return string.char(tonumber(h,16)) end)
@@ -58,4 +58,3 @@ function M.convert(doc)
     return image
   end})
 end
-return M

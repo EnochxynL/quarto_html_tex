@@ -1,6 +1,13 @@
 -- HTML semantics -> native Pandoc nodes -> DOCX. No LaTeX table parser.
-local M = {}
-function M.convert(doc, directory)
+-- Registered as its own filter; snapshots the AST it receives for diagnosis.
+if FORMAT ~= "docx" then return {} end
+local directory = pandoc.path.directory(PANDOC_SCRIPT_FILE)
+
+function Pandoc(doc)
+  pandoc.system.make_directory('.quarto/docx-tex', true)
+  local snapshot = assert(io.open('.quarto/docx-tex/compiled.json', 'wb'))
+  snapshot:write(pandoc.write(doc, 'json')); snapshot:close()
+
   local definitions = {}
   doc:walk({RawBlock=function(node)
     if node.format ~= 'html' then return end
@@ -23,7 +30,7 @@ function M.convert(doc, directory)
   end})
   local normalized={}
   if #fragments>0 then
-    local normalize=dofile(directory..'/html/docx-html-normalize.lua')
+    local normalize=dofile(directory..'/docx-html-normalize.lua')
     local values=normalize.run(fragments)
     for i,html in ipairs(fragments) do normalized[html]=values[i] end
   end
@@ -66,4 +73,3 @@ function M.convert(doc, directory)
   })
   return doc
 end
-return M

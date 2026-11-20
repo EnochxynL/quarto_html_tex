@@ -1,15 +1,9 @@
--- Native DOCX structure, PDF figures, and the finalize manifest.
--- Runs after the post-quarto compilation and reference resolution.
+-- Writes the finalize manifest that docx-finalize.py reads after the render.
+-- The HTML and figure stages run as their own filters before this one.
 if FORMAT ~= "docx" then return {} end
-local directory = pandoc.path.directory(PANDOC_SCRIPT_FILE)
-local ast = dofile(directory .. "/html/docx-html-ast.lua")
-local images = dofile(directory .. "/figure/docx-pdf.lua")
+
 function Pandoc(doc)
   pandoc.system.make_directory(".quarto/docx-tex", true)
-  local snapshot = assert(io.open(".quarto/docx-tex/compiled.json", "wb"))
-  snapshot:write(pandoc.write(doc, "json")); snapshot:close()
-  doc = ast.convert(doc, directory)
-  doc = images.convert(doc)
   local config = doc.meta["docx-tex"] or {}
   local manifest = assert(io.open(".quarto/docx-tex/finalize.json", "wb"))
   manifest:write(pandoc.json.encode({
