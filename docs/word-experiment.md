@@ -98,6 +98,26 @@ CSS归一化从Python（html5lib + tinycss2 + cssselect2）移植到Lua：HTML�
 
 验证：351个片段的Pandoc AST与Python版**全部一致**（351/351，0错误）；fixture与TD-MPC（466公式/61图/18表）的`word/document.xml`与Python版**逐字节一致**；10个产物的结构检查PASS。逐片段约0.34秒，一篇论文多花数秒。上一版的`latex/normalize-html.py`已删除，需要对照时从git历史取回。
 
+## 2026-11-20：附录编号的已知缺口（docx-tex 与 html-tex 共有）
+
+论文用 ```` ```{=latex} \appendix ``` ```` 切到附录，标签形如 `sec:appendix-*`，正文写作 `Appendix \ref{sec:appendix-*}`。`\appendix` 只改变 LaTeX 计数器的表示（`\thesection` 从阿拉伯数字改为字母并重置），`\ref` 本身不携带"这是附录"的类型信息——"Appendix" 是作者手打的文字，原始 `main.tex` 里 `\autoref`/`\cref` 出现 0 次。
+
+因此同一份源在三种输出里给出不同编号（实测 TD-MPC）：
+
+| 输出 | 附录节编号 | 正文引用 |
+| --- | --- | --- |
+| PDF | A、B、……（`\appendix` 生效） | Appendix F |
+| HTML | 继续阿拉伯数字（`header-section-number` = 8） | Appendix 13 |
+| DOCX | 继续阿拉伯数字（标题为 "8. Model Generalization"） | Appendix 13 |
+
+原因是这条语义只存在于 LaTeX 层：`\appendix` 是 raw 块，`html-tex` 与 `docx-tex` 都把它当普通块编译，不改变文档编号；`\ref` 桥接只能从 Quarto 的交叉引用索引里取到"第 N 节"的编号。
+
+**这不是 docx-tex 独有的缺口**：`html-tex` 的 HTML 产物里附录同样是第 8、10、13 节；凡是最终不经过 LaTeX 引擎的后端都会缺这一层。两个插件应各自记录，避免被当成单个后端的 bug。
+
+当前决定：**不实现附录专属编号，附录内的节按普通节处理**。代价是正文写 "Appendix 13" 而标题只有 "13. …"，且 PDF 与 HTML/Word 的编号形式不同；这是有意保留的取舍。
+
+将来若要做，方案是一个独立 Lua 过滤器加结构标记（例如 `::: {.appendix-section}`；不能复用 `.appendix`——那是 Quarto HTML 文章附录的既有语义）：过滤器在 Quarto 的 crossref 之后、写出之前，把附录区内的标题编号改成 A、A.1，并把指向这些标签的引用文字改成 "Appendix A"；LaTeX 侧再把该标记翻译成 `\appendix`，让三个后端从同一个标记出发。过滤器必须落在 crossref 之后，具体位置需实测。
+
 ## 视觉检查范围
 
 预览PDF由Word只读打开DOCX后导出，不回写DOCX。四模板首页、论文中的算法、嵌套表、比较表、绘图及中英文内容均有抽样检查。联系图与PDF留在相应`build/arXiv-*/`目录；结构检查不能替代这些视觉检查，也不等同于逐页人工验收。

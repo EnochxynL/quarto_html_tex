@@ -66,6 +66,8 @@ uv run --locked --script _extensions/docx-tex/docx-finalize.py build/paper/repor
 
 HTML规范化只处理进入Word时需要明确的结构语义，不是浏览器排版引擎；任意CSS颜色、边框、定位和尺寸不保证逐项映射。Word参考文档负责主要样式，源内容中的错误公式应修正源文件，不在转换器中加论文特判。
 
+附录编号沿用正文的阿拉伯数字：`\appendix` 是LaTeX专属语义，只对经过LaTeX的PDF生效；`html-tex` 的HTML产物同样如此，属于两个派生后端的共同缺口，详见[实验记录](../../docs/word-experiment.md)。
+
 编译诊断保存在文档目录`.quarto/lwarp/`和`.quarto/tikz/`，中间文档结构保存在`.quarto/docx-tex/compiled.json`。当前不复用旧块缓存，编译失败立即停止。请勿同时构建同一论文的HTML和DOCX：两个独立后端使用相同块缓存位置。
 
 项目内六篇`report.qmd`为实际内容实验入口。`scripts/render-word-experiments.ps1`构建六篇Word及同文四模板样本。

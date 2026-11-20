@@ -202,3 +202,9 @@ MathJax 宏发现同时扫描原始 LaTeX 块及 QMD 原生的行内、独立公
 ### Explicit rendering routes
 
 Use `{=latex}` for lwarp HTML rendering. Use `.tex-render` with `render-method="native"` for standalone LaTeX to PDF to Cairo SVG, including tables, algorithms, or mixed content. The wrapper attribute selects the HTML backend; nested wrappers may override it. All source blocks remain standard `{=latex}`; PDF output needs no extension to interpret them. Standalone blocks share the preamble and document citation/reference numbers; SVG text is outlined.
+
+## 已知边界：附录编号
+
+论文用 `\appendix`（raw LaTeX）切到附录时，HTML 产物不会切换编号：`\appendix` 只对经过 LaTeX 的 PDF 生效，这里把它当普通块编译，附录内的节继续按阿拉伯数字编号，正文里的 `Appendix \ref{…}` 也会渲染成 "Appendix 13" 这样的章节号。
+
+这与 `docx-tex` 的 Word 产物一致，是两个 HTML 派生后端的共同缺口，不是单个插件的问题。需要附录专属编号时，应在 QMD 里使用格式无关的结构标记，由独立过滤器在各后端分别实现；设计草案见 [实验记录](../../docs/word-experiment.md)。
