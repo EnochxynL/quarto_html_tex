@@ -92,7 +92,7 @@ pandoc -f latex -t docx --reference-doc=styles/word/neu-journal/reference-xml.do
 
 ## 2026-11-20：HTML规范化移植到Lua（luaxml）
 
-CSS归一化从Python（html5lib + tinycss2 + cssselect2）移植到Lua：HTML解析与CSS选择器改用TeX发行版自带的`luaxml`（`kpsewhich luaxml-domobject.lua`可定位，MiKTeX与TeX Live都提供），层叠计算、五条规则与序列化在[`normalize-html.lua`](../_extensions/docx-tex/latex/normalize-html.lua)里实现。过滤器路径不再需要Python或`uv`；`docx-finalize.py`仍用`uv run --locked --script`，Python依赖只留在构建后处理。
+CSS归一化从Python（html5lib + tinycss2 + cssselect2）移植到Lua：HTML解析与CSS选择器改用TeX发行版自带的`luaxml`（`kpsewhich luaxml-domobject.lua`可定位，MiKTeX与TeX Live都提供），层叠计算、五条规则与序列化在[`docx-html-normalize.lua`](../_extensions/docx-tex/html/docx-html-normalize.lua)里实现。过滤器路径不再需要Python或`uv`；`docx-finalize.py`仍用`uv run --locked --script`，Python依赖只留在构建后处理。
 
 难点不是CSS，而是lwarp输出的标记依赖浏览器的HTML5错误恢复：`<td>`里嵌`<td>`、`<tr>`里放裸文字、被`</li>`打断的`<em>`。先试过`lua-htmlparser`（第三方、LGPL）：能解析但修复不全，349/351；`luaxml`严格解析会直接报`Unbalanced Tag`，只能解析346/351。最终在解析前加一层修复，按HTML5规则做四件事：标签配平、同类元素互斥（`td`/`th`/`tr`/`li`/`dt`/`dd`）、foster parenting（表格内的非法内容搬到表前）、格式元素的关闭与重建。
 

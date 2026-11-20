@@ -23,7 +23,7 @@ function M.convert(doc, directory)
   end})
   local normalized={}
   if #fragments>0 then
-    local normalize=dofile(directory..'/latex/normalize-html.lua')
+    local normalize=dofile(directory..'/html/docx-html-normalize.lua')
     local values=normalize.run(fragments)
     for i,html in ipairs(fragments) do normalized[html]=values[i] end
   end

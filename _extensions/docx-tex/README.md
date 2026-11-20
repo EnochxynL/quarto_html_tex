@@ -21,8 +21,8 @@ docx-tex:
 - `latex/html-latex-*.lua`：`html-tex/latex/`四个文件的派生副本。与原件只差输出格式判断多出的`docx`（外加一行说明注释），更新时同步；独立安装不需要另一个插件。
 - `docx-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
 - `docx-postprocess.lua`：Quarto编号后装配原生结构、转换图片并写出整理清单。
-- `latex/docx-native.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
-- `latex/normalize-html.lua`：用TeX发行版自带的LuaXML（`luaxml`，`kpsewhich`定位）解析HTML并做CSS选择器匹配，自己实现层叠（specificity、顺序、`!important`、继承）与五条规则：隐藏内容、`figure`容器、题注样式、无圆点列表、定宽空白。另含一层修复：lwarp产出的标记依赖浏览器的HTML5错误恢复（未闭合标签、表格内的裸内容、被祖先结束标签打断的格式元素），这里按同样规则补平，否则非浏览器消费方读不了。不解释LaTeX环境，不识别论文名称或表格内容。
+- `html/docx-html-ast.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
+- `html/docx-html-normalize.lua`：用TeX发行版自带的LuaXML（`luaxml`，`kpsewhich`定位）解析HTML并做CSS选择器匹配，自己实现层叠（specificity、顺序、`!important`、继承）与五条规则：隐藏内容、`figure`容器、题注样式、无圆点列表、定宽空白。另含一层修复：lwarp产出的标记依赖浏览器的HTML5错误恢复（未闭合标签、表格内的裸内容、被祖先结束标签打断的格式元素），这里按同样规则补平，否则非浏览器消费方读不了。不解释LaTeX环境，不识别论文名称或表格内容。
 - `figure/docx-pdf.lua`：PDF图片选页后通过`pdftocairo -svg`转为SVG，已有SVG原样交给Pandoc嵌入。图片转换不涉及公式。
 - `docx-finalize.py`：构建后合并重复的OOXML属性容器，使用python-docx插入器保持属性顺序；整理表题分页和隐藏样式，并按明确配置替换已有页眉页脚文字。保留页码域，不改参考文档。
 

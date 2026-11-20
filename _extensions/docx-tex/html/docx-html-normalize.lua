@@ -389,7 +389,7 @@ function M.run(fragments)
   local results = {}
   for index, html in ipairs(fragments) do
     local ok, normalized = pcall(normalize_one, html)
-    if not ok then error('normalize-html: fragment ' .. index .. ': ' .. tostring(normalized)) end
+    if not ok then error('docx-html-normalize: fragment ' .. index .. ': ' .. tostring(normalized)) end
     results[index] = normalized
   end
   return results
