@@ -1,6 +1,6 @@
 # HTML规范化规则对照实验
 
-日期：2026-10-30。环境：Quarto 1.10.19、Pandoc 3.10、本机Microsoft Word。基线为提交`221e786`中的`normalize-html.py`。
+日期：2026-10-30。环境：Quarto 1.10.19、Pandoc 3.10、本机Microsoft Word。基线为提交`221e786`中的`normalize-html.py`（该文件已在后续移植到Lua时删除，需要对照时从git历史取回）。
 
 ## 样本与方法
 

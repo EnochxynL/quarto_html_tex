@@ -90,6 +90,14 @@ uv run --no-project python scripts/normalize-word-latex.py build/arXiv-2508.0036
 pandoc -f latex -t docx --reference-doc=styles/word/neu-journal/reference-xml.docx -o out.docx build/arXiv-2508.00362v1/paper-word.tex
 ```
 
+## 2026-11-20：HTML规范化移植到Lua（luaxml）
+
+CSS归一化从Python（html5lib + tinycss2 + cssselect2）移植到Lua：HTML解析与CSS选择器改用TeX发行版自带的`luaxml`（`kpsewhich luaxml-domobject.lua`可定位，MiKTeX与TeX Live都提供），层叠计算、五条规则与序列化在[`normalize-html.lua`](../_extensions/docx-tex/latex/normalize-html.lua)里实现。过滤器路径不再需要Python或`uv`；`docx-finalize.py`仍用`uv run --locked --script`，Python依赖只留在构建后处理。
+
+难点不是CSS，而是lwarp输出的标记依赖浏览器的HTML5错误恢复：`<td>`里嵌`<td>`、`<tr>`里放裸文字、被`</li>`打断的`<em>`。先试过`lua-htmlparser`（第三方、LGPL）：能解析但修复不全，349/351；`luaxml`严格解析会直接报`Unbalanced Tag`，只能解析346/351。最终在解析前加一层修复，按HTML5规则做四件事：标签配平、同类元素互斥（`td`/`th`/`tr`/`li`/`dt`/`dd`）、foster parenting（表格内的非法内容搬到表前）、格式元素的关闭与重建。
+
+验证：351个片段的Pandoc AST与Python版**全部一致**（351/351，0错误）；fixture与TD-MPC（466公式/61图/18表）的`word/document.xml`与Python版**逐字节一致**；10个产物的结构检查PASS。逐片段约0.34秒，一篇论文多花数秒。上一版的`latex/normalize-html.py`已删除，需要对照时从git历史取回。
+
 ## 视觉检查范围
 
 预览PDF由Word只读打开DOCX后导出，不回写DOCX。四模板首页、论文中的算法、嵌套表、比较表、绘图及中英文内容均有抽样检查。联系图与PDF留在相应`build/arXiv-*/`目录；结构检查不能替代这些视觉检查，也不等同于逐页人工验收。

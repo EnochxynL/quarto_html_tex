@@ -23,9 +23,8 @@ function M.convert(doc, directory)
   end})
   local normalized={}
   if #fragments>0 then
-    local result=pandoc.pipe('uv',{'run','--locked','--script',directory..'/latex/normalize-html.py'},
-      pandoc.json.encode(fragments))
-    local values=assert(pandoc.json.decode(result),'HTML normalization did not return JSON')
+    local normalize=dofile(directory..'/latex/normalize-html.lua')
+    local values=normalize.run(fragments)
     for i,html in ipairs(fragments) do normalized[html]=values[i] end
   end
   local function read(html)

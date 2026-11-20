@@ -22,7 +22,7 @@ docx-tex:
 - `docx-config.lua`：把`docx-tex`配置放到副本读取的`html-tex`键下。
 - `docx-postprocess.lua`：Quarto编号后装配原生结构、转换图片并写出整理清单。
 - `latex/docx-native.lua`：HTML结构与数学转Pandoc结构。引用槽保留到最终citeproc处理，输出为隐藏的Word字符样式，避免丢失块内独有的文献或改变编号。
-- `latex/normalize-html.py`：HTML5lib解析HTML，tinycss2/cssselect2处理CSS选择器与层叠；统一处理隐藏内容、无圆点列表、顺序浮动容器和空白布局。不解释LaTeX环境，不识别论文名称或表格内容。
+- `latex/normalize-html.lua`：用TeX发行版自带的LuaXML（`luaxml`，`kpsewhich`定位）解析HTML并做CSS选择器匹配，自己实现层叠（specificity、顺序、`!important`、继承）与五条规则：隐藏内容、`figure`容器、题注样式、无圆点列表、定宽空白。另含一层修复：lwarp产出的标记依赖浏览器的HTML5错误恢复（未闭合标签、表格内的裸内容、被祖先结束标签打断的格式元素），这里按同样规则补平，否则非浏览器消费方读不了。不解释LaTeX环境，不识别论文名称或表格内容。
 - `figure/docx-pdf.lua`：PDF图片选页后通过`pdftocairo -svg`转为SVG，已有SVG原样交给Pandoc嵌入。图片转换不涉及公式。
 - `docx-finalize.py`：构建后合并重复的OOXML属性容器，使用python-docx插入器保持属性顺序；整理表题分页和隐藏样式，并按明确配置替换已有页眉页脚文字。保留页码域，不改参考文档。
 
@@ -44,7 +44,7 @@ docx-tex:
 
 同一个文件出现两次，不是重复渲染：它按文档元数据里的状态键分两段执行，第一次登记、第二次编译，编译完清除状态键。中间隔着Quarto自己的编号与citeproc，所以两段不能合并——pre-quarto阶段就编译会拿到尚未分配的编号和尚未处理的文献。真正的TeX编译只有`tikz`和`lwarp`在post-quarto各一次批处理。
 
-依赖包括Quarto/Pandoc、LuaLaTeX、lwarp及显式声明的宏包、Poppler和uv。Python辅助程序使用PEP 723脚本依赖和各自的`.lock`文件，`uv run --locked --script`自动准备隔离环境。HTML处理采用HTML5lib、lxml、tinycss2、cssselect2。PDF转换沿用HTML/TikZ后端的选页检查和`-noshrink`参数，保留矢量内容与物理尺寸；多页PDF必须指定`{page=N}`。转换产物及日志保存在`.quarto/docx-tex/pdf-images/`。
+依赖包括Quarto/Pandoc、LuaLaTeX、lwarp及显式声明的宏包、Poppler、TeX发行版自带的`luaxml`，以及构建后处理用的`uv`。过滤器路径本身不再需要Python：HTML解析与CSS选择器来自`luaxml`，层叠与规则在Lua里实现。`docx-finalize.py`仍在post-render阶段用`uv run --locked --script`运行，Python依赖只服务这一步。PDF转换沿用HTML/TikZ后端的选页检查和`-noshrink`参数，保留矢量内容与物理尺寸；多页PDF必须指定`{page=N}`。转换产物及日志保存在`.quarto/docx-tex/pdf-images/`。
 
 SVG文件或Data URI及其尺寸属性保持原样，由Pandoc DOCX writer生成Office的`svgBlip`引用，Word使用嵌入的矢量图。
 
